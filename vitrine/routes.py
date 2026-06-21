@@ -182,17 +182,18 @@ def enterprise_detail(enterprise_id):
     path = f"/enterprises/{enterprise_id}"
     canonical = store.build_canonical_url(site_url, path)
     seo_overrides = store.get_enterprise_detail_seo(enterprise)
+    locale = get_locale()
     breadcrumbs_extra = {"name": enterprise.get("name", "Enterprise"), "url": canonical}
-    breadcrumbs = store.build_breadcrumbs("enterprises", site_url, breadcrumbs_extra)
+    breadcrumbs = store.build_breadcrumbs("enterprises", site_url, breadcrumbs_extra, locale)
     related = store.get_projects_for_enterprise(enterprise["id"], enterprise.get("name", ""))
     return render_template(
         "enterprise_detail.html",
         enterprise=enterprise,
         related_projects=related,
-        seo=store.get_seo_for_vitrine("enterprises", overrides=seo_overrides),
+        seo=store.get_seo_for_vitrine("enterprises", overrides=seo_overrides, locale=locale),
         seo_canonical=canonical,
         seo_breadcrumbs=breadcrumbs,
-        seo_json_ld=store.build_json_ld("enterprises", canonical, site_url, breadcrumbs=breadcrumbs),
+        seo_json_ld=store.build_json_ld("enterprises", canonical, site_url, breadcrumbs=breadcrumbs, locale=locale),
     )
 
 
@@ -219,15 +220,16 @@ def startup_detail(startup_id):
     path = f"/startups/{startup_id}"
     canonical = store.build_canonical_url(site_url, path)
     seo_overrides = store.get_startup_detail_seo(startup)
+    locale = get_locale()
     breadcrumbs_extra = {"name": startup.get("name", "Startup"), "url": canonical}
-    breadcrumbs = store.build_breadcrumbs("startups", site_url, breadcrumbs_extra)
+    breadcrumbs = store.build_breadcrumbs("startups", site_url, breadcrumbs_extra, locale)
     return render_template(
         "startup_detail.html",
         startup=startup,
-        seo=store.get_seo_for_vitrine("startups", overrides=seo_overrides),
+        seo=store.get_seo_for_vitrine("startups", overrides=seo_overrides, locale=locale),
         seo_canonical=canonical,
         seo_breadcrumbs=breadcrumbs,
-        seo_json_ld=store.build_json_ld("startups", canonical, site_url, breadcrumbs=breadcrumbs),
+        seo_json_ld=store.build_json_ld("startups", canonical, site_url, breadcrumbs=breadcrumbs, locale=locale),
     )
 
 
@@ -254,16 +256,17 @@ def project_detail(project_id):
     path = f"/projects/{project_id}"
     canonical = store.build_canonical_url(site_url, path)
     seo_overrides = store.get_project_detail_seo(project)
+    locale = get_locale()
     breadcrumbs_extra = {"name": project.get("title", "Project"), "url": canonical}
-    breadcrumbs = store.build_breadcrumbs("projects", site_url, breadcrumbs_extra)
+    breadcrumbs = store.build_breadcrumbs("projects", site_url, breadcrumbs_extra, locale)
     return render_template(
         "project_detail.html",
         project=project,
         enterprise=enterprise,
-        seo=store.get_seo_for_vitrine("projects", overrides=seo_overrides),
+        seo=store.get_seo_for_vitrine("projects", overrides=seo_overrides, locale=locale),
         seo_canonical=canonical,
         seo_breadcrumbs=breadcrumbs,
-        seo_json_ld=store.build_json_ld("projects", canonical, site_url, breadcrumbs=breadcrumbs),
+        seo_json_ld=store.build_json_ld("projects", canonical, site_url, breadcrumbs=breadcrumbs, locale=locale),
     )
 
 

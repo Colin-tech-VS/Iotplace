@@ -1397,10 +1397,11 @@ def build_breadcrumbs(slug, site_url, extra=None, locale="en"):
     return items
 
 
-def build_json_ld(slug, canonical_url, site_url, faq=None, breadcrumbs=None):
+def build_json_ld(slug, canonical_url, site_url, faq=None, breadcrumbs=None, locale="en"):
+    lang_tag = "fr-FR" if locale == "fr" else "en-US"
     global_seo = get_seo_global()
     site_name = global_seo.get("site_name", "Iotplace")
-    seo = get_seo_for_vitrine(slug)
+    seo = get_seo_for_vitrine(slug, locale=locale)
     graphs = []
 
     graphs.append({
@@ -1419,7 +1420,7 @@ def build_json_ld(slug, canonical_url, site_url, faq=None, breadcrumbs=None):
         "name": site_name,
         "url": site_url,
         "description": global_seo.get("meta_description", ""),
-        "inLanguage": "en-US",
+        "inLanguage": lang_tag,
         "potentialAction": {
             "@type": "SearchAction",
             "target": f"{site_url}/startups?country={{search_term_string}}",
@@ -1434,10 +1435,10 @@ def build_json_ld(slug, canonical_url, site_url, faq=None, breadcrumbs=None):
         "description": seo["description"],
         "url": canonical_url,
         "isPartOf": {"@type": "WebSite", "name": site_name, "url": site_url},
-        "inLanguage": "en-US",
+        "inLanguage": lang_tag,
     })
 
-    crumbs = breadcrumbs or build_breadcrumbs(slug, site_url)
+    crumbs = breadcrumbs or build_breadcrumbs(slug, site_url, locale=locale)
     if len(crumbs) > 1:
         graphs.append({
             "@context": "https://schema.org",
@@ -1453,7 +1454,7 @@ def build_json_ld(slug, canonical_url, site_url, faq=None, breadcrumbs=None):
             ],
         })
 
-    faq_items = faq if faq is not None else get_page_faq(slug)
+    faq_items = faq if faq is not None else get_page_faq(slug, locale)
     if faq_items:
         graphs.append({
             "@context": "https://schema.org",
