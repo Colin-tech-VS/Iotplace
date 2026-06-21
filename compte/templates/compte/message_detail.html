@@ -27,17 +27,43 @@
             </div>
             <div class="message-body-full">{{ message.body }}</div>
 
-            {% if message.kind == 'application' and message.direction == 'in' and user.role == 'enterprise' %}
+            {% if engagement %}
+            <div class="payment-engagement-card">
+                <h3>Paiement & séquestre</h3>
+                <p><strong>Statut :</strong> {{ engagement_label or engagement.status }}</p>
+                {% if engagement.amount_cents %}
+                <p><strong>Montant mission :</strong> {{ '%.2f'|format(engagement.amount_cents / 100) }} €</p>
+                <p class="muted">Commission plateforme : {{ '%.2f'|format((engagement.platform_fee_cents or 0) / 100) }} € — Versement startup : {{ '%.2f'|format((engagement.startup_payout_cents or 0) / 100) }} €</p>
+                {% endif %}
+                {% if engagement.stripe_hosted_invoice_url and user.role == 'enterprise' and engagement.status == 'pending_payment' %}
+                <a href="{{ engagement.stripe_hosted_invoice_url }}" class="btn btn-primary btn-sm" target="_blank" rel="noopener">Payer la facture</a>
+                {% endif %}
+                {% if engagement.status == 'escrowed' and user.role == 'enterprise' %}
+                <form method="POST" action="{{ url_for('compte.release_engagement_funds', engagement_id=engagement.id) }}" class="inline-form" style="margin-top:0.75rem">
+                    <button type="submit" class="btn btn-primary btn-sm" onclick="return confirm('Confirmer la libération des fonds vers la startup ?')">Libérer les fonds (fin de mission)</button>
+                </form>
+                {% endif %}
+                {% if engagement.notes %}
+                <p class="muted" style="margin-top:0.5rem">{{ engagement.notes }}</p>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            {% if message.kind == 'application' and message.direction == 'in' and user.role == 'enterprise' and message.status == 'pending' %}
             <div class="message-actions">
                 <form method="POST" action="{{ url_for('compte.message_update_status', message_id=message.id) }}" class="inline-form">
                     <input type="hidden" name="status" value="accepted">
-                    <button type="submit" class="btn btn-primary btn-sm">Accepter la candidature</button>
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        Accepter &amp; facturer{% if stripe_configured %} (séquestre){% endif %}
+                    </button>
                 </form>
                 <form method="POST" action="{{ url_for('compte.message_update_status', message_id=message.id) }}" class="inline-form">
                     <input type="hidden" name="status" value="declined">
                     <button type="submit" class="btn btn-ghost btn-sm">Refuser</button>
                 </form>
             </div>
+            {% elif message.kind == 'application' and message.direction == 'in' and user.role == 'enterprise' and message.status != 'pending' %}
+            <p class="muted" style="margin-top:0.75rem">Candidature {{ message.status_label|lower }}.</p>
             {% endif %}
 
             <form class="reply-form" method="POST" action="{{ url_for('compte.message_reply', message_id=message.id) }}">

@@ -28,6 +28,13 @@
             </div>
         </header>
 
+        {% if stripe_configured and not profile.stripe_onboarding_complete %}
+        <div class="ux-alert ux-alert-info reveal" style="margin-bottom:1rem">
+            <strong>Recevoir vos paiements</strong> — Configurez votre compte Stripe Connect pour être payé après validation des missions.
+            <a href="{{ url_for('compte.startup_stripe_onboard') }}" class="btn btn-primary btn-sm" style="margin-left:0.5rem">Configurer Stripe</a>
+        </div>
+        {% endif %}
+
         <div class="ux-stats reveal">
             <a href="#missions" class="ux-stat ux-stat-clickable" data-tab="missions">
                 <span class="ux-stat-icon">🎯</span>

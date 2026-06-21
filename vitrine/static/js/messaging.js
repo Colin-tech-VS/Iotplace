@@ -241,6 +241,13 @@
             alert(data.error || 'Erreur');
             return;
         }
+        if (status === 'accepted' && data.payment && data.payment.invoice_url) {
+            if (confirm('Candidature acceptée. Ouvrir la facture pour paiement (séquestre) ?')) {
+                window.open(data.payment.invoice_url, '_blank', 'noopener');
+            }
+        } else if (status === 'accepted' && data.payment && data.payment.error) {
+            alert('Acceptée, mais facture : ' + data.payment.error);
+        }
         const idx = state.activeMessages.findIndex((m) => m.id === messageId);
         if (idx >= 0) state.activeMessages[idx] = data.message;
         renderMessages();

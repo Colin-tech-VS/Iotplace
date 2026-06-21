@@ -4,8 +4,20 @@ import auth
 from compte import compte_bp
 from compte.api_auth import api_login_required
 from data import store
+from payments import handlers as payment_handlers
+from payments import stripe_service
 
 from vitrine.i18n import t
+
+
+def _process_application_status(message_id, user, status):
+    updated = store.update_message_status(message_id, user["id"], status)
+    if not updated:
+        return None, None
+    payment_result = None
+    if status == "accepted" and updated.get("kind") == "application":
+        payment_result = payment_handlers.on_application_accepted(updated, user)
+    return updated, payment_result
 
 
 def _validate_credentials(email, password, password_confirm=None):
@@ -294,6 +306,7 @@ def startup_dashboard():
         "compte/dashboard_startup.html",
         user=user,
         profile=profile,
+        stripe_configured=stripe_service.is_configured(),
         **dash,
     )
 
@@ -389,11 +402,16 @@ def message_detail(message_id):
         store.mark_message_read(message_id, user["id"])
     enriched = store.enrich_message_for_view(msg, user["id"])
     project = store.get_project(msg["project_id"]) if msg.get("project_id") else None
+    engagement = store.get_engagement_by_message(message_id) if msg.get("kind") == "application" else None
+    engagement_label = store.format_engagement_label(engagement["status"]) if engagement else None
     return render_template(
         "compte/message_detail.html",
         user=user,
         message=enriched,
         project=project,
+        engagement=engagement,
+        engagement_label=engagement_label,
+        stripe_configured=stripe_service.is_configured(),
     )
 
 
@@ -433,11 +451,19 @@ def message_update_status(message_id):
     if status not in ("accepted", "declined", "pending"):
         flash("Statut invalide.", "error")
         return redirect(url_for("compte.home"))
-    updated = store.update_message_status(message_id, user["id"], status)
+    updated, payment_result = _process_application_status(message_id, user, status)
     if not updated:
         flash("Impossible de mettre à jour ce message.", "error")
     else:
         flash("Statut de la candidature mis à jour.", "success")
+        if payment_result and payment_result.get("invoice_url"):
+            flash(
+                "Facture envoyée automatiquement. Les fonds seront mis en séquestre après paiement.",
+                "success",
+            )
+            return redirect(payment_result["invoice_url"])
+        if payment_result and payment_result.get("payment_error"):
+            flash(f"Paiement : {payment_result['payment_error']}", "error")
     return redirect(url_for("compte.message_detail", message_id=message_id))
 
 
@@ -526,10 +552,70 @@ def messaging_update_status(user, message_id):
     status = payload.get("status", "")
     if status not in ("accepted", "declined", "pending"):
         return jsonify({"ok": False, "error": "Statut invalide."}), 400
-    updated = store.update_message_status(message_id, user["id"], status)
+    updated, payment_result = _process_application_status(message_id, user, status)
     if not updated:
         return jsonify({"ok": False, "error": "Impossible de mettre à jour."}), 400
-    return jsonify({
+    response = {
         "ok": True,
         "message": store.serialize_message_api(updated, user["id"]),
-    })
+    }
+    if payment_result:
+        response["payment"] = {
+            "invoice_url": payment_result.get("invoice_url"),
+            "engagement_id": (payment_result.get("engagement") or {}).get("id"),
+            "error": payment_result.get("payment_error"),
+        }
+    return jsonify(response)
+
+
+@compte_bp.route("/compte/startup/stripe/onboard")
+@auth.login_required(role="startup")
+def startup_stripe_onboard():
+    user = auth.get_current_user()
+    profile = store.get_startup_for_user(user["id"])
+    if not profile:
+        return redirect(url_for("vitrine.index"))
+    if not stripe_service.is_configured():
+        flash("Paiements Stripe non configurés sur la plateforme.", "error")
+        return redirect(url_for("compte.startup_dashboard"))
+    try:
+        url = stripe_service.create_connect_onboarding_link(profile, user)
+        return redirect(url)
+    except stripe_service.PaymentError as exc:
+        flash(str(exc), "error")
+        return redirect(url_for("compte.startup_dashboard"))
+
+
+@compte_bp.route("/compte/startup/stripe/return")
+@auth.login_required(role="startup")
+def startup_stripe_return():
+    user = auth.get_current_user()
+    profile = store.get_startup_for_user(user["id"])
+    if profile:
+        stripe_service.refresh_connect_status(profile)
+    flash("Compte Stripe mis à jour. Vous pouvez recevoir vos paiements après validation.", "success")
+    return redirect(url_for("compte.startup_dashboard"))
+
+
+@compte_bp.route("/compte/startup/stripe/refresh")
+@auth.login_required(role="startup")
+def startup_stripe_refresh():
+    return redirect(url_for("compte.startup_stripe_onboard"))
+
+
+@compte_bp.route("/compte/engagements/<engagement_id>/release", methods=["POST"])
+@auth.login_required(role="enterprise")
+def release_engagement_funds(engagement_id):
+    user = auth.get_current_user()
+    result = payment_handlers.release_engagement(engagement_id, user)
+    if result.get("ok"):
+        flash("Fonds libérés et versés à la startup.", "success")
+    else:
+        flash(result.get("error", "Erreur lors de la libération."), "error")
+    engagement = store.get_engagement(engagement_id)
+    if engagement and engagement.get("application_message_id"):
+        return redirect(url_for(
+            "compte.message_detail",
+            message_id=engagement["application_message_id"],
+        ))
+    return redirect(url_for("compte.enterprise_dashboard"))

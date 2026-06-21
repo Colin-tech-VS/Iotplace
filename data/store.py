@@ -314,6 +314,7 @@ DEFAULT_DATA = {
     "social_posts": [],
     "users": [],
     "messages": [],
+    "engagements": [],
 }
 
 
@@ -704,12 +705,15 @@ def register_enterprise_account(user_fields, enterprise_fields, project_fields=N
     update_enterprise(enterprise["id"], {"user_id": user["id"]})
 
     if project_fields and project_fields.get("title"):
+        budget = project_fields.get("budget", "")
         add_project({
             "title": project_fields["title"],
             "enterprise": name,
             "enterprise_id": enterprise["id"],
             "description": project_fields.get("description", ""),
-            "budget": project_fields.get("budget", ""),
+            "budget": budget,
+            "budget_cents": resolve_budget_cents(budget),
+            "currency": "eur",
             "duration": project_fields.get("duration", ""),
             "skills": project_fields.get("skills") or [],
             "status": "Ouvert",
@@ -768,12 +772,16 @@ def get_project(project_id):
 
 
 def add_project_for_enterprise(enterprise, fields):
+    budget = fields.get("budget", "").strip()
+    budget_cents = fields.get("budget_cents") or resolve_budget_cents(budget)
     return add_project({
         "title": fields.get("title", "").strip(),
         "enterprise": enterprise.get("name", ""),
         "enterprise_id": enterprise["id"],
         "description": fields.get("description", "").strip(),
-        "budget": fields.get("budget", "").strip(),
+        "budget": budget,
+        "budget_cents": budget_cents,
+        "currency": fields.get("currency", "eur"),
         "duration": fields.get("duration", "").strip(),
         "skills": fields.get("skills") or [],
         "status": fields.get("status", "Ouvert"),
@@ -857,7 +865,8 @@ def users_can_message(from_user, to_user, project_id=None):
 
 def serialize_message_api(msg, current_user_id):
     enriched = enrich_message_for_view(msg, current_user_id)
-    return {
+    engagement = get_engagement_by_message(msg["id"]) if msg.get("kind") == "application" else None
+    payload = {
         "id": msg["id"],
         "body": msg.get("body", ""),
         "subject": msg.get("subject", ""),
@@ -877,6 +886,15 @@ def serialize_message_api(msg, current_user_id):
         "created_at": msg.get("created_at", ""),
         "is_mine": msg.get("from_user_id") == current_user_id,
     }
+    if engagement:
+        payload["engagement"] = {
+            "id": engagement["id"],
+            "status": engagement.get("status"),
+            "status_label": format_engagement_label(engagement.get("status")),
+            "invoice_url": engagement.get("stripe_hosted_invoice_url"),
+            "amount_cents": engagement.get("amount_cents"),
+        }
+    return payload
 
 
 def get_conversations(user_id):
@@ -1041,6 +1059,117 @@ def update_message_status(message_id, user_id, status):
             _save_raw(data)
             return data["messages"][i]
     return None
+
+
+def update_message_status_direct(message_id, status):
+    data = _load_raw()
+    for i, msg in enumerate(data.get("messages", [])):
+        if msg["id"] == message_id:
+            data["messages"][i] = {**msg, "status": status, "read": True}
+            _save_raw(data)
+            return data["messages"][i]
+    return None
+
+
+# ── Budget & engagements (Stripe escrow) ──
+
+BUDGET_CENTS_MAP = {
+    "< 10k€": 500_000,
+    "10k–50k€": 3_000_000,
+    "50k–150k€": 10_000_000,
+    "150k–500k€": 32_500_000,
+    "500k€+": 50_000_000,
+    "< 10k": 500_000,
+    "10k-50k": 3_000_000,
+    "50k-150k": 10_000_000,
+}
+
+
+def resolve_budget_cents(budget_label: str) -> int:
+    label = (budget_label or "").strip()
+    if label in BUDGET_CENTS_MAP:
+        return BUDGET_CENTS_MAP[label]
+    return 5_000_000
+
+
+def resolve_project_amount_cents(project: dict) -> int:
+    if project.get("budget_cents"):
+        return int(project["budget_cents"])
+    return resolve_budget_cents(project.get("budget", ""))
+
+
+def create_engagement(fields: dict) -> dict:
+    data = _load_raw()
+    entry = {
+        "id": _new_id(),
+        "created_at": _now().isoformat(),
+        "paid_at": None,
+        "released_at": None,
+        "stripe_invoice_id": None,
+        "stripe_hosted_invoice_url": None,
+        "stripe_transfer_id": None,
+        "notes": "",
+        **fields,
+    }
+    data.setdefault("engagements", []).append(entry)
+    _save_raw(data)
+    return entry
+
+
+def get_engagement(engagement_id: str):
+    return next((e for e in _load_raw().get("engagements", []) if e["id"] == engagement_id), None)
+
+
+def get_engagement_by_message(message_id: str):
+    return next(
+        (e for e in _load_raw().get("engagements", []) if e.get("application_message_id") == message_id),
+        None,
+    )
+
+
+def get_engagements_for_enterprise(enterprise_id: str) -> list:
+    return [
+        e for e in _load_raw().get("engagements", [])
+        if e.get("enterprise_id") == enterprise_id
+    ]
+
+
+def get_engagements_for_startup(startup_id: str) -> list:
+    return [
+        e for e in _load_raw().get("engagements", [])
+        if e.get("startup_id") == startup_id
+    ]
+
+
+def update_engagement(engagement_id: str, fields: dict):
+    data = _load_raw()
+    for i, entry in enumerate(data.get("engagements", [])):
+        if entry["id"] == engagement_id:
+            data["engagements"][i] = {**entry, **fields, "id": engagement_id}
+            _save_raw(data)
+            return data["engagements"][i]
+    return None
+
+
+def get_startup_by_connect_account(account_id: str):
+    if not account_id:
+        return None
+    return next(
+        (s for s in get_startups() if s.get("stripe_connect_account_id") == account_id),
+        None,
+    )
+
+
+def format_engagement_label(status: str) -> str:
+    labels = {
+        "draft": "Brouillon",
+        "pending_payment": "Facture envoyée — en attente de paiement",
+        "escrowed": "Fonds en séquestre",
+        "released": "Versement effectué à la startup",
+        "payment_error": "Erreur de paiement",
+        "cancelled": "Annulé",
+    }
+    return labels.get(status or "", status or "—")
 
 
 def get_contacts_for_user(user):

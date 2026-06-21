@@ -15,6 +15,7 @@ import auth
 from crm import crm_bp
 from compte import compte_bp
 from data import store
+from payments import payments_bp
 from vitrine import vitrine_bp
 
 app = Flask(__name__)
@@ -33,6 +34,7 @@ app.config.update(
 app.register_blueprint(crm_bp)
 app.register_blueprint(vitrine_bp)
 app.register_blueprint(compte_bp)
+app.register_blueprint(payments_bp)
 
 
 @app.context_processor
