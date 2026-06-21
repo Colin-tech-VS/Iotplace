@@ -208,9 +208,10 @@
     "text": "This page is not published yet."
   },
   "advisor": {
-    "fab_label": "Ask Iotplace AI",
-    "title": "Iotplace Advisor",
-    "subtitle": "Your guide to IoT subcontracting on the platform",
+    "fab_label": "AI Assistant",
+    "title": "Iotplace AI Assistant",
+    "subtitle": "Personalized guidance for your B2B IoT journey",
+    "status_online": "Online",
     "close": "Close",
     "profile_label": "I am a",
     "profile_enterprise": "Enterprise",
@@ -222,7 +223,7 @@
     "thinking": "Thinking…",
     "not_configured": "AI advisor is temporarily unavailable.",
     "error_generic": "Something went wrong. Please try again.",
-    "powered": "Powered by Mistral AI"
+    "powered": "Intelligence powered by Mistral AI"
   },
   "compte": {
     "login_title": "Log in",

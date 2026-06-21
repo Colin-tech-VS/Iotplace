@@ -14,8 +14,57 @@
       "description": "Environnement Flask",
       "value": "production"
     },
+    "SITE_URL": {
+      "description": "URL publique du site (webhooks Stripe, liens emails)",
+      "value": "https://iotplace.osc-fr1.scalingo.io"
+    },
+    "MISTRAL_MODEL": {
+      "description": "Modèle Mistral pour l'advisor IA et le CRM",
+      "value": "mistral-small-latest"
+    },
+    "IOTPLACE_COMMISSION_PERCENT": {
+      "description": "Commission plateforme sur séquestre (%)",
+      "value": "10"
+    },
+    "IOTPLACE_POC_APPLICATION_FEE_EUR": {
+      "description": "Frais candidature startup — projet phase PoC (EUR)",
+      "value": "49"
+    },
+    "IOTPLACE_POC_APPLICATION_COMMISSION_PERCENT": {
+      "description": "Part plateforme sur frais candidature PoC (%)",
+      "value": "100"
+    },
+    "IOTPLACE_PRO_COMMISSION_PERCENT": {
+      "description": "Commission offre Pro (%)",
+      "value": "7"
+    },
+    "IOTPLACE_PRO_PRICE_EUR": {
+      "description": "Prix abonnement Pro (EUR/mois)",
+      "value": "399"
+    },
+    "SECRET_KEY": {
+      "description": "Clé secrète Flask — générer une valeur aléatoire longue (NE PAS laisser vide)"
+    },
+    "CRM_ADMIN_USERNAME": {
+      "description": "Identifiant admin CRM (/crm/login)"
+    },
+    "CRM_ADMIN_PASSWORD": {
+      "description": "Mot de passe admin CRM (ou utiliser CRM_ADMIN_PASSWORD_HASH)"
+    },
+    "MISTRAL_API_KEY": {
+      "description": "Clé API Mistral — advisor IA + génération CRM"
+    },
+    "STRIPE_SECRET_KEY": {
+      "description": "Clé secrète Stripe Connect"
+    },
+    "STRIPE_PUBLISHABLE_KEY": {
+      "description": "Clé publique Stripe"
+    },
+    "STRIPE_WEBHOOK_SECRET": {
+      "description": "Secret webhook Stripe (checkout.session.completed + Connect)"
+    },
     "DATABASE_URL": {
-      "description": "PostgreSQL (addon Scalingo ou Supabase) — persistance obligatoire en prod"
+      "description": "PostgreSQL — addon Scalingo ou Supabase (persistance obligatoire en prod)"
     }
   }
 }

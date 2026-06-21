@@ -208,9 +208,10 @@
     "text": "Cette page n'est pas encore publiée."
   },
   "advisor": {
-    "fab_label": "Demander à l'IA Iotplace",
-    "title": "Conseiller Iotplace",
-    "subtitle": "Votre guide pour la sous-traitance IoT sur la plateforme",
+    "fab_label": "Assistant IA",
+    "title": "Assistant IA Iotplace",
+    "subtitle": "Conseils personnalisés pour votre parcours IoT B2B",
+    "status_online": "En ligne",
     "close": "Fermer",
     "profile_label": "Je suis",
     "profile_enterprise": "Entreprise",
@@ -222,7 +223,7 @@
     "thinking": "Réflexion en cours…",
     "not_configured": "Le conseiller IA est temporairement indisponible.",
     "error_generic": "Une erreur est survenue. Veuillez réessayer.",
-    "powered": "Propulsé par Mistral AI"
+    "powered": "Intelligence propulsée par Mistral AI"
   },
   "compte": {
     "login_title": "Connexion",

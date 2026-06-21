@@ -93,6 +93,21 @@
         });
     }
 
+    function wrapMessage(role, bubbleEl) {
+        const row = document.createElement('div');
+        row.className = `advisor-msg-row advisor-msg-row-${role}`;
+        if (role === 'bot') {
+            const avatar = document.createElement('div');
+            avatar.className = 'advisor-avatar';
+            avatar.setAttribute('aria-hidden', 'true');
+            row.appendChild(avatar);
+        }
+        row.appendChild(bubbleEl);
+        messagesEl.appendChild(row);
+        scrollMessages();
+        return bubbleEl;
+    }
+
     function appendMessage(role, content, extraClass) {
         const el = document.createElement('div');
         el.className = `advisor-msg advisor-msg-${role}${extraClass ? ' ' + extraClass : ''}`;
@@ -101,16 +116,14 @@
         } else {
             el.textContent = content;
         }
-        messagesEl.appendChild(el);
-        scrollMessages();
+        wrapMessage(role, el);
         return el;
     }
 
     function createBotBubble(extraClass) {
         const el = document.createElement('div');
         el.className = `advisor-msg advisor-msg-bot${extraClass ? ' ' + extraClass : ''}`;
-        messagesEl.appendChild(el);
-        scrollMessages();
+        wrapMessage('bot', el);
         return el;
     }
 
