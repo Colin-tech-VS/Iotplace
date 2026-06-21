@@ -6,6 +6,7 @@ from collections import Counter
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+# Legacy path — runtime storage via data.persistence (JSON or PostgreSQL)
 DATA_FILE = Path(__file__).parent / "content.json"
 
 PAGE_CATALOG = [
@@ -235,6 +236,10 @@ PAGE_FAQ = {
             "a": "Create your startup profile on Iotplace, list your skills and browse open projects. Apply to missions that match your technical stack.",
         },
         {
+            "q": "What strategy works to sell to large enterprises?",
+            "a": "The most effective path: find a pilot client, deliver a paid PoC, turn it into a framework contract, then build a strategic partnership. Iotplace structures these steps via PoC, Scale and Partnership project phases.",
+        },
+        {
             "q": "What IoT startup profiles are sought after?",
             "a": "Teams skilled in embedded firmware, electronics, IoT cloud or end-to-end integration, ideally based in Vietnam, Indonesia, Thailand or the ASEAN region.",
         },
@@ -311,15 +316,17 @@ PAGE_FAQ_FR = {
     ],
     "startups": [
         {"q": "Comment accéder aux projets de sous-traitance IoT ?", "a": "Créez votre profil startup, listez vos compétences et consultez la page Projets ouverts."},
+        {"q": "Quelle stratégie pour vendre aux grands groupes ?", "a": "Le parcours le plus efficace : trouver un client pilote, réaliser un PoC payé, le transformer en contrat cadre, puis construire un partenariat stratégique. Iotplace structure ces étapes via les phases PoC, Scale et Partenariat."},
         {"q": "Quels profils de startups IoT sont recherchés ?", "a": "Équipes expertes en firmware, électronique, cloud IoT ou intégration bout-en-bout en Asie du Sud-Est."},
-        {"q": "Les missions sont-elles encadrées en B2B ?", "a": "Oui. Les entreprises publient cahier des charges, budget et délais. Iotplace facilite le matching et le suivi."},
+        {"q": "Les missions sont-elles encadrées en B2B ?", "a": "Oui. Les entreprises publient cahier des charges, budget et délais. Iotplace facilite le matching, le paiement séquestre et le suivi."},
     ],
     "projects": [
         {"q": "Comment postuler à un projet IoT ouvert ?", "a": "Créez un compte startup, complétez votre profil et postulez depuis votre tableau de bord."},
         {"q": "Qui publie les projets de sous-traitance IoT ?", "a": "Les grandes entreprises inscrites sur Iotplace qui externalisent leur développement IoT."},
     ],
     "pricing": [
-        {"q": "Iotplace est-il gratuit pour les startups ?", "a": "Oui, à 100 %. Aucun abonnement ni commission côté startup. Le paiement arrive quand l'entreprise libère le séquestre après validation de la livraison."},
+        {"q": "Iotplace est-il gratuit pour les startups ?", "a": "L'inscription et les candidatures sur projets Scale ou Partenariat sont gratuites. Les candidatures sur projets phase PoC sont payantes (frais de candidature via Stripe) — commission plateforme incluse. Le paiement mission arrive quand l'entreprise libère le séquestre."},
+        {"q": "Combien coûte une candidature PoC ?", "a": "Un frais de candidature unique est facturé à la startup lors du dépôt sur un projet en phase PoC (montant configurable, ex. 49 €). Iotplace prélève une commission sur ce paiement. Les autres phases restent gratuites à la candidature."},
         {"q": "Quand l'entreprise paie-t-elle ?", "a": "À l'acceptation d'une candidature, Iotplace génère automatiquement une facture Stripe. Le paiement place les fonds en séquestre jusqu'à validation de la mission."},
         {"q": "Quel est le taux de commission ?", "a": "10 % par mission signée sur les offres Gratuit, prélevé à la libération des fonds. L'offre Pro entreprise descend à 7 % avec projets illimités."},
         {"q": "Comment fonctionne le séquestre ?", "a": "Les fonds sont conservés en sécurité après paiement de la facture. La startup est payée via Stripe Connect uniquement quand l'entreprise confirme la livraison."},
@@ -366,6 +373,7 @@ DEFAULT_DATA = {
     "users": [],
     "messages": [],
     "engagements": [],
+    "application_checkouts": [],
 }
 
 
@@ -380,10 +388,9 @@ def _deep_merge(base, override):
 
 
 def _load_raw():
-    if not DATA_FILE.exists():
-        _save_raw(DEFAULT_DATA.copy())
-    with open(DATA_FILE, encoding="utf-8") as f:
-        data = json.load(f)
+    from data.persistence import load_state
+
+    data = load_state()
     for key, value in DEFAULT_DATA.items():
         if key not in data:
             data[key] = value
@@ -391,8 +398,9 @@ def _load_raw():
 
 
 def _save_raw(data):
-    with open(DATA_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+    from data.persistence import save_state
+
+    save_state(data)
 
 
 def get_all():
@@ -1292,7 +1300,7 @@ def startup_already_applied(startup_id, project_id):
     )
 
 
-def send_message(from_user, to_user, subject, body, kind="contact", project=None, status="pending"):
+def send_message(from_user, to_user, subject, body, kind="contact", project=None, status="pending", **extra):
     from_name = _profile_name_for_user(from_user)
     to_name = _profile_name_for_user(to_user)
     fields = {
@@ -1306,6 +1314,7 @@ def send_message(from_user, to_user, subject, body, kind="contact", project=None
         "subject": subject,
         "body": body,
         "status": status,
+        **extra,
     }
     if from_user.get("role") == "startup":
         fields["from_profile_id"] = from_user.get("profile_id")
@@ -1317,13 +1326,19 @@ def send_message(from_user, to_user, subject, body, kind="contact", project=None
     return add_message(fields)
 
 
-def apply_to_project(startup_user, startup, project, message_body):
+def apply_to_project(startup_user, startup, project, message_body, *, poc_fee_cents=None, poc_checkout_id=None):
     if startup_already_applied(startup["id"], project["id"]):
         raise ValueError("Vous avez déjà candidaté à ce projet.")
     enterprise_user = _user_for_enterprise_id(project.get("enterprise_id"))
     if not enterprise_user:
         raise ValueError("Entreprise destinataire introuvable.")
     subject = f"Candidature — {project.get('title', 'Projet IoT')}"
+    extra = {}
+    if poc_fee_cents:
+        extra["poc_application_fee_cents"] = int(poc_fee_cents)
+        extra["poc_application_fee_paid"] = True
+    if poc_checkout_id:
+        extra["poc_application_checkout_id"] = poc_checkout_id
     return send_message(
         startup_user,
         enterprise_user,
@@ -1332,7 +1347,51 @@ def apply_to_project(startup_user, startup, project, message_body):
         kind="application",
         project=project,
         status="pending",
+        **extra,
     )
+
+
+def create_application_checkout(fields: dict) -> dict:
+    data = _load_raw()
+    entry = {
+        "id": _new_id(),
+        "created_at": _now().isoformat(),
+        "status": "pending",
+        "currency": "eur",
+        **fields,
+    }
+    data.setdefault("application_checkouts", []).append(entry)
+    _save_raw(data)
+    return entry
+
+
+def get_application_checkout(checkout_id: str):
+    return next(
+        (c for c in _load_raw().get("application_checkouts", []) if c.get("id") == checkout_id),
+        None,
+    )
+
+
+def get_application_checkout_by_session(stripe_session_id: str):
+    if not stripe_session_id:
+        return None
+    return next(
+        (
+            c for c in _load_raw().get("application_checkouts", [])
+            if c.get("stripe_session_id") == stripe_session_id
+        ),
+        None,
+    )
+
+
+def update_application_checkout(checkout_id: str, fields: dict) -> dict | None:
+    data = _load_raw()
+    for checkout in data.get("application_checkouts", []):
+        if checkout.get("id") == checkout_id:
+            checkout.update(fields)
+            _save_raw(data)
+            return checkout
+    return None
 
 
 def enrich_message_for_view(msg, current_user_id):

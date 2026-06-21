@@ -1674,6 +1674,9 @@ a:hover { color: #33e0be; }
 .engagement-phase-poc { border-top: 3px solid #3b82f6; }
 .engagement-phase-scale { border-top: 3px solid #8b5cf6; }
 .engagement-phase-partnership { border-top: 3px solid var(--accent); }
+.engagement-phase-pilot { border-top: 3px solid #22c55e; }
+.engagement-phase-framework { border-top: 3px solid #f59e0b; }
+.engagement-phase-strategic { border-top: 3px solid #ec4899; }
 
 .engagement-phase-header {
     display: flex;
@@ -1799,6 +1802,65 @@ a:hover { color: #33e0be; }
 .engagement-phase-inline {
     font-size: 0.9rem;
     color: var(--accent);
+}
+
+.sector-select-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+.sector-select-row select {
+    flex: 1 1 16rem;
+    min-width: 0;
+}
+
+.sector-demand-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.28rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.sector-demand-very_high {
+    background: rgba(34, 197, 94, 0.16);
+    color: #15803d;
+    border: 1px solid rgba(34, 197, 94, 0.35);
+}
+
+.sector-demand-high {
+    background: rgba(59, 130, 246, 0.14);
+    color: #1d4ed8;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.sector-demand-medium {
+    background: rgba(245, 158, 11, 0.14);
+    color: #b45309;
+    border: 1px solid rgba(245, 158, 11, 0.32);
+}
+
+.sector-demand-lower {
+    background: rgba(148, 163, 184, 0.18);
+    color: #475569;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+}
+
+.sector-detail-hint {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    line-height: 1.45;
+}
+
+.sector-other-wrap {
+    margin-top: 0.65rem;
 }
 
 .field-hint {

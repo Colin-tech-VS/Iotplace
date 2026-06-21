@@ -80,8 +80,8 @@
     "enterprise_card_title": "Entreprises : externalisez vos projets IoT",
     "enterprise_card_text": "Publiez un besoin firmware, hardware ou cloud et sous-traitez auprès de startups qualifiées au Vietnam, en Indonésie et en Asie du Sud-Est.",
     "enterprise_card_link": "Inscription entreprise →",
-    "startup_card_title": "Startups IoT : trouvez des missions",
-    "startup_card_text": "Accédez aux projets de sous-traitance publiés par de grandes entreprises et postulez aux missions correspondant à vos compétences.",
+    "startup_card_title": "Startups IoT : vendre aux grands groupes",
+    "startup_card_text": "Suivez le parcours pilote → PoC payé → contrat cadre → partenariat stratégique. Accédez aux projets des grandes entreprises et postulez aux missions PoC sur Iotplace.",
     "startup_card_link": "Inscription startup →",
     "how_title": "Comment ça marche",
     "how_sub": "Un modèle de sous-traitance IoT simple, sécurisé et transparent.",
@@ -127,12 +127,12 @@
   "startups": {
     "country_title": "Startups IoT en {country} — missions de sous-traitance",
     "country_sub": "Startups IoT en {country} : postulez aux projets de sous-traitance publiés par les entreprises sur Iotplace.",
-    "seo_intro": "Vous êtes une <strong>startup IoT</strong> à la recherche de <strong>missions de sous-traitance</strong> ? Parcourez les projets ouverts et inscrivez-vous pour répondre aux besoins firmware, hardware et cloud des grands comptes.",
+    "seo_intro": "Vous êtes une <strong>startup IoT asiatique</strong> qui veut vendre aux grands groupes ? La stratégie la plus efficace : trouver un client pilote, réaliser un <strong>PoC payé</strong>, le transformer en contrat cadre, puis construire un partenariat stratégique. Iotplace structure ce parcours.",
     "propose_project": "Proposer un projet",
     "no_country": "Aucune startup trouvée pour ce pays.",
     "no_startups": "Aucune startup inscrite pour le moment.",
     "cta_title": "Vous êtes une startup IoT en Asie ?",
-    "cta_sub": "Inscrivez-vous sur Iotplace et accédez aux projets de sous-traitance des grandes entreprises.",
+    "cta_sub": "Rejoignez Iotplace : profil startup, projets PoC des grands comptes, paiement sécurisé et passage au contrat cadre.",
     "cta_btn": "Rejoindre la plateforme",
     "faq_title": "FAQ — Missions IoT pour startups"
   },
@@ -154,10 +154,10 @@
     ],
     "model_startup_title": "🚀 Startups (sous-traitants)",
     "model_startup_items": [
-      "Créer un profil avec vos compétences IoT",
-      "Accéder aux projets des grandes entreprises",
-      "Postuler et négocier les missions",
-      "Livrer et être payé via notre système de séquestre"
+      "Trouver un premier client pilote via les projets ouverts",
+      "Réaliser un PoC payé (candidature + mission séquestre)",
+      "Transformer le succès en contrat cadre (phase Scale)",
+      "Construire un partenariat stratégique ou une levée corporate"
     ],
     "why_sea_title": "Pourquoi l'Asie du Sud-Est ?",
     "why_sea_text": "Le Vietnam, l'Indonésie, la Thaïlande et les Philippines forment un hub IoT en plein essor : ingénieurs qualifiés, coûts compétitifs, fuseaux horaires favorables et une culture d'innovation hardware héritée de l'électronique grand public. Iotplace met ce talent au service des entreprises internationales."
@@ -245,6 +245,8 @@
     "error_email_exists": "Un compte existe déjà avec cet email.",
     "error_company_name_required": "La raison sociale est requise.",
     "error_contact_name_required": "Le nom du contact est requis.",
+    "error_sector_required": "Veuillez sélectionner un secteur d'activité.",
+    "error_sector_other_required": "Précisez votre secteur dans le champ « Autres ».",
     "error_project_title_required": "Le titre du projet est requis si vous publiez un besoin.",
     "error_startup_name_required": "Le nom de la startup est requis.",
     "error_country_required": "Le pays est requis.",
@@ -330,7 +332,7 @@
     "per_month": "/ mois",
     "per_mission": "par mission signée",
     "how_it_works_label": "Comment ça marche",
-    "intro": "Iotplace est gratuit à l'inscription. Vous payez uniquement lorsqu'une mission de sous-traitance est signée — ou en option pour un volume élevé d'externalisation. Les startups ne paient jamais pour accéder aux missions.",
+    "intro": "Iotplace est gratuit à l'inscription. Les entreprises paient à l'acceptation d'une mission (séquestre + commission). Les startups paient un frais de candidature uniquement sur les projets phase PoC — Scale et Partenariat restent gratuits à la candidature.",
     "escrow_title": "Séquestre sécurisé sur chaque mission",
     "escrow_text": "Lorsque vous acceptez une candidature startup, une facture est générée automatiquement. Les fonds restent en séquestre jusqu'à validation de la livraison — puis la startup est payée (moins la commission plateforme).",
     "escrow_steps": [
@@ -347,7 +349,7 @@
       },
       {
         "title": "Matching & candidature",
-        "text": "L'entreprise publie un besoin. La startup postule. La messagerie B2B s'ouvre entre les deux parties."
+        "text": "L'entreprise publie un besoin. La startup postule (frais PoC payant si phase pilote). La messagerie B2B s'ouvre entre les deux parties."
       },
       {
         "title": "Acceptation & facture",
@@ -398,7 +400,7 @@
         "pro": "✓"
       }
     ],
-    "startup_note": "Startups : 100 % gratuit — pas d'abonnement, pas de commission de votre côté. Vous recevez le montant convenu (la commission est payée par l'entreprise donneuse d'ordre).",
+    "startup_note": "Startups : inscription gratuite. Candidatures Scale et Partenariat sans frais. Sur les projets PoC, un frais de candidature unique est facturé (commission plateforme incluse) — vous recevez ensuite le montant mission quand l'entreprise libère le séquestre.",
     "faq_title": "FAQ — Tarifs",
     "cta_title": "Prêt à démarrer ?",
     "cta_sub": "Inscrivez-vous gratuitement. Payez uniquement lorsque vous sous-traitez une vraie mission IoT.",
@@ -409,15 +411,15 @@
         "badge": "Pour les startups",
         "audience": "Startups IoT en Asie",
         "name": "Startup Gratuit",
-        "summary": "Accès à toutes les missions IoT ouvertes des grandes entreprises. Sans abonnement, pour toujours.",
+        "summary": "Accès aux missions IoT des grandes entreprises. Candidatures gratuites hors PoC.",
         "features": [
           "Profil startup & vitrine de compétences",
-          "Parcourir et postuler aux projets ouverts",
+          "Parcourir et postuler aux projets Scale / Partenariat (gratuit)",
+          "Frais de candidature PoC (paiement Stripe, commission plateforme)",
           "Messagerie B2B avec les entreprises",
-          "Paiement Stripe Connect après validation mission",
-          "Zéro frais plateforme côté startup"
+          "Paiement Stripe Connect après validation mission"
         ],
-        "explain": "Conçu pour que les startups IoT au Vietnam, en Indonésie, en Thaïlande et au-delà rejoignent sans friction. Vous investissez du temps dans les candidatures, pas dans un abonnement.",
+        "explain": "Conçu pour les startups IoT en Asie. Investissez dans les candidatures qualifiées : les PoC filtrent les projets pilotes sérieux via un frais de candidature ; les phases Scale et Partenariat restent gratuites.",
         "cta": "Créer un compte startup",
         "cta_route": "compte.register_startup"
       },
@@ -479,7 +481,7 @@
     "learn_more": "En savoir plus",
     "enterprise_seeks": "Ce que l'entreprise recherche :",
     "iotplace_offer": "Comment Iotplace vous accompagne :",
-    "journey_note": "Chaque phase peut être un projet distinct sur la plateforme. Les startups voient la phase dès le départ et peuvent se positionner pour un partenariat long terme dès le PoC.",
+    "journey_note": "Chaque phase peut être un projet distinct. Les candidatures PoC sont payantes pour les startups (commission Iotplace) ; Scale et Partenariat restent gratuits à la candidature.",
     "cta_enterprise": "Démarrer par un PoC",
     "cta_pricing": "Voir les tarifs par phase",
     "phase_label": "Phase d'engagement",
@@ -493,7 +495,7 @@
         "goal": "Valider la technologie, l'équipe et le ROI sur un périmètre limité avant tout engagement majeur.",
         "explain": "Pilote borné : firmware, prototype capteur, MVP cloud ou tranche d'intégration. Critères de succès clairs, budget fixe, décision go/no-go en fin de phase.",
         "enterprise_seeks": "Preuve de faisabilité, réactivité startup, qualité des livrables et adéquation avec les équipes internes — sans risque pluriannuel.",
-        "iotplace_offer": "Compte entreprise gratuit, 1 projet actif, matching startups IoT agiles, facture séquestre à l'acceptation, 10 % de commission uniquement si le PoC est signé."
+        "iotplace_offer": "Compte entreprise gratuit, matching startups IoT agiles, frais de candidature PoC côté startup (commission plateforme), facture séquestre à l'acceptation, 10 % de commission mission à la libération."
       },
       "scale": {
         "name": "Déploiement à grande échelle",
@@ -512,6 +514,55 @@
         "explain": "Après PoC et scale réussis : accord-cadre, tarifs préférentiels, backlog continu firmware/hardware/cloud, co-innovation sur la roadmap IoT.",
         "enterprise_seeks": "Une extension de confiance de leur capacité d'ingénierie en Asie, moins de friction sourcing, incitations alignées et optimisation des coûts sur plusieurs années.",
         "iotplace_offer": "Entreprise Pro, commission réduite (7 %), matching prioritaire, projets partenariat structurés sur Iotplace, paiements Stripe Connect et séquestre par mission."
+      }
+    }
+  },
+  "startup_journey": {
+    "title": "Vendre aux grands groupes : le parcours startup IoT",
+    "subtitle": "La stratégie la plus efficace pour une startup IoT asiatique qui veut signer avec des industriels.",
+    "intro": "Les grands comptes n'achètent pas une startup en un clic : ils valident d'abord sur un périmètre limité, puis étendent. Iotplace aligne votre go-to-market sur ce cycle réel — du premier pilote au partenariat long terme.",
+    "learn_more": "En savoir plus",
+    "startup_acts": "Votre action :",
+    "iotplace_role": "Rôle Iotplace :",
+    "journey_note": "Chaque étape correspond à une phase de projet sur la plateforme (PoC, Scale, Partenariat). Les candidatures PoC sont payantes pour filtrer les projets sérieux ; Scale et Partenariat restent gratuits à la candidature.",
+    "cta_startup": "Créer mon compte startup",
+    "cta_projects": "Voir les projets PoC",
+    "steps": {
+      "pilot": {
+        "name": "Trouver un premier client pilote",
+        "short_label": "Pilote",
+        "duration": "Étape 1 · acquisition",
+        "goal": "Identifier une grande entreprise prête à tester votre techno IoT sur un périmètre borné — sans engagement pluriannuel.",
+        "explain": "Le premier logo compte : un pilote avec un industriel crédibilise votre offre auprès des autres donneurs d'ordre. L'enjeu est de cibler le bon décideur et le bon use case, pas de tout vendre d'un coup.",
+        "startup_acts": "Compléter votre profil, filtrer les projets PoC publiés par les grands groupes et envoyer une candidature ciblée.",
+        "iotplace_role": "Marketplace B2B, matching par compétences (firmware, PCB, cloud IoT), messagerie directe avec l'entreprise."
+      },
+      "poc": {
+        "name": "Réaliser un PoC payé",
+        "short_label": "PoC",
+        "duration": "Étape 2 · 3 à 6 mois",
+        "goal": "Livrer un proof of concept facturé : preuve technique, équipe et ROI sur un scope limité.",
+        "explain": "Un PoC payé sépare les curieux des projets sérieux. L'entreprise valide votre capacité d'exécution ; vous sécurisez un premier chiffre d'affaires B2B et des références industrielles.",
+        "startup_acts": "Payer les frais de candidature PoC, livrer le pilote selon le cahier des charges et documenter les résultats pour la suite.",
+        "iotplace_role": "Frais de candidature PoC (commission plateforme), facture séquestre à l'acceptation, paiement Stripe Connect après validation de la livraison."
+      },
+      "framework": {
+        "name": "Transformer le PoC en contrat cadre",
+        "short_label": "Contrat cadre",
+        "duration": "Étape 3 · 6 à 18 mois",
+        "goal": "Passer du pilote réussi à un déploiement à l'échelle : industrialisation, multi-sites, volumes.",
+        "explain": "C'est le moment où le PoC devient business récurrent. L'entreprise étend le scope ; vous structurez capacité, planning et tarification pour un engagement durable.",
+        "startup_acts": "Postuler aux projets phase Scale, capitaliser sur la relation PoC et proposer un plan de déploiement chiffré.",
+        "iotplace_role": "Projets phase Scale, séquestre par tranche, suivi mission et candidatures gratuites sur cette phase."
+      },
+      "strategic": {
+        "name": "Partenariat stratégique ou levée corporate",
+        "short_label": "Partenariat",
+        "duration": "Étape 4 · long terme",
+        "goal": "Devenir un sous-traitant de confiance — voire lever des fonds corporate — grâce à un track record prouvé.",
+        "explain": "Après PoC et scale, les industriels cherchent un partenaire, pas un prestataire ponctuel. Accord-cadre, co-innovation, investissement corporate ou JV deviennent possibles.",
+        "startup_acts": "Se positionner sur les projets Partenariat, maintenir la qualité de livraison et négocier un cadre multi-années.",
+        "iotplace_role": "Projets phase Partenariat, Entreprise Pro côté donneur d'ordre, commission réduite (7 %), matching prioritaire."
       }
     }
   }

@@ -13,6 +13,9 @@
     "FLASK_ENV": {
       "description": "Environnement Flask",
       "value": "production"
+    },
+    "DATABASE_URL": {
+      "description": "PostgreSQL (addon Scalingo ou Supabase) — persistance obligatoire en prod"
     }
   }
 }

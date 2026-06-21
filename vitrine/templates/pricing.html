@@ -13,6 +13,10 @@
 {% include "_engagement_journey.html" %}
 {% endwith %}
 
+{% with show_cta=false, alt=true %}
+{% include "_startup_journey.html" %}
+{% endwith %}
+
 <section class="section">
     <div class="container">
         <p class="pricing-intro reveal">{{ t('pricing.intro') }}</p>

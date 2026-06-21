@@ -39,6 +39,53 @@
 </div>
 {% endmacro %}
 
+{% macro sector_select(form, required=false) %}
+<div class="form-group sector-field" data-sector-field data-label-apps="{{ t('sectors.applications_label') }}" data-label-clients="{{ t('sectors.clients_label') }}">
+    <label for="sector_id">{{ t('sectors.label') }}{% if required %} <span class="req">*</span>{% endif %}</label>
+    <div class="sector-select-row">
+        <select id="sector_id" name="sector_id" data-sector-select {% if required %}required{% endif %}>
+            <option value="">{{ t('sectors.choose') }}</option>
+            {% for group in iot_sector_groups %}
+            {% if group.label %}
+            <optgroup label="{{ group.label }}">
+                {% for item in group['items'] %}
+                <option value="{{ item.id }}"
+                        data-demand="{{ item.demand or '' }}"
+                        data-demand-label="{{ item.demand_label|e }}"
+                        data-tagline="{{ item.tagline|e }}"
+                        data-applications="{{ item.applications|e }}"
+                        data-clients="{{ item.clients|e }}"
+                        {% if field_value(form, 'sector_id') == item.id %}selected{% elif not field_value(form, 'sector_id') and field_value(form, 'sector') == item.name %}selected{% endif %}>
+                    {{ item.name }}
+                </option>
+                {% endfor %}
+            </optgroup>
+            {% else %}
+                {% for item in group['items'] %}
+                <option value="{{ item.id }}"
+                        data-demand="{{ item.demand or '' }}"
+                        data-demand-label="{{ item.demand_label|e }}"
+                        data-tagline="{{ item.tagline|e }}"
+                        data-applications="{{ item.applications|e }}"
+                        data-clients="{{ item.clients|e }}"
+                        {% if field_value(form, 'sector_id') == item.id %}selected{% elif field_value(form, 'sector_id') == 'other' and item.id == 'other' %}selected{% endif %}>
+                    {{ item.name }}
+                </option>
+                {% endfor %}
+            {% endif %}
+            {% endfor %}
+        </select>
+        <span class="sector-demand-badge" data-sector-badge hidden aria-live="polite"></span>
+    </div>
+    <p class="sector-detail-hint muted" data-sector-hint hidden></p>
+    <div class="sector-other-wrap" data-sector-other-wrap hidden>
+        <label for="sector_other">{{ t('sectors.other_label') }}</label>
+        <input type="text" id="sector_other" name="sector_other" value="{{ field_value(form, 'sector_other') }}" placeholder="{{ t('sectors.other_label') }}">
+    </div>
+    <p class="field-hint">{{ t('sectors.hint') }}</p>
+</div>
+{% endmacro %}
+
 {% macro profile_besoin_block(besoin, tags, tags_label='Compétences') %}
 <div class="profile-summary-block">
     {% if besoin %}

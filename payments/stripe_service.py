@@ -9,6 +9,8 @@ import stripe
 
 DEFAULT_CURRENCY = "eur"
 DEFAULT_COMMISSION_PERCENT = 10
+DEFAULT_POC_APPLICATION_FEE_EUR = 49
+DEFAULT_POC_APPLICATION_COMMISSION_PERCENT = 100
 
 
 class PaymentError(Exception):
@@ -36,6 +38,34 @@ def get_commission_percent() -> float:
         return float(raw)
     except ValueError:
         return DEFAULT_COMMISSION_PERCENT
+
+
+def get_poc_application_fee_cents() -> int:
+    raw = os.environ.get("IOTPLACE_POC_APPLICATION_FEE_EUR", str(DEFAULT_POC_APPLICATION_FEE_EUR))
+    try:
+        return int(round(float(raw) * 100))
+    except ValueError:
+        return int(DEFAULT_POC_APPLICATION_FEE_EUR * 100)
+
+
+def format_poc_application_fee() -> str:
+    cents = get_poc_application_fee_cents()
+    euros = cents / 100
+    if euros == int(euros):
+        return f"{int(euros)} €"
+    return f"{euros:.2f} €".replace(".", ",")
+
+
+def get_poc_application_commission_percent() -> float:
+    """Share of the PoC application fee retained by Iotplace (default 100 %)."""
+    raw = os.environ.get(
+        "IOTPLACE_POC_APPLICATION_COMMISSION_PERCENT",
+        str(DEFAULT_POC_APPLICATION_COMMISSION_PERCENT),
+    )
+    try:
+        return float(raw)
+    except ValueError:
+        return DEFAULT_POC_APPLICATION_COMMISSION_PERCENT
 
 
 def _site_url() -> str:
@@ -227,6 +257,54 @@ def release_escrow_to_startup(engagement: dict, startup: dict) -> dict[str, Any]
     return {"transfer_id": transfer.id, "amount_cents": payout}
 
 
+def create_poc_application_checkout(
+    checkout: dict,
+    user: dict,
+    startup: dict,
+    project: dict,
+) -> Any:
+    """One-time Stripe Checkout for a startup applying to a PoC project."""
+    _client()
+    site = _site_url()
+    fee_cents = int(checkout["amount_cents"])
+    session = stripe.checkout.Session.create(
+        mode="payment",
+        client_reference_id=checkout["id"],
+        customer_email=(user.get("email") or "").strip() or None,
+        line_items=[{
+            "price_data": {
+                "currency": checkout.get("currency", DEFAULT_CURRENCY),
+                "product_data": {
+                    "name": f"Candidature PoC — {project.get('title', 'Projet IoT')}",
+                    "description": (
+                        "Frais de candidature phase PoC sur Iotplace "
+                        f"({startup.get('name', '')})"
+                    ),
+                },
+                "unit_amount": fee_cents,
+            },
+            "quantity": 1,
+        }],
+        metadata={
+            "iotplace_checkout_id": checkout["id"],
+            "iotplace_type": "poc_application",
+            "project_id": project.get("id", ""),
+            "startup_id": startup.get("id", ""),
+        },
+        success_url=(
+            f"{site}/compte/startup/projet/{project['id']}/candidature/succes"
+            "?session_id={CHECKOUT_SESSION_ID}"
+        ),
+        cancel_url=f"{site}/compte/startup/projet/{project['id']}",
+    )
+    return session
+
+
+def retrieve_checkout_session(session_id: str) -> Any:
+    _client()
+    return stripe.checkout.Session.retrieve(session_id)
+
+
 def handle_webhook_event(payload: bytes, sig_header: str) -> dict[str, Any]:
     _client()
     secret = (os.environ.get("STRIPE_WEBHOOK_SECRET") or "").strip()
@@ -257,5 +335,14 @@ def handle_webhook_event(payload: bytes, sig_header: str) -> dict[str, Any]:
             complete = bool(account.get("charges_enabled") and account.get("payouts_enabled"))
             store.update_startup(startup["id"], {"stripe_onboarding_complete": complete})
             result["handled"] = True
+
+    elif event["type"] == "checkout.session.completed":
+        session = event["data"]["object"]
+        if (session.get("metadata") or {}).get("iotplace_type") == "poc_application":
+            from payments import poc_application
+
+            completion = poc_application.complete_from_stripe_session(session)
+            result.update(completion)
+            result["handled"] = completion.get("ok", False)
 
     return result

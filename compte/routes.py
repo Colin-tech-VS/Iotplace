@@ -5,9 +5,11 @@ from compte import compte_bp
 from compte.api_auth import api_login_required
 from data import store
 from payments import handlers as payment_handlers
+from payments import poc_application
 from payments import stripe_service
 
 from vitrine.i18n import t
+from vitrine.sectors import parse_sector_fields
 
 
 def _process_application_status(message_id, user, status):
@@ -85,6 +87,11 @@ def register_enterprise():
             errors.append(t("compte.error_company_name_required"))
         if not request.form.get("contact_name", "").strip():
             errors.append(t("compte.error_contact_name_required"))
+        sector_fields = parse_sector_fields(request.form, t)
+        if not sector_fields.get("sector_id"):
+            errors.append(t("compte.error_sector_required", default="Veuillez sélectionner un secteur d'activité."))
+        if sector_fields.get("sector_id") == "other" and not sector_fields.get("sector_other"):
+            errors.append(t("compte.error_sector_other_required", default="Précisez votre secteur."))
 
         has_project = request.form.get("has_project") == "yes"
         if has_project and not request.form.get("project_title", "").strip():
@@ -114,7 +121,7 @@ def register_enterprise():
                 },
                 {
                     "name": request.form.get("company_name", "").strip(),
-                    "sector": request.form.get("sector", "").strip(),
+                    **sector_fields,
                     "country": request.form.get("country", "").strip(),
                     "city": request.form.get("city", "").strip(),
                     "company_size": request.form.get("company_size", "").strip(),
@@ -157,6 +164,11 @@ def register_startup():
             errors.append(t("compte.error_country_required"))
         if not request.form.get("specialty", "").strip():
             errors.append(t("compte.error_specialty_required"))
+        sector_fields = parse_sector_fields(request.form, t)
+        if not sector_fields.get("sector_id"):
+            errors.append(t("compte.error_sector_required", default="Veuillez sélectionner un secteur d'activité."))
+        if sector_fields.get("sector_id") == "other" and not sector_fields.get("sector_other"):
+            errors.append(t("compte.error_sector_other_required", default="Précisez votre secteur."))
 
         if errors:
             for err in errors:
@@ -171,6 +183,7 @@ def register_startup():
                 },
                 {
                     "name": request.form.get("startup_name", "").strip(),
+                    **sector_fields,
                     "country": request.form.get("country", "").strip(),
                     "flag": request.form.get("flag", "").strip(),
                     "city": request.form.get("city", "").strip(),
@@ -275,9 +288,10 @@ def enterprise_edit_profile():
         return redirect(url_for("vitrine.index"))
 
     if request.method == "POST":
+        sector_fields = parse_sector_fields(request.form, t)
         store.update_enterprise_profile(profile["id"], {
             "name": request.form.get("company_name", "").strip(),
-            "sector": request.form.get("sector", "").strip(),
+            **sector_fields,
             "country": request.form.get("country", "").strip(),
             "city": request.form.get("city", "").strip(),
             "company_size": request.form.get("company_size", "").strip(),
@@ -292,7 +306,16 @@ def enterprise_edit_profile():
         flash("Profil mis à jour.", "success")
         return redirect(url_for("compte.enterprise_dashboard"))
 
-    return render_template("compte/edit_enterprise.html", user=user, profile=profile)
+    return render_template(
+        "compte/edit_enterprise.html",
+        user=user,
+        profile=profile,
+        form={
+            "sector_id": profile.get("sector_id", ""),
+            "sector_other": profile.get("sector_other", ""),
+            "sector": profile.get("sector", ""),
+        },
+    )
 
 
 @compte_bp.route("/compte/startup")
@@ -335,6 +358,9 @@ def startup_project_detail(project_id):
         applications=[application] if application else [],
         role="startup",
         already_applied=store.startup_already_applied(profile["id"], project_id),
+        requires_poc_fee=poc_application.project_requires_poc_fee(project),
+        poc_application_fee_label=stripe_service.format_poc_application_fee(),
+        stripe_configured=stripe_service.is_configured(),
     )
 
 
@@ -351,12 +377,49 @@ def startup_apply_project(project_id):
     if not body:
         flash("Ajoutez un message de présentation pour votre candidature.", "error")
         return redirect(url_for("compte.startup_project_detail", project_id=project_id))
+
+    if poc_application.project_requires_poc_fee(project):
+        if not stripe_service.is_configured():
+            flash(
+                "Les candidatures PoC nécessitent un paiement en ligne — Stripe n'est pas configuré.",
+                "error",
+            )
+            return redirect(url_for("compte.startup_project_detail", project_id=project_id))
+        try:
+            result = poc_application.start_poc_application(user, profile, project, body)
+            return redirect(result["checkout_url"])
+        except ValueError as exc:
+            flash(str(exc), "error")
+        except stripe_service.PaymentError as exc:
+            flash(str(exc), "error")
+        return redirect(url_for("compte.startup_project_detail", project_id=project_id))
+
     try:
         store.apply_to_project(user, profile, project, body)
         flash("Candidature envoyée à l'entreprise.", "success")
         return redirect(url_for("compte.startup_dashboard") + "#messages")
     except ValueError as exc:
         flash(str(exc), "error")
+    return redirect(url_for("compte.startup_project_detail", project_id=project_id))
+
+
+@compte_bp.route("/compte/startup/projet/<project_id>/candidature/succes")
+@auth.login_required(role="startup")
+def startup_apply_poc_success(project_id):
+    user = auth.get_current_user()
+    profile = store.get_startup_for_user(user["id"])
+    project = store.get_project(project_id)
+    if not profile or not project:
+        flash("Projet introuvable.", "error")
+        return redirect(url_for("compte.startup_dashboard"))
+
+    session_id = (request.args.get("session_id") or "").strip()
+    result = poc_application.complete_from_session_id(session_id)
+    if result.get("ok"):
+        flash("Candidature PoC envoyée — paiement confirmé.", "success")
+        return redirect(url_for("compte.startup_dashboard") + "#messages")
+
+    flash(result.get("error", "Paiement en cours de validation. Réessayez dans quelques instants."), "error")
     return redirect(url_for("compte.startup_project_detail", project_id=project_id))
 
 
@@ -370,8 +433,10 @@ def startup_edit_profile():
         return redirect(url_for("vitrine.index"))
 
     if request.method == "POST":
+        sector_fields = parse_sector_fields(request.form, t)
         store.update_startup_profile(profile["id"], {
             "name": request.form.get("startup_name", "").strip(),
+            **sector_fields,
             "country": request.form.get("country", "").strip(),
             "flag": request.form.get("flag", "").strip(),
             "city": request.form.get("city", "").strip(),
@@ -389,7 +454,16 @@ def startup_edit_profile():
         flash("Profil mis à jour.", "success")
         return redirect(url_for("compte.startup_dashboard"))
 
-    return render_template("compte/edit_startup.html", user=user, profile=profile)
+    return render_template(
+        "compte/edit_startup.html",
+        user=user,
+        profile=profile,
+        form={
+            "sector_id": profile.get("sector_id", ""),
+            "sector_other": profile.get("sector_other", ""),
+            "sector": profile.get("sector", ""),
+        },
+    )
 
 
 @compte_bp.route("/compte/messages/<message_id>")

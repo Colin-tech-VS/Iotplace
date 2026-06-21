@@ -4,6 +4,8 @@ from __future__ import annotations
 
 ENGAGEMENT_PHASES = ("poc", "scale", "partnership")
 
+STARTUP_JOURNEY_STEPS = ("pilot", "poc", "framework", "strategic")
+
 PHASE_DEFAULTS = {
     "poc": {
         "duration": "3–6 mois",
@@ -32,3 +34,7 @@ def normalize_phase(value: str | None) -> str | None:
 
 def phase_defaults(phase: str | None) -> dict:
     return PHASE_DEFAULTS.get(normalize_phase(phase) or "", {})
+
+
+def requires_startup_application_fee(phase: str | None) -> bool:
+    return normalize_phase(phase) == "poc"

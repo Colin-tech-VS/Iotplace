@@ -1,0 +1,43 @@
+{# Startup sales journey — pilot → paid PoC → framework → strategic partnership #}
+<section class="section{% if alt %} section-alt{% endif %}" id="startup-journey">
+    <div class="container">
+        <div class="section-header reveal">
+            <h2>{{ t('startup_journey.title') }}</h2>
+            <p>{{ t('startup_journey.subtitle') }}</p>
+        </div>
+        <p class="engagement-intro reveal">{{ t('startup_journey.intro') }}</p>
+
+        <div class="engagement-timeline reveal">
+            {% for step_id in startup_journey_steps %}
+            <article class="engagement-phase-card engagement-phase-{{ step_id }}">
+                <div class="engagement-phase-header">
+                    <span class="engagement-phase-step">{{ loop.index }}</span>
+                    <span class="engagement-phase-badge">{{ t('startup_journey.steps.' ~ step_id ~ '.short_label') }}</span>
+                </div>
+                <h3>{{ t('startup_journey.steps.' ~ step_id ~ '.name') }}</h3>
+                <p class="engagement-phase-duration">{{ t('startup_journey.steps.' ~ step_id ~ '.duration') }}</p>
+                <p class="engagement-phase-goal">{{ t('startup_journey.steps.' ~ step_id ~ '.goal') }}</p>
+                <details class="engagement-phase-details">
+                    <summary>{{ t('startup_journey.learn_more') }}</summary>
+                    <p>{{ t('startup_journey.steps.' ~ step_id ~ '.explain') }}</p>
+                    <p><strong>{{ t('startup_journey.startup_acts') }}</strong> {{ t('startup_journey.steps.' ~ step_id ~ '.startup_acts') }}</p>
+                    <p><strong>{{ t('startup_journey.iotplace_role') }}</strong> {{ t('startup_journey.steps.' ~ step_id ~ '.iotplace_role') }}</p>
+                </details>
+            </article>
+            {% if not loop.last %}
+            <div class="engagement-connector" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+
+        <p class="engagement-note reveal">{{ t('startup_journey.journey_note') }}</p>
+        {% if show_cta is not defined or show_cta %}
+        <div class="engagement-cta reveal">
+            <a href="{{ url_for('compte.register_startup') }}" class="btn btn-primary btn-glow">{{ t('startup_journey.cta_startup') }}</a>
+            <a href="{{ url_for('vitrine.projects', phase='poc') }}" class="btn btn-outline">{{ t('startup_journey.cta_projects') }}</a>
+        </div>
+        {% endif %}
+    </div>
+</section>

@@ -54,6 +54,14 @@ if _is_prod:
         )
 
 
+from data.persistence import persistence_info
+
+_persist = persistence_info()
+logging.info("Iotplace persistence backend=%s", _persist.get("backend"))
+if _persist.get("path"):
+    logging.info("Iotplace data file=%s", _persist.get("path"))
+
+
 @app.context_processor
 def inject_globals():
     return {

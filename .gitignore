@@ -15,3 +15,7 @@ ENV/
 *.log
 .DS_Store
 Thumbs.db
+
+# Données runtime (dev) — utiliser DATABASE_URL en production
+data/content.json
+data/content.json.tmp

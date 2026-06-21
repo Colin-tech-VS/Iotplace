@@ -80,8 +80,8 @@
     "enterprise_card_title": "Enterprises: outsource your IoT projects",
     "enterprise_card_text": "Publish a firmware, hardware or cloud need and subcontract to qualified startups in Vietnam, Indonesia and Southeast Asia.",
     "enterprise_card_link": "Enterprise signup →",
-    "startup_card_title": "IoT startups: find missions",
-    "startup_card_text": "Access subcontracting projects from large enterprises and apply to missions that match your skills.",
+    "startup_card_title": "IoT startups: sell to large enterprises",
+    "startup_card_text": "Follow the pilot → paid PoC → framework contract → strategic partnership path. Access enterprise projects and apply to PoC missions on Iotplace.",
     "startup_card_link": "Startup signup →",
     "how_title": "How it works",
     "how_sub": "A simple, secure and transparent IoT subcontracting model.",
@@ -127,12 +127,12 @@
   "startups": {
     "country_title": "IoT Startups in {country} — subcontracting missions",
     "country_sub": "IoT startups in {country}: apply to subcontracting projects published by enterprises on Iotplace.",
-    "seo_intro": "Are you an <strong>IoT startup</strong> looking for <strong>subcontracting missions</strong>? Browse open projects and sign up to apply for firmware, hardware and cloud needs from large enterprises.",
+    "seo_intro": "Are you an <strong>Asian IoT startup</strong> selling to large enterprises? The most effective strategy: find a pilot client, run a <strong>paid PoC</strong>, turn it into a framework contract, then build a strategic partnership. Iotplace structures this journey.",
     "propose_project": "Propose a project",
     "no_country": "No startups found for this country.",
     "no_startups": "No startups registered yet.",
     "cta_title": "Are you an IoT startup in Asia?",
-    "cta_sub": "Sign up on Iotplace and access subcontracting projects from large enterprises.",
+    "cta_sub": "Join Iotplace: startup profile, enterprise PoC projects, secure payouts and a path to framework contracts.",
     "cta_btn": "Join the platform",
     "faq_title": "FAQ — IoT missions for startups"
   },
@@ -154,10 +154,10 @@
     ],
     "model_startup_title": "🚀 Startups (subcontractors)",
     "model_startup_items": [
-      "Create a profile with IoT skills",
-      "Access projects from large enterprises",
-      "Apply and negotiate missions",
-      "Deliver and get paid through our escrow system"
+      "Find a first pilot client through open projects",
+      "Deliver a paid PoC (application fee + escrowed mission)",
+      "Turn success into a framework contract (Scale phase)",
+      "Build a strategic partnership or corporate fundraising"
     ],
     "why_sea_title": "Why Southeast Asia?",
     "why_sea_text": "Vietnam, Indonesia, Thailand and the Philippines form a booming IoT hub: skilled engineers, competitive costs, favorable time zones, and a hardware innovation culture inherited from consumer electronics. Iotplace showcases this talent to global enterprises."
@@ -245,6 +245,8 @@
     "error_email_exists": "An account already exists with this email.",
     "error_company_name_required": "Company name is required.",
     "error_contact_name_required": "Contact name is required.",
+    "error_sector_required": "Please select an industry sector.",
+    "error_sector_other_required": "Please specify your sector in the « Other » field.",
     "error_project_title_required": "Project title is required when publishing a need.",
     "error_startup_name_required": "Startup name is required.",
     "error_country_required": "Country is required.",
@@ -330,7 +332,7 @@
     "per_month": "/ month",
     "per_mission": "per signed mission",
     "how_it_works_label": "How it works",
-    "intro": "Iotplace is free to join. You only pay when a subcontracting mission is signed — or optionally upgrade for high-volume outsourcing. Startups never pay to access missions.",
+    "intro": "Iotplace is free to join. Enterprises pay when a mission is accepted (escrow + commission). Startups pay an application fee only on PoC-phase projects — Scale and Partnership applications remain free.",
     "escrow_title": "Secure escrow on every mission",
     "escrow_text": "When you accept a startup application, an invoice is generated automatically. Funds are held in escrow until you validate delivery — then the startup is paid (minus platform commission).",
     "escrow_steps": [
@@ -347,7 +349,7 @@
       },
       {
         "title": "Matching & application",
-        "text": "Enterprise publishes a need. Startup applies. Messaging opens between both parties."
+        "text": "Enterprise publishes a need. Startup applies (paid PoC fee on pilot-phase projects). Messaging opens between both parties."
       },
       {
         "title": "Acceptance & invoice",
@@ -398,7 +400,7 @@
         "pro": "✓"
       }
     ],
-    "startup_note": "Startups: 100% free — no subscription, no commission on your side. You receive the agreed mission amount minus nothing from Iotplace (commission is paid by the enterprise).",
+    "startup_note": "Startups: free registration. Scale and Partnership applications are free. PoC projects require a one-time application fee (platform commission included) — you receive the mission payout when the enterprise releases escrow.",
     "faq_title": "Pricing FAQ",
     "cta_title": "Ready to get started?",
     "cta_sub": "Join for free. Pay only when you subcontract a real IoT mission.",
@@ -409,15 +411,15 @@
         "badge": "For startups",
         "audience": "IoT startups in Asia",
         "name": "Startup Free",
-        "summary": "Access all open IoT missions from large enterprises. No subscription, ever.",
+        "summary": "Access enterprise IoT missions. Free applications except on PoC projects.",
         "features": [
           "Startup profile & skills showcase",
-          "Browse and apply to open projects",
+          "Browse and apply to Scale / Partnership projects (free)",
+          "PoC application fee (Stripe payment, platform commission)",
           "B2B messaging with enterprises",
-          "Stripe Connect payout when mission is validated",
-          "Zero platform fees for startups"
+          "Stripe Connect payout when mission is validated"
         ],
-        "explain": "Designed so IoT startups in Vietnam, Indonesia, Thailand and beyond can join without friction. You invest time in applications, not in subscriptions. Payment arrives after the enterprise validates delivery.",
+        "explain": "Built for IoT startups in Asia. PoC fees filter serious pilot projects; Scale and Partnership applications stay free.",
         "cta": "Create startup account",
         "cta_route": "compte.register_startup"
       },
@@ -479,7 +481,7 @@
     "learn_more": "Details",
     "enterprise_seeks": "What enterprises seek:",
     "iotplace_offer": "How Iotplace supports you:",
-    "journey_note": "Each phase can be a separate project on the platform. Startups see the phase upfront and can position for long-term partnership from the PoC.",
+    "journey_note": "Each phase can be a separate project. PoC applications are paid for startups (Iotplace commission); Scale and Partnership applications remain free.",
     "cta_enterprise": "Start with a PoC project",
     "cta_pricing": "See pricing per phase",
     "phase_label": "Engagement phase",
@@ -493,7 +495,7 @@
         "goal": "Validate technology, team and ROI on a limited scope before any large commitment.",
         "explain": "A bounded pilot: firmware bring-up, sensor prototype, cloud MVP or integration slice. Clear success criteria, fixed budget, go/no-go at the end.",
         "enterprise_seeks": "Proof of feasibility, startup responsiveness, quality of deliverables and fit with internal teams — without multi-year risk.",
-        "iotplace_offer": "Free enterprise account, 1 active project, matching with agile IoT startups, escrow invoice on acceptance, 10% commission only if the PoC is signed."
+        "iotplace_offer": "Free enterprise account, agile IoT startup matching, PoC application fee for startups (platform commission), escrow invoice on acceptance, 10% mission commission on release."
       },
       "scale": {
         "name": "Large-scale deployment",
@@ -512,6 +514,55 @@
         "explain": "After strong PoC and scale results: framework agreement, preferred rates, continuous backlog of firmware/hardware/cloud missions, co-innovation on the IoT roadmap.",
         "enterprise_seeks": "A trusted extension of their engineering capacity in Asia, reduced sourcing friction, aligned incentives and multi-year cost optimisation.",
         "iotplace_offer": "Enterprise Pro, reduced commission (7%), priority matching, structured partnership projects on Iotplace, Stripe Connect payouts and escrow on each mission."
+      }
+    }
+  },
+  "startup_journey": {
+    "title": "Selling to large enterprises: the IoT startup journey",
+    "subtitle": "The most effective path for an Asian IoT startup that wants to win industrial clients.",
+    "intro": "Large enterprises don't buy a startup in one click: they validate on a limited scope first, then expand. Iotplace aligns your go-to-market with this real cycle — from first pilot to long-term partnership.",
+    "learn_more": "Details",
+    "startup_acts": "Your move:",
+    "iotplace_role": "Iotplace's role:",
+    "journey_note": "Each step maps to a project phase on the platform (PoC, Scale, Partnership). PoC applications are paid to filter serious projects; Scale and Partnership applications remain free.",
+    "cta_startup": "Create startup account",
+    "cta_projects": "Browse PoC projects",
+    "steps": {
+      "pilot": {
+        "name": "Find a first pilot client",
+        "short_label": "Pilot",
+        "duration": "Step 1 · acquisition",
+        "goal": "Land a large enterprise willing to test your IoT technology on a bounded scope — without a multi-year commitment.",
+        "explain": "The first logo matters: a pilot with an industrial player validates your offer for other clients. The goal is the right decision-maker and use case — not selling everything at once.",
+        "startup_acts": "Complete your profile, filter PoC projects published by large groups and send a targeted application.",
+        "iotplace_role": "B2B marketplace, skills-based matching (firmware, PCB, IoT cloud), direct messaging with the enterprise."
+      },
+      "poc": {
+        "name": "Deliver a paid PoC",
+        "short_label": "PoC",
+        "duration": "Step 2 · 3–6 months",
+        "goal": "Deliver a paid proof of concept: technical proof, team fit and ROI on a limited scope.",
+        "explain": "A paid PoC separates curiosity from serious projects. The enterprise validates your execution; you secure first B2B revenue and industrial references.",
+        "startup_acts": "Pay the PoC application fee, deliver the pilot per spec and document results for the next stage.",
+        "iotplace_role": "PoC application fee (platform commission), escrow invoice on acceptance, Stripe Connect payout after delivery validation."
+      },
+      "framework": {
+        "name": "Turn the PoC into a framework contract",
+        "short_label": "Framework",
+        "duration": "Step 3 · 6–18 months",
+        "goal": "Move from successful pilot to scale deployment: industrialisation, multi-site rollout, volume.",
+        "explain": "This is when the PoC becomes recurring business. The enterprise expands scope; you structure capacity, planning and pricing for a sustained engagement.",
+        "startup_acts": "Apply to Scale-phase projects, leverage the PoC relationship and propose a priced rollout plan.",
+        "iotplace_role": "Scale-phase projects, escrow per tranche, mission tracking and free applications on this phase."
+      },
+      "strategic": {
+        "name": "Strategic partnership or corporate fundraising",
+        "short_label": "Partnership",
+        "duration": "Step 4 · long term",
+        "goal": "Become a trusted subcontractor — or raise corporate capital — with a proven track record.",
+        "explain": "After PoC and scale, industrials want a partner, not a one-off vendor. Framework agreements, co-innovation, corporate investment or JV become realistic.",
+        "startup_acts": "Target Partnership-phase projects, maintain delivery quality and negotiate a multi-year framework.",
+        "iotplace_role": "Partnership-phase projects, Enterprise Pro for clients, reduced commission (7%), priority matching."
       }
     }
   }

@@ -40,7 +40,14 @@ def _load_catalog(locale: str) -> dict:
     if not path.exists():
         path = LOCALES_DIR / f"{DEFAULT_LOCALE}.json"
     with open(path, encoding="utf-8") as handle:
-        return json.load(handle)
+        catalog = json.load(handle)
+    sectors_path = LOCALES_DIR / f"sectors_{locale}.json"
+    if not sectors_path.exists() and locale != DEFAULT_LOCALE:
+        sectors_path = LOCALES_DIR / f"sectors_{DEFAULT_LOCALE}.json"
+    if sectors_path.exists():
+        with open(sectors_path, encoding="utf-8") as handle:
+            catalog["sectors"] = json.load(handle)
+    return catalog
 
 
 def get_locale() -> str:
@@ -107,7 +114,8 @@ def translate_phase(phase: str) -> str:
 
 
 def inject_i18n_context():
-    from data.engagement_phases import ENGAGEMENT_PHASES
+    from data.engagement_phases import ENGAGEMENT_PHASES, STARTUP_JOURNEY_STEPS
+    from data.iot_sectors import sector_groups_for_template
     from vitrine import advisor_ai
 
     return {
@@ -116,6 +124,8 @@ def inject_i18n_context():
         "translate_status": translate_status,
         "translate_phase": translate_phase,
         "engagement_phases": ENGAGEMENT_PHASES,
+        "startup_journey_steps": STARTUP_JOURNEY_STEPS,
+        "iot_sector_groups": sector_groups_for_template(t),
         "locale_url_en": locale_url("en"),
         "locale_url_fr": locale_url("fr"),
         "advisor_enabled": advisor_ai.is_configured(),

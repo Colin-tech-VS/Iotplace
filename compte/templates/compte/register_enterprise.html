@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "compte/_macros.html" import field_value, tag_input %}
+{% from "compte/_macros.html" import field_value, tag_input, sector_select %}
 
 {% block content %}
 <section class="page-hero page-hero-sm">
@@ -43,11 +43,8 @@
                         <label for="company_name">{{ t('compte.company_name') }} <span class="req">*</span></label>
                         <input type="text" id="company_name" name="company_name" required value="{{ field_value(form, 'company_name') }}">
                     </div>
-                    <div class="form-group">
-                        <label for="sector">{{ t('compte.sector') }}</label>
-                        <input type="text" id="sector" name="sector" value="{{ field_value(form, 'sector') }}" placeholder="{{ t('compte.sector_ph') }}">
-                    </div>
                 </div>
+                {{ sector_select(form, required=true) }}
                 <div class="form-row">
                     <div class="form-group">
                         <label for="country">{{ t('compte.country') }}</label>
@@ -163,4 +160,5 @@
 {% block extra_js %}
 <script src="{{ url_for('vitrine.static', filename='js/tag-input.js') }}"></script>
 <script src="{{ url_for('vitrine.static', filename='js/engagement-phase.js') }}"></script>
+<script src="{{ url_for('vitrine.static', filename='js/sector-select.js') }}"></script>
 {% endblock %}

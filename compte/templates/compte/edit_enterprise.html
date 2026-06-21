@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "compte/_macros.html" import tag_input %}
+{% from "compte/_macros.html" import tag_input, sector_select %}
 
 {% block content %}
 <section class="page-hero page-hero-sm">
@@ -18,11 +18,8 @@
                         <label for="company_name">Raison sociale</label>
                         <input type="text" id="company_name" name="company_name" required value="{{ profile.name }}">
                     </div>
-                    <div class="form-group">
-                        <label for="sector">Secteur</label>
-                        <input type="text" id="sector" name="sector" value="{{ profile.sector or '' }}">
-                    </div>
                 </div>
+                {{ sector_select(form, required=true) }}
                 <div class="form-row">
                     <div class="form-group"><label for="country">Pays</label><input type="text" id="country" name="country" value="{{ profile.country or '' }}"></div>
                     <div class="form-group"><label for="city">Ville</label><input type="text" id="city" name="city" value="{{ profile.city or '' }}"></div>
@@ -61,4 +58,5 @@
 
 {% block extra_js %}
 <script src="{{ url_for('vitrine.static', filename='js/tag-input.js') }}"></script>
+<script src="{{ url_for('vitrine.static', filename='js/sector-select.js') }}"></script>
 {% endblock %}

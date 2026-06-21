@@ -28,11 +28,22 @@
                 {% if role == 'startup' and project.status == 'Ouvert' and not already_applied %}
                 <form class="apply-form" method="POST" action="{{ url_for('compte.startup_apply_project', project_id=project.id) }}">
                     <h3>Postuler à ce projet</h3>
+                    {% if requires_poc_fee %}
+                    <div class="poc-fee-banner" style="margin-bottom:1rem;padding:0.75rem 1rem;border-radius:10px;border:1px solid var(--border);background:var(--surface-alt, rgba(255,255,255,0.04))">
+                        <p><strong>Projet phase PoC</strong> — frais de candidature : <strong>{{ poc_application_fee_label }}</strong></p>
+                        <p class="muted" style="margin:0.35rem 0 0">Paiement sécurisé via Stripe avant envoi de votre candidature. Commission plateforme incluse.</p>
+                        {% if not stripe_configured %}
+                        <p class="message-hint" style="margin-top:0.5rem">Paiement temporairement indisponible (configuration Stripe en cours).</p>
+                        {% endif %}
+                    </div>
+                    {% endif %}
                     <div class="form-group">
                         <label for="message">Message de candidature</label>
                         <textarea id="message" name="message" rows="5" required placeholder="Présentez votre équipe, votre expérience IoT et votre proposition…"></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-glow">Envoyer ma candidature</button>
+                    <button type="submit" class="btn btn-primary btn-glow" {% if requires_poc_fee and not stripe_configured %}disabled{% endif %}>
+                        {% if requires_poc_fee %}Payer {{ poc_application_fee_label }} et envoyer{% else %}Envoyer ma candidature{% endif %}
+                    </button>
                 </form>
                 {% elif role == 'startup' and already_applied %}
                 <p class="message-hint">✓ Vous avez déjà candidaté à ce projet.</p>
