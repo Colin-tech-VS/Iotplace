@@ -930,6 +930,9 @@ a:hover { color: #33e0be; }
 }
 .status-open { background: rgba(0,212,170,.12); color: var(--accent); }
 .status-closed { background: rgba(148,163,184,.15); color: var(--text-muted); }
+.status-pending { background: rgba(251,191,36,.15); color: #fbbf24; }
+.status-accepted { background: rgba(0,212,170,.15); color: var(--accent); }
+.status-declined { background: rgba(248,113,113,.15); color: #f87171; }
 .check-list { padding-left: 1.1rem; color: var(--text-muted); font-size: 0.9rem; }
 .check-list li { margin-bottom: 0.4rem; }
 .muted { color: var(--text-muted); font-size: 0.85rem; }
@@ -939,6 +942,123 @@ a:hover { color: #33e0be; }
     color: var(--text-muted);
 }
 .btn-ghost:hover { color: var(--text); border-color: var(--text-muted); }
+
+/* Messages & onglets dashboard */
+.dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+.stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    text-align: center;
+}
+.stat-card-highlight { border-color: var(--accent); box-shadow: 0 0 0 1px rgba(0,212,170,.2); }
+.stat-card-value { display: block; font-size: 1.5rem; font-weight: 700; }
+.stat-card-label { font-size: 0.78rem; color: var(--text-muted); }
+.dashboard-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.75rem;
+}
+.tab-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 0.45rem 0.9rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    font-family: var(--font);
+}
+.tab-btn.active, .tab-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(0,212,170,.08);
+}
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.message-list { display: flex; flex-direction: column; gap: 0.5rem; }
+.message-row {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg);
+    transition: border-color .15s;
+}
+.message-row:hover { border-color: rgba(0,212,170,.35); }
+.message-unread { border-left: 3px solid var(--accent); }
+.message-row-link {
+    display: block;
+    padding: 0.85rem 1rem;
+    color: inherit;
+    text-decoration: none;
+}
+.message-row-top {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.35rem;
+    font-size: 0.75rem;
+}
+.message-kind {
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--accent);
+    font-weight: 600;
+}
+.message-new {
+    background: var(--accent);
+    color: #000;
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    font-weight: 700;
+}
+.message-date { margin-left: auto; }
+.message-preview { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.35rem; }
+.message-hint { font-size: 0.85rem; color: var(--text-muted); margin: 0.5rem 0; }
+.message-body-full {
+    white-space: pre-wrap;
+    line-height: 1.6;
+    margin: 1rem 0;
+    padding: 1rem;
+    background: var(--bg);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+}
+.message-meta {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    flex-wrap: wrap;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+.message-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin: 1rem 0;
+}
+.inline-form { display: inline; }
+.reply-form { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.reply-form h3 { margin-bottom: 0.75rem; font-size: 1rem; }
+.back-link {
+    display: inline-block;
+    margin-bottom: 0.75rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    text-decoration: none;
+}
+.back-link:hover { color: var(--accent); }
+.apply-form { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
 
 .empty-state {
     color: var(--text-muted);
@@ -1038,6 +1158,7 @@ a:hover { color: #33e0be; }
     .form-row { grid-template-columns: 1fr; }
     .dashboard-grid { grid-template-columns: 1fr; }
     .dashboard-hero-row { flex-direction: column; }
+    .dashboard-stats { grid-template-columns: repeat(2, 1fr); }
 
     .footer-grid { grid-template-columns: 1fr 1fr; }
 }

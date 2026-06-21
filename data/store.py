@@ -78,6 +78,7 @@ DEFAULT_DATA = {
     },
     "social_posts": [],
     "users": [],
+    "messages": [],
 }
 
 
@@ -406,6 +407,271 @@ def get_matching_projects_for_startup(startup):
         if not project_skills or skills & project_skills:
             matched.append(project)
     return matched
+
+
+def get_project(project_id):
+    return next((p for p in get_projects() if p["id"] == project_id), None)
+
+
+def add_project_for_enterprise(enterprise, fields):
+    return add_project({
+        "title": fields.get("title", "").strip(),
+        "enterprise": enterprise.get("name", ""),
+        "enterprise_id": enterprise["id"],
+        "description": fields.get("description", "").strip(),
+        "budget": fields.get("budget", "").strip(),
+        "duration": fields.get("duration", "").strip(),
+        "skills": fields.get("skills") or [],
+        "status": fields.get("status", "Ouvert"),
+    })
+
+
+# ── Messages & candidatures ──
+
+def _profile_name_for_user(user):
+    if not user:
+        return "Utilisateur"
+    if user.get("role") == "enterprise":
+        ent = get_enterprise(user.get("profile_id"))
+        return ent.get("name", user.get("email", "")) if ent else user.get("email", "")
+    startup = get_startup(user.get("profile_id"))
+    return startup.get("name", user.get("email", "")) if startup else user.get("email", "")
+
+
+def _user_for_enterprise_id(enterprise_id):
+    ent = get_enterprise(enterprise_id)
+    if not ent or not ent.get("user_id"):
+        return None
+    return get_user(ent["user_id"])
+
+
+def add_message(fields):
+    data = _load_raw()
+    entry = {
+        "id": _new_id(),
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "read": False,
+        "status": fields.get("status", "pending"),
+        **fields,
+    }
+    data.setdefault("messages", []).append(entry)
+    _save_raw(data)
+    return entry
+
+
+def get_message(message_id):
+    return next((m for m in _load_raw().get("messages", []) if m["id"] == message_id), None)
+
+
+def get_messages_for_user(user_id):
+    messages = _load_raw().get("messages", [])
+    return sorted(
+        [m for m in messages if m.get("from_user_id") == user_id or m.get("to_user_id") == user_id],
+        key=lambda m: m.get("created_at", ""),
+        reverse=True,
+    )
+
+
+def get_inbox_for_user(user_id):
+    return [m for m in get_messages_for_user(user_id) if m.get("to_user_id") == user_id]
+
+
+def get_sent_for_user(user_id):
+    return [m for m in get_messages_for_user(user_id) if m.get("from_user_id") == user_id]
+
+
+def get_unread_count(user_id):
+    return sum(1 for m in get_inbox_for_user(user_id) if not m.get("read"))
+
+
+def mark_message_read(message_id, user_id):
+    data = _load_raw()
+    for i, msg in enumerate(data.get("messages", [])):
+        if msg["id"] == message_id and msg.get("to_user_id") == user_id:
+            data["messages"][i] = {**msg, "read": True}
+            _save_raw(data)
+            return data["messages"][i]
+    return None
+
+
+def update_message_status(message_id, user_id, status):
+    data = _load_raw()
+    for i, msg in enumerate(data.get("messages", [])):
+        if msg["id"] == message_id and msg.get("to_user_id") == user_id:
+            data["messages"][i] = {**msg, "status": status, "read": True}
+            _save_raw(data)
+            return data["messages"][i]
+    return None
+
+
+def get_contacts_for_user(user):
+    email = (user.get("email") or "").strip().lower()
+    role = user.get("role", "")
+    contacts = []
+    for c in get_contacts():
+        c_email = (c.get("email") or "").strip().lower()
+        c_type = c.get("type", "")
+        if c_email == email:
+            contacts.append({**c, "source": "vitrine"})
+        elif role == "enterprise" and c_type == "enterprise" and c_email == email:
+            contacts.append({**c, "source": "vitrine"})
+        elif role == "startup" and c_type == "startup" and c_email == email:
+            contacts.append({**c, "source": "vitrine"})
+    return contacts
+
+
+def get_applications_for_project(project_id):
+    return [
+        m for m in _load_raw().get("messages", [])
+        if m.get("kind") == "application" and m.get("project_id") == project_id
+    ]
+
+
+def get_applications_for_startup(startup_id):
+    return [
+        m for m in _load_raw().get("messages", [])
+        if m.get("kind") == "application" and m.get("from_profile_id") == startup_id
+    ]
+
+
+def get_applications_for_enterprise(enterprise_id):
+    project_ids = {p["id"] for p in get_projects_for_enterprise(enterprise_id)}
+    return [
+        m for m in _load_raw().get("messages", [])
+        if m.get("kind") == "application" and m.get("project_id") in project_ids
+    ]
+
+
+def startup_already_applied(startup_id, project_id):
+    return any(
+        m.get("from_profile_id") == startup_id and m.get("project_id") == project_id
+        for m in _load_raw().get("messages", [])
+        if m.get("kind") == "application"
+    )
+
+
+def send_message(from_user, to_user, subject, body, kind="contact", project=None, status="pending"):
+    from_name = _profile_name_for_user(from_user)
+    to_name = _profile_name_for_user(to_user)
+    fields = {
+        "kind": kind,
+        "from_user_id": from_user["id"],
+        "to_user_id": to_user["id"],
+        "from_name": from_name,
+        "to_name": to_name,
+        "from_role": from_user.get("role"),
+        "to_role": to_user.get("role"),
+        "subject": subject,
+        "body": body,
+        "status": status,
+    }
+    if from_user.get("role") == "startup":
+        fields["from_profile_id"] = from_user.get("profile_id")
+    if from_user.get("role") == "enterprise":
+        fields["from_profile_id"] = from_user.get("profile_id")
+    if project:
+        fields["project_id"] = project["id"]
+        fields["project_title"] = project.get("title", "")
+    return add_message(fields)
+
+
+def apply_to_project(startup_user, startup, project, message_body):
+    if startup_already_applied(startup["id"], project["id"]):
+        raise ValueError("Vous avez déjà candidaté à ce projet.")
+    enterprise_user = _user_for_enterprise_id(project.get("enterprise_id"))
+    if not enterprise_user:
+        raise ValueError("Entreprise destinataire introuvable.")
+    subject = f"Candidature — {project.get('title', 'Projet IoT')}"
+    return send_message(
+        startup_user,
+        enterprise_user,
+        subject,
+        message_body,
+        kind="application",
+        project=project,
+        status="pending",
+    )
+
+
+def enrich_message_for_view(msg, current_user_id):
+    direction = "in" if msg.get("to_user_id") == current_user_id else "out"
+    kind_labels = {
+        "application": "Candidature",
+        "contact": "Prise de contact",
+        "reply": "Réponse",
+    }
+    status_labels = {
+        "pending": "En attente",
+        "accepted": "Acceptée",
+        "declined": "Refusée",
+        "closed": "Clôturée",
+    }
+    return {
+        **msg,
+        "direction": direction,
+        "kind_label": kind_labels.get(msg.get("kind"), msg.get("kind", "Message")),
+        "status_label": status_labels.get(msg.get("status"), msg.get("status", "")),
+        "counterpart_name": msg.get("from_name") if direction == "in" else msg.get("to_name"),
+    }
+
+
+def get_dashboard_data_for_enterprise(user, profile):
+    projects = get_projects_for_enterprise(profile["id"], profile.get("name", ""))
+    inbox = get_inbox_for_user(user["id"])
+    sent = get_sent_for_user(user["id"])
+    applications = get_applications_for_enterprise(profile["id"])
+    platform_contacts = get_contacts_for_user(user)
+    projects_enriched = []
+    for p in projects:
+        apps = get_applications_for_project(p["id"])
+        projects_enriched.append({
+            **p,
+            "applications_count": len(apps),
+            "applications_pending": sum(1 for a in apps if a.get("status") == "pending"),
+        })
+    return {
+        "projects": projects_enriched,
+        "inbox": [enrich_message_for_view(m, user["id"]) for m in inbox],
+        "sent": [enrich_message_for_view(m, user["id"]) for m in sent],
+        "applications": [enrich_message_for_view(m, user["id"]) for m in applications],
+        "platform_contacts": platform_contacts,
+        "unread_count": get_unread_count(user["id"]),
+        "stats": {
+            "projects": len(projects),
+            "messages": len(inbox) + len(sent),
+            "applications": len(applications),
+            "unread": get_unread_count(user["id"]),
+            "contacts": len(platform_contacts),
+        },
+    }
+
+
+def get_dashboard_data_for_startup(user, profile):
+    matching = get_matching_projects_for_startup(profile)
+    inbox = get_inbox_for_user(user["id"])
+    sent = get_sent_for_user(user["id"])
+    applications = get_applications_for_startup(profile["id"])
+    applied_ids = {a.get("project_id") for a in applications}
+    matching_enriched = []
+    for p in matching:
+        matching_enriched.append({
+            **p,
+            "already_applied": p["id"] in applied_ids,
+        })
+    return {
+        "matching_projects": matching_enriched,
+        "inbox": [enrich_message_for_view(m, user["id"]) for m in inbox],
+        "sent": [enrich_message_for_view(m, user["id"]) for m in sent],
+        "applications": [enrich_message_for_view(m, user["id"]) for m in applications],
+        "platform_contacts": get_contacts_for_user(user),
+        "unread_count": get_unread_count(user["id"]),
+        "stats": {
+            "applications": len(applications),
+            "messages": len(inbox) + len(sent),
+            "matching": len(matching),
+            "unread": get_unread_count(user["id"]),
+        },
+    }
 
 
 def get_page_catalog():

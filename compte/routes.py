@@ -185,12 +185,62 @@ def enterprise_dashboard():
     if not profile:
         flash("Profil entreprise introuvable.", "error")
         return redirect(url_for("vitrine.index"))
-    projects = store.get_projects_for_enterprise(profile["id"], profile.get("name", ""))
+    dash = store.get_dashboard_data_for_enterprise(user, profile)
     return render_template(
         "compte/dashboard_enterprise.html",
         user=user,
         profile=profile,
-        projects=projects,
+        **dash,
+    )
+
+
+@compte_bp.route("/compte/entreprise/projet/nouveau", methods=["GET", "POST"])
+@auth.login_required(role="enterprise")
+def enterprise_new_project():
+    user = auth.get_current_user()
+    profile = store.get_enterprise_for_user(user["id"])
+    if not profile:
+        return redirect(url_for("vitrine.index"))
+
+    if request.method == "POST":
+        title = request.form.get("title", "").strip()
+        if not title:
+            flash("Le titre du projet est requis.", "error")
+            return render_template("compte/project_form.html", profile=profile, user=user, form=dict(request.form))
+        store.add_project_for_enterprise(profile, {
+            "title": title,
+            "description": request.form.get("description", "").strip(),
+            "budget": request.form.get("budget", "").strip(),
+            "duration": request.form.get("duration", "").strip(),
+            "skills": store.parse_list_field(request.form.get("skills")),
+            "status": "Ouvert",
+        })
+        flash("Projet publié.", "success")
+        return redirect(url_for("compte.enterprise_dashboard"))
+
+    return render_template("compte/project_form.html", profile=profile, user=user, form={})
+
+
+@compte_bp.route("/compte/entreprise/projet/<project_id>")
+@auth.login_required(role="enterprise")
+def enterprise_project_detail(project_id):
+    user = auth.get_current_user()
+    profile = store.get_enterprise_for_user(user["id"])
+    project = store.get_project(project_id)
+    if not profile or not project or project.get("enterprise_id") != profile["id"]:
+        flash("Projet introuvable.", "error")
+        return redirect(url_for("compte.enterprise_dashboard"))
+    applications = [
+        store.enrich_message_for_view(a, user["id"])
+        for a in store.get_applications_for_project(project_id)
+    ]
+    return render_template(
+        "compte/project_detail.html",
+        user=user,
+        profile=profile,
+        project=project,
+        applications=applications,
+        role="enterprise",
     )
 
 
@@ -231,13 +281,59 @@ def startup_dashboard():
     if not profile:
         flash("Profil startup introuvable.", "error")
         return redirect(url_for("vitrine.index"))
-    matching = store.get_matching_projects_for_startup(profile)
+    dash = store.get_dashboard_data_for_startup(user, profile)
     return render_template(
         "compte/dashboard_startup.html",
         user=user,
         profile=profile,
-        matching_projects=matching,
+        **dash,
     )
+
+
+@compte_bp.route("/compte/startup/projet/<project_id>")
+@auth.login_required(role="startup")
+def startup_project_detail(project_id):
+    user = auth.get_current_user()
+    profile = store.get_startup_for_user(user["id"])
+    project = store.get_project(project_id)
+    if not profile or not project:
+        flash("Projet introuvable.", "error")
+        return redirect(url_for("compte.startup_dashboard"))
+    application = next(
+        (store.enrich_message_for_view(a, user["id"]) for a in store.get_applications_for_startup(profile["id"])
+         if a.get("project_id") == project_id),
+        None,
+    )
+    return render_template(
+        "compte/project_detail.html",
+        user=user,
+        profile=profile,
+        project=project,
+        applications=[application] if application else [],
+        role="startup",
+        already_applied=store.startup_already_applied(profile["id"], project_id),
+    )
+
+
+@compte_bp.route("/compte/startup/projet/<project_id>/postuler", methods=["POST"])
+@auth.login_required(role="startup")
+def startup_apply_project(project_id):
+    user = auth.get_current_user()
+    profile = store.get_startup_for_user(user["id"])
+    project = store.get_project(project_id)
+    if not profile or not project:
+        flash("Projet introuvable.", "error")
+        return redirect(url_for("compte.startup_dashboard"))
+    body = request.form.get("message", "").strip()
+    if not body:
+        flash("Ajoutez un message de présentation pour votre candidature.", "error")
+        return redirect(url_for("compte.startup_project_detail", project_id=project_id))
+    try:
+        store.apply_to_project(user, profile, project, body)
+        flash("Candidature envoyée à l'entreprise.", "success")
+    except ValueError as exc:
+        flash(str(exc), "error")
+    return redirect(url_for("compte.startup_project_detail", project_id=project_id))
 
 
 @compte_bp.route("/compte/startup/profil", methods=["GET", "POST"])
@@ -269,3 +365,67 @@ def startup_edit_profile():
         return redirect(url_for("compte.startup_dashboard"))
 
     return render_template("compte/edit_startup.html", user=user, profile=profile)
+
+
+@compte_bp.route("/compte/messages/<message_id>")
+@auth.login_required()
+def message_detail(message_id):
+    user = auth.get_current_user()
+    msg = store.get_message(message_id)
+    if not msg or user["id"] not in (msg.get("from_user_id"), msg.get("to_user_id")):
+        flash("Message introuvable.", "error")
+        return redirect(url_for("compte.home"))
+    if msg.get("to_user_id") == user["id"] and not msg.get("read"):
+        store.mark_message_read(message_id, user["id"])
+    enriched = store.enrich_message_for_view(msg, user["id"])
+    project = store.get_project(msg["project_id"]) if msg.get("project_id") else None
+    return render_template(
+        "compte/message_detail.html",
+        user=user,
+        message=enriched,
+        project=project,
+    )
+
+
+@compte_bp.route("/compte/messages/<message_id>/repondre", methods=["POST"])
+@auth.login_required()
+def message_reply(message_id):
+    user = auth.get_current_user()
+    original = store.get_message(message_id)
+    if not original or user["id"] not in (original.get("from_user_id"), original.get("to_user_id")):
+        flash("Message introuvable.", "error")
+        return redirect(url_for("compte.home"))
+    body = request.form.get("body", "").strip()
+    if not body:
+        flash("Le message ne peut pas être vide.", "error")
+        return redirect(url_for("compte.message_detail", message_id=message_id))
+    recipient_id = (
+        original["from_user_id"]
+        if original.get("to_user_id") == user["id"]
+        else original["to_user_id"]
+    )
+    recipient = store.get_user(recipient_id)
+    if not recipient:
+        flash("Destinataire introuvable.", "error")
+        return redirect(url_for("compte.message_detail", message_id=message_id))
+    project = store.get_project(original["project_id"]) if original.get("project_id") else None
+    subject = f"Re: {original.get('subject', 'Message')}"
+    store.send_message(user, recipient, subject, body, kind="reply", project=project)
+    flash("Réponse envoyée.", "success")
+    return redirect(url_for("compte.message_detail", message_id=message_id))
+
+
+@compte_bp.route("/compte/messages/<message_id>/statut", methods=["POST"])
+@auth.login_required(role="enterprise")
+def message_update_status(message_id):
+    user = auth.get_current_user()
+    status = request.form.get("status", "")
+    if status not in ("accepted", "declined", "pending"):
+        flash("Statut invalide.", "error")
+        return redirect(url_for("compte.home"))
+    updated = store.update_message_status(message_id, user["id"], status)
+    if not updated:
+        flash("Impossible de mettre à jour ce message.", "error")
+    else:
+        flash("Statut de la candidature mis à jour.", "success")
+    return redirect(url_for("compte.message_detail", message_id=message_id))

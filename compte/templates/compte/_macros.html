@@ -1,3 +1,31 @@
 {% macro field_value(form, name, default='') -%}
 {{ form.get(name, default) if form else default }}
 {%- endmacro %}
+
+{% macro message_row(msg) %}
+<article class="message-row {% if not msg.read and msg.direction == 'in' %}message-unread{% endif %}">
+    <a href="{{ url_for('compte.message_detail', message_id=msg.id) }}" class="message-row-link">
+        <div class="message-row-top">
+            <span class="message-kind">{{ msg.kind_label }}</span>
+            {% if not msg.read and msg.direction == 'in' %}<span class="message-new">Nouveau</span>{% endif %}
+            <span class="message-date muted">{{ msg.created_at[11:16] if msg.created_at else '' }}</span>
+        </div>
+        <strong>{{ msg.subject or 'Sans objet' }}</strong>
+        <p class="muted">
+            {% if msg.direction == 'in' %}De{% else %}À{% endif %} {{ msg.counterpart_name }}
+            {% if msg.project_title %} · {{ msg.project_title }}{% endif %}
+        </p>
+        <p class="message-preview">{{ msg.body[:120] }}{% if msg.body|length > 120 %}…{% endif %}</p>
+        {% if msg.kind == 'application' %}
+        <span class="status-pill status-{{ msg.status }}">{{ msg.status_label }}</span>
+        {% endif %}
+    </a>
+</article>
+{% endmacro %}
+
+{% macro stat_card(label, value, highlight=false) %}
+<div class="stat-card {% if highlight %}stat-card-highlight{% endif %}">
+    <span class="stat-card-value">{{ value }}</span>
+    <span class="stat-card-label">{{ label }}</span>
+</div>
+{% endmacro %}
