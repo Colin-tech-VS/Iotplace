@@ -3,32 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ seo.title }}</title>
-    <meta name="description" content="{{ seo.description }}">
+    <title>{% block seo_title %}{{ seo.title }}{% endblock %}</title>
+    <meta name="description" content="{% block seo_description %}{{ seo.description }}{% endblock %}">
     {% if seo.keywords %}<meta name="keywords" content="{{ seo.keywords }}">{% endif %}
-    {% if seo.og_image %}<meta property="og:image" content="{{ seo.og_image }}">{% endif %}
-    <meta property="og:title" content="{{ seo.title }}">
-    <meta property="og:description" content="{{ seo.description }}">
+    <meta name="robots" content="{% block seo_robots %}{{ seo.robots|default('index, follow') }}{% endblock %}">
+    <meta name="author" content="{{ seo.site_name }}">
+    <link rel="canonical" href="{% block seo_canonical %}{{ seo_canonical }}{% endblock %}">
+
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="{{ seo.site_name }}">
+    <meta property="og:locale" content="{{ seo.locale|default('fr_FR') }}">
+    <meta property="og:url" content="{{ seo_canonical }}">
+    <meta property="og:title" content="{% block og_title %}{{ seo.title }}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}{{ seo.description }}{% endblock %}">
+    {% if seo.og_image_abs %}<meta property="og:image" content="{{ seo.og_image_abs }}">{% elif seo.og_image %}<meta property="og:image" content="{{ seo.og_image }}">{% endif %}
+
+    <meta name="twitter:card" content="{% if seo.og_image_abs or seo.og_image %}summary_large_image{% else %}summary{% endif %}">
+    <meta name="twitter:title" content="{{ seo.title }}">
+    <meta name="twitter:description" content="{{ seo.description }}">
+    {% if seo.twitter_handle %}<meta name="twitter:site" content="@{{ seo.twitter_handle.lstrip('@') }}">{% endif %}
+    {% if seo.og_image_abs %}<meta name="twitter:image" content="{{ seo.og_image_abs }}">{% endif %}
+
+    <link rel="alternate" hreflang="fr" href="{{ seo_canonical }}">
+    <link rel="alternate" hreflang="x-default" href="{{ seo_canonical }}">
+
+    {% for graph in seo_json_ld|default([]) %}
+    <script type="application/ld+json">{{ graph|tojson }}</script>
+    {% endfor %}
+
     {% if analytics_enabled %}
     <meta name="iot-analytics" content='{{ {"page": analytics_page_slug, "session_id": analytics_session}|tojson }}'>
     {% endif %}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/style.css') }}?v=2">
+    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/iot-theme.css') }}?v=1">
+    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/dashboard-ux.css') }}?v=1">
+    {% block extra_head %}{% endblock %}
 </head>
-<body>
+<body class="vitrine">
     <div class="page-bg">
+        <div class="iot-scanline"></div>
+        <div class="iot-circuit iot-circuit-1"></div>
+        <div class="iot-circuit iot-circuit-2"></div>
         <div class="orb orb-1"></div>
         <div class="orb orb-2"></div>
         <div class="orb orb-3"></div>
         <div class="grid-overlay"></div>
     </div>
 
-    <nav class="navbar">
+    <nav class="navbar" aria-label="Navigation principale">
         <div class="container nav-inner">
-            <a href="{{ url_for('vitrine.index') }}" class="logo">
-                <span class="logo-icon pulse">⬡</span>
+            <a href="{{ url_for('vitrine.index') }}" class="logo" aria-label="Iotplace — Accueil">
+                <span class="logo-icon pulse" aria-hidden="true">⬡</span>
                 <span class="logo-text">Iot<span class="accent">place</span></span>
             </a>
             <button class="nav-toggle" aria-label="Menu" onclick="document.querySelector('.nav-links').classList.toggle('open')">
@@ -41,7 +69,12 @@
                 <li><a href="{{ url_for('vitrine.projects') }}" {% if request.endpoint == 'vitrine.projects' %}class="active"{% endif %}>Projets</a></li>
                 <li><a href="{{ url_for('vitrine.about') }}" {% if request.endpoint == 'vitrine.about' %}class="active"{% endif %}>À propos</a></li>
                 {% if current_user %}
-                <li><a href="{{ url_for('compte.home') }}" class="btn btn-sm btn-outline">Mon compte</a></li>
+                <li>
+                    <a href="{{ url_for('compte.home') }}" class="btn btn-sm btn-outline nav-msg-link">
+                        Messages
+                        <span class="nav-msg-badge" data-msg-badge {% if not unread_count|default(0) %}hidden{% endif %}>{{ unread_count|default(0) or '' }}</span>
+                    </a>
+                </li>
                 {% else %}
                 <li><a href="{{ url_for('compte.login') }}">Connexion</a></li>
                 <li><a href="{{ url_for('compte.register_enterprise') }}" class="btn btn-sm btn-outline">S'inscrire</a></li>
@@ -61,7 +94,7 @@
         {% endif %}
     {% endwith %}
 
-    <main>
+    <main id="main-content">
         {% block content %}{% endblock %}
     </main>
 
@@ -69,44 +102,45 @@
         <div class="container footer-grid">
             <div class="footer-brand">
                 <a href="{{ url_for('vitrine.index') }}" class="logo">
-                    <span class="logo-icon">⬡</span>
+                    <span class="logo-icon" aria-hidden="true">⬡</span>
                     <span class="logo-text">Iot<span class="accent">place</span></span>
                 </a>
-                <p>La marketplace B2B qui connecte les géants de l'IoT aux startups d'Asie du Sud-Est.</p>
+                <p>Marketplace B2B de <strong>sous-traitance IoT</strong> : entreprises qui externalisent firmware, hardware et cloud vers des startups qualifiées en Asie du Sud-Est.</p>
             </div>
             <div>
-                <h4>Plateforme</h4>
+                <h4>Entreprises</h4>
                 <ul>
-                    <li><a href="{{ url_for('vitrine.enterprises') }}">Pour les entreprises</a></li>
-                    <li><a href="{{ url_for('vitrine.startups') }}">Pour les startups</a></li>
-                    <li><a href="{{ url_for('vitrine.projects') }}">Projets ouverts</a></li>
+                    <li><a href="{{ url_for('vitrine.enterprises') }}">Sous-traiter un projet IoT</a></li>
+                    <li><a href="{{ url_for('compte.register_enterprise') }}">Inscription entreprise</a></li>
+                    <li><a href="{{ url_for('vitrine.projects') }}">Publier un projet</a></li>
                 </ul>
             </div>
             <div>
-                <h4>Régions</h4>
+                <h4>Startups IoT</h4>
                 <ul>
+                    <li><a href="{{ url_for('vitrine.startups') }}">Trouver des missions</a></li>
+                    <li><a href="{{ url_for('compte.register_startup') }}">Inscription startup</a></li>
                     {% for country in countries|default([]) %}
-                    <li><a href="{{ url_for('vitrine.startups', country=country) }}">{{ country }}</a></li>
-                    {% else %}
-                    <li><span class="text-muted">Bientôt disponible</span></li>
+                    <li><a href="{{ url_for('vitrine.startups', country=country) }}">Startups {{ country }}</a></li>
                     {% endfor %}
                 </ul>
             </div>
             <div>
-                <h4>Contact</h4>
+                <h4>Plateforme</h4>
                 <ul>
-                    <li><a href="{{ url_for('vitrine.contact') }}">Nous contacter</a></li>
                     <li><a href="{{ url_for('vitrine.about') }}">À propos</a></li>
+                    <li><a href="{{ url_for('vitrine.contact') }}">Contact</a></li>
+                    <li><a href="{{ url_for('vitrine.sitemap_xml') }}">Plan du site</a></li>
                 </ul>
             </div>
         </div>
         <div class="footer-bottom container">
-            <p>&copy; 2026 Iotplace. Tous droits réservés.</p>
-            <a href="{{ url_for('crm.dashboard') }}" class="footer-admin-link">Administration</a>
+            <p>&copy; 2026 Iotplace — Sous-traitance IoT B2B. Tous droits réservés.</p>
+            <a href="{{ url_for('crm.dashboard') }}" class="footer-admin-link" rel="nofollow">Administration</a>
         </div>
     </footer>
 
-    <script src="{{ url_for('vitrine.static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('vitrine.static', filename='js/main.js') }}?v=2"></script>
     {% if analytics_enabled %}
     <script src="{{ url_for('vitrine.static', filename='js/analytics.js') }}"></script>
     {% endif %}
@@ -114,5 +148,30 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id={{ seo.google_analytics_id }}"></script>
     <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','{{ seo.google_analytics_id }}');</script>
     {% endif %}
+    {% if current_user %}
+    <meta name="messaging-poll-url" content="{{ url_for('compte.messaging_poll') }}">
+    <script>
+    (function(){
+        if (!document.querySelector('[data-msg-badge]')) return;
+        const pollUrl = document.querySelector('meta[name="messaging-poll-url"]')?.content;
+        if (!pollUrl) return;
+        async function navPoll() {
+            try {
+                const r = await fetch(pollUrl);
+                const d = await r.json();
+                if (!d.ok) return;
+                document.querySelectorAll('[data-msg-badge]').forEach(el => {
+                    const n = d.unread || 0;
+                    if (n > 0) { el.textContent = n > 99 ? '99+' : n; el.hidden = false; }
+                    else el.hidden = true;
+                });
+            } catch(_) {}
+        }
+        navPoll();
+        setInterval(navPoll, 8000);
+    })();
+    </script>
+    {% endif %}
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

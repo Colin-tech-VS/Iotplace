@@ -11,6 +11,7 @@
         <form method="POST">
             <input type="hidden" name="form_type" value="global">
             <div class="field"><label>Nom du site</label><input name="site_name" value="{{ global_seo.site_name or '' }}"></div>
+            <div class="field"><label>URL du site (canonical, sitemap)</label><input name="site_url" value="{{ global_seo.site_url or '' }}" placeholder="https://iotplace.osc-fr1.scalingo.io"></div>
             <div class="field"><label>Suffixe des titres</label><input name="title_suffix" value="{{ global_seo.title_suffix or '' }}"></div>
             <div class="field"><label>Meta description</label><textarea name="meta_description" rows="2">{{ global_seo.meta_description or '' }}</textarea></div>
             <div class="field"><label>Mots-clés</label><input name="keywords" value="{{ global_seo.keywords or '' }}"></div>

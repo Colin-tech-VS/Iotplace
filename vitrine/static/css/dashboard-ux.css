@@ -1,0 +1,367 @@
+/* ═══════════════════════════════════════════════════════════
+   Compte Dashboard — UX-friendly (vitrine)
+   ═══════════════════════════════════════════════════════════ */
+
+.ux-dash {
+    padding-bottom: 3rem;
+}
+
+.ux-dash-hero {
+    padding: 1.75rem 0 1.25rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 1.5rem;
+}
+
+.ux-dash-hero-inner {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+}
+
+.ux-dash-identity {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.ux-dash-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgba(0, 232, 200, 0.15), rgba(56, 189, 248, 0.1));
+    border: 1px solid rgba(0, 232, 200, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+}
+
+.ux-dash-avatar.enterprise::before { content: '🏢'; }
+.ux-dash-avatar.startup { font-size: 1.6rem; }
+
+.ux-dash-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 0.35rem;
+}
+
+.ux-dash-hero h1 {
+    font-size: 1.35rem;
+    margin: 0 0 0.25rem;
+    letter-spacing: -0.02em;
+}
+
+.ux-dash-sub {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.ux-dash-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* Stats row */
+.ux-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+.ux-stat {
+    position: relative;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1rem 0.85rem;
+    text-align: left;
+    transition: border-color 0.2s, transform 0.2s;
+}
+
+.ux-stat-clickable {
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.ux-stat-clickable:hover {
+    border-color: rgba(0, 232, 200, 0.35);
+    transform: translateY(-2px);
+}
+
+.ux-stat-highlight {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px rgba(0, 232, 200, 0.15), 0 4px 20px rgba(0, 232, 200, 0.08);
+}
+
+.ux-stat-icon {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.85;
+}
+
+.ux-stat-value {
+    display: block;
+    font-size: 1.65rem;
+    font-weight: 700;
+    font-family: var(--mono);
+    line-height: 1;
+    letter-spacing: -0.03em;
+}
+
+.ux-stat-label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 0.35rem;
+}
+
+.ux-stat-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+}
+
+/* Profile completion */
+.ux-profile-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.15rem 1.25rem;
+    margin-bottom: 1.25rem;
+}
+
+.ux-profile-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.85rem;
+}
+
+.ux-profile-head h3 {
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.ux-progress-wrap {
+    margin-bottom: 0.85rem;
+}
+
+.ux-progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-bottom: 0.4rem;
+}
+
+.ux-progress-bar {
+    height: 6px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.ux-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), #38bdf8);
+    border-radius: 999px;
+    transition: width 0.5s ease;
+}
+
+/* Segmented tabs */
+.ux-tabs {
+    display: flex;
+    gap: 0.35rem;
+    padding: 0.35rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.ux-tabs::-webkit-scrollbar { display: none; }
+
+.ux-tab {
+    flex: 1;
+    min-width: max-content;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.55rem 0.9rem;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    font-weight: 500;
+    font-family: var(--font);
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.ux-tab:hover {
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.ux-tab.active {
+    background: rgba(0, 232, 200, 0.12);
+    color: var(--accent);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+.ux-tab-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 999px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    background: rgba(0, 232, 200, 0.15);
+    color: var(--accent);
+}
+
+.ux-tab.active .ux-tab-count {
+    background: var(--accent);
+    color: #041018;
+}
+
+.ux-panel {
+    display: none;
+    animation: ux-fade-in 0.3s ease;
+}
+
+.ux-panel.active {
+    display: block;
+}
+
+@keyframes ux-fade-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Content cards */
+.ux-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.25rem;
+}
+
+.ux-card + .ux-card {
+    margin-top: 0.85rem;
+}
+
+.ux-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.ux-card-head h3 {
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+/* List items */
+.ux-list-item {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.9rem 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.ux-list-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.ux-list-item:first-child {
+    padding-top: 0;
+}
+
+.ux-list-item a strong {
+    color: var(--text);
+    text-decoration: none;
+    font-size: 0.92rem;
+}
+
+.ux-list-item a:hover strong {
+    color: var(--accent);
+}
+
+.ux-list-meta {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+}
+
+/* Empty state */
+.ux-empty {
+    text-align: center;
+    padding: 2rem 1rem;
+}
+
+.ux-empty-icon {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+    opacity: 0.6;
+}
+
+.ux-empty h4 {
+    margin: 0 0 0.5rem;
+    font-size: 0.95rem;
+}
+
+.ux-empty p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin: 0 0 1rem;
+    max-width: 320px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+    .ux-stats { grid-template-columns: repeat(2, 1fr); }
+    .ux-dash-hero-inner { flex-direction: column; }
+    .ux-dash-actions { width: 100%; }
+    .ux-dash-actions .btn { flex: 1; text-align: center; justify-content: center; }
+}
+
+@media (max-width: 400px) {
+    .ux-tab { font-size: 0.75rem; padding: 0.5rem 0.65rem; }
+}

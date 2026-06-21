@@ -1,4 +1,4 @@
-from flask import render_template, request, redirect, url_for, flash, session, jsonify
+from flask import render_template, request, redirect, url_for, flash, session, jsonify, Response
 import uuid
 
 import auth
@@ -59,14 +59,32 @@ def inject_vitrine_context():
     slug = ENDPOINT_PAGE_SLUG.get(request.endpoint, "home")
     sid = session.get("analytics_sid", "")
     enabled = _analytics_enabled()
+    site_url = store.get_site_url()
+    seo_overrides = {}
+    breadcrumbs_extra = None
+    if request.endpoint == "vitrine.startups" and request.args.get("country"):
+        country = request.args.get("country")
+        seo_overrides = store.get_startups_country_seo(country)
+        breadcrumbs_extra = {"name": f"Startups {country}", "url": store.build_canonical_url(site_url, request.path, request.query_string)}
+    canonical = store.build_canonical_url(site_url, request.path, request.query_string if request.args.get("country") else b"")
+    breadcrumbs = store.build_breadcrumbs(slug, site_url, breadcrumbs_extra)
+    faq = store.get_page_faq(slug)
+    user = auth.get_current_user()
     return {
         "countries": store.get_startup_countries(),
-        "seo": store.get_seo_for_vitrine(slug),
+        "seo": store.get_seo_for_vitrine(slug, overrides=seo_overrides or None),
+        "seo_canonical": canonical,
+        "seo_site_url": site_url,
+        "seo_page_slug": slug,
+        "seo_json_ld": store.build_json_ld(slug, canonical, site_url, faq=faq, breadcrumbs=breadcrumbs),
+        "seo_faq": faq,
+        "seo_breadcrumbs": breadcrumbs,
         "page": store.get_page_content(slug),
         "analytics_page_slug": slug if enabled else "",
         "analytics_session": sid if enabled else "",
         "analytics_enabled": enabled,
-        "current_user": auth.get_current_user(),
+        "current_user": user,
+        "unread_count": store.get_unread_count(user["id"]) if user else 0,
     }
 
 
@@ -86,6 +104,28 @@ def analytics_ping():
 def _check_published(slug):
     content = store.get_page_content(slug)
     return content.get("published", True)
+
+
+@vitrine_bp.route("/robots.txt")
+def robots_txt():
+    return Response(store.get_robots_txt(), mimetype="text/plain")
+
+
+@vitrine_bp.route("/sitemap.xml")
+def sitemap_xml():
+    entries = store.get_sitemap_entries()
+    lines = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    ]
+    for entry in entries:
+        lines.append("  <url>")
+        lines.append(f"    <loc>{entry['loc']}</loc>")
+        lines.append(f"    <changefreq>{entry['changefreq']}</changefreq>")
+        lines.append(f"    <priority>{entry['priority']}</priority>")
+        lines.append("  </url>")
+    lines.append("</urlset>")
+    return Response("\n".join(lines), mimetype="application/xml")
 
 
 @vitrine_bp.route("/")

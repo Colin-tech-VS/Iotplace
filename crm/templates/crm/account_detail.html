@@ -72,6 +72,7 @@
             <div><dt>Secteur</dt><dd>{{ account.profile.sector or '—' }}</dd></div>
             <div><dt>Pays / ville</dt><dd>{{ account.profile.country or '—' }}{% if account.profile.city %}, {{ account.profile.city }}{% endif %}</dd></div>
             <div><dt>Contact</dt><dd>{{ account.profile.contact_name or '—' }}{% if account.profile.phone %} · {{ account.profile.phone }}{% endif %}</dd></div>
+            {% if account.profile.besoin %}<div><dt>Besoin</dt><dd>{{ account.profile.besoin }}</dd></div>{% endif %}
             <div><dt>Vitrine</dt><dd>{% if account.profile.published %}Publié{% else %}En attente{% endif %}</dd></div>
             {% else %}
             <div><dt>Startup</dt><dd>{{ account.profile.flag or '' }} {{ account.profile.name }}</dd></div>
@@ -79,6 +80,7 @@
             <div><dt>Pays / ville</dt><dd>{{ account.profile.country or '—' }}{% if account.profile.city %}, {{ account.profile.city }}{% endif %}</dd></div>
             <div><dt>Équipe</dt><dd>{{ account.profile.team_size or '—' }} pers.</dd></div>
             <div><dt>Disponibilité</dt><dd>{{ account.profile.availability or '—' }}</dd></div>
+            {% if account.profile.besoin %}<div><dt>Recherche</dt><dd>{{ account.profile.besoin }}</dd></div>{% endif %}
             {% if account.profile.skills %}
             <div><dt>Compétences</dt><dd>{% for s in account.profile.skills %}<span class="tag">{{ s }}</span>{% endfor %}</dd></div>
             {% endif %}

@@ -29,3 +29,29 @@
     <span class="stat-card-label">{{ label }}</span>
 </div>
 {% endmacro %}
+
+{% macro tag_input(field_id, field_name, value='', label='', placeholder='', hint='', required=false) %}
+<div class="form-group tag-input-group">
+    <label for="{{ field_id }}">{{ label }}</label>
+    <input type="text" id="{{ field_id }}" name="{{ field_name }}" class="tag-input" value="{{ value }}" placeholder="{{ placeholder }}" {% if required %}required{% endif %} autocomplete="off">
+    {% if hint %}<span class="field-hint">{{ hint }}</span>{% endif %}
+    <div class="tag-preview" aria-live="polite"></div>
+</div>
+{% endmacro %}
+
+{% macro profile_besoin_block(besoin, tags, tags_label='Compétences') %}
+<div class="profile-summary-block">
+    {% if besoin %}
+    <div class="profile-besoin">
+        <h4>Ce que je recherche</h4>
+        <p>{{ besoin }}</p>
+    </div>
+    {% endif %}
+    {% if tags %}
+    <div>
+        <h4>{{ tags_label }}</h4>
+        <div class="tag-list">{% for t in tags %}<span class="tag">{{ t }}</span>{% endfor %}</div>
+    </div>
+    {% endif %}
+</div>
+{% endmacro %}

@@ -1,9 +1,9 @@
-from flask import flash, redirect, render_template, request, url_for
+from flask import flash, jsonify, redirect, render_template, request, url_for
 
 import auth
 from compte import compte_bp
+from compte.api_auth import api_login_required
 from data import store
-
 
 def _validate_credentials(email, password, password_confirm=None):
     errors = []
@@ -108,6 +108,7 @@ def register_enterprise():
                     "website": request.form.get("website", "").strip(),
                     "email": request.form.get("email", "").strip().lower(),
                     "description": request.form.get("description", "").strip(),
+                    "besoin": request.form.get("besoin", "").strip(),
                     "needs": store.parse_list_field(request.form.get("needs")),
                 },
                 project_fields,
@@ -164,6 +165,7 @@ def register_startup():
                     "availability": request.form.get("availability", "").strip(),
                     "rate_range": request.form.get("rate_range", "").strip(),
                     "description": request.form.get("description", "").strip(),
+                    "besoin": request.form.get("besoin", "").strip(),
                     "skills": store.parse_list_field(request.form.get("skills")),
                 },
             )
@@ -265,6 +267,7 @@ def enterprise_edit_profile():
             "phone": request.form.get("phone", "").strip(),
             "website": request.form.get("website", "").strip(),
             "description": request.form.get("description", "").strip(),
+            "besoin": request.form.get("besoin", "").strip(),
             "needs": store.parse_list_field(request.form.get("needs")),
         })
         flash("Profil mis à jour.", "success")
@@ -331,6 +334,7 @@ def startup_apply_project(project_id):
     try:
         store.apply_to_project(user, profile, project, body)
         flash("Candidature envoyée à l'entreprise.", "success")
+        return redirect(url_for("compte.startup_dashboard") + "#messages")
     except ValueError as exc:
         flash(str(exc), "error")
     return redirect(url_for("compte.startup_project_detail", project_id=project_id))
@@ -359,6 +363,7 @@ def startup_edit_profile():
             "availability": request.form.get("availability", "").strip(),
             "rate_range": request.form.get("rate_range", "").strip(),
             "description": request.form.get("description", "").strip(),
+            "besoin": request.form.get("besoin", "").strip(),
             "skills": store.parse_list_field(request.form.get("skills")),
         })
         flash("Profil mis à jour.", "success")
@@ -429,3 +434,97 @@ def message_update_status(message_id):
     else:
         flash("Statut de la candidature mis à jour.", "success")
     return redirect(url_for("compte.message_detail", message_id=message_id))
+
+
+# ── Messagerie API (entreprise ↔ startup) ──
+
+
+@compte_bp.route("/compte/api/messaging/poll")
+@api_login_required()
+def messaging_poll(user):
+    since = request.args.get("since", "")
+    data = store.get_messaging_poll(user["id"], since)
+    return jsonify({"ok": True, **data})
+
+
+@compte_bp.route("/compte/api/messaging/thread")
+@api_login_required()
+def messaging_thread(user):
+    counterpart_id = request.args.get("counterpart", "").strip()
+    project_id = request.args.get("project_id") or None
+    if not counterpart_id:
+        return jsonify({"ok": False, "error": "Destinataire requis."}), 400
+
+    counterpart = store.get_user(counterpart_id)
+    if not counterpart:
+        return jsonify({"ok": False, "error": "Utilisateur introuvable."}), 404
+
+    messages = store.get_thread_messages(user["id"], counterpart_id, project_id)
+    if messages:
+        store.mark_thread_read(user["id"], counterpart_id, project_id)
+
+    return jsonify({
+        "ok": True,
+        "counterpart": {
+            "id": counterpart["id"],
+            "name": store._profile_name_for_user(counterpart),
+            "role": counterpart.get("role", ""),
+        },
+        "project_id": project_id,
+        "messages": [store.serialize_message_api(m, user["id"]) for m in messages],
+    })
+
+
+@compte_bp.route("/compte/api/messaging/send", methods=["POST"])
+@api_login_required()
+def messaging_send(user):
+    payload = request.get_json(silent=True) or {}
+    counterpart_id = (payload.get("counterpart_user_id") or "").strip()
+    body = (payload.get("body") or "").strip()
+    project_id = payload.get("project_id") or None
+
+    if not counterpart_id or not body:
+        return jsonify({"ok": False, "error": "Destinataire et message requis."}), 400
+
+    recipient = store.get_user(counterpart_id)
+    if not recipient:
+        return jsonify({"ok": False, "error": "Destinataire introuvable."}), 404
+
+    try:
+        msg = store.send_b2b_message(user, recipient, body, project_id=project_id)
+    except ValueError as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 400
+
+    return jsonify({
+        "ok": True,
+        "message": store.serialize_message_api(msg, user["id"]),
+        "unread": store.get_unread_count(user["id"]),
+    })
+
+
+@compte_bp.route("/compte/api/messaging/read", methods=["POST"])
+@api_login_required()
+def messaging_mark_read(user):
+    payload = request.get_json(silent=True) or {}
+    counterpart_id = (payload.get("counterpart_user_id") or "").strip()
+    project_id = payload.get("project_id") or None
+    if not counterpart_id:
+        return jsonify({"ok": False, "error": "Destinataire requis."}), 400
+    store.mark_thread_read(user["id"], counterpart_id, project_id)
+    return jsonify({"ok": True, "unread": store.get_unread_count(user["id"])})
+
+
+@compte_bp.route("/compte/api/messaging/<message_id>/status", methods=["POST"])
+@api_login_required(role="enterprise")
+def messaging_update_status(user, message_id):
+    payload = request.get_json(silent=True) or {}
+    status = payload.get("status", "")
+    if status not in ("accepted", "declined", "pending"):
+        return jsonify({"ok": False, "error": "Statut invalide."}), 400
+    updated = store.update_message_status(message_id, user["id"], status)
+    if not updated:
+        return jsonify({"ok": False, "error": "Impossible de mettre à jour."}), 400
+    return jsonify({
+        "ok": True,
+        "message": store.serialize_message_api(updated, user["id"]),
+    })

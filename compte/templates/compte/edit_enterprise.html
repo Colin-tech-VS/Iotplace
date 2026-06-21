@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "compte/_macros.html" import tag_input %}
 
 {% block content %}
 <section class="page-hero page-hero-sm">
@@ -37,8 +38,18 @@
                 </div>
                 <div class="form-group"><label for="website">Site web</label><input type="url" id="website" name="website" value="{{ profile.website or '' }}"></div>
                 <div class="form-group"><label for="description">Description</label><textarea id="description" name="description" rows="3">{{ profile.description or '' }}</textarea></div>
-                <div class="form-group"><label for="needs">Compétences recherchées</label><input type="text" id="needs" name="needs" value="{{ profile.needs|join(', ') if profile.needs else '' }}"></div>
             </fieldset>
+
+            <fieldset class="form-section-card">
+                <legend>Recherche & compétences</legend>
+                <div class="form-group">
+                    <label for="besoin">Votre besoin — que recherchez-vous et pourquoi ?</label>
+                    <textarea id="besoin" name="besoin" rows="4" placeholder="Ex. Nous externalisons le développement firmware de capteurs LoRaWAN pour accélérer notre time-to-market en Asie…">{{ profile.besoin or '' }}</textarea>
+                    <span class="field-hint">Décrivez ce que vous cherchez, le contexte du projet et pourquoi vous avez besoin d'une startup.</span>
+                </div>
+                {{ tag_input('needs', 'needs', profile.needs|join(', ') if profile.needs else '', 'Compétences recherchées', 'Firmware, LoRaWAN, Edge AI, Cloud IoT', 'Chaque compétence séparée par une virgule apparaît en badge.') }}
+            </fieldset>
+
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">Enregistrer</button>
                 <a href="{{ url_for('compte.enterprise_dashboard') }}" class="btn btn-ghost">Annuler</a>
@@ -46,4 +57,8 @@
         </form>
     </div>
 </section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('vitrine.static', filename='js/tag-input.js') }}"></script>
 {% endblock %}

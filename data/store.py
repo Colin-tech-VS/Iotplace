@@ -1,5 +1,7 @@
 import json
+import os
 import uuid
+from urllib.parse import quote
 from collections import Counter
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -17,24 +19,24 @@ PAGE_CATALOG = [
 
 DEFAULT_PAGE_CONTENT = {
     "home": {
-        "hero_badge": "Marketplace IoT B2B — Asie × Monde",
-        "hero_title": "Connectez les géants de l'IoT aux startups d'Asie du Sud-Est",
-        "hero_highlight": "géants de l'IoT",
-        "hero_subtitle": "Iotplace met en relation les grandes entreprises qui sous-traitent leurs projets IoT avec les startups vietnamiennes, indonésiennes et d'Asie du Sud-Est.",
+        "hero_badge": "Marketplace IoT B2B — Sous-traitance Asie × Monde",
+        "hero_title": "Sous-traitance IoT : connectez entreprises et startups d'Asie",
+        "hero_highlight": "Sous-traitance IoT",
+        "hero_subtitle": "Les entreprises externalisent firmware, hardware et cloud. Les startups IoT accèdent aux missions des grands groupes. Iotplace structure cette sous-traitance B2B en Asie du Sud-Est.",
         "cta_primary": "Je suis une entreprise",
         "cta_secondary": "Je suis une startup",
     },
     "enterprises": {
-        "title": "Pour les grandes entreprises",
-        "subtitle": "Externalisez vos projets IoT vers des startups qualifiées en Asie du Sud-Est.",
+        "title": "Sous-traiter vos projets IoT à des startups qualifiées",
+        "subtitle": "Externalisez firmware, hardware et cloud vers des startups IoT en Vietnam, Indonésie et Asie du Sud-Est — rapidement et en toute sécurité.",
     },
     "startups": {
-        "title": "Startups IoT d'Asie",
-        "subtitle": "Des équipes expertes en Asie du Sud-Est, prêtes à être sous-traitées.",
+        "title": "Startups IoT : trouvez des missions de sous-traitance",
+        "subtitle": "Accédez aux projets IoT publiés par les grandes entreprises qui cherchent à externaliser firmware, PCB, cloud et intégration.",
     },
     "projects": {
-        "title": "Projets de sous-traitance",
-        "subtitle": "Missions IoT publiées par les grandes entreprises.",
+        "title": "Projets IoT ouverts à la sous-traitance",
+        "subtitle": "Missions publiées par les entreprises qui externalisent leur développement IoT vers des startups qualifiées.",
     },
     "about": {
         "title": "À propos d'Iotplace",
@@ -44,9 +46,168 @@ DEFAULT_PAGE_CONTENT = {
     },
     "contact": {
         "title": "Nous contacter",
-        "subtitle": "Entreprise ou startup, rejoignez Iotplace et commencez à collaborer.",
+        "subtitle": "Entreprise ou startup IoT : démarrez votre sous-traitance sur Iotplace.",
         "email": "hello@iotplace.io",
     },
+}
+
+DEFAULT_SEO_PAGES = {
+    "home": {
+        "title": "Sous-traitance IoT B2B — Entreprises & Startups Asie",
+        "description": (
+            "Iotplace, marketplace IoT B2B : entreprises, externalisez firmware, hardware et cloud "
+            "vers des startups qualifiées en Asie du Sud-Est. Startups IoT, accédez aux missions "
+            "de sous-traitance des grands groupes."
+        ),
+        "keywords": (
+            "sous-traitance IoT, externalisation IoT, marketplace IoT B2B, startups IoT Asie, "
+            "Vietnam IoT, Indonésie IoT, firmware IoT, hardware connecté, missions IoT entreprise"
+        ),
+    },
+    "enterprises": {
+        "title": "Externaliser vos projets IoT — Sous-traiter des startups",
+        "description": (
+            "Entreprise IoT : publiez vos besoins et sous-traitez firmware, PCB, cloud et intégration "
+            "à des startups vietnamiennes et asiatiques qualifiées. Matching, contrats et suivi sur Iotplace."
+        ),
+        "keywords": (
+            "entreprise sous-traiter IoT, externalisation projet IoT, sous-traitance firmware, "
+            "développement IoT offshore, startups IoT Vietnam, donneur d'ordre IoT"
+        ),
+    },
+    "startups": {
+        "title": "Startups IoT — Missions de sous-traitance entreprises",
+        "description": (
+            "Startup IoT en Asie du Sud-Est : trouvez des projets de sous-traitance publiés par "
+            "les grandes entreprises — firmware, PCB, LoRaWAN, cloud IoT, intégration hardware."
+        ),
+        "keywords": (
+            "startup IoT missions, sous-traitance IoT startup, projet IoT entreprise, "
+            "Vietnam développement IoT, startup hardware connecté, freelance IoT B2B"
+        ),
+    },
+    "projects": {
+        "title": "Projets IoT ouverts — Missions de sous-traitance",
+        "description": (
+            "Liste des projets IoT ouverts à la sous-traitance : firmware, capteurs, cloud, "
+            "intégration. Startups IoT, postulez aux missions publiées par les entreprises sur Iotplace."
+        ),
+        "keywords": (
+            "projets IoT ouverts, mission sous-traitance IoT, appel d'offres IoT, "
+            "projet firmware startup, budget IoT externalisation"
+        ),
+    },
+    "about": {
+        "title": "À propos — Marketplace sous-traitance IoT B2B",
+        "description": (
+            "Iotplace structure la sous-traitance IoT entre entreprises mondiales et startups "
+            "d'Asie du Sud-Est : Vietnam, Indonésie, Thaïlande, Philippines."
+        ),
+        "keywords": (
+            "marketplace IoT, sous-traitance IoT Asie, hub IoT Vietnam, "
+            "externalisation hardware firmware, plateforme B2B IoT"
+        ),
+    },
+    "contact": {
+        "title": "Contact — Démarrer une sous-traitance IoT",
+        "description": (
+            "Contactez Iotplace : entreprise cherchant à sous-traiter un projet IoT ou startup "
+            "IoT cherchant des missions. Réponse sous 48 h."
+        ),
+        "keywords": (
+            "contact sous-traitance IoT, rejoindre marketplace IoT, "
+            "publier projet IoT, inscription startup IoT"
+        ),
+    },
+}
+
+COMPTE_SEO_PAGES = {
+    "compte.register_enterprise": {
+        "title": "Inscription entreprise — Sous-traiter des startups IoT",
+        "description": (
+            "Créez votre compte entreprise sur Iotplace : publiez vos projets IoT et "
+            "sous-traitez firmware, hardware et cloud à des startups qualifiées en Asie."
+        ),
+        "keywords": "inscription entreprise IoT, publier projet sous-traitance, externalisation IoT",
+        "robots": "index, follow",
+    },
+    "compte.register_startup": {
+        "title": "Inscription startup IoT — Missions de sous-traitance",
+        "description": (
+            "Inscrivez votre startup IoT sur Iotplace : accédez aux projets de sous-traitance "
+            "des grandes entreprises en firmware, PCB, cloud et intégration."
+        ),
+        "keywords": "inscription startup IoT, missions IoT entreprise, startup Vietnam IoT",
+        "robots": "index, follow",
+    },
+}
+
+PAGE_FAQ = {
+    "home": [
+        {
+            "q": "Comment une entreprise peut-elle sous-traiter un projet IoT sur Iotplace ?",
+            "a": "Créez un compte entreprise, décrivez votre besoin (firmware, hardware, cloud) et publiez votre projet. Iotplace vous met en relation avec des startups IoT qualifiées en Asie du Sud-Est.",
+        },
+        {
+            "q": "Comment une startup IoT trouve-t-elle des missions de sous-traitance ?",
+            "a": "Inscrivez votre startup, renseignez vos compétences IoT et parcourez les projets ouverts publiés par les entreprises. Postulez directement aux missions qui correspondent à votre expertise.",
+        },
+        {
+            "q": "Quels types de projets IoT peut-on sous-traiter ?",
+            "a": "Firmware embarqué, conception PCB, capteurs connectés, protocoles LoRaWAN/MQTT, backends cloud, applications mobiles IoT et intégration système complète.",
+        },
+        {
+            "q": "Pourquoi externaliser vers des startups IoT en Asie du Sud-Est ?",
+            "a": "Coûts compétitifs, équipes agiles, expertise hardware héritée de l'électronique grand public et fuseaux horaires favorables pour les entreprises européennes et américaines.",
+        },
+    ],
+    "enterprises": [
+        {
+            "q": "Quels avantages pour externaliser un projet IoT vers une startup ?",
+            "a": "Time-to-market réduit, coûts maîtrisés, accès à des talents spécialisés firmware et hardware sans recruter en interne, avec flexibilité sur la durée des missions.",
+        },
+        {
+            "q": "Comment Iotplace sécurise la sous-traitance IoT ?",
+            "a": "NDA, contrats encadrés, suivi de projet via la plateforme et paiements sécurisés. Vous gardez le contrôle sur les livrables et la propriété intellectuelle.",
+        },
+        {
+            "q": "Quelles compétences IoT sont disponibles chez les startups partenaires ?",
+            "a": "Firmware C/C++, RTOS, PCB design, IoT cloud (AWS, Azure), LoRaWAN, BLE, MQTT, prototypage rapide et production en petite série.",
+        },
+    ],
+    "startups": [
+        {
+            "q": "Comment accéder aux projets de sous-traitance IoT des entreprises ?",
+            "a": "Créez votre profil startup sur Iotplace, listez vos compétences et consultez la page Projets ouverts. Postulez aux missions qui correspondent à votre stack technique.",
+        },
+        {
+            "q": "Quels profils de startups IoT sont recherchés ?",
+            "a": "Équipes expertes en firmware embarqué, électronique, cloud IoT ou intégration bout-en-bout, idéalement basées au Vietnam, en Indonésie, en Thaïlande ou dans la région ASEAN.",
+        },
+        {
+            "q": "Les missions sont-elles en sous-traitance B2B encadrée ?",
+            "a": "Oui. Les entreprises publient des cahiers des charges avec budget et délais. Iotplace facilite le matching, la contractualisation et le suivi jusqu'à la livraison.",
+        },
+    ],
+    "projects": [
+        {
+            "q": "Comment postuler à un projet IoT ouvert ?",
+            "a": "Créez un compte startup, complétez votre profil avec vos compétences et contactez l'entreprise via Iotplace ou postulez directement depuis votre tableau de bord.",
+        },
+        {
+            "q": "Qui publie les projets de sous-traitance IoT ?",
+            "a": "Les grandes entreprises et groupes industriels inscrits sur Iotplace qui externalisent une partie de leur développement IoT vers des startups qualifiées.",
+        },
+    ],
+}
+
+BREADCRUMB_LABELS = {
+    "home": "Accueil",
+    "enterprises": "Entreprises",
+    "startups": "Startups IoT",
+    "projects": "Projets IoT",
+    "about": "À propos",
+    "contact": "Contact",
 }
 
 DEFAULT_DATA = {
@@ -58,9 +219,16 @@ DEFAULT_DATA = {
     "seo": {
         "global": {
             "site_name": "Iotplace",
-            "title_suffix": " — Marketplace IoT B2B",
-            "meta_description": "Iotplace connecte les grandes entreprises IoT aux startups d'Asie du Sud-Est.",
-            "keywords": "IoT, sous-traitance, startups, Vietnam, Indonésie, B2B",
+            "site_url": "",
+            "title_suffix": " | Marketplace IoT B2B",
+            "meta_description": (
+                "Iotplace : marketplace B2B de sous-traitance IoT. Entreprises, externalisez vos projets "
+                "vers des startups qualifiées en Asie. Startups IoT, trouvez des missions des grands groupes."
+            ),
+            "keywords": (
+                "sous-traitance IoT, externalisation IoT, marketplace IoT B2B, startups IoT Asie, "
+                "Vietnam, Indonésie, firmware, hardware connecté, missions IoT"
+            ),
             "og_image": "",
             "twitter_handle": "",
             "google_analytics_id": "",
@@ -545,6 +713,191 @@ def _user_for_enterprise_id(enterprise_id):
     return get_user(ent["user_id"])
 
 
+def _user_for_startup_id(startup_id):
+    startup = get_startup(startup_id)
+    if not startup or not startup.get("user_id"):
+        return None
+    return get_user(startup["user_id"])
+
+
+def _thread_key(counterpart_user_id, project_id=None):
+    return f"{counterpart_user_id}:{project_id or ''}"
+
+
+def _is_b2b_message(msg):
+    roles = {msg.get("from_role"), msg.get("to_role")}
+    return roles == {"enterprise", "startup"}
+
+
+def users_can_message(from_user, to_user, project_id=None):
+    if not from_user or not to_user or from_user["id"] == to_user["id"]:
+        return False
+    if {from_user.get("role"), to_user.get("role")} != {"enterprise", "startup"}:
+        return False
+
+    a, b = from_user["id"], to_user["id"]
+    for msg in _load_raw().get("messages", []):
+        if _is_b2b_message(msg) and {msg.get("from_user_id"), msg.get("to_user_id")} == {a, b}:
+            return True
+
+    if project_id:
+        project = get_project(project_id)
+        if not project:
+            return False
+        ent_user = _user_for_enterprise_id(project.get("enterprise_id"))
+        if from_user["role"] == "enterprise" and ent_user and ent_user["id"] == from_user["id"]:
+            return True
+        if from_user["role"] == "startup":
+            if startup_already_applied(from_user.get("profile_id"), project_id):
+                return True
+
+    if from_user["role"] == "startup":
+        for app in get_applications_for_startup(from_user.get("profile_id")):
+            project = get_project(app.get("project_id"))
+            if not project:
+                continue
+            ent_user = _user_for_enterprise_id(project.get("enterprise_id"))
+            if ent_user and ent_user["id"] == to_user["id"]:
+                return True
+
+    if from_user["role"] == "enterprise":
+        for app in get_applications_for_enterprise(from_user.get("profile_id")):
+            startup_user = _user_for_startup_id(app.get("from_profile_id"))
+            if startup_user and startup_user["id"] == to_user["id"]:
+                return True
+
+    return False
+
+
+def serialize_message_api(msg, current_user_id):
+    enriched = enrich_message_for_view(msg, current_user_id)
+    return {
+        "id": msg["id"],
+        "body": msg.get("body", ""),
+        "subject": msg.get("subject", ""),
+        "kind": msg.get("kind", "contact"),
+        "kind_label": enriched["kind_label"],
+        "status": msg.get("status", ""),
+        "status_label": enriched["status_label"],
+        "direction": enriched["direction"],
+        "counterpart_name": enriched["counterpart_name"],
+        "from_user_id": msg.get("from_user_id"),
+        "to_user_id": msg.get("to_user_id"),
+        "from_name": msg.get("from_name", ""),
+        "to_name": msg.get("to_name", ""),
+        "project_id": msg.get("project_id"),
+        "project_title": msg.get("project_title", ""),
+        "read": bool(msg.get("read")),
+        "created_at": msg.get("created_at", ""),
+        "is_mine": msg.get("from_user_id") == current_user_id,
+    }
+
+
+def get_conversations(user_id):
+    user = get_user(user_id)
+    if not user:
+        return []
+
+    threads = {}
+    for msg in get_messages_for_user(user_id):
+        if not _is_b2b_message(msg):
+            continue
+        counterpart_id = msg["from_user_id"] if msg.get("to_user_id") == user_id else msg["to_user_id"]
+        project_id = msg.get("project_id") or ""
+        key = _thread_key(counterpart_id, project_id or None)
+
+        counterpart = get_user(counterpart_id)
+        if not counterpart:
+            continue
+
+        preview = (msg.get("body") or "")[:100]
+        last_at = msg.get("created_at", "")
+
+        if key not in threads or last_at > threads[key]["last_at"]:
+            threads[key] = {
+                "thread_key": key,
+                "counterpart_user_id": counterpart_id,
+                "counterpart_name": _profile_name_for_user(counterpart),
+                "counterpart_role": counterpart.get("role", ""),
+                "project_id": project_id or None,
+                "project_title": msg.get("project_title", ""),
+                "last_message": preview,
+                "last_at": last_at,
+                "last_kind": msg.get("kind", ""),
+                "unread": 0,
+            }
+
+    for msg in get_inbox_for_user(user_id):
+        if not _is_b2b_message(msg) or msg.get("read"):
+            continue
+        counterpart_id = msg.get("from_user_id")
+        project_id = msg.get("project_id") or ""
+        key = _thread_key(counterpart_id, project_id or None)
+        if key in threads:
+            threads[key]["unread"] += 1
+
+    return sorted(threads.values(), key=lambda t: t["last_at"], reverse=True)
+
+
+def get_thread_messages(user_id, counterpart_user_id, project_id=None):
+    messages = [
+        m for m in _load_raw().get("messages", [])
+        if _is_b2b_message(m)
+        and user_id in (m.get("from_user_id"), m.get("to_user_id"))
+        and counterpart_user_id in (m.get("from_user_id"), m.get("to_user_id"))
+    ]
+    if project_id:
+        messages = [m for m in messages if m.get("project_id") == project_id]
+    return sorted(messages, key=lambda m: m.get("created_at", ""))
+
+
+def mark_thread_read(user_id, counterpart_user_id, project_id=None):
+    data = _load_raw()
+    changed = False
+    for i, msg in enumerate(data.get("messages", [])):
+        if (
+            msg.get("to_user_id") == user_id
+            and msg.get("from_user_id") == counterpart_user_id
+            and not msg.get("read")
+            and _is_b2b_message(msg)
+        ):
+            if project_id is None or msg.get("project_id") == project_id:
+                data["messages"][i] = {**msg, "read": True}
+                changed = True
+    if changed:
+        _save_raw(data)
+    return changed
+
+
+def get_messaging_poll(user_id, since_iso=""):
+    since = since_iso or ""
+    user = get_user(user_id)
+    new_incoming = [
+        m for m in get_inbox_for_user(user_id)
+        if _is_b2b_message(m) and m.get("created_at", "") > since
+    ]
+    return {
+        "unread": get_unread_count(user_id),
+        "conversations": get_conversations(user_id),
+        "notifications": [serialize_message_api(m, user_id) for m in new_incoming],
+        "server_time": datetime.now(timezone.utc).isoformat(),
+    }
+
+
+def send_b2b_message(from_user, to_user, body, project_id=None, subject=None, kind="reply"):
+    if not body or not body.strip():
+        raise ValueError("Le message ne peut pas être vide.")
+    if not users_can_message(from_user, to_user, project_id):
+        raise ValueError("Vous ne pouvez pas contacter cet utilisateur.")
+    project = get_project(project_id) if project_id else None
+    if not subject:
+        if project:
+            subject = f"Échange — {project.get('title', 'Projet IoT')}"
+        else:
+            subject = "Message Iotplace"
+    return send_message(from_user, to_user, subject, body.strip(), kind=kind, project=project)
+
+
 def add_message(fields):
     data = _load_raw()
     entry = {
@@ -805,6 +1158,27 @@ def update_page(slug, fields):
 
 # ── SEO ──
 
+
+def get_site_url():
+    env_url = os.environ.get("SITE_URL", "").strip().rstrip("/")
+    if env_url:
+        return env_url
+    global_seo = get_seo_global()
+    saved = (global_seo.get("site_url") or "").strip().rstrip("/")
+    if saved:
+        return saved
+    return "https://iotplace.osc-fr1.scalingo.io"
+
+
+def build_canonical_url(site_url, path, query_string=b""):
+    url = f"{site_url.rstrip('/')}{path}"
+    if query_string:
+        qs = query_string.decode("utf-8") if isinstance(query_string, bytes) else str(query_string)
+        if qs:
+            url = f"{url}?{qs}"
+    return url
+
+
 def get_seo_global():
     data = _load_raw()
     return _deep_merge(DEFAULT_DATA["seo"]["global"], data.get("seo", {}).get("global", {}))
@@ -813,28 +1187,228 @@ def get_seo_global():
 def get_seo_page(slug):
     data = _load_raw()
     saved = data.get("seo", {}).get("pages", {}).get(slug, {})
+    defaults = DEFAULT_SEO_PAGES.get(slug, {})
     meta = get_page_meta(slug) or {}
-    defaults = {
-        "title": meta.get("name", slug),
-        "description": "",
-        "keywords": "",
+    base = {
+        "title": defaults.get("title") or meta.get("name", slug),
+        "description": defaults.get("description", ""),
+        "keywords": defaults.get("keywords", ""),
     }
-    return {**defaults, **saved}
+    return {**base, **saved}
 
 
-def get_seo_for_vitrine(slug, page_title=""):
+def get_startups_country_seo(country):
+    return {
+        "title": f"Startups IoT {country} — Sous-traitance entreprises",
+        "description": (
+            f"Startups IoT au {country} : trouvez des missions de sous-traitance publiées par "
+            f"les grandes entreprises — firmware, PCB, cloud et intégration hardware sur Iotplace."
+        ),
+        "keywords": (
+            f"startup IoT {country}, sous-traitance IoT {country}, "
+            f"externalisation IoT, développement firmware {country}"
+        ),
+    }
+
+
+def get_compte_seo(endpoint):
+    defaults = COMPTE_SEO_PAGES.get(endpoint, {})
+    if not defaults:
+        global_seo = get_seo_global()
+        suffix = global_seo.get("title_suffix", "")
+        return {
+            "title": f"Espace membre{suffix}",
+            "description": global_seo.get("meta_description", ""),
+            "keywords": "",
+            "og_image": "",
+            "og_image_abs": "",
+            "google_analytics_id": global_seo.get("google_analytics_id", ""),
+            "site_name": global_seo.get("site_name", "Iotplace"),
+            "twitter_handle": global_seo.get("twitter_handle", ""),
+            "robots": "noindex, follow",
+            "locale": "fr_FR",
+        }
+    return get_seo_for_vitrine(
+        "home",
+        title=defaults.get("title"),
+        description=defaults.get("description"),
+        keywords=defaults.get("keywords"),
+        robots=defaults.get("robots", "noindex, follow"),
+    )
+
+
+def get_seo_for_vitrine(slug, page_title="", overrides=None, robots="index, follow", **kwargs):
     global_seo = get_seo_global()
     page_seo = get_seo_page(slug)
-    title = page_seo.get("title") or page_title or global_seo.get("site_name", "Iotplace")
+    if overrides:
+        page_seo = {**page_seo, **overrides}
+    title = kwargs.get("title") or page_seo.get("title") or page_title or global_seo.get("site_name", "Iotplace")
     suffix = global_seo.get("title_suffix", "")
-    full_title = f"{title}{suffix}" if suffix and suffix not in title else title
+    full_title = title if suffix and suffix.strip() in title else f"{title}{suffix}" if suffix else title
+    description = kwargs.get("description") or page_seo.get("description") or global_seo.get("meta_description", "")
+    keywords = kwargs.get("keywords") or page_seo.get("keywords") or global_seo.get("keywords", "")
+    og_image = global_seo.get("og_image", "")
+    site_url = get_site_url()
     return {
         "title": full_title,
-        "description": page_seo.get("description") or global_seo.get("meta_description", ""),
-        "keywords": page_seo.get("keywords") or global_seo.get("keywords", ""),
-        "og_image": global_seo.get("og_image", ""),
+        "description": description[:320],
+        "keywords": keywords,
+        "og_image": og_image,
+        "og_image_abs": f"{og_image}" if og_image.startswith("http") else f"{site_url}{og_image}" if og_image else "",
         "google_analytics_id": global_seo.get("google_analytics_id", ""),
+        "site_name": global_seo.get("site_name", "Iotplace"),
+        "twitter_handle": global_seo.get("twitter_handle", ""),
+        "robots": kwargs.get("robots", robots),
+        "locale": "fr_FR",
     }
+
+
+def get_page_faq(slug):
+    return PAGE_FAQ.get(slug, [])
+
+
+def build_breadcrumbs(slug, site_url, extra=None):
+    items = [{"name": "Accueil", "url": f"{site_url}/"}]
+    if slug != "home":
+        label = BREADCRUMB_LABELS.get(slug, slug)
+        meta = get_page_meta(slug)
+        path = meta["path"] if meta else f"/{slug}"
+        items.append({"name": label, "url": f"{site_url}{path}"})
+    if extra:
+        items.append(extra)
+    return items
+
+
+def build_json_ld(slug, canonical_url, site_url, faq=None, breadcrumbs=None):
+    global_seo = get_seo_global()
+    site_name = global_seo.get("site_name", "Iotplace")
+    seo = get_seo_for_vitrine(slug)
+    graphs = []
+
+    graphs.append({
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": site_name,
+        "url": site_url,
+        "logo": f"{site_url}/vitrine/static/favicon.ico" if site_url else "",
+        "description": global_seo.get("meta_description", ""),
+        "sameAs": [],
+    })
+
+    graphs.append({
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": site_name,
+        "url": site_url,
+        "description": global_seo.get("meta_description", ""),
+        "inLanguage": "fr-FR",
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": f"{site_url}/startups?country={{search_term_string}}",
+            "query-input": "required name=search_term_string",
+        },
+    })
+
+    graphs.append({
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": seo["title"],
+        "description": seo["description"],
+        "url": canonical_url,
+        "isPartOf": {"@type": "WebSite", "name": site_name, "url": site_url},
+        "inLanguage": "fr-FR",
+    })
+
+    crumbs = breadcrumbs or build_breadcrumbs(slug, site_url)
+    if len(crumbs) > 1:
+        graphs.append({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                {
+                    "@type": "ListItem",
+                    "position": i + 1,
+                    "name": c["name"],
+                    "item": c["url"],
+                }
+                for i, c in enumerate(crumbs)
+            ],
+        })
+
+    faq_items = faq if faq is not None else get_page_faq(slug)
+    if faq_items:
+        graphs.append({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+                {
+                    "@type": "Question",
+                    "name": item["q"],
+                    "acceptedAnswer": {"@type": "Answer", "text": item["a"]},
+                }
+                for item in faq_items
+            ],
+        })
+
+    if slug in ("home", "enterprises", "startups"):
+        graphs.append({
+            "@context": "https://schema.org",
+            "@type": "Service",
+            "name": "Marketplace sous-traitance IoT B2B",
+            "provider": {"@type": "Organization", "name": site_name},
+            "areaServed": ["Vietnam", "Indonésie", "Thaïlande", "Philippines", "Asie du Sud-Est"],
+            "serviceType": "Sous-traitance et externalisation de projets IoT",
+            "audience": [
+                {"@type": "BusinessAudience", "audienceType": "Entreprises IoT cherchant à sous-traiter"},
+                {"@type": "BusinessAudience", "audienceType": "Startups IoT cherchant des missions"},
+            ],
+        })
+
+    return graphs
+
+
+def get_sitemap_entries():
+    site_url = get_site_url()
+    entries = []
+    for page in PAGE_CATALOG:
+        content = get_page_content(page["slug"])
+        if not content.get("published", True):
+            continue
+        entries.append({
+            "loc": f"{site_url}{page['path']}",
+            "changefreq": "weekly" if page["slug"] == "home" else "monthly",
+            "priority": "1.0" if page["slug"] == "home" else "0.8",
+        })
+    entries.append({
+        "loc": f"{site_url}/inscription/entreprise",
+        "changefreq": "monthly",
+        "priority": "0.9",
+    })
+    entries.append({
+        "loc": f"{site_url}/inscription/startup",
+        "changefreq": "monthly",
+        "priority": "0.9",
+    })
+    for country in get_startup_countries():
+        entries.append({
+            "loc": f"{site_url}/startups?country={quote(country)}",
+            "changefreq": "weekly",
+            "priority": "0.7",
+        })
+    return entries
+
+
+def get_robots_txt():
+    site_url = get_site_url()
+    return f"""User-agent: *
+Allow: /
+Disallow: /crm/
+Disallow: /compte/
+Disallow: /connexion
+Disallow: /deconnexion
+
+Sitemap: {site_url}/sitemap.xml
+"""
 
 
 def update_seo_global(fields):

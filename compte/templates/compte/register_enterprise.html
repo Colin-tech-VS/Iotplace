@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "compte/_macros.html" import field_value %}
+{% from "compte/_macros.html" import field_value, tag_input %}
 
 {% block content %}
 <section class="page-hero page-hero-sm">
@@ -85,11 +85,15 @@
                     <label for="description">Présentation de l'entreprise</label>
                     <textarea id="description" name="description" rows="3" placeholder="Activité, marchés, contexte IoT…">{{ field_value(form, 'description') }}</textarea>
                 </div>
+            </fieldset>
+
+            <fieldset class="form-section-card">
+                <legend>Recherche & compétences</legend>
                 <div class="form-group">
-                    <label for="needs">Compétences recherchées (virgules)</label>
-                    <input type="text" id="needs" name="needs" value="{{ field_value(form, 'needs') }}" placeholder="Firmware, LoRaWAN, Edge AI, Cloud IoT">
-                    <span class="field-hint">Ces tags servent au matching avec les startups.</span>
+                    <label for="besoin">Votre besoin — que recherchez-vous et pourquoi ?</label>
+                    <textarea id="besoin" name="besoin" rows="4" placeholder="Ex. Nous externalisons le développement firmware de capteurs LoRaWAN…">{{ field_value(form, 'besoin') }}</textarea>
                 </div>
+                {{ tag_input('needs', 'needs', field_value(form, 'needs'), 'Compétences recherchées', 'Firmware, LoRaWAN, Edge AI, Cloud IoT', 'Chaque compétence séparée par une virgule apparaît en badge.') }}
             </fieldset>
 
             <fieldset class="form-section-card">
@@ -144,4 +148,8 @@
         </form>
     </div>
 </section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('vitrine.static', filename='js/tag-input.js') }}"></script>
 {% endblock %}

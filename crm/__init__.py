@@ -8,4 +8,5 @@ crm_bp = Blueprint(
     url_prefix="/crm",
 )
 
+from crm import auth as crm_auth  # noqa: E402, F401
 from crm import routes  # noqa: E402, F401

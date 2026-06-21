@@ -1,0 +1,777 @@
+/* ═══════════════════════════════════════════════════════════
+   Iotplace — Design System IoT (vitrine + CRM)
+   Épuré · Tech · Animé · Responsive
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+    --iot-bg: #05080f;
+    --iot-bg-alt: #0a101c;
+    --iot-surface: rgba(12, 20, 36, 0.65);
+    --iot-surface-solid: #0e1729;
+    --iot-surface-hover: #131f35;
+    --iot-border: rgba(120, 150, 190, 0.14);
+    --iot-border-active: rgba(0, 232, 200, 0.35);
+    --iot-text: #eef2fb;
+    --iot-muted: #7d8da8;
+    --iot-accent: #00e8c8;
+    --iot-accent-2: #38bdf8;
+    --iot-accent-3: #818cf8;
+    --iot-gradient: linear-gradient(135deg, #00e8c8 0%, #38bdf8 45%, #818cf8 100%);
+    --iot-glow: 0 0 60px rgba(0, 232, 200, 0.12);
+    --iot-glass: blur(18px) saturate(160%);
+    --iot-radius: 14px;
+    --iot-radius-lg: 22px;
+    --iot-font-display: 'Space Grotesk', 'DM Sans', system-ui, sans-serif;
+    --iot-font-body: 'DM Sans', system-ui, sans-serif;
+    --iot-font-mono: 'JetBrains Mono', monospace;
+    --iot-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --iot-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+}
+
+/* ── Vitrine base ── */
+body.vitrine {
+    background: var(--iot-bg);
+    color: var(--iot-text);
+    font-family: var(--iot-font-body);
+}
+
+body.vitrine .page-bg .orb {
+    filter: blur(90px);
+    opacity: 0.55;
+    animation: iot-float 14s var(--iot-ease) infinite;
+}
+
+body.vitrine .grid-overlay {
+    background-image:
+        linear-gradient(rgba(0, 232, 200, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 232, 200, 0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse 80% 70% at 50% 20%, black 15%, transparent 75%);
+    animation: iot-grid-drift 24s linear infinite;
+}
+
+.iot-scanline {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 232, 200, 0.015) 2px,
+        rgba(0, 232, 200, 0.015) 3px
+    );
+    opacity: 0.5;
+}
+
+.iot-circuit {
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    border: 1px solid rgba(0, 232, 200, 0.08);
+    border-radius: 50%;
+    pointer-events: none;
+}
+.iot-circuit-1 { top: 15%; right: 8%; animation: iot-pulse-ring 4s ease infinite; }
+.iot-circuit-2 { bottom: 20%; left: 5%; width: 80px; height: 80px; animation-delay: -2s; }
+
+@keyframes iot-float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(20px, -25px) scale(1.06); }
+}
+@keyframes iot-grid-drift {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(48px); }
+}
+@keyframes iot-pulse-ring {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.08); }
+}
+@keyframes iot-shimmer {
+    0% { background-position: 0% center; }
+    100% { background-position: 200% center; }
+}
+@keyframes iot-fade-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Navbar */
+body.vitrine .navbar {
+    background: rgba(5, 8, 15, 0.55);
+    backdrop-filter: var(--iot-glass);
+    border-bottom: 1px solid var(--iot-border);
+    transition: background 0.35s var(--iot-ease), box-shadow 0.35s var(--iot-ease), border-color 0.35s;
+}
+
+body.vitrine .navbar.scrolled {
+    background: rgba(5, 8, 15, 0.88);
+    border-bottom-color: var(--iot-border-active);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+}
+
+body.vitrine .logo-text,
+body.vitrine h1,
+body.vitrine h2,
+body.vitrine h3,
+body.vitrine .section-header h2 {
+    font-family: var(--iot-font-display);
+    letter-spacing: -0.02em;
+}
+
+body.vitrine .nav-links a {
+    position: relative;
+    transition: color 0.25s;
+}
+
+body.vitrine .nav-links a.active::after,
+body.vitrine .nav-links a:hover::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; bottom: -4px;
+    height: 2px;
+    background: var(--iot-gradient);
+    border-radius: 2px;
+}
+
+body.vitrine .nav-links a:not(.btn)::after {
+    transform: scaleX(0);
+    transition: transform 0.25s var(--iot-ease);
+}
+body.vitrine .nav-links a:not(.btn):hover::after,
+body.vitrine .nav-links a.active::after {
+    transform: scaleX(1);
+}
+
+/* Buttons */
+body.vitrine .btn {
+    border-radius: 10px;
+    font-family: var(--iot-font-display);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    transition: transform 0.25s var(--iot-ease), box-shadow 0.25s, border-color 0.25s, opacity 0.25s;
+}
+
+body.vitrine .btn-primary {
+    background: var(--iot-gradient);
+    color: #041018;
+    box-shadow: 0 4px 20px rgba(0, 232, 200, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.vitrine .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(0, 232, 200, 0.35);
+    opacity: 1;
+}
+
+body.vitrine .btn-outline {
+    border-color: var(--iot-border);
+    background: rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(8px);
+}
+
+body.vitrine .btn-outline:hover {
+    border-color: var(--iot-accent);
+    background: rgba(0, 232, 200, 0.06);
+    color: var(--iot-accent);
+    transform: translateY(-1px);
+}
+
+/* Glass surfaces */
+body.vitrine .card,
+body.vitrine .step-card,
+body.vitrine .dashboard-card,
+body.vitrine .form-section-card,
+body.vitrine .contact-form,
+body.vitrine .mini-card,
+body.vitrine .benefit,
+body.vitrine .model-card,
+body.vitrine .project-row,
+body.vitrine .stat-card,
+body.vitrine .flow-node {
+    background: var(--iot-surface);
+    backdrop-filter: var(--iot-glass);
+    border: 1px solid var(--iot-border);
+    border-radius: var(--iot-radius-lg);
+    box-shadow: var(--iot-shadow);
+    transition: border-color 0.3s var(--iot-ease), transform 0.3s var(--iot-ease), box-shadow 0.3s var(--iot-ease);
+}
+
+body.vitrine .card:hover,
+body.vitrine .step-card:hover,
+body.vitrine .dashboard-card:hover,
+body.vitrine .project-row:hover {
+    border-color: var(--iot-border-active);
+    transform: translateY(-3px);
+    box-shadow: var(--iot-shadow), var(--iot-glow);
+}
+
+body.vitrine .card.iot-lift,
+body.vitrine .step-card.iot-lift {
+    animation: iot-fade-up 0.6s var(--iot-ease) backwards;
+}
+
+/* Hero */
+body.vitrine .hero-badge {
+    background: rgba(0, 232, 200, 0.08);
+    border: 1px solid rgba(0, 232, 200, 0.22);
+    font-family: var(--iot-font-mono);
+    letter-spacing: 0.04em;
+    box-shadow: inset 0 0 20px rgba(0, 232, 200, 0.05);
+}
+
+body.vitrine .hero h1 {
+    background: linear-gradient(180deg, #fff 0%, #c8d4e8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+body.vitrine .gradient-text,
+body.vitrine .accent {
+    background: var(--iot-gradient);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: iot-shimmer 6s linear infinite;
+}
+
+body.vitrine .stat-value {
+    font-family: var(--iot-font-mono);
+    color: var(--iot-accent);
+    text-shadow: 0 0 24px rgba(0, 232, 200, 0.3);
+}
+
+body.vitrine .flow-center {
+    border-color: var(--iot-accent);
+    box-shadow: 0 0 24px rgba(0, 232, 200, 0.2);
+    color: var(--iot-accent);
+}
+
+body.vitrine .section-alt {
+    background: linear-gradient(180deg, transparent 0%, rgba(10, 16, 28, 0.8) 50%, transparent 100%);
+    position: relative;
+}
+
+body.vitrine .section-header h2::after {
+    content: '';
+    display: block;
+    width: 48px;
+    height: 3px;
+    background: var(--iot-gradient);
+    margin: 0.75rem auto 0;
+    border-radius: 3px;
+}
+
+/* Tags */
+body.vitrine .tag,
+body.vitrine .tag-list .tag {
+    background: rgba(0, 232, 200, 0.08);
+    border: 1px solid rgba(0, 232, 200, 0.22);
+    color: var(--iot-accent);
+    font-family: var(--iot-font-mono);
+    font-size: 0.72rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 6px;
+    transition: background 0.2s, transform 0.2s;
+}
+
+body.vitrine .tag-input-group .tag-preview {
+    background: rgba(0, 232, 200, 0.03);
+    border: 1px dashed rgba(0, 232, 200, 0.2);
+    border-radius: 10px;
+    min-height: 36px;
+}
+
+body.vitrine .tag-input-group .tag-preview .tag {
+    animation: iot-fade-up 0.3s var(--iot-ease);
+}
+
+/* Forms */
+body.vitrine .form-group input,
+body.vitrine .form-group select,
+body.vitrine .form-group textarea {
+    background: rgba(5, 8, 15, 0.6);
+    border: 1px solid var(--iot-border);
+    border-radius: 10px;
+    transition: border-color 0.25s, box-shadow 0.25s;
+}
+
+body.vitrine .form-group input:focus,
+body.vitrine .form-group select:focus,
+body.vitrine .form-group textarea:focus {
+    border-color: var(--iot-accent);
+    box-shadow: 0 0 0 3px rgba(0, 232, 200, 0.12);
+}
+
+/* Dashboard */
+body.vitrine .dashboard-tabs {
+    border-bottom-color: var(--iot-border);
+    gap: 0.35rem;
+}
+
+body.vitrine .tab-btn {
+    border-radius: 8px;
+    font-family: var(--iot-font-display);
+    font-size: 0.82rem;
+    transition: all 0.25s var(--iot-ease);
+}
+
+body.vitrine .tab-btn.active {
+    background: rgba(0, 232, 200, 0.1);
+    border-color: var(--iot-accent);
+    color: var(--iot-accent);
+    box-shadow: 0 0 20px rgba(0, 232, 200, 0.1);
+}
+
+body.vitrine .stat-card-highlight {
+    border-color: var(--iot-accent);
+    box-shadow: 0 0 0 1px rgba(0, 232, 200, 0.2), var(--iot-glow);
+}
+
+body.vitrine .message-unread {
+    border-left-color: var(--iot-accent);
+    box-shadow: inset 3px 0 12px rgba(0, 232, 200, 0.08);
+}
+
+/* Footer */
+body.vitrine .footer {
+    background: linear-gradient(180deg, transparent, rgba(5, 8, 15, 0.95));
+    border-top: 1px solid var(--iot-border);
+}
+
+body.vitrine .enterprise-logo {
+    background: var(--iot-gradient);
+    box-shadow: 0 4px 16px rgba(0, 232, 200, 0.25);
+}
+
+body.vitrine .flash-success {
+    background: rgba(0, 232, 200, 0.1);
+    border-color: rgba(0, 232, 200, 0.3);
+    backdrop-filter: blur(8px);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CRM
+   ═══════════════════════════════════════════════════════════ */
+
+body.crm {
+    background: var(--iot-bg);
+    font-family: var(--iot-font-body);
+}
+
+body.crm .crm-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+body.crm .crm-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(0, 232, 200, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 232, 200, 0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    mask-image: radial-gradient(ellipse 60% 50% at 70% 30%, black 10%, transparent 70%);
+}
+
+body.crm .crm-bg::after {
+    content: '';
+    position: absolute;
+    top: -20%; right: -10%;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(0, 232, 200, 0.06) 0%, transparent 70%);
+    animation: iot-float 16s var(--iot-ease) infinite;
+}
+
+body.crm .app { position: relative; z-index: 1; }
+
+body.crm .sidebar {
+    background: rgba(8, 12, 22, 0.92);
+    backdrop-filter: var(--iot-glass);
+    border-right: 1px solid var(--iot-border);
+    width: 220px;
+}
+
+body.crm .brand-mark {
+    background: rgba(0, 232, 200, 0.12);
+    color: var(--iot-accent);
+    box-shadow: 0 0 16px rgba(0, 232, 200, 0.15);
+}
+
+body.crm .brand-text strong {
+    font-family: var(--iot-font-display);
+    letter-spacing: -0.02em;
+}
+
+body.crm .nav-item {
+    border-radius: 8px;
+    transition: all 0.2s var(--iot-ease);
+    font-family: var(--iot-font-display);
+}
+
+body.crm .nav-item.active {
+    background: rgba(0, 232, 200, 0.1);
+    color: var(--iot-accent);
+    box-shadow: inset 0 0 0 1px rgba(0, 232, 200, 0.15);
+}
+
+body.crm .nav-item:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+body.crm .nav-badge {
+    background: var(--iot-accent);
+    color: #041018;
+    box-shadow: 0 0 12px rgba(0, 232, 200, 0.4);
+}
+
+body.crm .topbar {
+    background: rgba(8, 12, 22, 0.75);
+    backdrop-filter: var(--iot-glass);
+    border-bottom: 1px solid var(--iot-border);
+    height: 48px;
+}
+
+body.crm .status-dot {
+    background: var(--iot-accent);
+    box-shadow: 0 0 8px var(--iot-accent);
+    animation: iot-pulse-ring 2s ease infinite;
+}
+
+body.crm .page-header h1 {
+    font-family: var(--iot-font-display);
+    font-size: 18px;
+    letter-spacing: -0.02em;
+}
+
+body.crm .card,
+body.crm .kpi-card,
+body.crm .table-card {
+    background: var(--iot-surface);
+    backdrop-filter: var(--iot-glass);
+    border: 1px solid var(--iot-border);
+    border-radius: var(--iot-radius);
+    box-shadow: var(--iot-shadow);
+    transition: border-color 0.25s, transform 0.25s var(--iot-ease);
+}
+
+body.crm .kpi-card:hover {
+    border-color: var(--iot-border-active);
+    transform: translateY(-2px);
+}
+
+body.crm .kpi-card.iot-enter {
+    animation: iot-fade-up 0.5s var(--iot-ease) backwards;
+}
+
+body.crm .kpi-value {
+    font-family: var(--iot-font-mono);
+    color: var(--iot-text);
+}
+
+body.crm .kpi-green .kpi-icon,
+body.crm .kpi-blue .kpi-icon,
+body.crm .kpi-purple .kpi-icon,
+body.crm .kpi-amber .kpi-icon {
+    border-radius: 8px;
+}
+
+body.crm .kpi-green .kpi-icon { background: rgba(0, 232, 200, 0.12); color: var(--iot-accent); }
+body.crm .kpi-blue .kpi-icon { background: rgba(56, 189, 248, 0.12); color: var(--iot-accent-2); }
+
+body.crm .btn-primary {
+    background: var(--iot-gradient);
+    color: #041018;
+    font-family: var(--iot-font-display);
+    font-weight: 600;
+    border: none;
+    box-shadow: 0 2px 12px rgba(0, 232, 200, 0.2);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+body.crm .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(0, 232, 200, 0.3);
+    background: var(--iot-gradient);
+}
+
+body.crm .btn-ghost {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: var(--iot-border);
+    transition: all 0.2s;
+}
+
+body.crm .btn-ghost:hover {
+    border-color: var(--iot-border-active);
+    background: rgba(0, 232, 200, 0.06);
+}
+
+body.crm .data-table th {
+    font-family: var(--iot-font-mono);
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    background: rgba(5, 8, 15, 0.5);
+    border-bottom-color: var(--iot-border);
+}
+
+body.crm .data-table tbody tr {
+    transition: background 0.15s;
+}
+
+body.crm .data-table tbody tr:hover {
+    background: rgba(0, 232, 200, 0.04);
+}
+
+body.crm .tag {
+    background: rgba(0, 232, 200, 0.08);
+    border-color: rgba(0, 232, 200, 0.2);
+    color: var(--iot-accent);
+    border-radius: 5px;
+}
+
+body.crm .badge-success {
+    background: rgba(0, 232, 200, 0.12);
+    color: var(--iot-accent);
+}
+
+body.crm .badge-info {
+    background: rgba(56, 189, 248, 0.12);
+    color: var(--iot-accent-2);
+}
+
+body.crm .search-form input,
+body.crm .field input,
+body.crm .field select,
+body.crm .field textarea {
+    background: rgba(5, 8, 15, 0.6);
+    border-color: var(--iot-border);
+    border-radius: 8px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+body.crm .search-form input:focus,
+body.crm .field input:focus,
+body.crm .field select:focus,
+body.crm .field textarea:focus {
+    border-color: var(--iot-accent);
+    box-shadow: 0 0 0 2px rgba(0, 232, 200, 0.1);
+}
+
+body.crm .live-dot,
+body.crm .live-indicator {
+    color: var(--iot-accent);
+}
+
+body.crm .live-dot {
+    background: var(--iot-accent);
+    box-shadow: 0 0 0 0 rgba(0, 232, 200, 0.5);
+}
+
+body.crm .minute-bar {
+    background: linear-gradient(180deg, var(--iot-accent), rgba(0, 232, 200, 0.3));
+}
+
+body.crm .realtime-panel {
+    border: 1px solid var(--iot-border);
+    border-radius: var(--iot-radius);
+    background: var(--iot-surface);
+    backdrop-filter: var(--iot-glass);
+    padding: 14px;
+}
+
+body.crm .toast {
+    backdrop-filter: var(--iot-glass);
+    border-radius: 10px;
+    animation: iot-fade-up 0.4s var(--iot-ease);
+}
+
+body.crm .toast-success {
+    border-color: rgba(0, 232, 200, 0.35);
+    color: var(--iot-accent);
+}
+
+body.crm .dash-welcome,
+body.crm .dash-panel,
+body.crm .dash-kpi,
+body.crm .dash-live-strip {
+    backdrop-filter: var(--iot-glass);
+}
+
+body.vitrine .ux-card,
+body.vitrine .ux-profile-card,
+body.vitrine .ux-stat {
+    backdrop-filter: var(--iot-glass);
+}
+
+/* Accent alignment for CRM greens → cyan */
+body.crm {
+    --accent: #00e8c8;
+    --accent-hover: #33f0d4;
+    --accent-dim: rgba(0, 232, 200, 0.1);
+}
+
+/* Responsive polish */
+@media (max-width: 768px) {
+    body.vitrine .nav-links.open {
+        background: rgba(5, 8, 15, 0.97);
+        backdrop-filter: var(--iot-glass);
+        border-bottom: 1px solid var(--iot-border);
+    }
+
+    body.crm .sidebar {
+        background: rgba(8, 12, 22, 0.98);
+        box-shadow: 8px 0 32px rgba(0, 0, 0, 0.5);
+    }
+}
+
+body.crm .table-card.iot-enter {
+    animation: iot-fade-up 0.5s var(--iot-ease) forwards;
+}
+
+body.vitrine .flow-node {
+    backdrop-filter: var(--iot-glass);
+    box-shadow: var(--iot-shadow);
+}
+
+body.vitrine .flow-line {
+    background: linear-gradient(90deg, transparent, var(--iot-border-active), transparent);
+}
+
+body.vitrine .flow-dot {
+    box-shadow: 0 0 8px var(--iot-accent);
+}
+
+body.vitrine .hero {
+    position: relative;
+}
+
+body.vitrine .hero-bg {
+    background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(0, 232, 200, 0.08) 0%, transparent 60%);
+}
+
+body.vitrine .step-num {
+    font-family: var(--iot-font-mono);
+    color: var(--iot-accent);
+    opacity: 0.7;
+}
+
+body.vitrine .link-arrow {
+    font-family: var(--iot-font-display);
+    transition: transform 0.25s var(--iot-ease);
+}
+
+body.vitrine .link-arrow:hover {
+    transform: translateX(4px);
+}
+
+body.vitrine .cta-inner {
+    background: var(--iot-surface);
+    backdrop-filter: var(--iot-glass);
+    border: 1px solid var(--iot-border-active);
+    border-radius: var(--iot-radius-lg);
+    box-shadow: var(--iot-shadow), var(--iot-glow);
+    padding: 3rem 2rem;
+}
+
+body.vitrine .cta-inner h2 {
+    font-family: var(--iot-font-display);
+}
+
+/* SEO — breadcrumbs & FAQ */
+.seo-breadcrumbs {
+    padding: 0.75rem 1.5rem 0;
+    font-size: 0.78rem;
+}
+
+.seo-breadcrumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    color: var(--iot-muted);
+}
+
+.seo-breadcrumbs li:not(:last-child)::after {
+    content: '›';
+    margin-left: 0.5rem;
+    opacity: 0.5;
+}
+
+.seo-breadcrumbs a {
+    color: var(--iot-muted);
+}
+
+.seo-breadcrumbs a:hover {
+    color: var(--iot-accent);
+}
+
+.seo-intro {
+    max-width: 640px;
+    margin: 1rem auto 0;
+    color: var(--iot-muted);
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+.seo-faq .faq-list {
+    max-width: 760px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+}
+
+.seo-faq .faq-item {
+    background: var(--iot-surface);
+    backdrop-filter: var(--iot-glass);
+    border: 1px solid var(--iot-border);
+    border-radius: var(--iot-radius);
+    padding: 0.25rem 1rem;
+    transition: border-color 0.25s;
+}
+
+.seo-faq .faq-item[open] {
+    border-color: var(--iot-border-active);
+}
+
+.seo-faq .faq-item summary {
+    cursor: pointer;
+    list-style: none;
+    padding: 0.65rem 0;
+}
+
+.seo-faq .faq-item summary::-webkit-details-marker {
+    display: none;
+}
+
+.seo-faq .faq-item summary h3 {
+    display: inline;
+    font-size: 0.95rem;
+    font-weight: 600;
+    font-family: var(--iot-font-display);
+}
+
+.seo-faq .faq-item p {
+    color: var(--iot-muted);
+    margin: 0 0 0.85rem;
+    line-height: 1.65;
+    font-size: 0.9rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

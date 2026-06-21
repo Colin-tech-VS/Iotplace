@@ -1,53 +1,103 @@
 {% extends "base.html" %}
-{% from "compte/_macros.html" import message_row, stat_card %}
+{% from "compte/_macros.html" import message_row, profile_besoin_block %}
+{% from "compte/_messenger.html" import messenger_widget %}
 
 {% block content %}
-<section class="page-hero page-hero-sm">
-    <div class="container reveal">
-        <div class="dashboard-hero-row">
-            <div>
-                <span class="dashboard-badge">Espace entreprise</span>
-                <h1>{{ profile.name }}</h1>
-                <p class="page-sub">{{ profile.sector or 'Donneur d\'ordre IoT' }} — {{ profile.country or '—' }}</p>
-            </div>
-            <div class="dashboard-actions">
-                <a href="{{ url_for('compte.enterprise_new_project') }}" class="btn btn-primary btn-sm">+ Nouveau projet</a>
-                <a href="{{ url_for('compte.enterprise_edit_profile') }}" class="btn btn-outline btn-sm">Profil</a>
-                <a href="{{ url_for('compte.logout') }}" class="btn btn-ghost btn-sm">Déconnexion</a>
-            </div>
-        </div>
-    </div>
-</section>
+{% set ns = namespace(score=0) %}
+{% if profile.name %}{% set ns.score = ns.score + 20 %}{% endif %}
+{% if profile.besoin %}{% set ns.score = ns.score + 40 %}{% endif %}
+{% if profile.needs %}{% set ns.score = ns.score + 40 %}{% endif %}
 
-<section class="section">
+<section class="ux-dash">
     <div class="container">
-        <div class="dashboard-stats reveal">
-            {{ stat_card('Projets', stats.projects) }}
-            {{ stat_card('Candidatures', stats.applications) }}
-            {{ stat_card('Messages', stats.messages) }}
-            {{ stat_card('Non lus', stats.unread, highlight=stats.unread > 0) }}
+        <header class="ux-dash-hero reveal">
+            <div class="ux-dash-hero-inner">
+                <div class="ux-dash-identity">
+                    <div class="ux-dash-avatar enterprise" aria-hidden="true"></div>
+                    <div>
+                        <span class="ux-dash-badge">Espace entreprise</span>
+                        <h1>{{ profile.name }}</h1>
+                        <p class="ux-dash-sub">{{ profile.sector or 'Donneur d\'ordre IoT' }} · {{ profile.country or '—' }}</p>
+                    </div>
+                </div>
+                <div class="ux-dash-actions">
+                    <a href="{{ url_for('compte.enterprise_new_project') }}" class="btn btn-primary btn-sm">+ Nouveau projet</a>
+                    <a href="{{ url_for('compte.enterprise_edit_profile') }}" class="btn btn-outline btn-sm">Profil</a>
+                    <a href="{{ url_for('compte.logout') }}" class="btn btn-ghost btn-sm">Déconnexion</a>
+                </div>
+            </div>
+        </header>
+
+        <div class="ux-stats reveal">
+            <div class="ux-stat">
+                <span class="ux-stat-icon">📋</span>
+                <span class="ux-stat-value">{{ stats.projects }}</span>
+                <span class="ux-stat-label">Projets publiés</span>
+            </div>
+            <a href="#candidatures" class="ux-stat ux-stat-clickable" data-tab="candidatures">
+                <span class="ux-stat-icon">📨</span>
+                <span class="ux-stat-value">{{ stats.applications }}</span>
+                <span class="ux-stat-label">Candidatures</span>
+            </a>
+            <a href="#messages" class="ux-stat ux-stat-clickable" data-tab="messages">
+                <span class="ux-stat-icon">💬</span>
+                <span class="ux-stat-value">{{ stats.messages }}</span>
+                <span class="ux-stat-label">Messages</span>
+            </a>
+            <a href="#messages" class="ux-stat ux-stat-clickable {% if stats.unread %}ux-stat-highlight{% endif %}" data-tab="messages">
+                {% if stats.unread %}<span class="ux-stat-badge" aria-label="Non lus"></span>{% endif %}
+                <span class="ux-stat-icon">🔔</span>
+                <span class="ux-stat-value" data-stat-unread>{{ stats.unread }}</span>
+                <span class="ux-stat-label">Non lus</span>
+            </a>
         </div>
 
-        <div class="dashboard-tabs reveal">
-            <button class="tab-btn active" data-tab="projets">Mes projets</button>
-            <button class="tab-btn" data-tab="messages">Messages reçus{% if unread_count %} ({{ unread_count }}){% endif %}</button>
-            <button class="tab-btn" data-tab="candidatures">Candidatures</button>
-            <button class="tab-btn" data-tab="envoyes">Envoyés</button>
+        <div class="ux-profile-card reveal">
+            <div class="ux-profile-head">
+                <h3>Mon profil & besoins</h3>
+                <a href="{{ url_for('compte.enterprise_edit_profile') }}" class="btn btn-outline btn-sm">Modifier</a>
+            </div>
+            <div class="ux-progress-wrap">
+                <div class="ux-progress-label">
+                    <span>Profil complété</span>
+                    <span>{{ ns.score }}%</span>
+                </div>
+                <div class="ux-progress-bar" role="progressbar" aria-valuenow="{{ ns.score }}" aria-valuemin="0" aria-valuemax="100">
+                    <div class="ux-progress-fill" style="width: {{ ns.score }}%"></div>
+                </div>
+            </div>
+            {% if profile.besoin or profile.needs %}
+            {{ profile_besoin_block(profile.besoin, profile.needs, 'Compétences recherchées') }}
+            {% else %}
+            <p class="muted">Décrivez votre besoin et les compétences recherchées pour attirer les bonnes startups.</p>
+            <a href="{{ url_for('compte.enterprise_edit_profile') }}" class="link-arrow">Compléter mon profil →</a>
+            {% endif %}
         </div>
 
-        <div class="tab-panel active reveal" id="tab-projets">
-            <div class="dashboard-card">
-                <div class="dashboard-card-header">
+        <nav class="ux-tabs reveal" role="tablist" aria-label="Sections du tableau de bord">
+            <button class="ux-tab active" role="tab" data-tab="projets" aria-selected="true">📋 Mes projets</button>
+            <button class="ux-tab" role="tab" data-tab="messages">
+                💬 Messages{% if unread_count %}<span class="ux-tab-count">{{ unread_count }}</span>{% endif %}
+            </button>
+            <button class="ux-tab" role="tab" data-tab="candidatures">
+                📨 Candidatures{% if stats.applications %}<span class="ux-tab-count">{{ stats.applications }}</span>{% endif %}
+            </button>
+            <button class="ux-tab" role="tab" data-tab="envoyes">↗ Envoyés</button>
+        </nav>
+
+        <div class="ux-panel active reveal" id="ux-panel-projets" role="tabpanel">
+            <div class="ux-card">
+                <div class="ux-card-head">
                     <h3>Projets publiés</h3>
-                    <a href="{{ url_for('compte.enterprise_new_project') }}" class="link-arrow">Ajouter →</a>
+                    <a href="{{ url_for('compte.enterprise_new_project') }}" class="btn btn-primary btn-sm">+ Ajouter</a>
                 </div>
                 {% if projects %}
                 <div class="mini-list">
                     {% for project in projects %}
-                    <article class="mini-list-item">
+                    <article class="ux-list-item">
                         <div>
                             <a href="{{ url_for('compte.enterprise_project_detail', project_id=project.id) }}"><strong>{{ project.title }}</strong></a>
-                            <p class="muted">{{ project.budget or 'Budget à définir' }} · {{ project.duration or '—' }}</p>
+                            <p class="ux-list-meta">{{ project.budget or 'Budget à définir' }} · {{ project.duration or 'Durée non précisée' }}</p>
                             {% if project.applications_count %}
                             <p class="message-hint">{{ project.applications_count }} candidature(s){% if project.applications_pending %} — {{ project.applications_pending }} en attente{% endif %}</p>
                             {% endif %}
@@ -57,72 +107,84 @@
                     {% endfor %}
                 </div>
                 {% else %}
-                <p class="muted">Aucun projet. Publiez votre premier besoin IoT pour recevoir des candidatures de startups.</p>
-                {% endif %}
-            </div>
-        </div>
-
-        <div class="tab-panel reveal" id="tab-messages">
-            <div class="dashboard-card">
-                <h3>Boîte de réception</h3>
-                {% if inbox %}
-                <div class="message-list">
-                    {% for msg in inbox %}{{ message_row(msg) }}{% endfor %}
+                <div class="ux-empty">
+                    <div class="ux-empty-icon">📋</div>
+                    <h4>Aucun projet publié</h4>
+                    <p>Publiez votre premier besoin IoT pour recevoir des candidatures de startups qualifiées.</p>
+                    <a href="{{ url_for('compte.enterprise_new_project') }}" class="btn btn-primary btn-sm">Créer un projet</a>
                 </div>
-                {% else %}
-                <p class="muted">Aucun message reçu pour le moment.</p>
                 {% endif %}
             </div>
-            {% if platform_contacts %}
-            <div class="dashboard-card" style="margin-top:1rem">
-                <h3>Demandes via la vitrine</h3>
-                {% for c in platform_contacts %}
-                <article class="message-row">
-                    <div class="message-row-top"><span class="message-kind">Contact vitrine</span></div>
-                    <strong>{{ c.name }}</strong>
-                    <p class="muted">{{ c.email }} · {{ c.created_at[:10] if c.created_at else '' }}</p>
-                    <p class="message-preview">{{ c.message }}</p>
-                </article>
-                {% endfor %}
-            </div>
-            {% endif %}
         </div>
 
-        <div class="tab-panel reveal" id="tab-candidatures">
-            <div class="dashboard-card">
+        <div class="ux-panel reveal" id="ux-panel-messages" role="tabpanel">
+            {{ messenger_widget('enterprise') }}
+        </div>
+
+        <div class="ux-panel reveal" id="ux-panel-candidatures" role="tabpanel">
+            <div class="ux-card">
                 <h3>Candidatures reçues</h3>
                 {% if applications %}
-                <div class="message-list">
-                    {% for msg in applications %}{{ message_row(msg) }}{% endfor %}
+                <div class="mini-list" style="margin-top:0.75rem">
+                    {% for msg in applications %}
+                    <article class="ux-list-item">
+                        <div>
+                            <strong>{{ msg.counterpart_name }}</strong>
+                            <p class="ux-list-meta">{{ msg.project_title or 'Projet IoT' }} · {{ msg.kind_label }}</p>
+                            <p class="message-preview">{{ msg.body[:100] }}{% if msg.body|length > 100 %}…{% endif %}</p>
+                        </div>
+                        <button type="button" class="btn btn-outline btn-sm ux-open-chat"
+                            data-counterpart="{{ msg.from_user_id }}"
+                            data-project="{{ msg.project_id or '' }}"
+                            data-name="{{ msg.counterpart_name }}"
+                            data-role="startup">Répondre</button>
+                    </article>
+                    {% endfor %}
                 </div>
                 {% else %}
-                <p class="muted">Aucune startup n'a encore candidaté à vos projets.</p>
+                <div class="ux-empty">
+                    <div class="ux-empty-icon">📨</div>
+                    <h4>Aucune candidature</h4>
+                    <p>Les startups postuleront à vos projets ouverts. Publiez un projet pour commencer.</p>
+                    <a href="{{ url_for('compte.enterprise_new_project') }}" class="btn btn-outline btn-sm">Publier un projet</a>
+                </div>
                 {% endif %}
             </div>
         </div>
 
-        <div class="tab-panel reveal" id="tab-envoyes">
-            <div class="dashboard-card">
+        <div class="ux-panel reveal" id="ux-panel-envoyes" role="tabpanel">
+            <div class="ux-card">
                 <h3>Messages envoyés</h3>
                 {% if sent %}
-                <div class="message-list">
+                <div class="message-list" style="margin-top:0.75rem">
                     {% for msg in sent %}{{ message_row(msg) }}{% endfor %}
                 </div>
                 {% else %}
-                <p class="muted">Aucun message envoyé.</p>
+                <div class="ux-empty">
+                    <div class="ux-empty-icon">↗</div>
+                    <h4>Aucun message envoyé</h4>
+                    <p>Vos échanges avec les startups s'afficheront ici.</p>
+                </div>
                 {% endif %}
             </div>
         </div>
     </div>
 </section>
 
+<script src="{{ url_for('vitrine.static', filename='js/dashboard.js') }}?v=1"></script>
+<script src="{{ url_for('vitrine.static', filename='js/messaging.js') }}?v=1"></script>
 <script>
-document.querySelectorAll('.tab-btn').forEach(btn => {
+document.querySelectorAll('.ux-open-chat').forEach(btn => {
     btn.addEventListener('click', () => {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+        document.querySelector('[data-tab="messages"]')?.click();
+        setTimeout(() => {
+            window.IotMessenger?.openThread({
+                counterpart_user_id: btn.dataset.counterpart,
+                project_id: btn.dataset.project || null,
+                counterpart_name: btn.dataset.name,
+                counterpart_role: btn.dataset.role,
+            });
+        }, 150);
     });
 });
 </script>

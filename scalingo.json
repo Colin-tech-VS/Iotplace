@@ -17,6 +17,14 @@
     "SECRET_KEY": {
       "description": "Clé secrète Flask (sessions) — générer une valeur aléatoire longue en production",
       "value": ""
+    },
+    "CRM_ADMIN_USERNAME": {
+      "description": "Identifiant administrateur CRM (obligatoire pour /crm)",
+      "value": ""
+    },
+    "CRM_ADMIN_PASSWORD": {
+      "description": "Mot de passe administrateur CRM (obligatoire, valeur secrète Scalingo)",
+      "value": ""
     }
   }
 }

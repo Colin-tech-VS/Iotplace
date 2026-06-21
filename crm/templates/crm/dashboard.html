@@ -1,145 +1,224 @@
 {% extends "crm_layout.html" %}
-{% from "crm_macros.html" import page_header, empty_state, status_badge, type_badge, avatar_initials %}
+{% from "crm_macros.html" import status_badge, type_badge %}
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-{% call page_header("Dashboard", "Vue d'ensemble") %}{% endcall %}
+<div class="dash-shell">
 
-<div class="kpi-grid">
-    <a href="{{ url_for('crm.enterprises') }}" class="kpi-card kpi-blue">
-        <div class="kpi-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4"/></svg>
+    <header class="dash-welcome">
+        <div>
+            <h1>Tableau de bord</h1>
+            <p>Marketplace IoT — entreprises, startups et projets en un coup d'œil</p>
         </div>
-        <div class="kpi-body">
-            <span class="kpi-value">{{ stats.enterprises }}</span>
-            <span class="kpi-label">Entreprises</span>
+        <div class="dash-welcome-actions">
+            <a href="{{ url_for('crm.analytics') }}" class="dash-pill dash-pill-live">
+                <span class="dash-live-dot"></span>
+                {{ analytics.realtime.active_users }} en ligne
+            </a>
+            <a href="{{ url_for('vitrine.index') }}" class="dash-pill" target="_blank" rel="noopener">Vitrine ↗</a>
+            <a href="{{ url_for('crm.new_project') }}" class="dash-pill" style="border-color:rgba(0,232,200,.3);color:var(--accent)">+ Projet</a>
         </div>
-    </a>
-    <a href="{{ url_for('crm.startups') }}" class="kpi-card kpi-green">
-        <div class="kpi-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/></svg>
-        </div>
-        <div class="kpi-body">
-            <span class="kpi-value">{{ stats.startups }}</span>
-            <span class="kpi-label">Startups</span>
-        </div>
-    </a>
-    <a href="{{ url_for('crm.projects') }}" class="kpi-card kpi-purple">
-        <div class="kpi-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
-        </div>
-        <div class="kpi-body">
-            <span class="kpi-value">{{ stats.projects }}</span>
-            <span class="kpi-label">Projets</span>
-        </div>
-    </a>
-    <a href="{{ url_for('crm.contacts') }}" class="kpi-card kpi-amber">
-        <div class="kpi-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M22 6l-10 7L2 6"/></svg>
-        </div>
-        <div class="kpi-body">
-            <span class="kpi-value">{{ stats.contacts }}</span>
-            <span class="kpi-label">Contacts</span>
-        </div>
-    </a>
-</div>
+    </header>
 
-<div class="dashboard-grid">
-    <section class="card">
-        <div class="card-header">
-            <div>
-                <h2>Activité récente</h2>
-                <p>Derniers messages reçus via la vitrine</p>
-            </div>
-            <a href="{{ url_for('crm.contacts') }}" class="btn btn-ghost btn-sm">Tout voir</a>
-        </div>
-        {% if contacts %}
-        <div class="activity-list">
-            {% for c in contacts %}
-            <a href="{{ url_for('crm.contact_detail', entry_id=c.id) }}" class="activity-item">
-                <div class="activity-avatar">{{ c.name[:1]|upper }}</div>
-                <div class="activity-body">
-                    <div class="activity-top">
-                        <strong>{{ c.name }}</strong>
-                        {{ type_badge(c.type) }}
-                    </div>
-                    <p>{{ c.message[:90] }}{% if c.message|length > 90 %}…{% endif %}</p>
-                    <span class="activity-time">{{ c.created_at[:16].replace('T', ' ') if c.created_at else '' }}</span>
+    <div class="dash-kpis">
+        <a href="{{ url_for('crm.enterprises') }}" class="dash-kpi kpi-blue">
+            <div class="dash-kpi-top">
+                <div class="dash-kpi-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4"/></svg>
                 </div>
-            </a>
-            {% endfor %}
-        </div>
-        {% else %}
-        {{ empty_state('', 'Aucun contact', 'Les demandes via le formulaire apparaîtront ici.', url_for('vitrine.contact'), 'Voir le formulaire') }}
-        {% endif %}
-    </section>
-
-    <section class="card">
-        <div class="card-header">
-            <div>
-                <h2>Projets ouverts</h2>
-                <p>Missions disponibles sur la vitrine</p>
+                <span class="dash-kpi-value">{{ stats.enterprises }}</span>
             </div>
-            <a href="{{ url_for('crm.new_project') }}" class="btn btn-primary btn-sm">+ Nouveau</a>
-        </div>
-        {% if open_projects %}
-        <div class="mini-table-wrap">
-            <table class="data-table compact">
-                <thead><tr><th>Projet</th><th>Entreprise</th><th>Statut</th></tr></thead>
-                <tbody>
-                    {% for p in open_projects %}
-                    <tr>
-                        <td><a href="{{ url_for('crm.edit_project', entry_id=p.id) }}">{{ p.title }}</a></td>
-                        <td class="muted">{{ p.enterprise or '—' }}</td>
-                        <td>{{ status_badge(p.status) }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% else %}
-        {{ empty_state('', 'Aucun projet ouvert', 'Créez un projet pour la vitrine.', url_for('crm.new_project'), 'Créer') }}
-        {% endif %}
-    </section>
-</div>
-
-<div class="dashboard-grid">
-    <section class="card">
-        <div class="card-header">
-            <div>
-                <h2>Startups en vedette</h2>
-                <p>Affichées sur la page d'accueil</p>
+            <span class="dash-kpi-label">Entreprises</span>
+            <span class="dash-kpi-hint">Donneurs d'ordre IoT</span>
+        </a>
+        <a href="{{ url_for('crm.startups') }}" class="dash-kpi kpi-green">
+            <div class="dash-kpi-top">
+                <div class="dash-kpi-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/></svg>
+                </div>
+                <span class="dash-kpi-value">{{ stats.startups }}</span>
             </div>
-            <a href="{{ url_for('crm.startups') }}" class="btn btn-ghost btn-sm">Gérer</a>
-        </div>
-        {% if featured_startups %}
-        <div class="chip-list">
-            {% for s in featured_startups %}
-            <a href="{{ url_for('crm.edit_startup', entry_id=s.id) }}" class="chip-item">
-                <span>{{ s.flag or '🚀' }}</span>
-                <span>{{ s.name }}</span>
-                <span class="chip-meta">{{ s.country or '' }}</span>
-            </a>
-            {% endfor %}
-        </div>
-        {% else %}
-        <p class="card-hint">Marquez des startups comme « vedette » pour les afficher sur l'accueil.</p>
-        {% endif %}
-    </section>
+            <span class="dash-kpi-label">Startups</span>
+            <span class="dash-kpi-hint">Sous-traitants qualifiés</span>
+        </a>
+        <a href="{{ url_for('crm.projects') }}" class="dash-kpi kpi-purple">
+            <div class="dash-kpi-top">
+                <div class="dash-kpi-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+                </div>
+                <span class="dash-kpi-value">{{ stats.projects }}</span>
+            </div>
+            <span class="dash-kpi-label">Projets</span>
+            <span class="dash-kpi-hint">{{ open_projects|length }} ouvert(s)</span>
+        </a>
+        <a href="{{ url_for('crm.contacts') }}" class="dash-kpi kpi-amber">
+            <div class="dash-kpi-top">
+                <div class="dash-kpi-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M22 6l-10 7L2 6"/></svg>
+                </div>
+                <span class="dash-kpi-value">{{ stats.contacts }}</span>
+            </div>
+            <span class="dash-kpi-label">Contacts</span>
+            <span class="dash-kpi-hint">Demandes vitrine</span>
+        </a>
+    </div>
 
-    <section class="card">
-        <div class="card-header">
-            <div>
-                <h2>Actions rapides</h2>
-                <p>Raccourcis de gestion</p>
+    <div class="dash-live-strip">
+        <div class="dash-live-metrics">
+            <div class="dash-live-metric">
+                <strong>{{ analytics.today }}</strong>
+                <span>vues aujourd'hui</span>
+            </div>
+            <div class="dash-live-metric">
+                <strong>{{ analytics.realtime.views_last_30min }}</strong>
+                <span>vues (30 min)</span>
+            </div>
+            <div class="dash-live-metric">
+                <strong>{{ stats.users }}</strong>
+                <span>comptes inscrits</span>
             </div>
         </div>
-        <div class="quick-grid">
-            <a href="{{ url_for('crm.new_enterprise') }}" class="quick-item"><span class="quick-icon">+</span><span>Entreprise</span></a>
-            <a href="{{ url_for('crm.new_startup') }}" class="quick-item"><span class="quick-icon">+</span><span>Startup</span></a>
-            <a href="{{ url_for('crm.new_project') }}" class="quick-item"><span class="quick-icon">+</span><span>Projet</span></a>
-            <a href="{{ url_for('vitrine.index') }}" class="quick-item" target="_blank"><span class="quick-icon">↗</span><span>Vitrine</span></a>
+        <a href="{{ url_for('crm.analytics') }}" class="btn btn-ghost btn-sm">Voir analytics →</a>
+    </div>
+
+    <div class="dash-layout">
+        <div class="dash-stack">
+            <section class="dash-panel">
+                <div class="dash-panel-head">
+                    <div>
+                        <h2>Activité récente</h2>
+                        <p>Dernières demandes via le formulaire contact</p>
+                    </div>
+                    <a href="{{ url_for('crm.contacts') }}" class="btn btn-ghost btn-sm">Tout voir</a>
+                </div>
+                <div class="dash-panel-body">
+                    {% if contacts %}
+                    <div class="dash-feed">
+                        {% for c in contacts %}
+                        <a href="{{ url_for('crm.contact_detail', entry_id=c.id) }}" class="dash-feed-item">
+                            <div class="dash-feed-avatar">{{ c.name[:1]|upper }}</div>
+                            <div class="dash-feed-body">
+                                <div class="dash-feed-top">
+                                    <strong>{{ c.name }}</strong>
+                                    {{ type_badge(c.type) }}
+                                </div>
+                                <p class="dash-feed-preview">{{ c.message }}</p>
+                                <span class="dash-feed-time">{{ c.created_at[:16].replace('T', ' ') if c.created_at else '' }}</span>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="dash-empty">
+                        <div class="dash-empty-icon">📬</div>
+                        <h3>Aucun contact pour l'instant</h3>
+                        <p>Les messages du formulaire vitrine apparaîtront ici dès qu'un visiteur vous écrira.</p>
+                        <a href="{{ url_for('vitrine.contact') }}" class="btn btn-primary btn-sm" target="_blank">Voir le formulaire</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </section>
+
+            <section class="dash-panel">
+                <div class="dash-panel-head">
+                    <div>
+                        <h2>Projets ouverts</h2>
+                        <p>Missions visibles sur la vitrine</p>
+                    </div>
+                    <a href="{{ url_for('crm.new_project') }}" class="btn btn-primary btn-sm">+ Nouveau</a>
+                </div>
+                <div class="dash-panel-body">
+                    {% if open_projects %}
+                    <div class="dash-project-list">
+                        {% for p in open_projects %}
+                        <a href="{{ url_for('crm.edit_project', entry_id=p.id) }}" class="dash-project-row">
+                            <div>
+                                <div class="dash-project-title">{{ p.title }}</div>
+                                <div class="dash-project-meta">{{ p.enterprise or 'Sans entreprise' }}{% if p.budget %} · {{ p.budget }}{% endif %}</div>
+                            </div>
+                            {{ status_badge(p.status) }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="dash-empty">
+                        <div class="dash-empty-icon">📋</div>
+                        <h3>Aucun projet ouvert</h3>
+                        <p>Créez un projet pour le publier sur la vitrine et recevoir des candidatures.</p>
+                        <a href="{{ url_for('crm.new_project') }}" class="btn btn-primary btn-sm">Créer un projet</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </section>
         </div>
-    </section>
+
+        <div class="dash-stack">
+            <section class="dash-panel">
+                <div class="dash-panel-head">
+                    <div>
+                        <h2>Actions rapides</h2>
+                        <p>Raccourcis les plus utilisés</p>
+                    </div>
+                </div>
+                <div class="dash-actions-grid">
+                    <a href="{{ url_for('crm.new_project') }}" class="dash-action-tile primary">
+                        <span class="dash-action-icon">+</span>
+                        <div>
+                            <strong>Nouveau projet</strong>
+                            <span>Publier une mission de sous-traitance</span>
+                        </div>
+                    </a>
+                    <a href="{{ url_for('crm.new_enterprise') }}" class="dash-action-tile">
+                        <span class="dash-action-icon">🏢</span>
+                        <strong>Entreprise</strong>
+                        <span>Ajouter un donneur d'ordre</span>
+                    </a>
+                    <a href="{{ url_for('crm.new_startup') }}" class="dash-action-tile">
+                        <span class="dash-action-icon">🚀</span>
+                        <strong>Startup</strong>
+                        <span>Ajouter un sous-traitant</span>
+                    </a>
+                    <a href="{{ url_for('crm.accounts') }}" class="dash-action-tile">
+                        <span class="dash-action-icon">👤</span>
+                        <strong>Comptes</strong>
+                        <span>{{ stats.users }} utilisateur(s)</span>
+                    </a>
+                    <a href="{{ url_for('crm.seo') }}" class="dash-action-tile">
+                        <span class="dash-action-icon">◎</span>
+                        <strong>SEO</strong>
+                        <span>Référencement vitrine</span>
+                    </a>
+                </div>
+            </section>
+
+            <section class="dash-panel">
+                <div class="dash-panel-head">
+                    <div>
+                        <h2>Startups en vedette</h2>
+                        <p>Affichées sur la page d'accueil</p>
+                    </div>
+                    <a href="{{ url_for('crm.startups') }}" class="btn btn-ghost btn-sm">Gérer</a>
+                </div>
+                <div class="dash-panel-body">
+                    {% if featured_startups %}
+                    <div class="dash-chips">
+                        {% for s in featured_startups %}
+                        <a href="{{ url_for('crm.edit_startup', entry_id=s.id) }}" class="dash-chip">
+                            <span class="dash-chip-flag">{{ s.flag or '🚀' }}</span>
+                            <span class="dash-chip-name">{{ s.name }}</span>
+                            <span class="dash-chip-country">{{ s.country or '' }}</span>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="dash-empty" style="padding:20px 14px">
+                        <p style="margin:0;font-size:11px;color:var(--text-muted)">Marquez des startups « vedette » pour les mettre en avant sur l'accueil.</p>
+                        <a href="{{ url_for('crm.startups') }}" class="btn btn-ghost btn-sm" style="margin-top:10px">Parcourir les startups</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </section>
+        </div>
+    </div>
 </div>
 {% endblock %}

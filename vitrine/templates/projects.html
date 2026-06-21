@@ -1,11 +1,14 @@
 {% extends "base.html" %}
+{% from "_seo_macros.html" import faq_section, breadcrumbs_nav %}
 {% block title %}Projets{% endblock %}
 
 {% block content %}
+{{ breadcrumbs_nav(seo_breadcrumbs) }}
 <section class="page-hero">
     <div class="container reveal">
         <h1>{{ page.title }}</h1>
         <p class="page-sub">{{ page.subtitle }}</p>
+        <p class="seo-intro">Liste des <strong>projets IoT ouverts à la sous-traitance</strong> : startups, consultez les missions et postulez. Entreprises, <a href="{{ url_for('compte.register_enterprise') }}">publiez votre besoin</a>.</p>
     </div>
 </section>
 
@@ -55,4 +58,6 @@
         {% endif %}
     </div>
 </section>
+
+{{ faq_section(seo_faq, "FAQ — Projets IoT ouverts") }}
 {% endblock %}

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "compte/_macros.html" import field_value %}
+{% from "compte/_macros.html" import field_value, tag_input %}
 
 {% block content %}
 <section class="page-hero page-hero-sm">
@@ -41,13 +41,14 @@
                         </select>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="skills">Compétences requises (virgules)</label>
-                    <input type="text" id="skills" name="skills" placeholder="Firmware, LoRaWAN, Cloud IoT">
-                </div>
+                {{ tag_input('skills', 'skills', field_value(form, 'skills'), 'Compétences requises', 'Firmware, LoRaWAN, Cloud IoT') }}
             </fieldset>
             <button type="submit" class="btn btn-primary">Publier le projet</button>
         </form>
     </div>
 </section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('vitrine.static', filename='js/tag-input.js') }}"></script>
 {% endblock %}

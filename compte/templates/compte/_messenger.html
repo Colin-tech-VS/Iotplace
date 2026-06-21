@@ -1,0 +1,51 @@
+{% macro messenger_widget(user_role) %}
+<div class="ux-messenger" id="uxMessenger"
+     data-poll-url="{{ url_for('compte.messaging_poll') }}"
+     data-thread-url="{{ url_for('compte.messaging_thread') }}"
+     data-send-url="{{ url_for('compte.messaging_send') }}"
+     data-read-url="{{ url_for('compte.messaging_mark_read') }}"
+     data-status-url="{{ url_for('compte.messaging_update_status', message_id='__ID__') }}"
+     data-user-role="{{ user_role }}"
+     data-empty-hint="{% if user_role == 'enterprise' %}Les candidatures des startups apparaîtront ici.{% else %}Postulez à un projet pour démarrer un échange.{% endif %}">
+
+    <div class="ux-messenger-layout">
+        <aside class="ux-messenger-sidebar" id="messengerSidebar">
+            <div class="ux-messenger-sidebar-head">
+                <h3>Conversations</h3>
+                <span class="ux-messenger-unread-total" id="messengerUnreadTotal" hidden></span>
+            </div>
+            <div class="ux-messenger-threads" id="messengerThreads">
+                <div class="ux-messenger-loading">Chargement…</div>
+            </div>
+        </aside>
+
+        <div class="ux-messenger-chat" id="messengerChat">
+            <div class="ux-messenger-empty" id="messengerEmpty">
+                <span class="ux-messenger-empty-icon">💬</span>
+                <h4>Messagerie Iotplace</h4>
+                <p>Échangez directement avec {% if user_role == 'enterprise' %}les startups{% else %}les entreprises{% endif %} — candidatures et réponses en temps réel.</p>
+            </div>
+
+            <div class="ux-messenger-active" id="messengerActive" hidden>
+                <header class="ux-messenger-chat-head">
+                    <button type="button" class="ux-messenger-back" id="messengerBack" aria-label="Retour">←</button>
+                    <div class="ux-messenger-chat-peer">
+                        <strong id="messengerPeerName">—</strong>
+                        <span id="messengerPeerMeta" class="muted"></span>
+                    </div>
+                </header>
+
+                <div class="ux-messenger-messages" id="messengerMessages"></div>
+
+                <div class="ux-messenger-compose">
+                    <div class="ux-messenger-app-actions" id="messengerAppActions" hidden></div>
+                    <form id="messengerForm" class="ux-messenger-form">
+                        <textarea id="messengerInput" rows="2" placeholder="Écrivez votre message…" required></textarea>
+                        <button type="submit" class="btn btn-primary btn-sm" id="messengerSendBtn">Envoyer</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}

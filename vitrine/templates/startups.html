@@ -1,11 +1,16 @@
 {% extends "base.html" %}
+{% from "_seo_macros.html" import faq_section, breadcrumbs_nav %}
 {% block title %}Startups{% endblock %}
 
 {% block content %}
+{{ breadcrumbs_nav(seo_breadcrumbs) }}
 <section class="page-hero">
     <div class="container reveal">
-        <h1>{{ page.title }}</h1>
-        <p class="page-sub">{{ page.subtitle }}</p>
+        <h1>{% if selected_country %}Startups IoT {{ selected_country }} — missions de sous-traitance{% else %}{{ page.title }}{% endif %}</h1>
+        <p class="page-sub">{% if selected_country %}Startups IoT au {{ selected_country }} : postulez aux projets de sous-traitance publiés par les entreprises sur Iotplace.{% else %}{{ page.subtitle }}{% endif %}</p>
+        {% if not selected_country %}
+        <p class="seo-intro">Vous êtes une <strong>startup IoT</strong> et cherchez des <strong>missions de sous-traitance</strong> ? Parcourez les projets ouverts et inscrivez-vous pour postuler aux besoins firmware, hardware et cloud des grands groupes.</p>
+        {% endif %}
     </div>
 </section>
 
@@ -63,7 +68,9 @@
     <div class="container cta-inner reveal">
         <h2>Vous êtes une startup IoT en Asie ?</h2>
         <p>Inscrivez-vous sur Iotplace et accédez aux projets de sous-traitance des grandes entreprises.</p>
-        <a href="{{ url_for('vitrine.contact') }}" class="btn btn-primary btn-lg btn-glow">Rejoindre la plateforme</a>
+        <a href="{{ url_for('compte.register_startup') }}" class="btn btn-primary btn-lg btn-glow">Rejoindre la plateforme</a>
     </div>
 </section>
+
+{{ faq_section(seo_faq, "FAQ — Missions IoT pour startups") }}
 {% endblock %}

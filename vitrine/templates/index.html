@@ -1,7 +1,9 @@
 {% extends "base.html" %}
+{% from "_seo_macros.html" import faq_section, breadcrumbs_nav %}
 {% block title %}Accueil{% endblock %}
 
 {% block content %}
+{{ breadcrumbs_nav(seo_breadcrumbs) }}
 <section class="hero">
     <div class="hero-bg"></div>
     <div class="container hero-content">
@@ -37,6 +39,29 @@
         <div class="flow-node flow-center">Iotplace</div>
         <div class="flow-line"><span class="flow-dot"></span></div>
         <div class="flow-node flow-right">Startup</div>
+    </div>
+</section>
+
+<section class="section section-alt">
+    <div class="container">
+        <div class="section-header reveal">
+            <h2>Deux audiences, une plateforme</h2>
+            <p>Sous-traitance IoT B2B structurée pour les entreprises et les startups.</p>
+        </div>
+        <div class="steps-grid">
+            <div class="step-card reveal">
+                <div class="step-num">🏢</div>
+                <h3>Entreprises : externalisez vos projets IoT</h3>
+                <p>Publiez un besoin firmware, hardware ou cloud et sous-traitez à des startups qualifiées au Vietnam, en Indonésie et en Asie du Sud-Est.</p>
+                <a href="{{ url_for('compte.register_enterprise') }}" class="link-arrow">Inscription entreprise →</a>
+            </div>
+            <div class="step-card reveal">
+                <div class="step-num">🚀</div>
+                <h3>Startups IoT : trouvez des missions</h3>
+                <p>Accédez aux projets de sous-traitance publiés par les grands groupes et postulez aux missions qui correspondent à vos compétences.</p>
+                <a href="{{ url_for('compte.register_startup') }}" class="link-arrow">Inscription startup →</a>
+            </div>
+        </div>
     </div>
 </section>
 
@@ -151,4 +176,6 @@
         <a href="{{ url_for('vitrine.contact') }}" class="btn btn-primary btn-lg btn-glow">Commencer maintenant</a>
     </div>
 </section>
+
+{{ faq_section(seo_faq, "FAQ — Sous-traitance IoT entreprises & startups") }}
 {% endblock %}

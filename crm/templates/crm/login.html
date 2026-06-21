@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Connexion — Iotplace Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('crm.static', filename='css/crm.css') }}?v=7">
+    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/iot-theme.css') }}?v=1">
+    <link rel="stylesheet" href="{{ url_for('crm.static', filename='css/crm-login.css') }}?v=1">
+</head>
+<body class="crm crm-login-page">
+    <div class="crm-bg" aria-hidden="true"></div>
+    <main class="crm-login-wrap">
+        <div class="crm-login-card">
+            <div class="crm-login-brand">
+                <span class="brand-mark">⬡</span>
+                <div>
+                    <strong>Iotplace</strong>
+                    <small>Administration CRM</small>
+                </div>
+            </div>
+
+            {% if not configured %}
+            <div class="crm-login-alert">
+                <h1>Accès non configuré</h1>
+                <p>Définissez les variables d'environnement Scalingo <code>CRM_ADMIN_USERNAME</code> et <code>CRM_ADMIN_PASSWORD</code>.</p>
+            </div>
+            {% else %}
+            <h1>Connexion sécurisée</h1>
+            <p class="crm-login-sub">Accès réservé aux administrateurs.</p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                    <div class="crm-login-flash crm-login-flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% if locked %}
+            <div class="crm-login-alert">
+                Trop de tentatives. Réessayez dans quelques minutes.
+            </div>
+            {% else %}
+            <form method="POST" class="crm-login-form" autocomplete="off">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <input type="hidden" name="next" value="{{ next_url }}">
+                <div class="field">
+                    <label for="username">Identifiant</label>
+                    <input type="text" id="username" name="username" required autofocus autocapitalize="none" spellcheck="false" autocomplete="username">
+                </div>
+                <div class="field">
+                    <label for="password">Mot de passe</label>
+                    <input type="password" id="password" name="password" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn btn-primary crm-login-btn">Se connecter</button>
+            </form>
+            {% endif %}
+            {% endif %}
+
+            <p class="crm-login-footer">
+                <a href="{{ url_for('vitrine.index') }}">← Retour au site public</a>
+            </p>
+        </div>
+    </main>
+</body>
+</html>

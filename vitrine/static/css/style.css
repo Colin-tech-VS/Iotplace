@@ -1060,6 +1060,35 @@ a:hover { color: #33e0be; }
 .back-link:hover { color: var(--accent); }
 .apply-form { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
 
+.tag-input-group .tag-preview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.65rem;
+    min-height: 28px;
+    padding: 0.5rem 0.65rem;
+    background: var(--bg);
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+}
+.tag-preview-hint { font-size: 0.78rem; color: var(--text-muted); font-style: italic; }
+.profile-summary-block { display: flex; flex-direction: column; gap: 1rem; }
+.profile-summary-block h4 {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin-bottom: 0.4rem;
+    font-weight: 600;
+}
+.profile-besoin p {
+    color: var(--text);
+    font-size: 0.92rem;
+    line-height: 1.55;
+    white-space: pre-wrap;
+}
+.profile-summary-card .dashboard-card-header { margin-bottom: 0.75rem; }
+
 .empty-state {
     color: var(--text-muted);
     grid-column: 1 / -1;

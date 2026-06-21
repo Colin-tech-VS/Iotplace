@@ -45,11 +45,16 @@
                 <div class="message-list">
                     {% for app in applications %}
                     {% if app %}
-                    <article class="message-row">
-                        <a href="{{ url_for('compte.message_detail', message_id=app.id) }}" class="message-row-link">
+                    <article class="ux-list-item" style="border:1px solid var(--border);border-radius:10px;padding:0.75rem;margin-top:0.5rem">
+                        <div>
                             <strong>{{ app.from_name if role == 'enterprise' else app.to_name }}</strong>
                             <p class="muted">{{ app.status_label }} · {{ app.created_at[:10] if app.created_at else '' }}</p>
                             <p class="message-preview">{{ app.body[:100] }}…</p>
+                        </div>
+                        <a href="{{ url_for('compte.enterprise_dashboard' if role == 'enterprise' else 'compte.startup_dashboard') }}#messages"
+                           class="btn btn-outline btn-sm"
+                           onclick="sessionStorage.setItem('openChat', JSON.stringify({counterpart:'{{ app.from_user_id if role == 'enterprise' else app.to_user_id }}',project:'{{ app.project_id or '' }}',name:'{{ app.from_name if role == 'enterprise' else app.to_name }}',role:'{{ 'startup' if role == 'enterprise' else 'enterprise' }}'}))">
+                            Messagerie
                         </a>
                     </article>
                     {% endif %}

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "compte/_macros.html" import tag_input %}
 
 {% block content %}
 <section class="page-hero page-hero-sm">
@@ -31,9 +32,19 @@
                     <div class="form-group"><label for="availability">Disponibilité</label><input type="text" id="availability" name="availability" value="{{ profile.availability or '' }}"></div>
                     <div class="form-group"><label for="rate_range">Tarifs</label><input type="text" id="rate_range" name="rate_range" value="{{ profile.rate_range or '' }}"></div>
                 </div>
-                <div class="form-group"><label for="skills">Compétences</label><input type="text" id="skills" name="skills" value="{{ profile.skills|join(', ') if profile.skills else '' }}"></div>
-                <div class="form-group"><label for="description">Description</label><textarea id="description" name="description" rows="4">{{ profile.description or '' }}</textarea></div>
+                <div class="form-group"><label for="description">Description & références</label><textarea id="description" name="description" rows="4">{{ profile.description or '' }}</textarea></div>
             </fieldset>
+
+            <fieldset class="form-section-card">
+                <legend>Recherche & compétences</legend>
+                <div class="form-group">
+                    <label for="besoin">Votre recherche — quelles missions visez-vous et pourquoi ?</label>
+                    <textarea id="besoin" name="besoin" rows="4" placeholder="Ex. Nous cherchons des missions de sous-traitance firmware/hardware pour grands comptes industriels, avec des projets long terme…">{{ profile.besoin or '' }}</textarea>
+                    <span class="field-hint">Expliquez le type de missions recherchées, vos objectifs et ce que vous pouvez apporter.</span>
+                </div>
+                {{ tag_input('skills', 'skills', profile.skills|join(', ') if profile.skills else '', 'Compétences techniques', 'Firmware C/C++, PCB, MQTT, AWS IoT, BLE', 'Chaque compétence séparée par une virgule apparaît en badge.') }}
+            </fieldset>
+
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">Enregistrer</button>
                 <a href="{{ url_for('compte.startup_dashboard') }}" class="btn btn-ghost">Annuler</a>
@@ -41,4 +52,8 @@
         </form>
     </div>
 </section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('vitrine.static', filename='js/tag-input.js') }}"></script>
 {% endblock %}

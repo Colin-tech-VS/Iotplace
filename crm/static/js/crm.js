@@ -29,3 +29,23 @@ document.querySelectorAll('.toast').forEach(toast => {
         setTimeout(() => toast.remove(), 300);
     }, 4000);
 });
+
+document.querySelectorAll('.kpi-card').forEach((card, i) => {
+    card.classList.add('iot-enter');
+    card.style.animationDelay = `${i * 0.06}s`;
+});
+
+const crmReveal = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+            entry.target.style.animationDelay = `${i * 0.05}s`;
+            entry.target.classList.add('iot-enter');
+            crmReveal.unobserve(entry.target);
+        }
+    });
+}, { threshold: 0.08 });
+
+document.querySelectorAll('.table-card:not(.kpi-card)').forEach(el => {
+    el.style.opacity = '0';
+    crmReveal.observe(el);
+});

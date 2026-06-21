@@ -1,7 +1,8 @@
-from flask import render_template, request, redirect, url_for, flash, jsonify
+from flask import Flask, jsonify, render_template, request, redirect, url_for, flash
 
-from data import store
+from crm import auth as crm_auth
 from crm import crm_bp
+from data import store
 
 
 def _nav_stats():
@@ -16,6 +17,90 @@ def _nav_stats():
 @crm_bp.context_processor
 def inject_crm_nav():
     return {"nav_stats": _nav_stats()}
+
+
+@crm_bp.before_request
+def protect_crm():
+    endpoint = request.endpoint or ""
+    if endpoint in ("crm.login", "crm.logout") or endpoint.startswith("crm.static"):
+        return None
+    if not crm_auth.is_crm_configured():
+        if endpoint.startswith("crm.") and "api" in endpoint:
+            return jsonify({"ok": False, "error": "CRM non configuré."}), 503
+        return render_template("crm/login.html", configured=False, locked=False, csrf_token="", next_url=""), 503
+    if not crm_auth.is_crm_authenticated():
+        return redirect(url_for("crm.login", next=request.path))
+
+
+@crm_bp.after_request
+def crm_security_headers(response):
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, private"
+    response.headers["Pragma"] = "no-cache"
+    return response
+
+
+@crm_bp.route("/login", methods=["GET", "POST"])
+def login():
+    if not crm_auth.is_crm_configured():
+        return render_template("crm/login.html", configured=False, locked=False, csrf_token="", next_url=""), 503
+
+    if crm_auth.is_crm_authenticated():
+        return redirect(crm_auth.safe_next_url(request.args.get("next")))
+
+    locked = crm_auth.is_login_locked()
+    next_url = crm_auth.safe_next_url(request.args.get("next") or request.form.get("next"))
+
+    if request.method == "POST":
+        if locked:
+            flash("Trop de tentatives. Réessayez plus tard.", "error")
+            return render_template(
+                "crm/login.html",
+                configured=True,
+                locked=True,
+                csrf_token=crm_auth.get_csrf_token(),
+                next_url=next_url,
+            ), 429
+
+        if not crm_auth.validate_csrf(request.form.get("csrf_token", "")):
+            flash("Session expirée. Réessayez.", "error")
+            return render_template(
+                "crm/login.html",
+                configured=True,
+                locked=False,
+                csrf_token=crm_auth.get_csrf_token(),
+                next_url=next_url,
+            ), 400
+
+        username = request.form.get("username", "")
+        password = request.form.get("password", "")
+        if crm_auth.verify_crm_login(username, password):
+            crm_auth.clear_login_attempts()
+            crm_auth.login_crm_admin()
+            flash("Connexion réussie.", "success")
+            return redirect(next_url)
+
+        crm_auth.record_failed_login()
+        flash("Identifiant ou mot de passe incorrect.", "error")
+        locked = crm_auth.is_login_locked()
+
+    return render_template(
+        "crm/login.html",
+        configured=True,
+        locked=locked,
+        csrf_token=crm_auth.get_csrf_token(),
+        next_url=next_url,
+    )
+
+
+@crm_bp.route("/logout", methods=["POST"])
+def logout():
+    crm_auth.logout_crm_admin()
+    flash("Vous êtes déconnecté.", "success")
+    return redirect(url_for("crm.login"))
 
 
 # ── Dashboard ──
@@ -70,6 +155,7 @@ def seo():
         if form_type == "global":
             store.update_seo_global({
                 "site_name": request.form.get("site_name", ""),
+                "site_url": request.form.get("site_url", "").strip().rstrip("/"),
                 "title_suffix": request.form.get("title_suffix", ""),
                 "meta_description": request.form.get("meta_description", ""),
                 "keywords": request.form.get("keywords", ""),

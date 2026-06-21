@@ -1,4 +1,4 @@
-from flask import Blueprint
+from flask import Blueprint, request
 
 compte_bp = Blueprint(
     "compte",
@@ -15,12 +15,29 @@ def inject_compte_context():
     import auth
     from data import store
 
+    endpoint = request.endpoint or ""
+    site_url = store.get_site_url()
+    canonical = store.build_canonical_url(site_url, request.path, b"")
+    seo = store.get_compte_seo(endpoint)
+    indexed = seo.get("robots", "").startswith("index")
+    slug = "home"
+    if endpoint == "compte.register_enterprise":
+        slug = "enterprises"
+    elif endpoint == "compte.register_startup":
+        slug = "startups"
     return {
         "countries": store.get_startup_countries(),
-        "seo": store.get_seo_for_vitrine("home"),
-        "page": store.get_page_content("home"),
+        "seo": seo,
+        "seo_canonical": canonical,
+        "seo_site_url": site_url,
+        "seo_page_slug": slug,
+        "seo_json_ld": store.build_json_ld(slug, canonical, site_url) if indexed else [],
+        "seo_faq": store.get_page_faq(slug) if indexed else [],
+        "seo_breadcrumbs": store.build_breadcrumbs(slug, site_url),
+        "page": store.get_page_content(slug if indexed else "home"),
         "analytics_enabled": False,
         "analytics_page_slug": "",
         "analytics_session": "",
         "current_user": auth.get_current_user(),
+        "unread_count": store.get_unread_count(auth.get_current_user()["id"]) if auth.get_current_user() else 0,
     }

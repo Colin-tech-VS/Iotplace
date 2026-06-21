@@ -1,11 +1,14 @@
 {% extends "base.html" %}
+{% from "_seo_macros.html" import faq_section, breadcrumbs_nav %}
 {% block title %}Entreprises{% endblock %}
 
 {% block content %}
+{{ breadcrumbs_nav(seo_breadcrumbs) }}
 <section class="page-hero">
     <div class="container reveal">
         <h1>{{ page.title }}</h1>
         <p class="page-sub">{{ page.subtitle }}</p>
+        <p class="seo-intro">Vous cherchez à <strong>sous-traiter un projet IoT</strong> ? Iotplace vous met en relation avec des startups expertes en firmware, PCB, cloud et intégration hardware en Asie du Sud-Est.</p>
     </div>
 </section>
 
@@ -105,8 +108,10 @@
         </div>
         {% endif %}
         <div style="text-align: center; margin-top: 2rem;" class="reveal">
-            <a href="{{ url_for('vitrine.contact') }}" class="btn btn-primary btn-lg btn-glow">Publier un projet</a>
+            <a href="{{ url_for('compte.register_enterprise') }}" class="btn btn-primary btn-lg btn-glow">Publier un projet IoT</a>
         </div>
     </div>
 </section>
+
+{{ faq_section(seo_faq, "FAQ — Externaliser un projet IoT") }}
 {% endblock %}

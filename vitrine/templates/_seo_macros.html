@@ -1,0 +1,37 @@
+{% macro faq_section(faq_items, title="Questions fréquentes") %}
+{% if faq_items %}
+<section class="section seo-faq" aria-labelledby="faq-heading">
+    <div class="container">
+        <div class="section-header reveal">
+            <h2 id="faq-heading">{{ title }}</h2>
+        </div>
+        <div class="faq-list">
+            {% for item in faq_items %}
+            <details class="faq-item reveal">
+                <summary><h3>{{ item.q }}</h3></summary>
+                <p>{{ item.a }}</p>
+            </details>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endmacro %}
+
+{% macro breadcrumbs_nav(crumbs) %}
+{% if crumbs|length > 1 %}
+<nav class="seo-breadcrumbs container" aria-label="Fil d'Ariane">
+    <ol>
+        {% for crumb in crumbs %}
+        <li>
+            {% if not loop.last %}
+            <a href="{{ crumb.url }}">{{ crumb.name }}</a>
+            {% else %}
+            <span aria-current="page">{{ crumb.name }}</span>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ol>
+</nav>
+{% endif %}
+{% endmacro %}
