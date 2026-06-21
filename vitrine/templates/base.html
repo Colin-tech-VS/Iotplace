@@ -24,7 +24,8 @@
     {% if seo.twitter_handle %}<meta name="twitter:site" content="@{{ seo.twitter_handle.lstrip('@') }}">{% endif %}
     {% if seo.og_image_abs %}<meta name="twitter:image" content="{{ seo.og_image_abs }}">{% endif %}
 
-    <link rel="alternate" hreflang="en" href="{{ seo_canonical }}">
+    <link rel="alternate" hreflang="en" href="{{ locale_url_en|default(seo_canonical) }}">
+    <link rel="alternate" hreflang="fr" href="{{ locale_url_fr|default(seo_canonical) }}">
     <link rel="alternate" hreflang="x-default" href="{{ seo_canonical }}">
 
     {% for graph in seo_json_ld|default([]) %}
@@ -95,6 +96,11 @@
                     </div>
                 </li>
                 {% endif %}
+                <li class="nav-lang" aria-label="{{ t('nav.lang') }}">
+                    <a href="{{ locale_url_en }}" class="nav-lang-link{% if locale == 'en' %} active{% endif %}" hreflang="en" lang="en">{{ t('nav.lang_en') }}</a>
+                    <span class="nav-lang-sep" aria-hidden="true">/</span>
+                    <a href="{{ locale_url_fr }}" class="nav-lang-link{% if locale == 'fr' %} active{% endif %}" hreflang="fr" lang="fr">{{ t('nav.lang_fr') }}</a>
+                </li>
                 <li><a href="{{ url_for('vitrine.contact') }}" class="btn btn-sm btn-primary">{{ t('nav.contact') }}</a></li>
             </ul>
         </div>

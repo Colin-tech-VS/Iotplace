@@ -51,6 +51,40 @@ DEFAULT_PAGE_CONTENT = {
     },
 }
 
+DEFAULT_PAGE_CONTENT_FR = {
+    "home": {
+        "hero_badge": "Marketplace IoT B2B — Sous-traitance Asie × Monde",
+        "hero_title": "Sous-traitance IoT : connectez entreprises et startups d'Asie",
+        "hero_highlight": "Sous-traitance IoT",
+        "hero_subtitle": "Les entreprises externalisent firmware, hardware et cloud. Les startups IoT accèdent aux missions des grands groupes. Iotplace structure cette sous-traitance B2B en Asie du Sud-Est.",
+        "cta_primary": "Je suis une entreprise",
+        "cta_secondary": "Je suis une startup",
+    },
+    "enterprises": {
+        "title": "Sous-traiter vos projets IoT à des startups qualifiées",
+        "subtitle": "Externalisez firmware, hardware et cloud vers des startups IoT en Vietnam, Indonésie et Asie du Sud-Est — rapidement et en toute sécurité.",
+    },
+    "startups": {
+        "title": "Startups IoT : trouvez des missions de sous-traitance",
+        "subtitle": "Accédez aux projets IoT publiés par les grandes entreprises qui cherchent à externaliser firmware, PCB, cloud et intégration.",
+    },
+    "projects": {
+        "title": "Projets IoT ouverts à la sous-traitance",
+        "subtitle": "Missions publiées par les entreprises qui externalisent leur développement IoT vers des startups qualifiées.",
+    },
+    "about": {
+        "title": "À propos d'Iotplace",
+        "subtitle": "La plateforme qui structure la sous-traitance IoT entre l'Occident et l'Asie du Sud-Est.",
+        "mission_1": "L'Internet des Objets connaît une croissance exponentielle. Les grandes entreprises ont des besoins massifs en développement hardware, firmware et cloud.",
+        "mission_2": "Iotplace comble ce fossé en offrant une marketplace B2B dédiée à la sous-traitance IoT.",
+    },
+    "contact": {
+        "title": "Nous contacter",
+        "subtitle": "Entreprise ou startup IoT : démarrez votre sous-traitance sur Iotplace.",
+        "email": "hello@iotplace.io",
+    },
+}
+
 DEFAULT_SEO_PAGES = {
     "home": {
         "title": "B2B IoT Subcontracting — Enterprises & Asian Startups",
@@ -208,6 +242,38 @@ BREADCRUMB_LABELS = {
     "projects": "IoT Projects",
     "about": "About",
     "contact": "Contact",
+}
+
+BREADCRUMB_LABELS_FR = {
+    "home": "Accueil",
+    "enterprises": "Entreprises",
+    "startups": "Startups IoT",
+    "projects": "Projets IoT",
+    "about": "À propos",
+    "contact": "Contact",
+}
+
+PAGE_FAQ_FR = {
+    "home": [
+        {"q": "Comment une entreprise peut-elle sous-traiter un projet IoT sur Iotplace ?", "a": "Créez un compte entreprise, décrivez votre besoin (firmware, hardware, cloud) et publiez votre projet. Iotplace vous met en relation avec des startups IoT qualifiées en Asie du Sud-Est."},
+        {"q": "Comment une startup IoT trouve-t-elle des missions de sous-traitance ?", "a": "Inscrivez votre startup, renseignez vos compétences IoT et parcourez les projets ouverts publiés par les entreprises."},
+        {"q": "Quels types de projets IoT peut-on sous-traiter ?", "a": "Firmware embarqué, conception PCB, capteurs connectés, LoRaWAN/MQTT, backends cloud, applications mobiles IoT et intégration système."},
+        {"q": "Pourquoi externaliser vers des startups IoT en Asie du Sud-Est ?", "a": "Coûts compétitifs, équipes agiles, expertise hardware et fuseaux horaires favorables pour les entreprises européennes et américaines."},
+    ],
+    "enterprises": [
+        {"q": "Quels avantages pour externaliser un projet IoT vers une startup ?", "a": "Time-to-market réduit, coûts maîtrisés, accès à des talents firmware et hardware sans recruter en interne."},
+        {"q": "Comment Iotplace sécurise la sous-traitance IoT ?", "a": "NDA, contrats encadrés, suivi de projet via la plateforme et paiements sécurisés."},
+        {"q": "Quelles compétences IoT sont disponibles ?", "a": "Firmware C/C++, RTOS, PCB design, cloud IoT (AWS, Azure), LoRaWAN, BLE, MQTT, prototypage rapide."},
+    ],
+    "startups": [
+        {"q": "Comment accéder aux projets de sous-traitance IoT ?", "a": "Créez votre profil startup, listez vos compétences et consultez la page Projets ouverts."},
+        {"q": "Quels profils de startups IoT sont recherchés ?", "a": "Équipes expertes en firmware, électronique, cloud IoT ou intégration bout-en-bout en Asie du Sud-Est."},
+        {"q": "Les missions sont-elles encadrées en B2B ?", "a": "Oui. Les entreprises publient cahier des charges, budget et délais. Iotplace facilite le matching et le suivi."},
+    ],
+    "projects": [
+        {"q": "Comment postuler à un projet IoT ouvert ?", "a": "Créez un compte startup, complétez votre profil et postulez depuis votre tableau de bord."},
+        {"q": "Qui publie les projets de sous-traitance IoT ?", "a": "Les grandes entreprises inscrites sur Iotplace qui externalisent leur développement IoT."},
+    ],
 }
 
 DEFAULT_DATA = {
@@ -1154,11 +1220,15 @@ def get_page_meta(slug):
     return next((p for p in PAGE_CATALOG if p["slug"] == slug), None)
 
 
-def get_page_content(slug):
+def get_page_content(slug, locale="en"):
     data = _load_raw()
     saved = data.get("pages", {}).get(slug, {})
-    defaults = DEFAULT_PAGE_CONTENT.get(slug, {})
-    return {**defaults, **saved, "published": saved.get("published", True)}
+    defaults = (DEFAULT_PAGE_CONTENT_FR if locale == "fr" else DEFAULT_PAGE_CONTENT).get(slug, {})
+    meta_keys = {"published", "updated_at", "en", "fr"}
+    if isinstance(saved.get(locale), dict):
+        return {**defaults, **saved[locale], "published": saved.get("published", True)}
+    legacy = {k: v for k, v in saved.items() if k not in meta_keys}
+    return {**defaults, **legacy, "published": saved.get("published", True)}
 
 
 def get_all_pages():
@@ -1203,10 +1273,21 @@ def get_seo_global():
     return _deep_merge(DEFAULT_DATA["seo"]["global"], data.get("seo", {}).get("global", {}))
 
 
-def get_seo_page(slug):
+def get_seo_page(slug, locale="en"):
     data = _load_raw()
     saved = data.get("seo", {}).get("pages", {}).get(slug, {})
-    defaults = DEFAULT_SEO_PAGES.get(slug, {})
+    if locale == "fr":
+        defaults_map = {
+            "home": {"title": "Sous-traitance IoT B2B — Entreprises & Startups Asie", "description": "Iotplace, marketplace IoT B2B : entreprises et startups IoT en Asie du Sud-Est.", "keywords": "sous-traitance IoT, externalisation IoT, marketplace IoT B2B"},
+            "enterprises": {"title": "Externaliser vos projets IoT — Sous-traiter des startups", "description": "Publiez vos besoins et sous-traitez firmware, PCB, cloud à des startups qualifiées.", "keywords": "entreprise sous-traiter IoT, externalisation projet IoT"},
+            "startups": {"title": "Startups IoT — Missions de sous-traitance", "description": "Trouvez des projets de sous-traitance publiés par les grandes entreprises.", "keywords": "startup IoT missions, sous-traitance IoT"},
+            "projects": {"title": "Projets IoT ouverts — Missions de sous-traitance", "description": "Liste des projets IoT ouverts à la sous-traitance sur Iotplace.", "keywords": "projets IoT ouverts, mission sous-traitance IoT"},
+            "about": {"title": "À propos — Marketplace sous-traitance IoT B2B", "description": "Iotplace structure la sous-traitance IoT entre entreprises et startups d'Asie.", "keywords": "marketplace IoT, sous-traitance IoT Asie"},
+            "contact": {"title": "Contact — Démarrer une sous-traitance IoT", "description": "Contactez Iotplace pour sous-traiter ou trouver des missions IoT.", "keywords": "contact sous-traitance IoT"},
+        }
+    else:
+        defaults_map = DEFAULT_SEO_PAGES
+    defaults = defaults_map.get(slug, {})
     meta = get_page_meta(slug) or {}
     base = {
         "title": defaults.get("title") or meta.get("name", slug),
@@ -1256,9 +1337,9 @@ def get_compte_seo(endpoint):
     )
 
 
-def get_seo_for_vitrine(slug, page_title="", overrides=None, robots="index, follow", **kwargs):
+def get_seo_for_vitrine(slug, page_title="", overrides=None, robots="index, follow", locale="en", **kwargs):
     global_seo = get_seo_global()
-    page_seo = get_seo_page(slug)
+    page_seo = get_seo_page(slug, locale)
     if overrides:
         page_seo = {**page_seo, **overrides}
     title = kwargs.get("title") or page_seo.get("title") or page_title or global_seo.get("site_name", "Iotplace")
@@ -1278,15 +1359,17 @@ def get_seo_for_vitrine(slug, page_title="", overrides=None, robots="index, foll
         "site_name": global_seo.get("site_name", "Iotplace"),
         "twitter_handle": global_seo.get("twitter_handle", ""),
         "robots": kwargs.get("robots", robots),
-        "locale": "en_US",
+        "locale": "fr_FR" if locale == "fr" else "en_US",
     }
 
 
-def get_page_faq(slug):
+def get_page_faq(slug, locale="en"):
     data = _load_raw()
     saved = data.get("faq", {}).get(slug)
     if saved:
         return saved
+    if locale == "fr":
+        return PAGE_FAQ_FR.get(slug, PAGE_FAQ.get(slug, []))
     return PAGE_FAQ.get(slug, [])
 
 
@@ -1299,10 +1382,12 @@ def update_page_faq(slug, items):
     return items
 
 
-def build_breadcrumbs(slug, site_url, extra=None):
-    items = [{"name": "Home", "url": f"{site_url}/"}]
+def build_breadcrumbs(slug, site_url, extra=None, locale="en"):
+    labels = BREADCRUMB_LABELS_FR if locale == "fr" else BREADCRUMB_LABELS
+    home = labels.get("home", "Home")
+    items = [{"name": home, "url": f"{site_url}/"}]
     if slug != "home":
-        label = BREADCRUMB_LABELS.get(slug, slug)
+        label = labels.get(slug, slug)
         meta = get_page_meta(slug)
         path = meta["path"] if meta else f"/{slug}"
         items.append({"name": label, "url": f"{site_url}{path}"})

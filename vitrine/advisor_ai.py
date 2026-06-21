@@ -25,16 +25,30 @@ PROFILE_PROMPTS = {
 }
 
 SUGGESTIONS = {
-    "enterprise": [
-        "How do I publish an IoT project?",
-        "Which startups match firmware development?",
-        "What does subcontracting on Iotplace cost?",
-    ],
-    "startup": [
-        "How do I find open IoT projects?",
-        "How do I apply to a mission?",
-        "What skills are most in demand?",
-    ],
+    "en": {
+        "enterprise": [
+            "How do I publish an IoT project?",
+            "Which startups match firmware development?",
+            "What does subcontracting on Iotplace cost?",
+        ],
+        "startup": [
+            "How do I find open IoT projects?",
+            "How do I apply to a mission?",
+            "What skills are most in demand?",
+        ],
+    },
+    "fr": {
+        "enterprise": [
+            "Comment publier un projet IoT ?",
+            "Quelles startups correspondent au développement firmware ?",
+            "Combien coûte la sous-traitance sur Iotplace ?",
+        ],
+        "startup": [
+            "Comment trouver des projets IoT ouverts ?",
+            "Comment postuler à une mission ?",
+            "Quelles compétences sont les plus demandées ?",
+        ],
+    },
 }
 
 
@@ -46,8 +60,9 @@ def is_configured() -> bool:
     return bool((os.environ.get("MISTRAL_API_KEY") or "").strip())
 
 
-def get_suggestions(user_type: str) -> list[str]:
-    return SUGGESTIONS.get(user_type, SUGGESTIONS["enterprise"])
+def get_suggestions(user_type: str, locale: str = "en") -> list[str]:
+    loc = locale if locale in SUGGESTIONS else "en"
+    return SUGGESTIONS[loc].get(user_type, SUGGESTIONS[loc]["enterprise"])
 
 
 def _chat(messages: list[dict], temperature: float = 0.55) -> str:
@@ -97,7 +112,13 @@ def _normalize_history(history: list) -> list[dict]:
     return cleaned
 
 
-def chat(user_type: str, message: str, history: list | None = None, site_url: str = "") -> dict:
+def chat(
+    user_type: str,
+    message: str,
+    history: list | None = None,
+    site_url: str = "",
+    locale: str = "en",
+) -> dict:
     user_type = user_type if user_type in PROFILE_PROMPTS else "enterprise"
     message = (message or "").strip()
     if not message:
@@ -105,6 +126,7 @@ def chat(user_type: str, message: str, history: list | None = None, site_url: st
     if len(message) > 2000:
         raise AdvisorError("Message is too long.")
 
+    lang = "French" if locale == "fr" else "English"
     knowledge = build_site_knowledge(site_url)
     system = (
         "You are Iotplace Advisor, the official AI guide for the Iotplace website — "
@@ -112,7 +134,7 @@ def chat(user_type: str, message: str, history: list | None = None, site_url: st
         "qualified IoT startups in Southeast Asia (Vietnam, Indonesia, Thailand, Philippines).\n\n"
         f"{PROFILE_PROMPTS[user_type]}\n\n"
         "Rules:\n"
-        "- Answer in English only.\n"
+        f"- Answer in {lang} only.\n"
         "- Use ONLY facts from the SITE_KNOWLEDGE JSON below.\n"
         "- Be concise, friendly and actionable (2–5 short paragraphs max).\n"
         "- Recommend specific site pages using full URLs from navigation when relevant.\n"
@@ -132,6 +154,6 @@ def chat(user_type: str, message: str, history: list | None = None, site_url: st
 
     return {
         "reply": reply,
-        "suggestions": get_suggestions(user_type),
+        "suggestions": get_suggestions(user_type, locale),
         "user_type": user_type,
     }

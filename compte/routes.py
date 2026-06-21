@@ -5,17 +5,20 @@ from compte import compte_bp
 from compte.api_auth import api_login_required
 from data import store
 
+from vitrine.i18n import t
+
+
 def _validate_credentials(email, password, password_confirm=None):
     errors = []
     email = (email or "").strip().lower()
     if not email or "@" not in email:
-        errors.append("Email invalide.")
+        errors.append(t("compte.error_invalid_email", default="Invalid email."))
     if not password or len(password) < 8:
-        errors.append("Le mot de passe doit contenir au moins 8 caractères.")
+        errors.append(t("compte.error_password_short", default="Password must be at least 8 characters."))
     if password_confirm is not None and password != password_confirm:
-        errors.append("Les mots de passe ne correspondent pas.")
+        errors.append(t("compte.error_password_mismatch", default="Passwords do not match."))
     if email and store.email_exists(email):
-        errors.append("Un compte existe déjà avec cet email.")
+        errors.append(t("compte.error_email_exists", default="An account already exists with this email."))
     return errors
 
 
@@ -30,10 +33,10 @@ def login():
         user = store.get_user_by_email(email)
         if user and auth.verify_password(user["password_hash"], password):
             auth.login_user(user)
-            flash("Connexion réussie.", "success")
+            flash(t("compte.flash_login_ok"), "success")
             next_url = request.args.get("next") or url_for("compte.home")
             return redirect(next_url)
-        flash("Email ou mot de passe incorrect.", "error")
+        flash(t("compte.flash_login_fail"), "error")
 
     return render_template("compte/login.html")
 
@@ -41,7 +44,7 @@ def login():
 @compte_bp.route("/deconnexion")
 def logout():
     auth.logout_user()
-    flash("Vous êtes déconnecté.", "success")
+    flash(t("compte.flash_logout"), "success")
     return redirect(url_for("vitrine.index"))
 
 
@@ -67,13 +70,13 @@ def register_enterprise():
             request.form.get("password_confirm"),
         )
         if not request.form.get("company_name", "").strip():
-            errors.append("Le nom de l'entreprise est requis.")
+            errors.append(t("compte.error_company_name_required"))
         if not request.form.get("contact_name", "").strip():
-            errors.append("Le nom du contact est requis.")
+            errors.append(t("compte.error_contact_name_required"))
 
         has_project = request.form.get("has_project") == "yes"
         if has_project and not request.form.get("project_title", "").strip():
-            errors.append("Le titre du projet est requis si vous publiez un besoin.")
+            errors.append(t("compte.error_project_title_required"))
 
         if errors:
             for err in errors:
@@ -114,7 +117,7 @@ def register_enterprise():
                 project_fields,
             )
             auth.login_user(user)
-            flash("Bienvenue ! Votre espace entreprise est prêt.", "success")
+            flash(t("compte.flash_register_ent_ok"), "success")
             return redirect(url_for("compte.enterprise_dashboard"))
         except ValueError as exc:
             flash(str(exc), "error")
@@ -135,11 +138,11 @@ def register_startup():
             request.form.get("password_confirm"),
         )
         if not request.form.get("startup_name", "").strip():
-            errors.append("Le nom de la startup est requis.")
+            errors.append(t("compte.error_startup_name_required"))
         if not request.form.get("country", "").strip():
-            errors.append("Le pays est requis.")
+            errors.append(t("compte.error_country_required"))
         if not request.form.get("specialty", "").strip():
-            errors.append("La spécialité IoT est requise.")
+            errors.append(t("compte.error_specialty_required"))
 
         if errors:
             for err in errors:
@@ -170,7 +173,7 @@ def register_startup():
                 },
             )
             auth.login_user(user)
-            flash("Bienvenue ! Votre espace startup est prêt.", "success")
+            flash(t("compte.flash_register_st_ok"), "success")
             return redirect(url_for("compte.startup_dashboard"))
         except ValueError as exc:
             flash(str(exc), "error")

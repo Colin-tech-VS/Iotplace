@@ -4,8 +4,8 @@
 {% block content %}
 <section class="page-hero page-hero-sm">
     <div class="container reveal">
-        <h1>Connexion</h1>
-        <p class="page-sub">Accédez à votre espace entreprise ou startup.</p>
+        <h1>{{ t('compte.login_title') }}</h1>
+        <p class="page-sub">{{ t('compte.login_sub') }}</p>
     </div>
 </section>
 
@@ -13,20 +13,20 @@
     <div class="container auth-wrap">
         <form class="auth-form reveal" method="POST">
             <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" required placeholder="vous@entreprise.com" value="{{ field_value(form, 'email') }}">
+                <label for="email">{{ t('compte.email') }}</label>
+                <input type="email" id="email" name="email" required placeholder="{{ t('compte.email_ph') }}" value="{{ field_value(form, 'email') }}">
             </div>
             <div class="form-group">
-                <label for="password">Mot de passe</label>
+                <label for="password">{{ t('compte.password') }}</label>
                 <input type="password" id="password" name="password" required placeholder="••••••••" minlength="8">
             </div>
-            <button type="submit" class="btn btn-primary btn-lg btn-glow">Se connecter</button>
+            <button type="submit" class="btn btn-primary btn-lg btn-glow">{{ t('compte.login_btn') }}</button>
         </form>
 
         <div class="auth-links reveal">
-            <p>Pas encore de compte ?</p>
-            <a href="{{ url_for('compte.register_enterprise') }}" class="btn btn-outline">Inscription entreprise</a>
-            <a href="{{ url_for('compte.register_startup') }}" class="btn btn-outline">Inscription startup</a>
+            <p>{{ t('compte.no_account') }}</p>
+            <a href="{{ url_for('compte.register_enterprise') }}" class="btn btn-outline">{{ t('compte.register_enterprise') }}</a>
+            <a href="{{ url_for('compte.register_startup') }}" class="btn btn-outline">{{ t('compte.register_startup') }}</a>
         </div>
     </div>
 </section>

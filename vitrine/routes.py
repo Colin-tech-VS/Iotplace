@@ -5,7 +5,6 @@ import uuid
 import auth
 from data import store
 from vitrine import vitrine_bp
-from vitrine import advisor_ai
 from vitrine.i18n import get_locale, t, translate_status
 
 ENDPOINT_PAGE_SLUG = {
@@ -87,30 +86,25 @@ def inject_vitrine_context():
         request.path,
         request.query_string if request.args.get("country") else b"",
     )
-    breadcrumbs = store.build_breadcrumbs(slug, site_url, breadcrumbs_extra)
-    faq = store.get_page_faq(slug)
+    breadcrumbs = store.build_breadcrumbs(slug, site_url, breadcrumbs_extra, get_locale())
+    faq = store.get_page_faq(slug, get_locale())
     user = auth.get_current_user()
+    locale = get_locale()
     return {
         "countries": store.get_startup_countries(),
-        "seo": store.get_seo_for_vitrine(slug, overrides=seo_overrides or None),
+        "seo": store.get_seo_for_vitrine(slug, overrides=seo_overrides or None, locale=locale),
         "seo_canonical": canonical,
         "seo_site_url": site_url,
         "seo_page_slug": slug,
-        "seo_json_ld": store.build_json_ld(slug, canonical, site_url, faq=faq, breadcrumbs=breadcrumbs),
+        "seo_json_ld": store.build_json_ld(slug, canonical, site_url, faq=faq, breadcrumbs=breadcrumbs, locale=locale),
         "seo_faq": faq,
         "seo_breadcrumbs": breadcrumbs,
-        "page": store.get_page_content(slug),
+        "page": store.get_page_content(slug, locale),
         "analytics_page_slug": slug if enabled else "",
         "analytics_session": sid if enabled else "",
         "analytics_enabled": enabled,
         "current_user": user,
         "unread_count": store.get_unread_count(user["id"]) if user else 0,
-        "t": t,
-        "locale": get_locale(),
-        "translate_status": translate_status,
-        "advisor_enabled": advisor_ai.is_configured(),
-        "advisor_suggestions_enterprise": advisor_ai.get_suggestions("enterprise"),
-        "advisor_suggestions_startup": advisor_ai.get_suggestions("startup"),
     }
 
 
@@ -163,7 +157,7 @@ def index():
         stats=store.get_stats(),
         featured_startups=store.get_featured_startups(),
         featured_projects=store.get_featured_projects(),
-        page=store.get_page_content("home"),
+        page=store.get_page_content("home", get_locale()),
     )
 
 
@@ -175,7 +169,7 @@ def enterprises():
         "enterprises.html",
         enterprises=store.get_public_enterprises(),
         projects=store.get_projects(),
-        page=store.get_page_content("enterprises"),
+        page=store.get_page_content("enterprises", get_locale()),
     )
 
 
@@ -212,7 +206,7 @@ def startups():
         startups=store.get_startups(country or None),
         countries=store.get_startup_countries(),
         selected_country=country,
-        page=store.get_page_content("startups"),
+        page=store.get_page_content("startups", get_locale()),
     )
 
 
@@ -244,7 +238,7 @@ def projects():
     return render_template(
         "projects.html",
         projects=store.get_projects(),
-        page=store.get_page_content("projects"),
+        page=store.get_page_content("projects", get_locale()),
     )
 
 
@@ -277,7 +271,7 @@ def project_detail(project_id):
 def about():
     if not _check_published("about"):
         return render_template("unpublished.html"), 404
-    return render_template("about.html", page=store.get_page_content("about"))
+    return render_template("about.html", page=store.get_page_content("about", get_locale()))
 
 
 @vitrine_bp.route("/contact", methods=["GET", "POST"])
@@ -294,7 +288,7 @@ def contact():
         })
         flash(t("contact.flash_success"), "success")
         return redirect(url_for("vitrine.contact"))
-    return render_template("contact.html", page=store.get_page_content("contact"))
+    return render_template("contact.html", page=store.get_page_content("contact", get_locale()))
 
 
 @vitrine_bp.route("/api/advisor/chat", methods=["POST"])
@@ -311,6 +305,7 @@ def advisor_chat():
             message=payload.get("message", ""),
             history=payload.get("history", []),
             site_url=store.get_site_url(),
+            locale=get_locale(),
         )
     except advisor_ai.AdvisorError as exc:
         return jsonify({"ok": False, "error": str(exc)}), 400

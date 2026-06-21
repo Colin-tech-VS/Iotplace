@@ -385,6 +385,33 @@ a:hover { color: #33e0be; }
     margin-top: 0.15rem;
 }
 
+.nav-lang {
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.nav-lang-link {
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 0.2rem 0.35rem;
+    border-radius: 4px;
+    transition: color 0.15s, background 0.15s;
+}
+
+.nav-lang-link:hover,
+.nav-lang-link.active {
+    color: var(--accent);
+}
+
+.nav-lang-sep {
+    color: var(--text-muted);
+    opacity: 0.5;
+    user-select: none;
+}
+
 /* ── Buttons ── */
 .btn {
     display: inline-block;

@@ -4,8 +4,8 @@
 {% block content %}
 <section class="page-hero page-hero-sm">
     <div class="container reveal">
-        <h1>Inscription entreprise</h1>
-        <p class="page-sub">Créez votre compte donneur d'ordre et publiez vos besoins IoT.</p>
+        <h1>{{ t('compte.register_ent_title') }}</h1>
+        <p class="page-sub">{{ t('compte.register_ent_sub') }}</p>
     </div>
 </section>
 
@@ -13,121 +13,121 @@
     <div class="container">
         <form class="register-form reveal" method="POST">
             <fieldset class="form-section-card">
-                <legend>Compte & sécurité</legend>
+                <legend>{{ t('compte.section_account') }}</legend>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="email">Email professionnel <span class="req">*</span></label>
-                        <input type="email" id="email" name="email" required value="{{ field_value(form, 'email') }}" placeholder="contact@entreprise.com">
+                        <label for="email">{{ t('compte.email_pro') }} <span class="req">*</span></label>
+                        <input type="email" id="email" name="email" required value="{{ field_value(form, 'email') }}" placeholder="{{ t('compte.email_pro_ph_ent') }}">
                     </div>
                     <div class="form-group">
-                        <label for="phone">Téléphone</label>
-                        <input type="tel" id="phone" name="phone" value="{{ field_value(form, 'phone') }}" placeholder="+33 6 12 34 56 78">
+                        <label for="phone">{{ t('compte.phone') }}</label>
+                        <input type="tel" id="phone" name="phone" value="{{ field_value(form, 'phone') }}" placeholder="{{ t('compte.phone_ph') }}">
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="password">Mot de passe <span class="req">*</span></label>
-                        <input type="password" id="password" name="password" required minlength="8" placeholder="8 caractères minimum">
+                        <label for="password">{{ t('compte.password') }} <span class="req">*</span></label>
+                        <input type="password" id="password" name="password" required minlength="8" placeholder="{{ t('compte.password_ph') }}">
                     </div>
                     <div class="form-group">
-                        <label for="password_confirm">Confirmer le mot de passe <span class="req">*</span></label>
-                        <input type="password" id="password_confirm" name="password_confirm" required minlength="8" placeholder="Répétez le mot de passe">
+                        <label for="password_confirm">{{ t('compte.password_confirm') }} <span class="req">*</span></label>
+                        <input type="password" id="password_confirm" name="password_confirm" required minlength="8" placeholder="{{ t('compte.password_confirm_ph') }}">
                     </div>
                 </div>
             </fieldset>
 
             <fieldset class="form-section-card">
-                <legend>Entreprise</legend>
+                <legend>{{ t('compte.section_enterprise') }}</legend>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="company_name">Raison sociale <span class="req">*</span></label>
+                        <label for="company_name">{{ t('compte.company_name') }} <span class="req">*</span></label>
                         <input type="text" id="company_name" name="company_name" required value="{{ field_value(form, 'company_name') }}">
                     </div>
                     <div class="form-group">
-                        <label for="sector">Secteur d'activité</label>
-                        <input type="text" id="sector" name="sector" value="{{ field_value(form, 'sector') }}" placeholder="Industrie, Smart City, Énergie…">
+                        <label for="sector">{{ t('compte.sector') }}</label>
+                        <input type="text" id="sector" name="sector" value="{{ field_value(form, 'sector') }}" placeholder="{{ t('compte.sector_ph') }}">
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="country">Pays</label>
-                        <input type="text" id="country" name="country" value="{{ field_value(form, 'country') }}" placeholder="France, Allemagne…">
+                        <label for="country">{{ t('compte.country') }}</label>
+                        <input type="text" id="country" name="country" value="{{ field_value(form, 'country') }}" placeholder="{{ t('compte.country_ph_ent') }}">
                     </div>
                     <div class="form-group">
-                        <label for="city">Ville</label>
+                        <label for="city">{{ t('compte.city') }}</label>
                         <input type="text" id="city" name="city" value="{{ field_value(form, 'city') }}">
                     </div>
                     <div class="form-group">
-                        <label for="company_size">Taille</label>
+                        <label for="company_size">{{ t('compte.company_size') }}</label>
                         <select id="company_size" name="company_size">
-                            <option value="">— Choisir —</option>
+                            <option value="">{{ t('compte.choose') }}</option>
                             {% for size in ['1-10', '11-50', '51-200', '201-1000', '1000+'] %}
-                            <option value="{{ size }}" {% if field_value(form, 'company_size') == size %}selected{% endif %}>{{ size }} employés</option>
+                            <option value="{{ size }}" {% if field_value(form, 'company_size') == size %}selected{% endif %}>{{ size }} {{ t('compte.employees') }}</option>
                             {% endfor %}
                         </select>
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="contact_name">Nom du contact <span class="req">*</span></label>
+                        <label for="contact_name">{{ t('compte.contact_name') }} <span class="req">*</span></label>
                         <input type="text" id="contact_name" name="contact_name" required value="{{ field_value(form, 'contact_name') }}">
                     </div>
                     <div class="form-group">
-                        <label for="contact_role">Fonction</label>
-                        <input type="text" id="contact_role" name="contact_role" value="{{ field_value(form, 'contact_role') }}" placeholder="Directeur innovation, CTO…">
+                        <label for="contact_role">{{ t('compte.contact_role') }}</label>
+                        <input type="text" id="contact_role" name="contact_role" value="{{ field_value(form, 'contact_role') }}" placeholder="{{ t('compte.contact_role_ph') }}">
                     </div>
                     <div class="form-group">
-                        <label for="website">Site web</label>
+                        <label for="website">{{ t('compte.website') }}</label>
                         <input type="url" id="website" name="website" value="{{ field_value(form, 'website') }}" placeholder="https://">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="description">Présentation de l'entreprise</label>
-                    <textarea id="description" name="description" rows="3" placeholder="Activité, marchés, contexte IoT…">{{ field_value(form, 'description') }}</textarea>
+                    <label for="description">{{ t('compte.description_ent') }}</label>
+                    <textarea id="description" name="description" rows="3" placeholder="{{ t('compte.description_ent_ph') }}">{{ field_value(form, 'description') }}</textarea>
                 </div>
             </fieldset>
 
             <fieldset class="form-section-card">
-                <legend>Recherche & compétences</legend>
+                <legend>{{ t('compte.section_search') }}</legend>
                 <div class="form-group">
-                    <label for="besoin">Votre besoin — que recherchez-vous et pourquoi ?</label>
-                    <textarea id="besoin" name="besoin" rows="4" placeholder="Ex. Nous externalisons le développement firmware de capteurs LoRaWAN…">{{ field_value(form, 'besoin') }}</textarea>
+                    <label for="besoin">{{ t('compte.besoin_ent') }}</label>
+                    <textarea id="besoin" name="besoin" rows="4" placeholder="{{ t('compte.besoin_ent_ph') }}">{{ field_value(form, 'besoin') }}</textarea>
                 </div>
-                {{ tag_input('needs', 'needs', field_value(form, 'needs'), 'Compétences recherchées', 'Firmware, LoRaWAN, Edge AI, Cloud IoT', 'Chaque compétence séparée par une virgule apparaît en badge.') }}
+                {{ tag_input('needs', 'needs', field_value(form, 'needs'), t('compte.needs'), t('compte.needs_ph'), t('compte.tag_hint')) }}
             </fieldset>
 
             <fieldset class="form-section-card">
-                <legend>Projet IoT à sous-traiter (optionnel)</legend>
+                <legend>{{ t('compte.section_project') }}</legend>
                 <div class="form-group">
-                    <label>Avez-vous un projet à publier maintenant ?</label>
+                    <label>{{ t('compte.has_project') }}</label>
                     <div class="radio-row">
-                        <label class="radio-pill"><input type="radio" name="has_project" value="no" checked onchange="document.getElementById('projectFields').hidden=true"> Pas pour l'instant</label>
-                        <label class="radio-pill"><input type="radio" name="has_project" value="yes" onchange="document.getElementById('projectFields').hidden=false"> Oui, décrire mon projet</label>
+                        <label class="radio-pill"><input type="radio" name="has_project" value="no" checked onchange="document.getElementById('projectFields').hidden=true"> {{ t('compte.has_project_no') }}</label>
+                        <label class="radio-pill"><input type="radio" name="has_project" value="yes" onchange="document.getElementById('projectFields').hidden=false"> {{ t('compte.has_project_yes') }}</label>
                     </div>
                 </div>
                 <div id="projectFields" hidden>
                     <div class="form-group">
-                        <label for="project_title">Titre du projet</label>
-                        <input type="text" id="project_title" name="project_title" value="{{ field_value(form, 'project_title') }}" placeholder="Ex. Capteurs LoRaWAN pour entrepôts">
+                        <label for="project_title">{{ t('compte.project_title') }}</label>
+                        <input type="text" id="project_title" name="project_title" value="{{ field_value(form, 'project_title') }}" placeholder="{{ t('compte.project_title_ph') }}">
                     </div>
                     <div class="form-group">
-                        <label for="project_description">Description détaillée</label>
-                        <textarea id="project_description" name="project_description" rows="4" placeholder="Objectifs, livrables, contraintes techniques, intégrations…">{{ field_value(form, 'project_description') }}</textarea>
+                        <label for="project_description">{{ t('compte.project_description') }}</label>
+                        <textarea id="project_description" name="project_description" rows="4" placeholder="{{ t('compte.project_description_ph') }}">{{ field_value(form, 'project_description') }}</textarea>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="project_budget">Budget estimé</label>
+                            <label for="project_budget">{{ t('compte.project_budget') }}</label>
                             <select id="project_budget" name="project_budget">
-                                <option value="">— Choisir —</option>
+                                <option value="">{{ t('compte.choose') }}</option>
                                 {% for b in ['< 10k€', '10k–50k€', '50k–150k€', '150k–500k€', '500k€+'] %}
                                 <option value="{{ b }}" {% if field_value(form, 'project_budget') == b %}selected{% endif %}>{{ b }}</option>
                                 {% endfor %}
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="project_duration">Durée estimée</label>
+                            <label for="project_duration">{{ t('compte.project_duration') }}</label>
                             <select id="project_duration" name="project_duration">
-                                <option value="">— Choisir —</option>
+                                <option value="">{{ t('compte.choose') }}</option>
                                 {% for d in ['< 1 mois', '1–3 mois', '3–6 mois', '6–12 mois', '12+ mois'] %}
                                 <option value="{{ d }}" {% if field_value(form, 'project_duration') == d %}selected{% endif %}>{{ d }}</option>
                                 {% endfor %}
@@ -135,15 +135,15 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="project_skills">Compétences requises (virgules)</label>
-                        <input type="text" id="project_skills" name="project_skills" value="{{ field_value(form, 'project_skills') }}" placeholder="PCB design, MQTT, AWS IoT">
+                        <label for="project_skills">{{ t('compte.project_skills') }}</label>
+                        <input type="text" id="project_skills" name="project_skills" value="{{ field_value(form, 'project_skills') }}" placeholder="{{ t('compte.project_skills_ph') }}">
                     </div>
                 </div>
             </fieldset>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary btn-lg btn-glow">Créer mon compte entreprise</button>
-                <p class="form-footer-link">Déjà inscrit ? <a href="{{ url_for('compte.login') }}">Se connecter</a></p>
+                <button type="submit" class="btn btn-primary btn-lg btn-glow">{{ t('compte.submit_register_ent') }}</button>
+                <p class="form-footer-link">{{ t('compte.already_registered') }} <a href="{{ url_for('compte.login') }}">{{ t('compte.login_link') }}</a></p>
             </div>
         </form>
     </div>

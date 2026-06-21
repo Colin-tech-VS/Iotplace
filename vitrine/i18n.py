@@ -1,4 +1,4 @@
-"""Vitrine internationalization — English is the primary locale."""
+"""Site-wide internationalization (English + French)."""
 
 from __future__ import annotations
 
@@ -6,36 +6,67 @@ import json
 from functools import lru_cache
 from pathlib import Path
 
+from flask import has_request_context, request, session
+
+SUPPORTED_LOCALES = ("en", "fr")
 DEFAULT_LOCALE = "en"
 LOCALES_DIR = Path(__file__).parent / "locales"
 
 STATUS_LABELS = {
-    "Ouvert": "Open",
-    "En cours": "In progress",
-    "Clôturé": "Closed",
-    "Fermé": "Closed",
-    "Open": "Open",
-    "In progress": "In progress",
-    "Closed": "Closed",
+    "en": {
+        "Ouvert": "Open",
+        "En cours": "In progress",
+        "Clôturé": "Closed",
+        "Fermé": "Closed",
+        "Open": "Open",
+        "In progress": "In progress",
+        "Closed": "Closed",
+    },
+    "fr": {
+        "Ouvert": "Ouvert",
+        "En cours": "En cours",
+        "Clôturé": "Clôturé",
+        "Fermé": "Fermé",
+        "Open": "Ouvert",
+        "In progress": "En cours",
+        "Closed": "Clôturé",
+    },
 }
 
 
-@lru_cache(maxsize=4)
+@lru_cache(maxsize=8)
 def _load_catalog(locale: str) -> dict:
     path = LOCALES_DIR / f"{locale}.json"
     if not path.exists():
-        return {}
+        path = LOCALES_DIR / f"{DEFAULT_LOCALE}.json"
     with open(path, encoding="utf-8") as handle:
         return json.load(handle)
 
 
 def get_locale() -> str:
-    return DEFAULT_LOCALE
+    if not has_request_context():
+        return DEFAULT_LOCALE
+    lang = request.args.get("lang")
+    if lang in SUPPORTED_LOCALES:
+        session["locale"] = lang
+    loc = session.get("locale", DEFAULT_LOCALE)
+    return loc if loc in SUPPORTED_LOCALES else DEFAULT_LOCALE
 
 
-def t(key: str, default: str = "", **kwargs) -> str:
+def locale_url(target_locale: str) -> str:
+    if not has_request_context():
+        return "/"
+    path = request.path
+    args = request.args.to_dict(flat=True)
+    args["lang"] = target_locale
+    query = "&".join(f"{k}={v}" for k, v in args.items())
+    return f"{path}?{query}" if query else path
+
+
+def t(key: str, default: str = "", **kwargs):
     parts = key.split(".")
-    node = _load_catalog(DEFAULT_LOCALE)
+    locale = get_locale()
+    node = _load_catalog(locale)
     for part in parts:
         if not isinstance(node, dict):
             node = None
@@ -43,6 +74,13 @@ def t(key: str, default: str = "", **kwargs) -> str:
         node = node.get(part)
     if isinstance(node, list):
         return node
+    if node is None and locale != DEFAULT_LOCALE:
+        node = _load_catalog(DEFAULT_LOCALE)
+        for part in parts:
+            if not isinstance(node, dict):
+                node = None
+                break
+            node = node.get(part)
     value = node if isinstance(node, str) else (default or key)
     if kwargs:
         try:
@@ -53,4 +91,21 @@ def t(key: str, default: str = "", **kwargs) -> str:
 
 
 def translate_status(status: str) -> str:
-    return STATUS_LABELS.get(status or "", status or "")
+    locale = get_locale()
+    labels = STATUS_LABELS.get(locale, STATUS_LABELS[DEFAULT_LOCALE])
+    return labels.get(status or "", status or "")
+
+
+def inject_i18n_context():
+    from vitrine import advisor_ai
+
+    return {
+        "t": t,
+        "locale": get_locale(),
+        "translate_status": translate_status,
+        "locale_url_en": locale_url("en"),
+        "locale_url_fr": locale_url("fr"),
+        "advisor_enabled": advisor_ai.is_configured(),
+        "advisor_suggestions_enterprise": advisor_ai.get_suggestions("enterprise", get_locale()),
+        "advisor_suggestions_startup": advisor_ai.get_suggestions("startup", get_locale()),
+    }

@@ -34,6 +34,14 @@ app.register_blueprint(crm_bp)
 app.register_blueprint(vitrine_bp)
 app.register_blueprint(compte_bp)
 
+
+@app.context_processor
+def inject_i18n():
+    from vitrine.i18n import inject_i18n_context
+
+    return inject_i18n_context()
+
+
 if _is_prod:
     from crm import auth as crm_auth
 
