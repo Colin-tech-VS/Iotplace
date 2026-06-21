@@ -59,3 +59,27 @@ if (heroStats) statsObserver.observe(heroStats);
 document.querySelectorAll('.cards-grid .card, .steps-grid .step-card').forEach((card, i) => {
     card.style.animationDelay = `${i * 0.08}s`;
 });
+
+document.querySelectorAll('.nav-dropdown').forEach(dropdown => {
+    const toggle = dropdown.querySelector('.nav-dropdown-toggle');
+    if (!toggle) return;
+
+    toggle.addEventListener('click', e => {
+        e.stopPropagation();
+        const open = dropdown.classList.toggle('open');
+        toggle.setAttribute('aria-expanded', open);
+    });
+
+    document.addEventListener('click', () => {
+        dropdown.classList.remove('open');
+        toggle.setAttribute('aria-expanded', 'false');
+    });
+
+    dropdown.addEventListener('keydown', e => {
+        if (e.key === 'Escape') {
+            dropdown.classList.remove('open');
+            toggle.setAttribute('aria-expanded', 'false');
+            toggle.focus();
+        }
+    });
+});

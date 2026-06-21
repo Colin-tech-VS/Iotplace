@@ -144,6 +144,12 @@ body.vitrine .nav-links a.active::after {
     transform: scaleX(1);
 }
 
+body.vitrine .nav-dropdown-menu {
+    background: rgba(10, 14, 23, 0.95);
+    backdrop-filter: var(--iot-glass);
+    border-color: var(--iot-border);
+}
+
 /* Buttons */
 body.vitrine .btn {
     border-radius: 10px;

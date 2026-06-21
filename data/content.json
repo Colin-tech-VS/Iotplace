@@ -78,191 +78,117 @@
     "pages": {}
   },
   "analytics": {
-    "total_views": 14,
+    "total_views": 22,
     "daily": {
-      "2026-06-21": 14
+      "2026-06-21": 22
     },
     "pages": {
-      "home": 3,
-      "enterprises": 3,
-      "startups": 1,
-      "projects": 1,
+      "home": 5,
+      "enterprises": 4,
+      "startups": 2,
+      "projects": 4,
       "about": 1,
-      "contact": 1,
+      "contact": 2,
       "vitrine_static_css_style.css": 2,
       "vitrine_static_js_analytics.js": 1,
       "vitrine_static_js_main.js": 1
     },
     "recent": [
       {
-        "page": "enterprises",
-        "page_label": "Entreprises",
-        "path": "/entreprises",
+        "page": "projects",
+        "page_label": "Projets",
+        "path": "/projets",
         "session_id": "8f6edefe",
-        "at": "2026-06-21T10:10:16.959145+00:00",
-        "referrer": "http://127.0.0.1:5050/",
-        "source": "server"
-      },
-      {
-        "page": "vitrine_static_js_main.js",
-        "page_label": "vitrine_static_js_main.js",
-        "path": "/vitrine/static/js/main.js",
-        "session_id": "8f6edefe",
-        "at": "2026-06-21T10:04:19.775300+00:00",
-        "referrer": "http://127.0.0.1:5050/entreprises",
-        "source": "server"
-      },
-      {
-        "page": "vitrine_static_css_style.css",
-        "page_label": "vitrine_static_css_style.css",
-        "path": "/vitrine/static/css/style.css",
-        "session_id": "8f6edefe",
-        "at": "2026-06-21T10:04:19.769345+00:00",
-        "referrer": "http://127.0.0.1:5050/entreprises",
-        "source": "server"
-      },
-      {
-        "page": "enterprises",
-        "page_label": "Entreprises",
-        "path": "/entreprises",
-        "session_id": "8f6edefe",
-        "at": "2026-06-21T10:04:19.670936+00:00",
-        "referrer": "http://127.0.0.1:5050/",
-        "source": "server"
-      },
-      {
-        "page": "vitrine_static_js_analytics.js",
-        "page_label": "vitrine_static_js_analytics.js",
-        "path": "/vitrine/static/js/analytics.js",
-        "session_id": "8f6edefe",
-        "at": "2026-06-21T10:02:58.865987+00:00",
-        "referrer": "http://127.0.0.1:5050/",
-        "source": "server"
-      },
-      {
-        "page": "vitrine_static_css_style.css",
-        "page_label": "vitrine_static_css_style.css",
-        "path": "/vitrine/static/css/style.css",
-        "session_id": "8f6edefe",
-        "at": "2026-06-21T10:02:58.861238+00:00",
-        "referrer": "http://127.0.0.1:5050/",
-        "source": "server"
-      },
-      {
-        "page": "home",
-        "page_label": "Accueil",
-        "path": "/",
-        "session_id": "8f6edefe",
-        "at": "2026-06-21T10:02:58.786718+00:00",
-        "referrer": "",
-        "source": "server"
-      },
-      {
-        "page": "contact",
-        "page_label": "Contact",
-        "path": "/contact",
-        "session_id": "f1961100",
-        "at": "2026-06-21T10:02:00.688812+00:00",
-        "referrer": "",
-        "source": "server"
-      },
-      {
-        "page": "about",
-        "page_label": "À propos",
-        "path": "/a-propos",
-        "session_id": "f1961100",
-        "at": "2026-06-21T10:02:00.672126+00:00",
-        "referrer": "",
+        "at": "2026-06-21T12:37:25.293704+00:00",
+        "referrer": "http://127.0.0.1:5050/connexion",
         "source": "server"
       },
       {
         "page": "projects",
         "page_label": "Projets",
         "path": "/projets",
-        "session_id": "f1961100",
-        "at": "2026-06-21T10:02:00.649688+00:00",
-        "referrer": "",
+        "session_id": "8f6edefe",
+        "at": "2026-06-21T12:35:29.103010+00:00",
+        "referrer": "http://127.0.0.1:5050/connexion",
         "source": "server"
       },
       {
-        "page": "startups",
-        "page_label": "Startups",
-        "path": "/startups",
-        "session_id": "f1961100",
-        "at": "2026-06-21T10:02:00.630422+00:00",
-        "referrer": "",
+        "page": "home",
+        "page_label": "Accueil",
+        "path": "/",
+        "session_id": "8f6edefe",
+        "at": "2026-06-21T12:33:16.449195+00:00",
+        "referrer": "http://127.0.0.1:5050/entreprises",
         "source": "server"
       },
       {
         "page": "enterprises",
         "page_label": "Entreprises",
         "path": "/entreprises",
-        "session_id": "f1961100",
-        "at": "2026-06-21T10:02:00.613812+00:00",
-        "referrer": "",
+        "session_id": "8f6edefe",
+        "at": "2026-06-21T12:33:02.076365+00:00",
+        "referrer": "http://127.0.0.1:5050/startups",
+        "source": "server"
+      },
+      {
+        "page": "startups",
+        "page_label": "Startups",
+        "path": "/startups",
+        "session_id": "8f6edefe",
+        "at": "2026-06-21T12:32:58.874300+00:00",
+        "referrer": "http://127.0.0.1:5050/contact",
+        "source": "server"
+      },
+      {
+        "page": "contact",
+        "page_label": "Contact",
+        "path": "/contact",
+        "session_id": "8f6edefe",
+        "at": "2026-06-21T12:32:55.646319+00:00",
+        "referrer": "http://127.0.0.1:5050/projets",
+        "source": "server"
+      },
+      {
+        "page": "projects",
+        "page_label": "Projets",
+        "path": "/projets",
+        "session_id": "8f6edefe",
+        "at": "2026-06-21T12:32:49.951239+00:00",
+        "referrer": "http://127.0.0.1:5050/",
         "source": "server"
       },
       {
         "page": "home",
         "page_label": "Accueil",
         "path": "/",
-        "session_id": "f1961100",
-        "at": "2026-06-21T10:02:00.578525+00:00",
-        "referrer": "",
-        "source": "server"
-      },
-      {
-        "page": "home",
-        "page_label": "Accueil",
-        "path": "/",
-        "session_id": "f487a178",
-        "at": "2026-06-21T10:01:45.588847+00:00",
-        "referrer": "",
+        "session_id": "8f6edefe",
+        "at": "2026-06-21T12:32:35.271310+00:00",
+        "referrer": "http://127.0.0.1:5050/connexion?next=http://127.0.0.1:5050/compte/entreprise",
         "source": "server"
       }
     ],
     "hourly": {
-      "2026-06-21T10": 14
+      "2026-06-21T10": 14,
+      "2026-06-21T12": 8
     },
     "paths": {
-      "/": 3,
-      "/entreprises": 3,
-      "/startups": 1,
-      "/projets": 1,
+      "/": 5,
+      "/entreprises": 4,
+      "/startups": 2,
+      "/projets": 4,
       "/a-propos": 1,
-      "/contact": 1,
+      "/contact": 2,
       "/vitrine/static/css/style.css": 2,
       "/vitrine/static/js/analytics.js": 1,
       "/vitrine/static/js/main.js": 1
     },
     "sessions": {
-      "f487a1780fad": {
-        "first_seen": "2026-06-21T10:01:45.588847+00:00",
-        "last_seen": "2026-06-21T10:01:45.588847+00:00",
-        "page": "home",
-        "path": "/",
-        "hits": 1
-      },
-      "testsession01": {
-        "first_seen": "2026-06-21T10:01:45.623414+00:00",
-        "last_seen": "2026-06-21T10:01:45.623414+00:00",
-        "page": "home",
-        "path": "/",
-        "hits": 0
-      },
-      "f19611007209": {
-        "first_seen": "2026-06-21T10:02:00.578525+00:00",
-        "last_seen": "2026-06-21T10:02:00.688812+00:00",
-        "page": "contact",
-        "path": "/contact",
-        "hits": 6
-      },
       "8f6edefe67d9": {
         "first_seen": "2026-06-21T10:02:58.786718+00:00",
-        "last_seen": "2026-06-21T10:10:17.278152+00:00",
-        "page": "enterprises",
-        "path": "/entreprises",
-        "hits": 7
+        "last_seen": "2026-06-21T12:38:41.472114+00:00",
+        "page": "projects",
+        "path": "/projets",
+        "hits": 15
       }
     }
   },
@@ -284,5 +210,6 @@
       "profile_id": "47459a28",
       "created_at": "2026-06-21T10:09:57.573139+00:00"
     }
-  ]
+  ],
+  "messages": []
 }

@@ -317,6 +317,74 @@ a:hover { color: #33e0be; }
     border-radius: 2px;
 }
 
+/* ── Nav dropdown (inscription) ── */
+.nav-dropdown {
+    position: relative;
+}
+
+.nav-dropdown-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.nav-dropdown-chevron {
+    transition: transform 0.2s;
+}
+
+.nav-dropdown.open .nav-dropdown-chevron {
+    transform: rotate(180deg);
+}
+
+.nav-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    min-width: 230px;
+    padding: 0.35rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+    transition: opacity 0.2s, transform 0.2s, visibility 0.2s;
+    z-index: 200;
+}
+
+.nav-dropdown.open .nav-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.nav-dropdown-item {
+    display: block;
+    padding: 0.65rem 0.85rem;
+    border-radius: 8px;
+    color: var(--text);
+}
+
+.nav-dropdown-item:hover,
+.nav-dropdown-item[aria-current="page"] {
+    background: rgba(0, 232, 200, 0.08);
+    color: var(--accent);
+}
+
+.nav-dropdown-item-title {
+    display: block;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.nav-dropdown-item-desc {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 0.15rem;
+}
+
 /* ── Buttons ── */
 .btn {
     display: inline-block;
@@ -1172,6 +1240,35 @@ a:hover { color: #33e0be; }
     }
 
     .nav-links.open { display: flex; }
+
+    .nav-dropdown {
+        width: 100%;
+    }
+
+    .nav-dropdown-toggle {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .nav-dropdown-menu {
+        position: static;
+        opacity: 1;
+        visibility: hidden;
+        max-height: 0;
+        overflow: hidden;
+        padding: 0;
+        border: none;
+        box-shadow: none;
+        transform: none;
+        transition: max-height 0.25s, visibility 0.25s;
+    }
+
+    .nav-dropdown.open .nav-dropdown-menu {
+        visibility: visible;
+        max-height: 200px;
+        padding: 0.35rem 0;
+        margin-top: 0.5rem;
+    }
 
     .hero { padding: 4rem 0 3rem; }
     .hero-stats { gap: 1.5rem; }
