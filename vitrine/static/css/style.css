@@ -983,9 +983,26 @@ a:hover { color: #33e0be; }
 .footer-bottom {
     border-top: 1px solid var(--border);
     padding: 1.25rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
     text-align: center;
     color: var(--text-muted);
     font-size: 0.8rem;
+}
+
+.footer-admin-link {
+    color: var(--text-muted);
+    text-decoration: none;
+    opacity: 0.7;
+    transition: opacity 0.2s, color 0.2s;
+}
+
+.footer-admin-link:hover {
+    opacity: 1;
+    color: var(--accent, inherit);
 }
 
 /* ── Responsive ── */
