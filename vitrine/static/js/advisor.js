@@ -16,6 +16,12 @@
     let userType = 'enterprise';
     let history = [];
     let busy = false;
+    let typewriterToken = 0;
+
+    const TYPE_SPEED = 14;
+    const TYPE_PAUSE_SENTENCE = 90;
+    const TYPE_PAUSE_COMMA = 36;
+    const TYPE_PAUSE_NEWLINE = 48;
 
     function openPanel() {
         root.classList.add('open');
@@ -40,12 +46,37 @@
         }, 350);
     }
 
+    function escapeHtml(str) {
+        return str
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    function trimIncompleteMarkdown(text) {
+        return text
+            .replace(/\*\*[^*]*$/, '')
+            .replace(/\*[^*]*$/, '')
+            .replace(/\[([^\]]*)?$/, '');
+    }
+
     function formatBotMessage(text) {
-        const escaped = escapeHtml(text);
-        return escaped.replace(
+        let html = escapeHtml(text);
+        html = html.replace(/\*\*([^*]+)\*\*/g, '<strong class="advisor-em">$1</strong>');
+        html = html.replace(
             /(https?:\/\/[^\s<&]+)/g,
             '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>'
         );
+        const blocks = html.split(/\n\n+/).filter(Boolean);
+        if (blocks.length > 1) {
+            return blocks.map(block => `<p>${block.replace(/\n/g, '<br>')}</p>`).join('');
+        }
+        return html.replace(/\n/g, '<br>');
+    }
+
+    function scrollMessages() {
+        messagesEl.scrollTop = messagesEl.scrollHeight;
     }
 
     function appendMessage(role, content, extraClass) {
@@ -57,21 +88,67 @@
             el.textContent = content;
         }
         messagesEl.appendChild(el);
-        messagesEl.scrollTop = messagesEl.scrollHeight;
+        scrollMessages();
         return el;
     }
 
-    function escapeHtml(str) {
-        return str
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;');
+    function createBotBubble(extraClass) {
+        const el = document.createElement('div');
+        el.className = `advisor-msg advisor-msg-bot${extraClass ? ' ' + extraClass : ''}`;
+        messagesEl.appendChild(el);
+        scrollMessages();
+        return el;
+    }
+
+    function typingDelay(char) {
+        if (char === '.' || char === '!' || char === '?' || char === '…') return TYPE_PAUSE_SENTENCE;
+        if (char === ',' || char === ';' || char === ':') return TYPE_PAUSE_COMMA;
+        if (char === '\n') return TYPE_PAUSE_NEWLINE;
+        return TYPE_SPEED;
+    }
+
+    function typewriterBotMessage(el, fullText) {
+        const token = ++typewriterToken;
+        el.classList.add('advisor-msg-typing');
+        let index = 0;
+
+        return new Promise(resolve => {
+            function tick() {
+                if (token !== typewriterToken) {
+                    resolve();
+                    return;
+                }
+                if (index >= fullText.length) {
+                    el.innerHTML = formatBotMessage(fullText);
+                    el.classList.remove('advisor-msg-typing');
+                    scrollMessages();
+                    resolve();
+                    return;
+                }
+                index += 1;
+                const visible = trimIncompleteMarkdown(fullText.slice(0, index));
+                el.innerHTML = `${formatBotMessage(visible)}<span class="advisor-cursor" aria-hidden="true"></span>`;
+                scrollMessages();
+                const delay = typingDelay(fullText[index - 1]);
+                setTimeout(tick, delay);
+            }
+            tick();
+        });
+    }
+
+    async function appendBotMessage(text, extraClass, animate) {
+        const el = createBotBubble(extraClass);
+        if (animate && text && !extraClass?.includes('thinking')) {
+            await typewriterBotMessage(el, text);
+        } else {
+            el.innerHTML = formatBotMessage(text);
+        }
+        return el;
     }
 
     function showWelcome() {
         const text = userType === 'startup' ? cfg.i18n.welcomeStartup : cfg.i18n.welcomeEnterprise;
-        appendMessage('bot', text);
+        appendBotMessage(text, '', true);
     }
 
     function renderSuggestions() {
@@ -92,6 +169,7 @@
 
     function setProfile(type) {
         userType = type;
+        typewriterToken += 1;
         profileBtns.forEach(btn => {
             const active = btn.dataset.profile === type;
             btn.classList.toggle('active', active);
@@ -110,7 +188,8 @@
 
         appendMessage('user', text.trim());
         history.push({ role: 'user', content: text.trim() });
-        const thinking = appendMessage('bot', cfg.i18n.thinking, 'advisor-msg-thinking');
+        const thinking = createBotBubble('advisor-msg-thinking');
+        thinking.innerHTML = `<span class="advisor-thinking-dots">${escapeHtml(cfg.i18n.thinking)}<span class="advisor-dot">.</span><span class="advisor-dot">.</span><span class="advisor-dot">.</span></span>`;
 
         try {
             const res = await fetch(cfg.chatUrl, {
@@ -126,11 +205,11 @@
             thinking.remove();
 
             if (!res.ok || !data.ok) {
-                appendMessage('bot', data.error || cfg.i18n.errorGeneric);
+                await appendBotMessage(data.error || cfg.i18n.errorGeneric, '', true);
                 return;
             }
 
-            appendMessage('bot', data.reply);
+            await appendBotMessage(data.reply, '', true);
             history.push({ role: 'assistant', content: data.reply });
             if (data.suggestions?.length) {
                 suggestionsEl.innerHTML = '';
@@ -148,7 +227,7 @@
             }
         } catch (_) {
             thinking.remove();
-            appendMessage('bot', cfg.i18n.errorGeneric);
+            await appendBotMessage(cfg.i18n.errorGeneric, '', true);
         } finally {
             busy = false;
             input.disabled = false;
