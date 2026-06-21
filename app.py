@@ -1,6 +1,15 @@
 from datetime import timedelta
 from flask import Flask
+import logging
 import os
+
+if os.environ.get("FLASK_ENV") != "production" and not os.environ.get("SCALINGO_APP"):
+    try:
+        from dotenv import load_dotenv
+
+        load_dotenv()
+    except ImportError:
+        pass
 
 import auth
 from crm import crm_bp
@@ -24,6 +33,15 @@ app.config.update(
 app.register_blueprint(crm_bp)
 app.register_blueprint(vitrine_bp)
 app.register_blueprint(compte_bp)
+
+if _is_prod:
+    from crm import auth as crm_auth
+
+    if not crm_auth.is_crm_configured():
+        logging.warning(
+            "CRM non configuré: définissez CRM_ADMIN_USERNAME et CRM_ADMIN_PASSWORD "
+            "dans les variables Scalingo (pas dans scalingo.json avec une valeur vide)."
+        )
 
 
 @app.context_processor
