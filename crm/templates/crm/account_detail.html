@@ -1,0 +1,191 @@
+{% extends "crm_layout.html" %}
+{% from "crm_macros.html" import page_header, type_badge, status_badge, avatar_initials %}
+{% block title %}{{ account.profile_name }} — Compte{% endblock %}
+
+{% block content %}
+{% set bc = [
+    ('Base de données', url_for('crm.accounts')),
+    (account.profile_name, none)
+] %}
+{% call page_header(account.profile_name, account.email, breadcrumb=bc) %}
+    {% if account.role == 'enterprise' %}
+    <a href="{{ url_for('crm.edit_enterprise', entry_id=account.profile_id) }}" class="btn btn-ghost btn-sm">Fiche entreprise</a>
+    {% else %}
+    <a href="{{ url_for('crm.edit_startup', entry_id=account.profile_id) }}" class="btn btn-ghost btn-sm">Fiche startup</a>
+    {% endif %}
+{% endcall %}
+
+<div class="kpi-grid" style="margin-bottom:10px">
+    <div class="kpi-card">
+        <div class="kpi-body">
+            <span class="kpi-value">{{ type_badge(account.role) }}</span>
+            <span class="kpi-label">Type de compte</span>
+        </div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-body">
+            <span class="kpi-value">{{ account.messages_in_count }}</span>
+            <span class="kpi-label">Messages reçus</span>
+        </div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-body">
+            <span class="kpi-value">{{ account.messages_unread }}</span>
+            <span class="kpi-label">Non lus</span>
+        </div>
+    </div>
+    {% if account.role == 'enterprise' %}
+    <div class="kpi-card">
+        <div class="kpi-body">
+            <span class="kpi-value">{{ account.projects_active or 0 }}</span>
+            <span class="kpi-label">Projets en cours</span>
+        </div>
+    </div>
+    {% else %}
+    <div class="kpi-card">
+        <div class="kpi-body">
+            <span class="kpi-value">{{ account.applications_pending or 0 }}</span>
+            <span class="kpi-label">Candidatures en attente</span>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<div class="dashboard-grid">
+    <section class="card">
+        <div class="card-header"><h2>Identifiants</h2></div>
+        <dl class="detail-list">
+            <div><dt>ID utilisateur</dt><dd class="mono">#{{ account.user_id }}</dd></div>
+            <div><dt>ID profil</dt><dd class="mono">#{{ account.profile_id }}</dd></div>
+            <div><dt>Email</dt><dd><a href="mailto:{{ account.email }}">{{ account.email }}</a></dd></div>
+            <div><dt>Inscription</dt><dd class="mono">{{ account.created_at[:19].replace('T', ' ') if account.created_at else '—' }}</dd></div>
+            <div><dt>Mot de passe (hash)</dt><dd><code class="hash-full">{{ account.password_hash }}</code></dd></div>
+        </dl>
+    </section>
+
+    <section class="card">
+        <div class="card-header"><h2>Profil</h2></div>
+        {% if account.profile %}
+        <dl class="detail-list">
+            {% if account.role == 'enterprise' %}
+            <div><dt>Entreprise</dt><dd>{{ account.profile.name }}</dd></div>
+            <div><dt>Secteur</dt><dd>{{ account.profile.sector or '—' }}</dd></div>
+            <div><dt>Pays / ville</dt><dd>{{ account.profile.country or '—' }}{% if account.profile.city %}, {{ account.profile.city }}{% endif %}</dd></div>
+            <div><dt>Contact</dt><dd>{{ account.profile.contact_name or '—' }}{% if account.profile.phone %} · {{ account.profile.phone }}{% endif %}</dd></div>
+            <div><dt>Vitrine</dt><dd>{% if account.profile.published %}Publié{% else %}En attente{% endif %}</dd></div>
+            {% else %}
+            <div><dt>Startup</dt><dd>{{ account.profile.flag or '' }} {{ account.profile.name }}</dd></div>
+            <div><dt>Spécialité</dt><dd>{{ account.profile.specialty or '—' }}</dd></div>
+            <div><dt>Pays / ville</dt><dd>{{ account.profile.country or '—' }}{% if account.profile.city %}, {{ account.profile.city }}{% endif %}</dd></div>
+            <div><dt>Équipe</dt><dd>{{ account.profile.team_size or '—' }} pers.</dd></div>
+            <div><dt>Disponibilité</dt><dd>{{ account.profile.availability or '—' }}</dd></div>
+            {% if account.profile.skills %}
+            <div><dt>Compétences</dt><dd>{% for s in account.profile.skills %}<span class="tag">{{ s }}</span>{% endfor %}</dd></div>
+            {% endif %}
+            {% endif %}
+        </dl>
+        {% else %}
+        <p class="card-hint">Profil lié introuvable.</p>
+        {% endif %}
+    </section>
+</div>
+
+{% if account.role == 'enterprise' %}
+<section class="card" style="margin-top:10px">
+    <div class="card-header"><h2>Projets ({{ account.projects_total or 0 }})</h2></div>
+    {% if account.projects %}
+    <table class="data-table compact">
+        <thead><tr><th>Titre</th><th>Budget</th><th>Durée</th><th>Statut</th></tr></thead>
+        <tbody>
+            {% for p in account.projects %}
+            <tr>
+                <td><strong>{{ p.title }}</strong></td>
+                <td class="muted">{{ p.budget or '—' }}</td>
+                <td class="muted">{{ p.duration or '—' }}</td>
+                <td>{{ status_badge(p.status) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="card-hint">Aucun projet publié.</p>
+    {% endif %}
+</section>
+
+{% if account.applications %}
+<section class="card" style="margin-top:10px">
+    <div class="card-header"><h2>Candidatures reçues ({{ account.applications_count }})</h2></div>
+    <table class="data-table compact">
+        <thead><tr><th>De</th><th>Projet</th><th>Statut</th><th>Date</th></tr></thead>
+        <tbody>
+            {% for m in account.applications %}
+            <tr>
+                <td>{{ m.from_name }}</td>
+                <td>{{ m.project_title or '—' }}</td>
+                <td><span class="badge badge-neutral">{{ m.status }}</span></td>
+                <td class="mono muted">{{ m.created_at[:10] if m.created_at else '—' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endif %}
+
+{% else %}
+
+<section class="card" style="margin-top:10px">
+    <div class="card-header"><h2>Candidatures ({{ account.applications_total or 0 }})</h2></div>
+    {% if account.applications %}
+    <table class="data-table compact">
+        <thead><tr><th>Projet</th><th>Entreprise</th><th>Statut</th><th>Date</th></tr></thead>
+        <tbody>
+            {% for m in account.applications %}
+            <tr>
+                <td><strong>{{ m.project_title or '—' }}</strong></td>
+                <td class="muted">{{ m.to_name }}</td>
+                <td><span class="badge badge-neutral">{{ m.status }}</span></td>
+                <td class="mono muted">{{ m.created_at[:10] if m.created_at else '—' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="card-hint">Aucune candidature envoyée.</p>
+    {% endif %}
+</section>
+{% endif %}
+
+<section class="card" style="margin-top:10px">
+    <div class="card-header"><h2>Messages</h2></div>
+    <div class="dashboard-grid">
+        <div>
+            <h3 class="chart-title">Reçus ({{ account.messages_in_count }})</h3>
+            {% if account.messages_in %}
+            <div class="live-feed">
+                {% for m in account.messages_in[:15] %}
+                <div class="live-feed-item">
+                    <span class="live-time">{{ m.created_at[11:16] if m.created_at else '' }}</span>
+                    <span class="live-page">{{ m.from_name }}</span>
+                    <span class="live-path muted">{{ m.subject or m.kind }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}<p class="card-hint">Aucun message reçu.</p>{% endif %}
+        </div>
+        <div>
+            <h3 class="chart-title">Envoyés ({{ account.messages_out_count }})</h3>
+            {% if account.messages_out %}
+            <div class="live-feed">
+                {% for m in account.messages_out[:15] %}
+                <div class="live-feed-item">
+                    <span class="live-time">{{ m.created_at[11:16] if m.created_at else '' }}</span>
+                    <span class="live-page">{{ m.to_name }}</span>
+                    <span class="live-path muted">{{ m.subject or m.kind }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}<p class="card-hint">Aucun message envoyé.</p>{% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

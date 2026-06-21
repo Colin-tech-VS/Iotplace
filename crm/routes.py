@@ -9,6 +9,7 @@ def _nav_stats():
     stats = store.get_stats()
     stats["contacts"] = len(data["contacts"])
     stats["social_drafts"] = len([p for p in data.get("social_posts", []) if p.get("status") == "draft"])
+    stats["users"] = len(data.get("users", []))
     return stats
 
 
@@ -107,6 +108,24 @@ def analytics():
 @crm_bp.route("/api/analytics/realtime")
 def api_analytics_realtime():
     return jsonify(store.get_realtime_analytics())
+
+
+# ── Comptes / base de données ──
+
+@crm_bp.route("/comptes")
+def accounts():
+    search = request.args.get("q", "").strip()
+    accounts_list = store.get_crm_accounts(search=search or None)
+    return render_template("crm/accounts.html", accounts=accounts_list, search=search)
+
+
+@crm_bp.route("/comptes/<user_id>")
+def account_detail(user_id):
+    account = store.get_crm_account_detail(user_id)
+    if not account:
+        flash("Compte introuvable.", "error")
+        return redirect(url_for("crm.accounts"))
+    return render_template("crm/account_detail.html", account=account)
 
 
 # ── Réseaux sociaux ──

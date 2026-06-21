@@ -318,6 +318,106 @@ def get_startup_for_user(user_id):
     return next((s for s in _load_raw()["startups"] if s.get("user_id") == user_id), None)
 
 
+def get_all_users():
+    return _load_raw().get("users", [])
+
+
+def _short_hash(password_hash):
+    h = password_hash or ""
+    if len(h) > 56:
+        return h[:56] + "…"
+    return h
+
+
+def _enrich_crm_account(user, search=None):
+    role = user.get("role")
+    profile = None
+    profile_name = "—"
+    extra = {}
+
+    if role == "enterprise":
+        profile = get_enterprise(user.get("profile_id"))
+        if profile:
+            profile_name = profile.get("name", "—")
+            projects = get_projects_for_enterprise(profile["id"], profile.get("name", ""))
+            active = [p for p in projects if p.get("status") in ("Ouvert", "En cours")]
+            apps = get_applications_for_enterprise(profile["id"])
+            extra = {
+                "projects": projects,
+                "projects_total": len(projects),
+                "projects_active": len(active),
+                "projects_active_list": active,
+                "applications": apps,
+                "applications_count": len(apps),
+                "published": profile.get("published", False),
+                "country": profile.get("country", ""),
+                "sector": profile.get("sector", ""),
+            }
+    elif role == "startup":
+        profile = get_startup(user.get("profile_id"))
+        if profile:
+            profile_name = profile.get("name", "—")
+            apps = get_applications_for_startup(profile["id"])
+            pending = [a for a in apps if a.get("status") == "pending"]
+            extra = {
+                "applications": apps,
+                "applications_total": len(apps),
+                "applications_pending": len(pending),
+                "applications_pending_list": pending,
+                "featured": profile.get("featured", False),
+                "country": profile.get("country", ""),
+                "specialty": profile.get("specialty", ""),
+                "matching_projects": get_matching_projects_for_startup(profile),
+            }
+
+    inbox = get_inbox_for_user(user["id"])
+    sent = get_sent_for_user(user["id"])
+    entry = {
+        "user_id": user["id"],
+        "email": user.get("email", ""),
+        "password_hash": user.get("password_hash", ""),
+        "password_hash_short": _short_hash(user.get("password_hash", "")),
+        "role": role,
+        "role_label": "Entreprise" if role == "enterprise" else "Startup",
+        "profile_id": user.get("profile_id"),
+        "profile_name": profile_name,
+        "created_at": user.get("created_at", ""),
+        "messages_in": inbox,
+        "messages_out": sent,
+        "messages_in_count": len(inbox),
+        "messages_out_count": len(sent),
+        "messages_unread": get_unread_count(user["id"]),
+        "profile": profile,
+        **extra,
+    }
+
+    if search:
+        q = search.lower()
+        haystack = " ".join([
+            profile_name, entry["email"], role or "",
+            extra.get("country", ""), extra.get("sector", ""), extra.get("specialty", ""),
+        ]).lower()
+        if q not in haystack:
+            return None
+    return entry
+
+
+def get_crm_accounts(search=None):
+    accounts = []
+    for user in get_all_users():
+        entry = _enrich_crm_account(user, search=search)
+        if entry:
+            accounts.append(entry)
+    return sorted(accounts, key=lambda a: a.get("created_at", ""), reverse=True)
+
+
+def get_crm_account_detail(user_id):
+    user = get_user(user_id)
+    if not user:
+        return None
+    return _enrich_crm_account(user)
+
+
 def get_projects_for_enterprise(enterprise_id, enterprise_name=""):
     projects = get_projects()
     return [
