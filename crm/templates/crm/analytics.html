@@ -3,7 +3,82 @@
 {% block title %}Analytics{% endblock %}
 
 {% block content %}
-{% call page_header("Analytics", "Temps réel et statistiques de la vitrine") %}{% endcall %}
+{% call page_header("Analytics", "Temps réel, conversions et statistiques de la vitrine") %}{% endcall %}
+
+{% set conv = analytics.conversion %}
+<section class="card conversion-panel">
+    <div class="card-header">
+        <h2>Conversions inscription</h2>
+        <span class="muted">Visiteurs uniques vitrine (global) → comptes créés</span>
+    </div>
+    <div class="kpi-grid conversion-kpis">
+        <div class="kpi-card kpi-slate">
+            <div class="kpi-body">
+                <span class="kpi-value">{{ conv.unique_visitors }}</span>
+                <span class="kpi-label">Visiteurs uniques (global)</span>
+            </div>
+        </div>
+        <div class="kpi-card kpi-blue">
+            <div class="kpi-body">
+                <span class="kpi-value">{{ conv.enterprise_signups }}</span>
+                <span class="kpi-label">Inscriptions entreprise</span>
+                <span class="kpi-sub">{{ conv.conversion_enterprise_pct }}% conversion</span>
+            </div>
+        </div>
+        <div class="kpi-card kpi-purple">
+            <div class="kpi-body">
+                <span class="kpi-value">{{ conv.startup_signups }}</span>
+                <span class="kpi-label">Inscriptions startup</span>
+                <span class="kpi-sub">{{ conv.conversion_startup_pct }}% conversion</span>
+            </div>
+        </div>
+        <div class="kpi-card kpi-green">
+            <div class="kpi-body">
+                <span class="kpi-value">{{ conv.conversion_total_pct }}%</span>
+                <span class="kpi-label">Conversion totale (E + S)</span>
+                <span class="kpi-sub">{{ conv.total_signups }} compte(s) créé(s)</span>
+            </div>
+        </div>
+    </div>
+
+    {% if conv.unique_visitors > 0 %}
+    <div class="conversion-bars">
+        <div class="conversion-bar-row">
+            <span class="conversion-bar-label">Entreprise</span>
+            <div class="conversion-bar-track">
+                <div class="conversion-bar-fill conversion-bar-ent" style="width: {{ [conv.conversion_enterprise_pct, 100]|min }}%"></div>
+            </div>
+            <span class="conversion-bar-pct mono">{{ conv.conversion_enterprise_pct }}%</span>
+        </div>
+        <div class="conversion-bar-row">
+            <span class="conversion-bar-label">Startup</span>
+            <div class="conversion-bar-track">
+                <div class="conversion-bar-fill conversion-bar-st" style="width: {{ [conv.conversion_startup_pct, 100]|min }}%"></div>
+            </div>
+            <span class="conversion-bar-pct mono">{{ conv.conversion_startup_pct }}%</span>
+        </div>
+    </div>
+    <p class="card-hint">Formule : inscriptions ÷ visiteurs uniques vitrine. Un visiteur = session navigateur (cookie). Les inscriptions sans visite vitrine préalable (lien direct) augmentent le taux.</p>
+    {% else %}
+    <p class="card-hint">Les taux de conversion s'afficheront dès que des visites vitrine seront enregistrées.</p>
+    {% endif %}
+
+    {% if conv.recent_signups %}
+    <h3 class="chart-title" style="margin-top:16px">Dernières inscriptions</h3>
+    <table class="data-table compact">
+        <thead><tr><th>Date</th><th>Type</th><th>Session</th></tr></thead>
+        <tbody>
+            {% for s in conv.recent_signups %}
+            <tr>
+                <td class="mono">{{ s.at[:19].replace('T', ' ') }}</td>
+                <td>{% if s.role == 'enterprise' %}🏢 Entreprise{% else %}🚀 Startup{% endif %}</td>
+                <td class="muted mono">{{ s.session_id or '—' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+</section>
 
 <section class="realtime-panel card" id="realtimePanel">
     <div class="realtime-header">

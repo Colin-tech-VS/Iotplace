@@ -1,4 +1,4 @@
-from flask import flash, jsonify, redirect, render_template, request, url_for
+from flask import flash, jsonify, redirect, render_template, request, session, url_for
 
 import auth
 from compte import compte_bp
@@ -117,6 +117,7 @@ def register_enterprise():
                 project_fields,
             )
             auth.login_user(user)
+            store.track_signup_conversion("enterprise", session.get("analytics_sid"))
             flash(t("compte.flash_register_ent_ok"), "success")
             return redirect(url_for("compte.enterprise_dashboard"))
         except ValueError as exc:
@@ -173,6 +174,7 @@ def register_startup():
                 },
             )
             auth.login_user(user)
+            store.track_signup_conversion("startup", session.get("analytics_sid"))
             flash(t("compte.flash_register_st_ok"), "success")
             return redirect(url_for("compte.startup_dashboard"))
         except ValueError as exc:

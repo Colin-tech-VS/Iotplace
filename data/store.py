@@ -309,6 +309,7 @@ DEFAULT_DATA = {
         "paths": {},
         "recent": [],
         "sessions": {},
+        "unique_visitors": {},
     },
     "social_posts": [],
     "users": [],
@@ -1597,6 +1598,7 @@ def update_seo_page(slug, fields):
 
 ACTIVE_MINUTES = 5
 REALTIME_MINUTES = 30
+MAX_UNIQUE_VISITORS = 50000
 
 
 def _now():
@@ -1614,6 +1616,77 @@ def _ensure_analytics(data):
         if key not in analytics:
             analytics[key] = default.copy() if isinstance(default, dict) else default
     return analytics
+
+
+def _prune_unique_visitors(visitors):
+    if len(visitors) <= MAX_UNIQUE_VISITORS:
+        return visitors
+    ranked = sorted(visitors.items(), key=lambda item: item[1].get("first_seen", ""))
+    keep = dict(ranked[-MAX_UNIQUE_VISITORS:])
+    return keep
+
+
+def _record_unique_visitor(analytics, session_id, now_iso, converted=None):
+    if not session_id:
+        return
+    visitors = analytics.setdefault("unique_visitors", {})
+    existing = visitors.get(session_id, {})
+    visitors[session_id] = {
+        "first_seen": existing.get("first_seen", now_iso),
+        "last_seen": now_iso,
+        "converted": converted or existing.get("converted"),
+    }
+    analytics["unique_visitors"] = _prune_unique_visitors(visitors)
+
+
+def track_signup_conversion(role, session_id=None):
+    if role not in ("enterprise", "startup"):
+        return
+    data = _load_raw()
+    analytics = _ensure_analytics(data)
+    now_iso = _now().isoformat()
+    if session_id:
+        _record_unique_visitor(analytics, session_id, now_iso, converted=role)
+    events = analytics.setdefault("signup_events", [])
+    events.insert(0, {
+        "role": role,
+        "at": now_iso,
+        "session_id": (session_id or "")[:12] or None,
+    })
+    analytics["signup_events"] = events[:500]
+    _save_raw(data)
+
+
+def get_conversion_analytics():
+    data = _load_raw()
+    analytics = _ensure_analytics(data)
+    unique_count = len(analytics.get("unique_visitors", {}))
+    users = data.get("users", [])
+    enterprise_signups = sum(1 for u in users if u.get("role") == "enterprise")
+    startup_signups = sum(1 for u in users if u.get("role") == "startup")
+    total_signups = enterprise_signups + startup_signups
+
+    def _rate(numerator, denominator):
+        if denominator <= 0:
+            return 0.0
+        return round(numerator / denominator * 100, 2)
+
+    visitors = analytics.get("unique_visitors", {})
+    tracked_ent = sum(1 for v in visitors.values() if v.get("converted") == "enterprise")
+    tracked_st = sum(1 for v in visitors.values() if v.get("converted") == "startup")
+
+    return {
+        "unique_visitors": unique_count,
+        "enterprise_signups": enterprise_signups,
+        "startup_signups": startup_signups,
+        "total_signups": total_signups,
+        "conversion_enterprise_pct": _rate(enterprise_signups, unique_count),
+        "conversion_startup_pct": _rate(startup_signups, unique_count),
+        "conversion_total_pct": _rate(total_signups, unique_count),
+        "tracked_enterprise_conversions": tracked_ent,
+        "tracked_startup_conversions": tracked_st,
+        "recent_signups": analytics.get("signup_events", [])[:10],
+    }
 
 
 def _prune_analytics(analytics):
@@ -1676,6 +1749,7 @@ def track_hit(page_slug, path="/", session_id=None, referrer="", source="server"
         "path": path,
         "hits": existing.get("hits", 0) + 1,
     }
+    _record_unique_visitor(analytics, sid, now_iso)
 
     event = {
         "page": page_slug,
@@ -1782,6 +1856,7 @@ def get_analytics():
         "recent": analytics.get("recent", [])[:30],
         "contacts_count": len(data.get("contacts", [])),
         "realtime": realtime,
+        "conversion": get_conversion_analytics(),
     }
 
 
