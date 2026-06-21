@@ -78,22 +78,112 @@
     "pages": {}
   },
   "analytics": {
-    "total_views": 22,
+    "total_views": 32,
     "daily": {
-      "2026-06-21": 22
+      "2026-06-21": 32
     },
     "pages": {
-      "home": 5,
+      "home": 7,
       "enterprises": 4,
-      "startups": 2,
-      "projects": 4,
-      "about": 1,
-      "contact": 2,
+      "startups": 5,
+      "projects": 6,
+      "about": 3,
+      "contact": 3,
       "vitrine_static_css_style.css": 2,
       "vitrine_static_js_analytics.js": 1,
       "vitrine_static_js_main.js": 1
     },
     "recent": [
+      {
+        "page": "home",
+        "page_label": "Home",
+        "path": "/",
+        "session_id": "c30a10ee",
+        "at": "2026-06-21T12:55:44.153935+00:00",
+        "referrer": "",
+        "source": "server"
+      },
+      {
+        "page": "about",
+        "page_label": "About",
+        "path": "/about",
+        "session_id": "60fe460f",
+        "at": "2026-06-21T12:54:26.636504+00:00",
+        "referrer": "",
+        "source": "server"
+      },
+      {
+        "page": "projects",
+        "page_label": "Projects",
+        "path": "/projects",
+        "session_id": "60fe460f",
+        "at": "2026-06-21T12:54:26.606092+00:00",
+        "referrer": "",
+        "source": "server"
+      },
+      {
+        "page": "startups",
+        "page_label": "Startups",
+        "path": "/startups",
+        "session_id": "60fe460f",
+        "at": "2026-06-21T12:54:26.515250+00:00",
+        "referrer": "",
+        "source": "server"
+      },
+      {
+        "page": "startups",
+        "page_label": "Startups",
+        "path": "/startups",
+        "session_id": "8f6edefe",
+        "at": "2026-06-21T12:45:57.901779+00:00",
+        "referrer": "http://127.0.0.1:5050/",
+        "source": "server"
+      },
+      {
+        "page": "startups",
+        "page_label": "Startups",
+        "path": "/startups",
+        "session_id": "8f6edefe",
+        "at": "2026-06-21T12:41:06.285798+00:00",
+        "referrer": "http://127.0.0.1:5050/",
+        "source": "server"
+      },
+      {
+        "page": "home",
+        "page_label": "Accueil",
+        "path": "/",
+        "session_id": "8f6edefe",
+        "at": "2026-06-21T12:40:50.645837+00:00",
+        "referrer": "http://127.0.0.1:5050/a-propos",
+        "source": "server"
+      },
+      {
+        "page": "about",
+        "page_label": "À propos",
+        "path": "/a-propos",
+        "session_id": "8f6edefe",
+        "at": "2026-06-21T12:40:39.371592+00:00",
+        "referrer": "http://127.0.0.1:5050/inscription/startup",
+        "source": "server"
+      },
+      {
+        "page": "contact",
+        "page_label": "Contact",
+        "path": "/contact",
+        "session_id": "8f6edefe",
+        "at": "2026-06-21T12:40:21.206356+00:00",
+        "referrer": "http://127.0.0.1:5050/inscription/startup",
+        "source": "server"
+      },
+      {
+        "page": "projects",
+        "page_label": "Projets",
+        "path": "/projets",
+        "session_id": "8f6edefe",
+        "at": "2026-06-21T12:39:32.428672+00:00",
+        "referrer": "http://127.0.0.1:5050/connexion",
+        "source": "server"
+      },
       {
         "page": "projects",
         "page_label": "Projets",
@@ -169,26 +259,42 @@
     ],
     "hourly": {
       "2026-06-21T10": 14,
-      "2026-06-21T12": 8
+      "2026-06-21T12": 18
     },
     "paths": {
-      "/": 5,
+      "/": 7,
       "/entreprises": 4,
-      "/startups": 2,
-      "/projets": 4,
-      "/a-propos": 1,
-      "/contact": 2,
+      "/startups": 5,
+      "/projets": 5,
+      "/a-propos": 2,
+      "/contact": 3,
       "/vitrine/static/css/style.css": 2,
       "/vitrine/static/js/analytics.js": 1,
-      "/vitrine/static/js/main.js": 1
+      "/vitrine/static/js/main.js": 1,
+      "/projects": 1,
+      "/about": 1
     },
     "sessions": {
       "8f6edefe67d9": {
         "first_seen": "2026-06-21T10:02:58.786718+00:00",
-        "last_seen": "2026-06-21T12:38:41.472114+00:00",
-        "page": "projects",
-        "path": "/projets",
-        "hits": 15
+        "last_seen": "2026-06-21T12:46:13.612576+00:00",
+        "page": "startups",
+        "path": "/startups",
+        "hits": 21
+      },
+      "60fe460fd3f2": {
+        "first_seen": "2026-06-21T12:54:26.515250+00:00",
+        "last_seen": "2026-06-21T12:54:26.636504+00:00",
+        "page": "about",
+        "path": "/about",
+        "hits": 3
+      },
+      "c30a10eeb527": {
+        "first_seen": "2026-06-21T12:55:44.153935+00:00",
+        "last_seen": "2026-06-21T12:55:44.153935+00:00",
+        "page": "home",
+        "path": "/",
+        "hits": 1
       }
     }
   },
