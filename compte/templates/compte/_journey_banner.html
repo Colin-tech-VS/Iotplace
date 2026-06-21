@@ -1,0 +1,23 @@
+{# Bandeau parcours — entreprise ou startup #}
+<aside class="journey-banner journey-banner-{{ audience }} reveal" aria-label="{{ t('journeys.banner_aria_' ~ audience) }}">
+    <div class="journey-banner-head">
+        <span class="journey-banner-badge">{{ t('journeys.badge_' ~ audience) }}</span>
+        <h2>{{ t('journeys.banner_title_' ~ audience) }}</h2>
+        <p>{{ t('journeys.banner_sub_' ~ audience) }}</p>
+    </div>
+    <ol class="journey-banner-steps">
+        {% for step in t('journeys.banner_steps_' ~ audience) %}
+        <li>
+            <span class="journey-banner-step-num">{{ loop.index }}</span>
+            <div>
+                <strong>{{ step.title }}</strong>
+                <span>{{ step.text }}</span>
+            </div>
+        </li>
+        {% endfor %}
+    </ol>
+    <a href="{{ journey_full_url }}" class="link-arrow">{{ t('journeys.banner_full_link') }}</a>
+    {% if audience == 'startup' %}
+    <p class="journey-banner-note">{{ t('journeys.banner_poc_note') }}</p>
+    {% endif %}
+</aside>

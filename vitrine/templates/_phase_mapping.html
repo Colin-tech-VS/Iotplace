@@ -1,0 +1,25 @@
+{# Correspondance parcours startup ↔ phases projet entreprise #}
+<div class="phase-mapping reveal">
+    <h3 class="phase-mapping-title">{{ t('journeys.mapping_title') }}</h3>
+    <p class="phase-mapping-sub">{{ t('journeys.mapping_sub') }}</p>
+    <div class="table-wrap">
+        <table class="phase-mapping-table">
+            <thead>
+                <tr>
+                    <th>{{ t('journeys.col_startup_step') }}</th>
+                    <th>{{ t('journeys.col_platform_phase') }}</th>
+                    <th>{{ t('journeys.col_application_fee') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in t('journeys.mapping_rows') %}
+                <tr>
+                    <td><strong>{{ row.startup }}</strong></td>
+                    <td>{{ row.phase }}</td>
+                    <td>{{ row.fee }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

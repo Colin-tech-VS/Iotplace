@@ -10,7 +10,10 @@
 </section>
 
 <section class="section">
-    <div class="container">
+    <div class="container register-layout">
+        {% with audience='startup', journey_full_url=url_for('vitrine.startups') ~ '#startup-journey' %}
+        {% include "compte/_journey_banner.html" %}
+        {% endwith %}
         <form class="register-form reveal" method="POST">
             <fieldset class="form-section-card">
                 <legend>{{ t('compte.section_account') }}</legend>

@@ -1,0 +1,65 @@
+{# Deux parcours distincts — entreprise vs startup #}
+<section class="section">
+    <div class="container">
+        <div class="section-header reveal">
+            <h2>{{ t('home.paths_title') }}</h2>
+            <p>{{ t('home.paths_sub') }}</p>
+        </div>
+        <div class="audience-paths-grid reveal">
+            <article class="audience-path-card audience-path-enterprise">
+                <div class="audience-path-badge">{{ t('journeys.badge_enterprise') }}</div>
+                <h3>{{ t('home.ent_path_title') }}</h3>
+                <p class="audience-path-goal">{{ t('home.ent_path_goal') }}</p>
+                <ol class="audience-path-steps">
+                    {% for step in t('home.ent_path_steps') %}
+                    <li>
+                        <span class="audience-path-step-num">{{ loop.index }}</span>
+                        <div>
+                            <strong>{{ step.title }}</strong>
+                            <span>{{ step.text }}</span>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ol>
+                <div class="audience-path-phases">
+                    <span class="audience-path-phases-label">{{ t('home.ent_path_phases_label') }}</span>
+                    {% for phase_id in engagement_phases %}
+                    <span class="tag tag-enterprise">{{ t('engagement.phases.' ~ phase_id ~ '.short_label') }}</span>
+                    {% endfor %}
+                </div>
+                <div class="audience-path-cta">
+                    <a href="{{ url_for('vitrine.enterprises') }}#engagement-journey" class="btn btn-outline">{{ t('home.ent_path_learn') }}</a>
+                    <a href="{{ url_for('compte.register_enterprise') }}" class="btn btn-primary">{{ t('home.ent_path_cta') }}</a>
+                </div>
+            </article>
+
+            <article class="audience-path-card audience-path-startup">
+                <div class="audience-path-badge">{{ t('journeys.badge_startup') }}</div>
+                <h3>{{ t('home.st_path_title') }}</h3>
+                <p class="audience-path-goal">{{ t('home.st_path_goal') }}</p>
+                <ol class="audience-path-steps">
+                    {% for step in t('home.st_path_steps') %}
+                    <li>
+                        <span class="audience-path-step-num">{{ loop.index }}</span>
+                        <div>
+                            <strong>{{ step.title }}</strong>
+                            <span>{{ step.text }}</span>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ol>
+                <div class="audience-path-phases">
+                    <span class="audience-path-phases-label">{{ t('home.st_path_phases_label') }}</span>
+                    {% for step_id in startup_journey_steps %}
+                    <span class="tag tag-startup">{{ t('startup_journey.steps.' ~ step_id ~ '.short_label') }}</span>
+                    {% endfor %}
+                </div>
+                <div class="audience-path-cta">
+                    <a href="{{ url_for('vitrine.startups') }}#startup-journey" class="btn btn-outline">{{ t('home.st_path_learn') }}</a>
+                    <a href="{{ url_for('compte.register_startup') }}" class="btn btn-primary">{{ t('home.st_path_cta') }}</a>
+                </div>
+            </article>
+        </div>
+        {% include "_phase_mapping.html" %}
+    </div>
+</section>

@@ -13,6 +13,8 @@
     "signup_startup_desc": "Find missions",
     "contact": "Contact",
     "messages": "Messages",
+    "dashboard_enterprise": "Enterprise workspace",
+    "dashboard_startup": "Startup workspace",
     "menu": "Menu",
     "home_aria": "Iotplace — Home",
     "lang": "Language",
@@ -103,6 +105,30 @@
     "cta_title": "Ready to connect your IoT ecosystem?",
     "cta_sub": "Join Iotplace and access a network of IoT talent in Southeast Asia.",
     "cta_btn": "Get started",
+    "cta_enterprise": "Enterprise signup",
+    "cta_startup": "Startup signup",
+    "paths_title": "Two distinct journeys",
+    "paths_sub": "Enterprises and startups play different roles on Iotplace: client on one side, IoT subcontractor on the other.",
+    "ent_path_title": "Enterprise journey — outsource an IoT project",
+    "ent_path_goal": "You publish a need, select a startup and pay via escrow on validated delivery.",
+    "ent_path_steps": [
+      { "title": "Create your enterprise account", "text": "Describe your company and publish a first project (PoC, Scale or Partnership)." },
+      { "title": "Receive startup applications", "text": "Compare firmware, hardware and cloud profiles. Chat via B2B messaging." },
+      { "title": "Accept and secure payment", "text": "Automatic invoice, escrow funds, release after validated delivery." }
+    ],
+    "ent_path_phases_label": "Project phases:",
+    "ent_path_learn": "See full journey →",
+    "ent_path_cta": "Create enterprise account",
+    "st_path_title": "Startup journey — sell to large enterprises",
+    "st_path_goal": "You apply to missions, deliver a paid PoC then move to framework contract and partnership.",
+    "st_path_steps": [
+      { "title": "Create your startup profile", "text": "IoT skills, country, references — visible to enterprise clients." },
+      { "title": "Apply to missions by phase", "text": "PoC (application fee), Scale and Partnership (free to apply)." },
+      { "title": "Get paid via Stripe Connect", "text": "After acceptance: enterprise escrow, payout on validated delivery." }
+    ],
+    "st_path_phases_label": "Go-to-market steps:",
+    "st_path_learn": "See full journey →",
+    "st_path_cta": "Create startup account",
     "faq_title": "FAQ — IoT subcontracting for enterprises & startups"
   },
   "enterprises": {
@@ -232,6 +258,9 @@
     "email_ph": "you@company.com",
     "password": "Password",
     "login_btn": "Log in",
+    "login_choose_audience": "No account yet? Choose your profile:",
+    "login_enterprise_desc": "Publish IoT projects and subcontract to qualified startups.",
+    "login_startup_desc": "Find B2B missions, apply to PoCs and grow into framework contracts.",
     "no_account": "No account yet?",
     "register_enterprise": "Enterprise signup",
     "register_startup": "Startup signup",
@@ -333,7 +362,35 @@
     "per_month": "/ month",
     "per_mission": "per signed mission",
     "how_it_works_label": "How it works",
-    "intro": "Iotplace is free to join. Enterprises pay when a mission is accepted (escrow + commission). Startups pay an application fee only on PoC-phase projects — Scale and Partnership applications remain free.",
+    "audience_nav_aria": "Audience navigation",
+    "enterprise_section_title": "Enterprise pricing & journey",
+    "enterprise_section_sub": "For clients outsourcing firmware, hardware or cloud work.",
+    "enterprise_offers_title": "Enterprise plans",
+    "startup_section_title": "Startup pricing & journey",
+    "startup_section_sub": "For IoT startups selling to large enterprises — free signup, PoC fees only.",
+    "startup_offers_title": "Startup plan",
+    "startup_fees_title": "Application fees by project phase",
+    "startup_fees_phase": "Project phase (enterprise side)",
+    "startup_fees_apply": "Startup application",
+    "startup_fees_mission": "Mission payment (if accepted)",
+    "startup_fee_rows": [
+      { "phase": "PoC", "apply": "Application fee (Stripe)", "mission": "Escrow → Stripe Connect on delivery" },
+      { "phase": "Scale", "apply": "Free", "mission": "Escrow → Stripe Connect on delivery" },
+      { "phase": "Partnership", "apply": "Free", "mission": "Escrow → Stripe Connect on delivery" }
+    ],
+    "flow_enterprise_title": "Enterprise side",
+    "flow_enterprise_steps": [
+      { "title": "Free signup", "text": "Create your client account, publish a project by phase." },
+      { "title": "Select a startup", "text": "Review applications, chat, accept the best fit." },
+      { "title": "Escrow & commission", "text": "Auto invoice on acceptance; commission on fund release." }
+    ],
+    "flow_startup_title": "Startup side",
+    "flow_startup_steps": [
+      { "title": "Free signup", "text": "Startup profile, access to open missions." },
+      { "title": "Targeted applications", "text": "Paid PoC applications; free Scale/Partnership." },
+      { "title": "Mission payout", "text": "Stripe Connect after enterprise validates delivery." }
+    ],
+    "intro": "Two distinct models: enterprises pay per mission (escrow + commission); startups pay an application fee only on PoC projects.",
     "escrow_title": "Secure escrow on every mission",
     "escrow_text": "When you accept a startup application, an invoice is generated automatically. Funds are held in escrow until you validate delivery — then the startup is paid (minus platform commission).",
     "escrow_steps": [
@@ -474,6 +531,39 @@
       }
     },
     "offers_title": "Plans aligned with your journey"
+  },
+  "journeys": {
+    "badge_enterprise": "Enterprise",
+    "badge_startup": "IoT Startup",
+    "mapping_title": "How both journeys meet on the platform",
+    "mapping_sub": "Startup go-to-market steps map to project phases published by enterprises.",
+    "col_startup_step": "Startup step",
+    "col_platform_phase": "Iotplace project phase",
+    "col_application_fee": "Application fee",
+    "mapping_rows": [
+      { "startup": "Pilot — find a first client", "phase": "Before / during PoC", "fee": "—" },
+      { "startup": "Paid PoC", "phase": "PoC", "fee": "Application fee (commission included)" },
+      { "startup": "Framework contract", "phase": "Scale", "fee": "Free" },
+      { "startup": "Strategic partnership", "phase": "Partnership", "fee": "Free" }
+    ],
+    "banner_aria_enterprise": "Enterprise journey summary",
+    "banner_aria_startup": "Startup journey summary",
+    "banner_title_enterprise": "You are an enterprise client",
+    "banner_title_startup": "You are an IoT startup subcontractor",
+    "banner_sub_enterprise": "Publish a need by phase (PoC → Scale → Partnership) and select the right startup.",
+    "banner_sub_startup": "Apply to large-enterprise missions following pilot → PoC → framework → partnership.",
+    "banner_steps_enterprise": [
+      { "title": "Signup & company profile", "text": "Sector, needs, option to publish a first project." },
+      { "title": "Publish by phase", "text": "Quick PoC, Scale deployment or long-term Partnership." },
+      { "title": "Acceptance & escrow", "text": "Auto invoice, funds held until delivery is validated." }
+    ],
+    "banner_steps_startup": [
+      { "title": "Profile & IoT skills", "text": "Firmware, hardware, cloud — visible to enterprises." },
+      { "title": "Apply to missions", "text": "PoC fees only; Scale and Partnership are free." },
+      { "title": "Delivery & payout", "text": "Stripe Connect after acceptance and validated delivery." }
+    ],
+    "banner_full_link": "See the full journey on the site →",
+    "banner_poc_note": "PoC-phase projects charge an application fee to ensure serious applications on both sides."
   },
   "engagement": {
     "title": "The enterprise outsourcing journey",

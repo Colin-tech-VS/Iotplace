@@ -38,7 +38,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/style.css') }}?v=4">
+    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/style.css') }}?v=5">
     <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/iot-theme.css') }}?v=3">
     <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/dashboard-ux.css') }}?v=1">
     <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/advisor.css') }}?v=4">
@@ -73,8 +73,12 @@
                 <li><a href="{{ url_for('vitrine.pricing') }}" {% if request.endpoint == 'vitrine.pricing' %}class="active"{% endif %}>{{ t('nav.pricing') }}</a></li>
                 {% if current_user %}
                 <li>
-                    <a href="{{ url_for('compte.home') }}" class="btn btn-sm btn-outline nav-msg-link">
-                        {{ t('nav.messages') }}
+                    <a href="{{ url_for('compte.enterprise_dashboard') if current_user.role == 'enterprise' else url_for('compte.startup_dashboard') }}" class="btn btn-sm btn-outline nav-dash-link">
+                        {% if current_user.role == 'enterprise' %}
+                        {{ t('nav.dashboard_enterprise') }}
+                        {% else %}
+                        {{ t('nav.dashboard_startup') }}
+                        {% endif %}
                         <span class="nav-msg-badge" data-msg-badge {% if not unread_count|default(0) %}hidden{% endif %}>{{ unread_count|default(0) or '' }}</span>
                     </a>
                 </li>
@@ -135,7 +139,7 @@
                 <ul>
                     <li><a href="{{ url_for('vitrine.enterprises') }}">{{ t('footer.outsource_project') }}</a></li>
                     <li><a href="{{ url_for('compte.register_enterprise') }}">{{ t('footer.enterprise_signup') }}</a></li>
-                    <li><a href="{{ url_for('vitrine.projects') }}">{{ t('footer.publish_project') }}</a></li>
+                    <li><a href="{{ url_for('compte.register_enterprise') }}">{{ t('footer.publish_project') }}</a></li>
                 </ul>
             </div>
             <div>

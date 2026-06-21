@@ -1874,6 +1874,395 @@ a:hover { color: #33e0be; }
     .engagement-connector { transform: rotate(90deg); justify-content: center; }
 }
 
+/* ── Audience journeys (enterprise vs startup) ── */
+.audience-path-badge {
+    display: inline-block;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.65rem;
+    background: rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.35);
+    color: #93c5fd;
+}
+
+.audience-path-badge-startup {
+    background: rgba(0, 212, 170, 0.12);
+    border-color: rgba(0, 212, 170, 0.35);
+    color: var(--accent);
+}
+
+.audience-paths-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    margin-bottom: 2.5rem;
+}
+
+.audience-path-card {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.audience-path-enterprise { border-top: 3px solid #3b82f6; }
+.audience-path-startup { border-top: 3px solid var(--accent); }
+
+.audience-path-card h3 {
+    font-size: 1.15rem;
+    margin: 0;
+}
+
+.audience-path-goal {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.55;
+    margin: 0;
+}
+
+.audience-path-steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.audience-path-steps li {
+    display: flex;
+    gap: 0.65rem;
+    align-items: flex-start;
+    font-size: 0.88rem;
+    line-height: 1.5;
+}
+
+.audience-path-steps li strong {
+    display: block;
+    margin-bottom: 0.15rem;
+}
+
+.audience-path-steps li span {
+    color: var(--text-muted);
+    font-size: 0.84rem;
+}
+
+.audience-path-step-num {
+    flex-shrink: 0;
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border);
+}
+
+.audience-path-phases {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.audience-path-phases-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-right: 0.25rem;
+}
+
+.tag-enterprise {
+    background: rgba(59, 130, 246, 0.12);
+    border-color: rgba(59, 130, 246, 0.3);
+    color: #93c5fd;
+}
+
+.tag-startup {
+    background: rgba(0, 212, 170, 0.1);
+    border-color: rgba(0, 212, 170, 0.3);
+    color: var(--accent);
+}
+
+.audience-path-cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: auto;
+    padding-top: 0.5rem;
+}
+
+.audience-block-header {
+    padding: 2rem 0 0.5rem;
+    text-align: center;
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+.audience-block-header h2 {
+    margin: 0.5rem 0 0.35rem;
+}
+
+.audience-block-header p {
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.audience-block-enterprise { scroll-margin-top: 5rem; }
+.audience-block-startup { scroll-margin-top: 5rem; }
+
+.pricing-audience-nav {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+    flex-wrap: wrap;
+}
+
+.pricing-audience-link {
+    padding: 0.45rem 1rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    transition: all 0.2s;
+}
+
+.pricing-audience-link:hover {
+    color: var(--text);
+    border-color: var(--accent);
+}
+
+.pricing-audience-link-enterprise:hover { border-color: #3b82f6; color: #93c5fd; }
+.pricing-audience-link-startup:hover { border-color: var(--accent); color: var(--accent); }
+
+.pricing-grid-startup {
+    grid-template-columns: minmax(280px, 420px);
+    justify-content: center;
+}
+
+.audience-flow-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.audience-flow-col {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem 1.35rem;
+}
+
+.audience-flow-enterprise { border-top: 3px solid #3b82f6; }
+.audience-flow-startup { border-top: 3px solid var(--accent); }
+
+.audience-flow-col h3 {
+    font-size: 1rem;
+    margin: 0 0 0.85rem;
+}
+
+.phase-mapping {
+    margin-top: 1rem;
+}
+
+.phase-mapping-title {
+    font-size: 1.05rem;
+    text-align: center;
+    margin: 0 0 0.35rem;
+}
+
+.phase-mapping-sub {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    margin: 0 0 1.25rem;
+}
+
+.phase-mapping-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+}
+
+.phase-mapping-table th,
+.phase-mapping-table td {
+    padding: 0.65rem 0.85rem;
+    border-bottom: 1px solid var(--border-subtle);
+    text-align: left;
+}
+
+.phase-mapping-table th {
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+/* Registration layout */
+.register-layout {
+    display: grid;
+    grid-template-columns: minmax(260px, 320px) 1fr;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.journey-banner {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    position: sticky;
+    top: 5.5rem;
+}
+
+.journey-banner-enterprise { border-top: 3px solid #3b82f6; }
+.journey-banner-startup { border-top: 3px solid var(--accent); }
+
+.journey-banner-head h2 {
+    font-size: 1.05rem;
+    margin: 0.5rem 0 0.35rem;
+}
+
+.journey-banner-head p {
+    font-size: 0.84rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin: 0;
+}
+
+.journey-banner-steps {
+    list-style: none;
+    margin: 1rem 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+}
+
+.journey-banner-steps li {
+    display: flex;
+    gap: 0.5rem;
+    font-size: 0.82rem;
+    line-height: 1.45;
+}
+
+.journey-banner-steps strong {
+    display: block;
+    font-size: 0.84rem;
+}
+
+.journey-banner-steps span {
+    color: var(--text-muted);
+}
+
+.journey-banner-step-num {
+    flex-shrink: 0;
+    width: 1.35rem;
+    height: 1.35rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.journey-banner-note {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin: 0.75rem 0 0;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border-subtle);
+    line-height: 1.45;
+}
+
+/* Login audience picker */
+.auth-audience-picker {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-subtle);
+}
+
+.auth-audience-label {
+    text-align: center;
+    color: var(--text-muted);
+    margin: 0 0 1rem;
+    font-size: 0.9rem;
+}
+
+.auth-audience-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+
+.auth-audience-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 1rem;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-panel);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.2s, transform 0.2s;
+}
+
+.auth-audience-card:hover {
+    transform: translateY(-2px);
+}
+
+.auth-audience-card-enterprise:hover { border-color: rgba(59, 130, 246, 0.5); }
+.auth-audience-card-startup:hover { border-color: rgba(0, 212, 170, 0.5); }
+
+.auth-audience-card strong {
+    font-size: 0.95rem;
+}
+
+.auth-audience-card span:last-child {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+.auth-audience-card-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    align-self: flex-start;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+@media (max-width: 900px) {
+    .audience-paths-grid,
+    .audience-flow-split,
+    .register-layout,
+    .auth-audience-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .journey-banner {
+        position: static;
+    }
+}
+
 @media (max-width: 480px) {
     .footer-grid { grid-template-columns: 1fr; }
     .cards-grid { grid-template-columns: 1fr; }

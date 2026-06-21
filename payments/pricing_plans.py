@@ -11,6 +11,9 @@ PLAN_IDS = (
     "pro_enterprise",
 )
 
+ENTERPRISE_PLAN_IDS = ("free_enterprise", "commission", "pro_enterprise")
+STARTUP_PLAN_IDS = ("free_startup",)
+
 
 def get_pricing_numbers() -> dict:
     try:
@@ -30,4 +33,6 @@ def get_pricing_numbers() -> dict:
         "pro_commission_percent": pro_commission,
         "pro_price_eur": pro_price,
         "plan_ids": PLAN_IDS,
+        "enterprise_plan_ids": ENTERPRISE_PLAN_IDS,
+        "startup_plan_ids": STARTUP_PLAN_IDS,
     }
