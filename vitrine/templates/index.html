@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}Accueil{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-bg"></div>
+    <div class="container hero-content">
+        <div class="hero-badge animate-in">{{ page.hero_badge }}</div>
+        <h1 class="animate-in delay-1">{{ page.hero_title }}</h1>
+        <p class="hero-sub animate-in delay-2">{{ page.hero_subtitle }}</p>
+        <div class="hero-actions animate-in delay-3">
+            <a href="{{ url_for('compte.register_enterprise') }}" class="btn btn-primary btn-lg">{{ page.cta_primary }}</a>
+            <a href="{{ url_for('compte.register_startup') }}" class="btn btn-outline btn-lg">{{ page.cta_secondary }}</a>
+        </div>
+        <div class="hero-stats animate-in delay-4">
+            <div class="stat">
+                <span class="stat-value" data-count="{{ stats.enterprises }}">0</span>
+                <span class="stat-label">Entreprises</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value" data-count="{{ stats.startups }}">0</span>
+                <span class="stat-label">Startups</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value" data-count="{{ stats.projects }}">0</span>
+                <span class="stat-label">Projets</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value" data-count="{{ stats.countries }}">0</span>
+                <span class="stat-label">Pays</span>
+            </div>
+        </div>
+    </div>
+    <div class="hero-flow">
+        <div class="flow-node flow-left">Entreprise</div>
+        <div class="flow-line"><span class="flow-dot"></span></div>
+        <div class="flow-node flow-center">Iotplace</div>
+        <div class="flow-line"><span class="flow-dot"></span></div>
+        <div class="flow-node flow-right">Startup</div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="section-header reveal">
+            <h2>Comment ça marche ?</h2>
+            <p>Un modèle simple de sous-traitance IoT, sécurisé et transparent.</p>
+        </div>
+        <div class="steps-grid">
+            <div class="step-card reveal">
+                <div class="step-num">01</div>
+                <h3>L'entreprise publie un besoin</h3>
+                <p>Les grands groupes décrivent leur projet IoT : firmware, hardware, cloud, intégration.</p>
+            </div>
+            <div class="step-card reveal">
+                <div class="step-num">02</div>
+                <h3>Iotplace match les startups</h3>
+                <p>Notre plateforme identifie les startups qualifiées au Vietnam, en Indonésie, en Thaïlande, etc.</p>
+            </div>
+            <div class="step-card reveal">
+                <div class="step-num">03</div>
+                <h3>Sous-traitance encadrée</h3>
+                <p>Contrats, suivi de projet, paiements sécurisés. L'entreprise garde le contrôle, la startup livre.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section section-alt">
+    <div class="container">
+        <div class="section-header reveal">
+            <h2>Startups en vedette</h2>
+            <p>Des équipes IoT agiles et expertes, prêtes à être sous-traitées.</p>
+            {% if featured_startups %}
+            <a href="{{ url_for('vitrine.startups') }}" class="link-arrow">Voir toutes les startups →</a>
+            {% endif %}
+        </div>
+        {% if featured_startups %}
+        <div class="cards-grid">
+            {% for startup in featured_startups %}
+            <div class="card startup-card reveal">
+                <div class="card-header">
+                    {% if startup.flag %}<span class="flag">{{ startup.flag }}</span>{% endif %}
+                    <div>
+                        <h3>{{ startup.name }}</h3>
+                        <span class="meta">{{ startup.city }}{% if startup.city and startup.country %}, {% endif %}{{ startup.country }}</span>
+                    </div>
+                </div>
+                <p class="card-desc">{{ startup.description }}</p>
+                {% if startup.skills %}
+                <div class="tags">
+                    {% for skill in startup.skills %}
+                    <span class="tag">{{ skill }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                <div class="card-footer">
+                    {% if startup.rating %}<span class="rating">★ {{ startup.rating }}</span>{% endif %}
+                    {% if startup.projects_done %}<span class="meta">{{ startup.projects_done }} projets</span>{% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state reveal">
+            <div class="empty-icon">🚀</div>
+            <p>Aucune startup pour le moment. Revenez bientôt ou <a href="{{ url_for('vitrine.contact') }}">contactez-nous</a>.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="section-header reveal">
+            <h2>Projets ouverts</h2>
+            <p>Opportunités de sous-traitance publiées par les grandes entreprises.</p>
+            {% if featured_projects %}
+            <a href="{{ url_for('vitrine.projects') }}" class="link-arrow">Tous les projets →</a>
+            {% endif %}
+        </div>
+        {% if featured_projects %}
+        <div class="projects-list">
+            {% for project in featured_projects %}
+            <div class="project-row reveal">
+                <div class="project-info">
+                    <h3>{{ project.title }}</h3>
+                    <span class="meta">{{ project.enterprise }}</span>
+                </div>
+                <div class="project-meta">
+                    {% if project.budget %}<span class="budget">{{ project.budget }}</span>{% endif %}
+                    {% if project.duration %}<span class="duration">{{ project.duration }}</span>{% endif %}
+                    <span class="status status-{{ project.status|lower|replace(' ', '-') }}">{{ project.status }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state reveal">
+            <div class="empty-icon">📋</div>
+            <p>Aucun projet ouvert pour le moment. <a href="{{ url_for('vitrine.contact') }}">Publiez le vôtre</a>.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<section class="cta-section">
+    <div class="container cta-inner reveal">
+        <h2>Prêt à connecter votre écosystème IoT ?</h2>
+        <p>Rejoignez Iotplace et accédez à un réseau de talents IoT en Asie du Sud-Est.</p>
+        <a href="{{ url_for('vitrine.contact') }}" class="btn btn-primary btn-lg btn-glow">Commencer maintenant</a>
+    </div>
+</section>
+{% endblock %}

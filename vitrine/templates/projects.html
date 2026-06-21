@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Projets{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="container reveal">
+        <h1>{{ page.title }}</h1>
+        <p class="page-sub">{{ page.subtitle }}</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        {% if projects %}
+        <div class="projects-list projects-full">
+            {% for project in projects %}
+            <div class="project-row project-card-full reveal">
+                <div class="project-info">
+                    <h3>{{ project.title }}</h3>
+                    <span class="meta">{{ project.enterprise }}</span>
+                    {% if project.skills %}
+                    <div class="tags" style="margin-top: 0.75rem;">
+                        {% for skill in project.skills %}
+                        <span class="tag">{{ skill }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="project-meta">
+                    {% if project.budget %}
+                    <div class="project-detail">
+                        <span class="label">Budget</span>
+                        <span class="budget">{{ project.budget }}</span>
+                    </div>
+                    {% endif %}
+                    {% if project.duration %}
+                    <div class="project-detail">
+                        <span class="label">Durée</span>
+                        <span class="duration">{{ project.duration }}</span>
+                    </div>
+                    {% endif %}
+                    <span class="status status-{{ project.status|lower|replace(' ', '-') }}">{{ project.status }}</span>
+                    {% if project.status == 'Ouvert' %}
+                    <a href="{{ url_for('vitrine.contact') }}" class="btn btn-sm btn-primary">Postuler</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state reveal">
+            <div class="empty-icon">📋</div>
+            <p>Aucun projet publié pour le moment. <a href="{{ url_for('vitrine.contact') }}">Soyez le premier</a>.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

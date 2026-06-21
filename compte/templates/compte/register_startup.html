@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% from "compte/_macros.html" import field_value %}
+
+{% block content %}
+<section class="page-hero page-hero-sm">
+    <div class="container reveal">
+        <h1>Inscription startup</h1>
+        <p class="page-sub">Rejoignez Iotplace et accédez aux missions IoT des grandes entreprises.</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <form class="register-form reveal" method="POST">
+            <fieldset class="form-section-card">
+                <legend>Compte & sécurité</legend>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="email">Email professionnel <span class="req">*</span></label>
+                        <input type="email" id="email" name="email" required value="{{ field_value(form, 'email') }}" placeholder="hello@startup.io">
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Téléphone / WhatsApp</label>
+                        <input type="tel" id="phone" name="phone" value="{{ field_value(form, 'phone') }}">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="password">Mot de passe <span class="req">*</span></label>
+                        <input type="password" id="password" name="password" required minlength="8">
+                    </div>
+                    <div class="form-group">
+                        <label for="password_confirm">Confirmer le mot de passe <span class="req">*</span></label>
+                        <input type="password" id="password_confirm" name="password_confirm" required minlength="8">
+                    </div>
+                </div>
+            </fieldset>
+
+            <fieldset class="form-section-card">
+                <legend>Startup</legend>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="startup_name">Nom de la startup <span class="req">*</span></label>
+                        <input type="text" id="startup_name" name="startup_name" required value="{{ field_value(form, 'startup_name') }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="contact_name">Nom du fondateur / contact</label>
+                        <input type="text" id="contact_name" name="contact_name" value="{{ field_value(form, 'contact_name') }}">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="country">Pays <span class="req">*</span></label>
+                        <input type="text" id="country" name="country" required value="{{ field_value(form, 'country') }}" placeholder="Vietnam, Indonésie, Thaïlande…">
+                    </div>
+                    <div class="form-group">
+                        <label for="flag">Drapeau (emoji)</label>
+                        <input type="text" id="flag" name="flag" maxlength="4" value="{{ field_value(form, 'flag') }}" placeholder="🇻🇳">
+                    </div>
+                    <div class="form-group">
+                        <label for="city">Ville</label>
+                        <input type="text" id="city" name="city" value="{{ field_value(form, 'city') }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="specialty">Spécialité IoT <span class="req">*</span></label>
+                    <input type="text" id="specialty" name="specialty" required value="{{ field_value(form, 'specialty') }}" placeholder="LoRaWAN, Edge AI, Smart Agriculture…">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="team_size">Taille de l'équipe</label>
+                        <input type="number" id="team_size" name="team_size" min="1" value="{{ field_value(form, 'team_size', '5') }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="projects_done">Projets IoT réalisés</label>
+                        <input type="number" id="projects_done" name="projects_done" min="0" value="{{ field_value(form, 'projects_done', '0') }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="availability">Disponibilité</label>
+                        <select id="availability" name="availability">
+                            <option value="">— Choisir —</option>
+                            {% for a in ['Immédiate', '1–3 mois', '3–6 mois', 'Occupée'] %}
+                            <option value="{{ a }}" {% if field_value(form, 'availability') == a %}selected{% endif %}>{{ a }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="rate_range">Fourchette tarifaire / TJM</label>
+                    <select id="rate_range" name="rate_range">
+                        <option value="">— Choisir —</option>
+                        {% for r in ['< 300€/j', '300–500€/j', '500–800€/j', '800€+/j', 'Sur devis'] %}
+                        <option value="{{ r }}" {% if field_value(form, 'rate_range') == r %}selected{% endif %}>{{ r }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="skills">Compétences techniques (virgules) <span class="req">*</span></label>
+                    <input type="text" id="skills" name="skills" required value="{{ field_value(form, 'skills') }}" placeholder="Firmware C/C++, PCB, MQTT, AWS IoT, BLE">
+                </div>
+                <div class="form-group">
+                    <label for="description">Présentation & références</label>
+                    <textarea id="description" name="description" rows="4" placeholder="Équipe, stack technique, clients, cas d'usage IoT…">{{ field_value(form, 'description') }}</textarea>
+                </div>
+            </fieldset>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-lg btn-glow">Créer mon compte startup</button>
+                <p class="form-footer-link">Déjà inscrit ? <a href="{{ url_for('compte.login') }}">Se connecter</a></p>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

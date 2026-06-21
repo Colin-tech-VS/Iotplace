@@ -1,0 +1,48 @@
+{% extends "crm_layout.html" %}
+{% from "crm_macros.html" import page_header %}
+{% block title %}Éditer {{ meta.name }}{% endblock %}
+
+{% block content %}
+{% set bc = [('Pages', url_for('crm.pages')), (meta.name, none)] %}
+{% call page_header('Éditer : ' ~ meta.name, 'Contenu affiché sur ' ~ meta.path, breadcrumb=bc) %}
+    <a href="{{ url_for('crm.pages') }}" class="btn btn-ghost btn-sm">Retour</a>
+    <button type="submit" form="page-form" class="btn btn-primary btn-sm">Enregistrer</button>
+{% endcall %}
+
+<form id="page-form" method="POST" class="form-layout">
+    <section class="card form-section">
+        <div class="section-title"><h2>Contenu</h2></div>
+
+        {% if meta.slug == 'home' %}
+        <div class="field"><label>Badge hero</label><input name="hero_badge" value="{{ content.hero_badge or '' }}"></div>
+        <div class="field"><label>Titre principal</label><input name="hero_title" value="{{ content.hero_title or '' }}"></div>
+        <div class="field"><label>Mot en surbrillance</label><input name="hero_highlight" value="{{ content.hero_highlight or '' }}"></div>
+        <div class="field"><label>Sous-titre</label><textarea name="hero_subtitle" rows="3">{{ content.hero_subtitle or '' }}</textarea></div>
+        <div class="field-row">
+            <div class="field"><label>Bouton principal</label><input name="cta_primary" value="{{ content.cta_primary or '' }}"></div>
+            <div class="field"><label>Bouton secondaire</label><input name="cta_secondary" value="{{ content.cta_secondary or '' }}"></div>
+        </div>
+        {% elif meta.slug == 'about' %}
+        <div class="field"><label>Titre</label><input name="title" value="{{ content.title or '' }}"></div>
+        <div class="field"><label>Sous-titre</label><input name="subtitle" value="{{ content.subtitle or '' }}"></div>
+        <div class="field"><label>Mission (paragraphe 1)</label><textarea name="mission_1" rows="3">{{ content.mission_1 or '' }}</textarea></div>
+        <div class="field"><label>Mission (paragraphe 2)</label><textarea name="mission_2" rows="3">{{ content.mission_2 or '' }}</textarea></div>
+        {% elif meta.slug == 'contact' %}
+        <div class="field"><label>Titre</label><input name="title" value="{{ content.title or '' }}"></div>
+        <div class="field"><label>Sous-titre</label><input name="subtitle" value="{{ content.subtitle or '' }}"></div>
+        <div class="field"><label>Email affiché</label><input name="email" value="{{ content.email or '' }}"></div>
+        {% else %}
+        <div class="field"><label>Titre de page</label><input name="title" value="{{ content.title or '' }}"></div>
+        <div class="field"><label>Sous-titre</label><textarea name="subtitle" rows="2">{{ content.subtitle or '' }}</textarea></div>
+        {% endif %}
+
+        <div class="field toggle-field" style="margin-top:12px">
+            <label class="toggle">
+                <input type="checkbox" name="published" {% if content.published %}checked{% endif %}>
+                <span class="toggle-track"></span>
+                <span class="toggle-label"><strong>Page publiée</strong><small>Visible sur la vitrine</small></span>
+            </label>
+        </div>
+    </section>
+</form>
+{% endblock %}

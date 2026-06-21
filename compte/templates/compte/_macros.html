@@ -1,0 +1,3 @@
+{% macro field_value(form, name, default='') -%}
+{{ form.get(name, default) if form else default }}
+{%- endmacro %}

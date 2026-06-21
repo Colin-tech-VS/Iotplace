@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}À propos{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="container reveal">
+        <h1>{{ page.title }}</h1>
+        <p class="page-sub">{{ page.subtitle }}</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container about-content">
+        <div class="about-block reveal">
+            <h2>Notre mission</h2>
+            <p>{{ page.mission_1 }}</p>
+            <p>{{ page.mission_2 }}</p>
+        </div>
+
+        <div class="about-block reveal">
+            <h2>Le modèle</h2>
+            <div class="model-grid">
+                <div class="model-card">
+                    <h3>🏢 Entreprises (donneurs d'ordre)</h3>
+                    <ul>
+                        <li>Publient des projets de sous-traitance IoT</li>
+                        <li>Définissent budget, délais et compétences requises</li>
+                        <li>Sélectionnent les startups via notre matching</li>
+                        <li>Suivent l'avancement via le dashboard Iotplace</li>
+                    </ul>
+                </div>
+                <div class="model-card">
+                    <h3>🚀 Startups (sous-traitants)</h3>
+                    <ul>
+                        <li>Créent un profil avec leurs compétences IoT</li>
+                        <li>Accèdent aux projets des grandes entreprises</li>
+                        <li>Postulent et négocient les missions</li>
+                        <li>Livrent et sont payées via notre système escrow</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="about-block reveal">
+            <h2>Pourquoi l'Asie du Sud-Est ?</h2>
+            <p>
+                Le Vietnam, l'Indonésie, la Thaïlande et les Philippines forment un hub IoT en pleine explosion :
+                ingénieurs formés, coûts compétitifs, fuseaux horaires favorables, et une culture d'innovation hardware
+                héritée de l'électronique grand public. Iotplace valorise ces talents auprès des entreprises mondiales.
+            </p>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends "crm_layout.html" %}
+{% from "crm_macros.html" import page_header, empty_state, type_badge, delete_form %}
+{% block title %}Contacts{% endblock %}
+
+{% block content %}
+{% call page_header("Contacts", "Messages reçus via la vitrine") %}{% endcall %}
+
+<div class="toolbar card-toolbar">
+    <form class="search-form" method="GET" action="{{ url_for('crm.contacts') }}">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="search" name="q" value="{{ search }}" placeholder="Rechercher par nom, email ou message…">
+        {% if selected_type %}<input type="hidden" name="type" value="{{ selected_type }}">{% endif %}
+    </form>
+    <div class="filter-chips">
+        <a href="{{ url_for('crm.contacts', q=search) }}" class="chip {% if not selected_type %}active{% endif %}">Tous</a>
+        <a href="{{ url_for('crm.contacts', type='enterprise', q=search) }}" class="chip {% if selected_type == 'enterprise' %}active{% endif %}">Entreprises</a>
+        <a href="{{ url_for('crm.contacts', type='startup', q=search) }}" class="chip {% if selected_type == 'startup' %}active{% endif %}">Startups</a>
+        <a href="{{ url_for('crm.contacts', type='other', q=search) }}" class="chip {% if selected_type == 'other' %}active{% endif %}">Autres</a>
+    </div>
+</div>
+
+<div class="card table-card">
+    {% if contacts %}
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Contact</th>
+                    <th>Type</th>
+                    <th>Pays</th>
+                    <th>Message</th>
+                    <th>Date</th>
+                    <th class="col-actions">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in contacts %}
+                <tr class="row-clickable" onclick="window.location='{{ url_for('crm.contact_detail', entry_id=c.id) }}'">
+                    <td>
+                        <div class="cell-user">
+                            <span class="activity-avatar sm">{{ c.name[:1]|upper }}</span>
+                            <div>
+                                <strong>{{ c.name }}</strong>
+                                <span class="cell-sub">{{ c.email }}</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td>{{ type_badge(c.type) }}</td>
+                    <td class="muted">{{ c.country or '—' }}</td>
+                    <td class="truncate-cell">{{ c.message[:100] }}{% if c.message|length > 100 %}…{% endif %}</td>
+                    <td class="mono muted">{{ c.created_at[:10] if c.created_at else '—' }}</td>
+                    <td class="col-actions" onclick="event.stopPropagation()">
+                        <div class="row-actions">
+                            <a href="{{ url_for('crm.contact_detail', entry_id=c.id) }}" class="btn-icon" title="Voir">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            </a>
+                            {{ delete_form(url_for('crm.delete_contact', entry_id=c.id)) }}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    {{ empty_state('', 'Aucun contact', 'Les messages du formulaire apparaîtront ici.', url_for('vitrine.contact'), 'Formulaire') }}
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,145 @@
+{% extends "crm_layout.html" %}
+{% from "crm_macros.html" import page_header, empty_state, status_badge, type_badge, avatar_initials %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+{% call page_header("Dashboard", "Vue d'ensemble") %}{% endcall %}
+
+<div class="kpi-grid">
+    <a href="{{ url_for('crm.enterprises') }}" class="kpi-card kpi-blue">
+        <div class="kpi-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4"/></svg>
+        </div>
+        <div class="kpi-body">
+            <span class="kpi-value">{{ stats.enterprises }}</span>
+            <span class="kpi-label">Entreprises</span>
+        </div>
+    </a>
+    <a href="{{ url_for('crm.startups') }}" class="kpi-card kpi-green">
+        <div class="kpi-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/></svg>
+        </div>
+        <div class="kpi-body">
+            <span class="kpi-value">{{ stats.startups }}</span>
+            <span class="kpi-label">Startups</span>
+        </div>
+    </a>
+    <a href="{{ url_for('crm.projects') }}" class="kpi-card kpi-purple">
+        <div class="kpi-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+        </div>
+        <div class="kpi-body">
+            <span class="kpi-value">{{ stats.projects }}</span>
+            <span class="kpi-label">Projets</span>
+        </div>
+    </a>
+    <a href="{{ url_for('crm.contacts') }}" class="kpi-card kpi-amber">
+        <div class="kpi-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M22 6l-10 7L2 6"/></svg>
+        </div>
+        <div class="kpi-body">
+            <span class="kpi-value">{{ stats.contacts }}</span>
+            <span class="kpi-label">Contacts</span>
+        </div>
+    </a>
+</div>
+
+<div class="dashboard-grid">
+    <section class="card">
+        <div class="card-header">
+            <div>
+                <h2>Activité récente</h2>
+                <p>Derniers messages reçus via la vitrine</p>
+            </div>
+            <a href="{{ url_for('crm.contacts') }}" class="btn btn-ghost btn-sm">Tout voir</a>
+        </div>
+        {% if contacts %}
+        <div class="activity-list">
+            {% for c in contacts %}
+            <a href="{{ url_for('crm.contact_detail', entry_id=c.id) }}" class="activity-item">
+                <div class="activity-avatar">{{ c.name[:1]|upper }}</div>
+                <div class="activity-body">
+                    <div class="activity-top">
+                        <strong>{{ c.name }}</strong>
+                        {{ type_badge(c.type) }}
+                    </div>
+                    <p>{{ c.message[:90] }}{% if c.message|length > 90 %}…{% endif %}</p>
+                    <span class="activity-time">{{ c.created_at[:16].replace('T', ' ') if c.created_at else '' }}</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        {{ empty_state('', 'Aucun contact', 'Les demandes via le formulaire apparaîtront ici.', url_for('vitrine.contact'), 'Voir le formulaire') }}
+        {% endif %}
+    </section>
+
+    <section class="card">
+        <div class="card-header">
+            <div>
+                <h2>Projets ouverts</h2>
+                <p>Missions disponibles sur la vitrine</p>
+            </div>
+            <a href="{{ url_for('crm.new_project') }}" class="btn btn-primary btn-sm">+ Nouveau</a>
+        </div>
+        {% if open_projects %}
+        <div class="mini-table-wrap">
+            <table class="data-table compact">
+                <thead><tr><th>Projet</th><th>Entreprise</th><th>Statut</th></tr></thead>
+                <tbody>
+                    {% for p in open_projects %}
+                    <tr>
+                        <td><a href="{{ url_for('crm.edit_project', entry_id=p.id) }}">{{ p.title }}</a></td>
+                        <td class="muted">{{ p.enterprise or '—' }}</td>
+                        <td>{{ status_badge(p.status) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        {{ empty_state('', 'Aucun projet ouvert', 'Créez un projet pour la vitrine.', url_for('crm.new_project'), 'Créer') }}
+        {% endif %}
+    </section>
+</div>
+
+<div class="dashboard-grid">
+    <section class="card">
+        <div class="card-header">
+            <div>
+                <h2>Startups en vedette</h2>
+                <p>Affichées sur la page d'accueil</p>
+            </div>
+            <a href="{{ url_for('crm.startups') }}" class="btn btn-ghost btn-sm">Gérer</a>
+        </div>
+        {% if featured_startups %}
+        <div class="chip-list">
+            {% for s in featured_startups %}
+            <a href="{{ url_for('crm.edit_startup', entry_id=s.id) }}" class="chip-item">
+                <span>{{ s.flag or '🚀' }}</span>
+                <span>{{ s.name }}</span>
+                <span class="chip-meta">{{ s.country or '' }}</span>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="card-hint">Marquez des startups comme « vedette » pour les afficher sur l'accueil.</p>
+        {% endif %}
+    </section>
+
+    <section class="card">
+        <div class="card-header">
+            <div>
+                <h2>Actions rapides</h2>
+                <p>Raccourcis de gestion</p>
+            </div>
+        </div>
+        <div class="quick-grid">
+            <a href="{{ url_for('crm.new_enterprise') }}" class="quick-item"><span class="quick-icon">+</span><span>Entreprise</span></a>
+            <a href="{{ url_for('crm.new_startup') }}" class="quick-item"><span class="quick-icon">+</span><span>Startup</span></a>
+            <a href="{{ url_for('crm.new_project') }}" class="quick-item"><span class="quick-icon">+</span><span>Projet</span></a>
+            <a href="{{ url_for('vitrine.index') }}" class="quick-item" target="_blank"><span class="quick-icon">↗</span><span>Vitrine</span></a>
+        </div>
+    </section>
+</div>
+{% endblock %}

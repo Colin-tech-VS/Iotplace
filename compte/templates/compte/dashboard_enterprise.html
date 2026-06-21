@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="page-hero page-hero-sm">
+    <div class="container reveal">
+        <div class="dashboard-hero-row">
+            <div>
+                <span class="dashboard-badge">Espace entreprise</span>
+                <h1>{{ profile.name }}</h1>
+                <p class="page-sub">{{ profile.sector or 'Donneur d\'ordre IoT' }} — {{ profile.country or '—' }}</p>
+            </div>
+            <div class="dashboard-actions">
+                <a href="{{ url_for('compte.enterprise_edit_profile') }}" class="btn btn-outline">Modifier le profil</a>
+                <a href="{{ url_for('compte.logout') }}" class="btn btn-ghost">Déconnexion</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="dashboard-grid">
+            <div class="dashboard-card reveal">
+                <h3>Profil</h3>
+                <dl class="profile-dl">
+                    <dt>Contact</dt><dd>{{ profile.contact_name or '—' }}{% if profile.contact_role %} ({{ profile.contact_role }}){% endif %}</dd>
+                    <dt>Email</dt><dd>{{ user.email }}</dd>
+                    <dt>Téléphone</dt><dd>{{ profile.phone or '—' }}</dd>
+                    <dt>Taille</dt><dd>{{ profile.company_size or '—' }}</dd>
+                    <dt>Statut vitrine</dt><dd>{% if profile.published %}Publié{% else %}En attente de validation{% endif %}</dd>
+                </dl>
+                {% if profile.description %}
+                <p class="profile-desc">{{ profile.description }}</p>
+                {% endif %}
+                {% if profile.needs %}
+                <div class="tag-list">
+                    {% for need in profile.needs %}<span class="tag">{{ need }}</span>{% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="dashboard-card reveal">
+                <div class="dashboard-card-header">
+                    <h3>Mes projets IoT</h3>
+                    <span class="badge">{{ projects|length }}</span>
+                </div>
+                {% if projects %}
+                <div class="mini-list">
+                    {% for project in projects %}
+                    <article class="mini-list-item">
+                        <div>
+                            <strong>{{ project.title }}</strong>
+                            <p class="muted">{{ project.budget or 'Budget à définir' }} · {{ project.duration or 'Durée à définir' }}</p>
+                        </div>
+                        <span class="status-pill status-{{ 'open' if project.status == 'Ouvert' else 'closed' }}">{{ project.status }}</span>
+                    </article>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="muted">Aucun projet publié. Complétez votre profil ou contactez l'équipe Iotplace pour publier un besoin.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="dashboard-card reveal dashboard-next">
+            <h3>Prochaines étapes</h3>
+            <ul class="check-list">
+                <li>Complétez vos compétences recherchées pour améliorer le matching</li>
+                <li>Publiez un projet détaillé pour recevoir des propositions de startups</li>
+                <li>Votre profil sera visible sur la vitrine après validation par l'équipe</li>
+            </ul>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="page-hero page-hero-sm">
+    <div class="container reveal">
+        <div class="dashboard-hero-row">
+            <div>
+                <span class="dashboard-badge">Espace startup</span>
+                <h1>{{ profile.flag or '🚀' }} {{ profile.name }}</h1>
+                <p class="page-sub">{{ profile.specialty }} — {{ profile.city or '' }}{% if profile.city and profile.country %}, {% endif %}{{ profile.country }}</p>
+            </div>
+            <div class="dashboard-actions">
+                <a href="{{ url_for('compte.startup_edit_profile') }}" class="btn btn-outline">Modifier le profil</a>
+                <a href="{{ url_for('compte.logout') }}" class="btn btn-ghost">Déconnexion</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="dashboard-grid">
+            <div class="dashboard-card reveal">
+                <h3>Mon profil</h3>
+                <dl class="profile-dl">
+                    <dt>Contact</dt><dd>{{ profile.contact_name or '—' }}</dd>
+                    <dt>Email</dt><dd>{{ user.email }}</dd>
+                    <dt>Équipe</dt><dd>{{ profile.team_size or '—' }} personnes</dd>
+                    <dt>Projets réalisés</dt><dd>{{ profile.projects_done or 0 }}</dd>
+                    <dt>Disponibilité</dt><dd>{{ profile.availability or '—' }}</dd>
+                    <dt>Tarifs</dt><dd>{{ profile.rate_range or '—' }}</dd>
+                    <dt>Statut vitrine</dt><dd>{% if profile.featured %}En vedette{% elif profile.published is defined and not profile.published %}En attente{% else %}Actif{% endif %}</dd>
+                </dl>
+                {% if profile.skills %}
+                <div class="tag-list">
+                    {% for skill in profile.skills %}<span class="tag">{{ skill }}</span>{% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="dashboard-card reveal">
+                <div class="dashboard-card-header">
+                    <h3>Missions correspondantes</h3>
+                    <span class="badge">{{ matching_projects|length }}</span>
+                </div>
+                {% if matching_projects %}
+                <div class="mini-list">
+                    {% for project in matching_projects[:8] %}
+                    <article class="mini-list-item">
+                        <div>
+                            <strong>{{ project.title }}</strong>
+                            <p class="muted">{{ project.enterprise }} · {{ project.budget or 'Budget à définir' }}</p>
+                            {% if project.skills %}
+                            <div class="tag-list tag-list-sm">
+                                {% for skill in project.skills[:4] %}<span class="tag">{{ skill }}</span>{% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <span class="status-pill status-open">{{ project.status }}</span>
+                    </article>
+                    {% endfor %}
+                </div>
+                <a href="{{ url_for('vitrine.projects') }}" class="link-arrow">Voir tous les projets →</a>
+                {% else %}
+                <p class="muted">Aucune mission ouverte pour le moment. Mettez à jour vos compétences pour améliorer le matching.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

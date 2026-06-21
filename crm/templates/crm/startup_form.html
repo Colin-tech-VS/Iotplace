@@ -1,0 +1,93 @@
+{% extends "crm_layout.html" %}
+{% from "crm_macros.html" import page_header %}
+{% block title %}{% if is_new %}Nouvelle startup{% else %}Modifier startup{% endif %}{% endblock %}
+
+{% block content %}
+{% set bc = [
+    ('Startups', url_for('crm.startups')),
+    (is_new and 'Nouvelle startup' or entry.name, none)
+] %}
+{% call page_header(is_new and 'Nouvelle startup' or 'Modifier la startup', is_new and 'Ajoutez une startup sous-traitante' or 'Mettez à jour le profil affiché sur la vitrine', breadcrumb=bc) %}
+    <a href="{{ url_for('crm.startups') }}" class="btn btn-ghost btn-sm">Annuler</a>
+    <button type="submit" form="entity-form" class="btn btn-primary btn-sm">Enregistrer</button>
+{% endcall %}
+
+<form id="entity-form" method="POST" class="form-layout">
+    <div class="form-grid">
+        <section class="card form-section">
+            <div class="section-title">
+                <h2>Identité</h2>
+                <p>Informations principales de la startup</p>
+            </div>
+            <div class="field">
+                <label for="name">Nom <span class="req">*</span></label>
+                <input type="text" id="name" name="name" value="{{ entry.name if entry else '' }}" required>
+            </div>
+            <div class="field-row">
+                <div class="field">
+                    <label for="country">Pays</label>
+                    <input type="text" id="country" name="country" value="{{ entry.country if entry else '' }}" placeholder="Vietnam, Indonésie…">
+                </div>
+                <div class="field">
+                    <label for="flag">Drapeau (emoji)</label>
+                    <input type="text" id="flag" name="flag" value="{{ entry.flag if entry else '' }}" placeholder="🇻🇳">
+                </div>
+                <div class="field">
+                    <label for="city">Ville</label>
+                    <input type="text" id="city" name="city" value="{{ entry.city if entry else '' }}">
+                </div>
+            </div>
+            <div class="field">
+                <label for="specialty">Spécialité IoT</label>
+                <input type="text" id="specialty" name="specialty" value="{{ entry.specialty if entry else '' }}" placeholder="LoRaWAN, Edge AI, Smart City…">
+            </div>
+            <div class="field">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" rows="4">{{ entry.description if entry else '' }}</textarea>
+            </div>
+        </section>
+
+        <div class="form-side">
+            <section class="card form-section">
+                <div class="section-title">
+                    <h2>Métriques</h2>
+                </div>
+                <div class="field">
+                    <label for="team_size">Taille de l'équipe</label>
+                    <input type="number" id="team_size" name="team_size" min="0" value="{{ entry.team_size if entry else '' }}">
+                </div>
+                <div class="field-row">
+                    <div class="field">
+                        <label for="rating">Note /5</label>
+                        <input type="number" id="rating" name="rating" min="0" max="5" step="0.1" value="{{ entry.rating if entry else '' }}">
+                    </div>
+                    <div class="field">
+                        <label for="projects_done">Projets réalisés</label>
+                        <input type="number" id="projects_done" name="projects_done" min="0" value="{{ entry.projects_done if entry else '' }}">
+                    </div>
+                </div>
+            </section>
+
+            <section class="card form-section">
+                <div class="section-title">
+                    <h2>Compétences & visibilité</h2>
+                </div>
+                <div class="field">
+                    <label for="skills">Compétences (virgules)</label>
+                    <input type="text" id="skills" name="skills" value="{{ entry.skills|join(', ') if entry and entry.skills else '' }}">
+                </div>
+                <div class="field toggle-field">
+                    <label class="toggle">
+                        <input type="checkbox" name="featured" {% if entry and entry.featured %}checked{% endif %}>
+                        <span class="toggle-track"></span>
+                        <span class="toggle-label">
+                            <strong>Mettre en vedette</strong>
+                            <small>Affichée sur la page d'accueil</small>
+                        </span>
+                    </label>
+                </div>
+            </section>
+        </div>
+    </div>
+</form>
+{% endblock %}

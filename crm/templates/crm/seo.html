@@ -1,0 +1,43 @@
+{% extends "crm_layout.html" %}
+{% from "crm_macros.html" import page_header %}
+{% block title %}SEO{% endblock %}
+
+{% block content %}
+{% call page_header("SEO", "Référencement global et par page") %}{% endcall %}
+
+<div class="form-grid" style="grid-template-columns:1fr 1fr;max-width:900px">
+    <section class="card form-section">
+        <div class="section-title"><h2>SEO global</h2><p>Paramètres par défaut du site</p></div>
+        <form method="POST">
+            <input type="hidden" name="form_type" value="global">
+            <div class="field"><label>Nom du site</label><input name="site_name" value="{{ global_seo.site_name or '' }}"></div>
+            <div class="field"><label>Suffixe des titres</label><input name="title_suffix" value="{{ global_seo.title_suffix or '' }}"></div>
+            <div class="field"><label>Meta description</label><textarea name="meta_description" rows="2">{{ global_seo.meta_description or '' }}</textarea></div>
+            <div class="field"><label>Mots-clés</label><input name="keywords" value="{{ global_seo.keywords or '' }}"></div>
+            <div class="field"><label>Image Open Graph (URL)</label><input name="og_image" value="{{ global_seo.og_image or '' }}"></div>
+            <div class="field-row">
+                <div class="field"><label>Twitter @</label><input name="twitter_handle" value="{{ global_seo.twitter_handle or '' }}"></div>
+                <div class="field"><label>Google Analytics ID</label><input name="google_analytics_id" value="{{ global_seo.google_analytics_id or '' }}" placeholder="G-XXXXXXXX"></div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm">Enregistrer le global</button>
+        </form>
+    </section>
+
+    <section class="card form-section">
+        <div class="section-title"><h2>SEO par page</h2></div>
+        <div class="filter-chips" style="margin-bottom:10px">
+            {% for p in page_catalog %}
+            <a href="{{ url_for('crm.seo', page=p.slug) }}" class="chip {% if selected_page == p.slug %}active{% endif %}">{{ p.name }}</a>
+            {% endfor %}
+        </div>
+        <form method="POST">
+            <input type="hidden" name="form_type" value="page">
+            <input type="hidden" name="page_slug" value="{{ selected_page }}">
+            <div class="field"><label>Titre SEO</label><input name="title" value="{{ page_seo.title or '' }}"></div>
+            <div class="field"><label>Description</label><textarea name="description" rows="2">{{ page_seo.description or '' }}</textarea></div>
+            <div class="field"><label>Mots-clés</label><input name="keywords" value="{{ page_seo.keywords or '' }}"></div>
+            <button type="submit" class="btn btn-primary btn-sm">Enregistrer cette page</button>
+        </form>
+    </section>
+</div>
+{% endblock %}

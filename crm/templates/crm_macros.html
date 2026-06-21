@@ -1,0 +1,57 @@
+{% macro page_header(title, subtitle='', breadcrumb=none) %}
+<div class="page-header">
+    <div class="page-header-text">
+        {% if breadcrumb %}
+        <nav class="breadcrumb" aria-label="Fil d'Ariane">
+            {% for label, url in breadcrumb %}
+                {% if url %}
+                <a href="{{ url }}">{{ label }}</a><span class="sep">/</span>
+                {% else %}
+                <span class="current">{{ label }}</span>
+                {% endif %}
+            {% endfor %}
+        </nav>
+        {% endif %}
+        <h1>{{ title }}</h1>
+        {% if subtitle %}<p class="page-subtitle">{{ subtitle }}</p>{% endif %}
+    </div>
+    {% if caller %}<div class="page-header-actions">{{ caller() }}</div>{% endif %}
+</div>
+{% endmacro %}
+
+{% macro empty_state(icon, title, description, action_url='', action_label='') %}
+<div class="empty-state">
+    {% if icon %}<div class="empty-icon">{{ icon }}</div>{% endif %}
+    <h3>{{ title }}</h3>
+    <p>{{ description }}</p>
+    {% if action_url %}
+    <a href="{{ action_url }}" class="btn btn-primary btn-sm">{{ action_label }}</a>
+    {% endif %}
+</div>
+{% endmacro %}
+
+{% macro status_badge(status) %}
+{% set cls = 'badge-neutral' %}
+{% if status == 'Ouvert' %}{% set cls = 'badge-success' %}
+{% elif status == 'En cours' %}{% set cls = 'badge-info' %}
+{% elif status == 'Fermé' %}{% set cls = 'badge-muted' %}{% endif %}
+<span class="badge {{ cls }}">{{ status }}</span>
+{% endmacro %}
+
+{% macro type_badge(type) %}
+{% set labels = {'enterprise': 'Entreprise', 'startup': 'Startup', 'other': 'Autre'} %}
+{% set cls = 'badge-info' if type == 'enterprise' else ('badge-success' if type == 'startup' else 'badge-neutral') %}
+<span class="badge {{ cls }}">{{ labels.get(type, type or '—') }}</span>
+{% endmacro %}
+
+{% macro avatar_initials(text, color='') %}
+<span class="avatar" {% if color %}style="--avatar-color: {{ color }}"{% endif %}>{{ text[:2]|upper }}</span>
+{% endmacro %}
+
+{% macro delete_form(url, label='Supprimer') %}
+<form method="POST" action="{{ url }}" class="inline-form" data-confirm="Confirmer la suppression ?">
+    <button type="submit" class="btn-icon danger" title="{{ label }}" aria-label="{{ label }}">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
+    </button>
+</form>
+{% endmacro %}

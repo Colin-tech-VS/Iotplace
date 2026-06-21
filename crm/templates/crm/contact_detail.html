@@ -1,0 +1,51 @@
+{% extends "crm_layout.html" %}
+{% from "crm_macros.html" import page_header, type_badge, delete_form %}
+{% block title %}{{ contact.name }}{% endblock %}
+
+{% block content %}
+{% set bc = [
+    ('Contacts', url_for('crm.contacts')),
+    (contact.name, none)
+] %}
+{% call page_header(contact.name, 'Demande reçue via la vitrine', breadcrumb=bc) %}
+    <a href="mailto:{{ contact.email }}" class="btn btn-ghost btn-sm">Répondre</a>
+    {{ delete_form(url_for('crm.delete_contact', entry_id=contact.id), 'Supprimer le contact') }}
+{% endcall %}
+
+<div class="detail-grid">
+    <section class="card detail-main">
+        <div class="detail-message">
+            <h2>Message</h2>
+            <div class="message-body">{{ contact.message }}</div>
+        </div>
+    </section>
+
+    <aside class="detail-side">
+        <section class="card detail-panel">
+            <h3>Informations</h3>
+            <dl class="detail-list">
+                <div>
+                    <dt>Type</dt>
+                    <dd>{{ type_badge(contact.type) }}</dd>
+                </div>
+                <div>
+                    <dt>Email</dt>
+                    <dd><a href="mailto:{{ contact.email }}">{{ contact.email }}</a></dd>
+                </div>
+                <div>
+                    <dt>Pays</dt>
+                    <dd>{{ contact.country or '—' }}</dd>
+                </div>
+                <div>
+                    <dt>Reçu le</dt>
+                    <dd class="mono">{{ contact.created_at[:19].replace('T', ' ') if contact.created_at else '—' }}</dd>
+                </div>
+                <div>
+                    <dt>ID</dt>
+                    <dd class="mono muted">#{{ contact.id }}</dd>
+                </div>
+            </dl>
+        </section>
+    </aside>
+</div>
+{% endblock %}

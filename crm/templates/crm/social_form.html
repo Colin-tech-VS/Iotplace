@@ -1,0 +1,46 @@
+{% extends "crm_layout.html" %}
+{% from "crm_macros.html" import page_header %}
+{% block title %}{% if is_new %}Nouvelle publication{% else %}Modifier publication{% endif %}{% endblock %}
+
+{% block content %}
+{% call page_header(is_new and 'Nouvelle publication' or 'Modifier la publication') %}
+    <a href="{{ url_for('crm.social') }}" class="btn btn-ghost btn-sm">Annuler</a>
+    <button type="submit" form="social-form" class="btn btn-primary btn-sm">Enregistrer</button>
+{% endcall %}
+
+<form id="social-form" method="POST" class="form-layout" style="max-width:560px">
+    <section class="card form-section">
+        <div class="field">
+            <label>Plateforme</label>
+            <select name="platform">
+                {% for p in ['linkedin', 'twitter', 'facebook', 'instagram'] %}
+                <option value="{{ p }}" {% if entry and entry.platform == p %}selected{% endif %}>{{ p|capitalize }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="field">
+            <label>Contenu du post</label>
+            <textarea name="content" rows="6" required>{{ entry.content if entry else '' }}</textarea>
+        </div>
+        <div class="field">
+            <label>Lien (optionnel)</label>
+            <input name="link" value="{{ entry.link if entry else '' }}" placeholder="https://iotplace.io/...">
+        </div>
+        <div class="field-row">
+            <div class="field">
+                <label>Statut</label>
+                <select name="status">
+                    {% for s, label in [('draft', 'Brouillon'), ('scheduled', 'Planifié'), ('published', 'Publié')] %}
+                    <option value="{{ s }}" {% if entry and entry.status == s %}selected{% elif not entry and s == 'draft' %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="field">
+                <label>Date planifiée</label>
+                <input type="datetime-local" name="scheduled_at" value="{{ entry.scheduled_at[:16] if entry and entry.scheduled_at else '' }}">
+            </div>
+        </div>
+        <p class="field-hint">La publication réelle sur les réseaux se fera manuellement ou via une intégration API ultérieure.</p>
+    </section>
+</form>
+{% endblock %}

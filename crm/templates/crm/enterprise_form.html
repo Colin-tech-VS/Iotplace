@@ -1,0 +1,55 @@
+{% extends "crm_layout.html" %}
+{% from "crm_macros.html" import page_header %}
+{% block title %}{% if is_new %}Nouvelle entreprise{% else %}Modifier entreprise{% endif %}{% endblock %}
+
+{% block content %}
+{% set bc = [
+    ('Entreprises', url_for('crm.enterprises')),
+    (is_new and 'Nouvelle entreprise' or entry.name, none)
+] %}
+{% call page_header(is_new and 'Nouvelle entreprise' or 'Modifier l\'entreprise', is_new and 'Ajoutez une entreprise donneuse d\'ordre' or 'Mettez à jour les informations affichées sur la vitrine', breadcrumb=bc) %}
+    <a href="{{ url_for('crm.enterprises') }}" class="btn btn-ghost btn-sm">Annuler</a>
+    <button type="submit" form="entity-form" class="btn btn-primary btn-sm">Enregistrer</button>
+{% endcall %}
+
+<form id="entity-form" method="POST" class="form-layout">
+    <div class="form-grid">
+        <section class="card form-section">
+            <div class="section-title">
+                <h2>Informations générales</h2>
+                <p>Identité de l'entreprise sur la plateforme</p>
+            </div>
+            <div class="field">
+                <label for="name">Nom de l'entreprise <span class="req">*</span></label>
+                <input type="text" id="name" name="name" value="{{ entry.name if entry else '' }}" required placeholder="Ex. Acme IoT Corp">
+            </div>
+            <div class="field-row">
+                <div class="field">
+                    <label for="sector">Secteur d'activité</label>
+                    <input type="text" id="sector" name="sector" value="{{ entry.sector if entry else '' }}" placeholder="Cloud IoT, Industrie 4.0…">
+                </div>
+                <div class="field">
+                    <label for="logo_initials">Initiales (logo)</label>
+                    <input type="text" id="logo_initials" name="logo_initials" maxlength="3" value="{{ entry.logo_initials if entry else '' }}" placeholder="AI">
+                </div>
+            </div>
+            <div class="field">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" rows="4" placeholder="Présentation courte visible sur la vitrine…">{{ entry.description if entry else '' }}</textarea>
+            </div>
+        </section>
+
+        <section class="card form-section">
+            <div class="section-title">
+                <h2>Compétences recherchées</h2>
+                <p>Tags affichés sur la fiche entreprise</p>
+            </div>
+            <div class="field">
+                <label for="needs">Besoins (séparés par des virgules)</label>
+                <input type="text" id="needs" name="needs" value="{{ entry.needs|join(', ') if entry and entry.needs else '' }}" placeholder="LoRaWAN, Firmware, Edge AI">
+                <span class="field-hint">Ces tags aident au matching avec les startups.</span>
+            </div>
+        </section>
+    </div>
+</form>
+{% endblock %}

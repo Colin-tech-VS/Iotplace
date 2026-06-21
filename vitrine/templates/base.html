@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ seo.title }}</title>
+    <meta name="description" content="{{ seo.description }}">
+    {% if seo.keywords %}<meta name="keywords" content="{{ seo.keywords }}">{% endif %}
+    {% if seo.og_image %}<meta property="og:image" content="{{ seo.og_image }}">{% endif %}
+    <meta property="og:title" content="{{ seo.title }}">
+    <meta property="og:description" content="{{ seo.description }}">
+    {% if analytics_enabled %}
+    <meta name="iot-analytics" content='{{ {"page": analytics_page_slug, "session_id": analytics_session}|tojson }}'>
+    {% endif %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="page-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+        <div class="grid-overlay"></div>
+    </div>
+
+    <nav class="navbar">
+        <div class="container nav-inner">
+            <a href="{{ url_for('vitrine.index') }}" class="logo">
+                <span class="logo-icon pulse">⬡</span>
+                <span class="logo-text">Iot<span class="accent">place</span></span>
+            </a>
+            <button class="nav-toggle" aria-label="Menu" onclick="document.querySelector('.nav-links').classList.toggle('open')">
+                <span></span><span></span><span></span>
+            </button>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('vitrine.index') }}" {% if request.endpoint == 'vitrine.index' %}class="active"{% endif %}>Accueil</a></li>
+                <li><a href="{{ url_for('vitrine.enterprises') }}" {% if request.endpoint == 'vitrine.enterprises' %}class="active"{% endif %}>Entreprises</a></li>
+                <li><a href="{{ url_for('vitrine.startups') }}" {% if request.endpoint == 'vitrine.startups' %}class="active"{% endif %}>Startups</a></li>
+                <li><a href="{{ url_for('vitrine.projects') }}" {% if request.endpoint == 'vitrine.projects' %}class="active"{% endif %}>Projets</a></li>
+                <li><a href="{{ url_for('vitrine.about') }}" {% if request.endpoint == 'vitrine.about' %}class="active"{% endif %}>À propos</a></li>
+                {% if current_user %}
+                <li><a href="{{ url_for('compte.home') }}" class="btn btn-sm btn-outline">Mon compte</a></li>
+                {% else %}
+                <li><a href="{{ url_for('compte.login') }}">Connexion</a></li>
+                <li><a href="{{ url_for('compte.register_enterprise') }}" class="btn btn-sm btn-outline">S'inscrire</a></li>
+                {% endif %}
+                <li><a href="{{ url_for('vitrine.contact') }}" class="btn btn-sm btn-primary">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-container container">
+                {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="container footer-grid">
+            <div class="footer-brand">
+                <a href="{{ url_for('vitrine.index') }}" class="logo">
+                    <span class="logo-icon">⬡</span>
+                    <span class="logo-text">Iot<span class="accent">place</span></span>
+                </a>
+                <p>La marketplace B2B qui connecte les géants de l'IoT aux startups d'Asie du Sud-Est.</p>
+            </div>
+            <div>
+                <h4>Plateforme</h4>
+                <ul>
+                    <li><a href="{{ url_for('vitrine.enterprises') }}">Pour les entreprises</a></li>
+                    <li><a href="{{ url_for('vitrine.startups') }}">Pour les startups</a></li>
+                    <li><a href="{{ url_for('vitrine.projects') }}">Projets ouverts</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>Régions</h4>
+                <ul>
+                    {% for country in countries|default([]) %}
+                    <li><a href="{{ url_for('vitrine.startups', country=country) }}">{{ country }}</a></li>
+                    {% else %}
+                    <li><span class="text-muted">Bientôt disponible</span></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div>
+                <h4>Contact</h4>
+                <ul>
+                    <li><a href="{{ url_for('vitrine.contact') }}">Nous contacter</a></li>
+                    <li><a href="{{ url_for('vitrine.about') }}">À propos</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom container">
+            <p>&copy; 2026 Iotplace. Tous droits réservés.</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('vitrine.static', filename='js/main.js') }}"></script>
+    {% if analytics_enabled %}
+    <script src="{{ url_for('vitrine.static', filename='js/analytics.js') }}"></script>
+    {% endif %}
+    {% if seo.google_analytics_id %}
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ seo.google_analytics_id }}"></script>
+    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','{{ seo.google_analytics_id }}');</script>
+    {% endif %}
+</body>
+</html>

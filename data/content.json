@@ -1,0 +1,288 @@
+{
+  "enterprises": [
+    {
+      "id": "f048856e",
+      "name": "Test Corp",
+      "sector": "IoT",
+      "country": "France",
+      "city": "",
+      "company_size": "",
+      "contact_name": "Alice",
+      "contact_role": "",
+      "phone": "",
+      "website": "",
+      "email": "test@corp.com",
+      "description": "",
+      "needs": [
+        "LoRaWAN",
+        "Firmware"
+      ],
+      "logo_initials": "TC",
+      "published": false,
+      "created_at": "2026-06-21T10:09:57.333562+00:00",
+      "user_id": "3d0e896b"
+    }
+  ],
+  "startups": [
+    {
+      "id": "47459a28",
+      "name": "IoT VN",
+      "country": "Vietnam",
+      "flag": "",
+      "city": "",
+      "contact_name": "",
+      "phone": "",
+      "specialty": "LoRaWAN",
+      "team_size": 8,
+      "projects_done": 0,
+      "availability": "",
+      "rate_range": "",
+      "description": "",
+      "skills": [
+        "Firmware",
+        "PCB"
+      ],
+      "featured": false,
+      "rating": 0,
+      "created_at": "2026-06-21T10:09:57.559521+00:00",
+      "user_id": "eb9f0083"
+    }
+  ],
+  "projects": [
+    {
+      "id": "2f507410",
+      "title": "Smart sensors",
+      "enterprise": "Test Corp",
+      "enterprise_id": "f048856e",
+      "description": "Deploy 1000 sensors",
+      "budget": "50k-150k",
+      "duration": "3-6 mois",
+      "skills": [
+        "LoRaWAN"
+      ],
+      "status": "Ouvert"
+    }
+  ],
+  "contacts": [],
+  "pages": {},
+  "seo": {
+    "global": {
+      "site_name": "Iotplace",
+      "title_suffix": " — Marketplace IoT B2B",
+      "meta_description": "Iotplace connecte les grandes entreprises IoT aux startups d'Asie du Sud-Est.",
+      "keywords": "IoT, sous-traitance, startups, Vietnam, Indonésie, B2B",
+      "og_image": "",
+      "twitter_handle": "",
+      "google_analytics_id": ""
+    },
+    "pages": {}
+  },
+  "analytics": {
+    "total_views": 14,
+    "daily": {
+      "2026-06-21": 14
+    },
+    "pages": {
+      "home": 3,
+      "enterprises": 3,
+      "startups": 1,
+      "projects": 1,
+      "about": 1,
+      "contact": 1,
+      "vitrine_static_css_style.css": 2,
+      "vitrine_static_js_analytics.js": 1,
+      "vitrine_static_js_main.js": 1
+    },
+    "recent": [
+      {
+        "page": "enterprises",
+        "page_label": "Entreprises",
+        "path": "/entreprises",
+        "session_id": "8f6edefe",
+        "at": "2026-06-21T10:10:16.959145+00:00",
+        "referrer": "http://127.0.0.1:5050/",
+        "source": "server"
+      },
+      {
+        "page": "vitrine_static_js_main.js",
+        "page_label": "vitrine_static_js_main.js",
+        "path": "/vitrine/static/js/main.js",
+        "session_id": "8f6edefe",
+        "at": "2026-06-21T10:04:19.775300+00:00",
+        "referrer": "http://127.0.0.1:5050/entreprises",
+        "source": "server"
+      },
+      {
+        "page": "vitrine_static_css_style.css",
+        "page_label": "vitrine_static_css_style.css",
+        "path": "/vitrine/static/css/style.css",
+        "session_id": "8f6edefe",
+        "at": "2026-06-21T10:04:19.769345+00:00",
+        "referrer": "http://127.0.0.1:5050/entreprises",
+        "source": "server"
+      },
+      {
+        "page": "enterprises",
+        "page_label": "Entreprises",
+        "path": "/entreprises",
+        "session_id": "8f6edefe",
+        "at": "2026-06-21T10:04:19.670936+00:00",
+        "referrer": "http://127.0.0.1:5050/",
+        "source": "server"
+      },
+      {
+        "page": "vitrine_static_js_analytics.js",
+        "page_label": "vitrine_static_js_analytics.js",
+        "path": "/vitrine/static/js/analytics.js",
+        "session_id": "8f6edefe",
+        "at": "2026-06-21T10:02:58.865987+00:00",
+        "referrer": "http://127.0.0.1:5050/",
+        "source": "server"
+      },
+      {
+        "page": "vitrine_static_css_style.css",
+        "page_label": "vitrine_static_css_style.css",
+        "path": "/vitrine/static/css/style.css",
+        "session_id": "8f6edefe",
+        "at": "2026-06-21T10:02:58.861238+00:00",
+        "referrer": "http://127.0.0.1:5050/",
+        "source": "server"
+      },
+      {
+        "page": "home",
+        "page_label": "Accueil",
+        "path": "/",
+        "session_id": "8f6edefe",
+        "at": "2026-06-21T10:02:58.786718+00:00",
+        "referrer": "",
+        "source": "server"
+      },
+      {
+        "page": "contact",
+        "page_label": "Contact",
+        "path": "/contact",
+        "session_id": "f1961100",
+        "at": "2026-06-21T10:02:00.688812+00:00",
+        "referrer": "",
+        "source": "server"
+      },
+      {
+        "page": "about",
+        "page_label": "À propos",
+        "path": "/a-propos",
+        "session_id": "f1961100",
+        "at": "2026-06-21T10:02:00.672126+00:00",
+        "referrer": "",
+        "source": "server"
+      },
+      {
+        "page": "projects",
+        "page_label": "Projets",
+        "path": "/projets",
+        "session_id": "f1961100",
+        "at": "2026-06-21T10:02:00.649688+00:00",
+        "referrer": "",
+        "source": "server"
+      },
+      {
+        "page": "startups",
+        "page_label": "Startups",
+        "path": "/startups",
+        "session_id": "f1961100",
+        "at": "2026-06-21T10:02:00.630422+00:00",
+        "referrer": "",
+        "source": "server"
+      },
+      {
+        "page": "enterprises",
+        "page_label": "Entreprises",
+        "path": "/entreprises",
+        "session_id": "f1961100",
+        "at": "2026-06-21T10:02:00.613812+00:00",
+        "referrer": "",
+        "source": "server"
+      },
+      {
+        "page": "home",
+        "page_label": "Accueil",
+        "path": "/",
+        "session_id": "f1961100",
+        "at": "2026-06-21T10:02:00.578525+00:00",
+        "referrer": "",
+        "source": "server"
+      },
+      {
+        "page": "home",
+        "page_label": "Accueil",
+        "path": "/",
+        "session_id": "f487a178",
+        "at": "2026-06-21T10:01:45.588847+00:00",
+        "referrer": "",
+        "source": "server"
+      }
+    ],
+    "hourly": {
+      "2026-06-21T10": 14
+    },
+    "paths": {
+      "/": 3,
+      "/entreprises": 3,
+      "/startups": 1,
+      "/projets": 1,
+      "/a-propos": 1,
+      "/contact": 1,
+      "/vitrine/static/css/style.css": 2,
+      "/vitrine/static/js/analytics.js": 1,
+      "/vitrine/static/js/main.js": 1
+    },
+    "sessions": {
+      "f487a1780fad": {
+        "first_seen": "2026-06-21T10:01:45.588847+00:00",
+        "last_seen": "2026-06-21T10:01:45.588847+00:00",
+        "page": "home",
+        "path": "/",
+        "hits": 1
+      },
+      "testsession01": {
+        "first_seen": "2026-06-21T10:01:45.623414+00:00",
+        "last_seen": "2026-06-21T10:01:45.623414+00:00",
+        "page": "home",
+        "path": "/",
+        "hits": 0
+      },
+      "f19611007209": {
+        "first_seen": "2026-06-21T10:02:00.578525+00:00",
+        "last_seen": "2026-06-21T10:02:00.688812+00:00",
+        "page": "contact",
+        "path": "/contact",
+        "hits": 6
+      },
+      "8f6edefe67d9": {
+        "first_seen": "2026-06-21T10:02:58.786718+00:00",
+        "last_seen": "2026-06-21T10:10:17.278152+00:00",
+        "page": "enterprises",
+        "path": "/entreprises",
+        "hits": 7
+      }
+    }
+  },
+  "social_posts": [],
+  "users": [
+    {
+      "id": "3d0e896b",
+      "email": "test@corp.com",
+      "password_hash": "scrypt:32768:8:1$kYjKAk455edvqAYx$6f1559c4eb34bc44d9681a102728be947b41d4578c6bcd9f8ad0b2d686079b5520166115daa4d3bed4560cd7f8b25e9b66fac7c4efca90ed65d0e6de5c41917e",
+      "role": "enterprise",
+      "profile_id": "f048856e",
+      "created_at": "2026-06-21T10:09:57.347355+00:00"
+    },
+    {
+      "id": "eb9f0083",
+      "email": "hello@startup.vn",
+      "password_hash": "scrypt:32768:8:1$LVyBWyAakuh2KAkO$ce7b0c641ef021f23ddc08c1762cc00a815fe3d29d7533f05f1bb918f3be1ba61b61aecf086abf26706d445b347bf71031ce429211051c5b4187ca4a9f6a8520",
+      "role": "startup",
+      "profile_id": "47459a28",
+      "created_at": "2026-06-21T10:09:57.573139+00:00"
+    }
+  ]
+}

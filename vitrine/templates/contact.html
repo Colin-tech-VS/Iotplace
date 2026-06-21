@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Contact{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="container reveal">
+        <h1>{{ page.title }}</h1>
+        <p class="page-sub">{{ page.subtitle }}</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="contact-grid">
+            <form class="contact-form reveal" method="POST" action="{{ url_for('vitrine.contact') }}">
+                <div class="form-group">
+                    <label for="type">Je suis</label>
+                    <select id="type" name="type" required>
+                        <option value="">— Choisir —</option>
+                        <option value="enterprise">Une grande entreprise (donneur d'ordre)</option>
+                        <option value="startup">Une startup IoT (sous-traitant)</option>
+                        <option value="other">Autre</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="name">Nom / Société</label>
+                        <input type="text" id="name" name="name" required placeholder="Votre nom ou raison sociale">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required placeholder="contact@exemple.com">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="country">Pays</label>
+                    <input type="text" id="country" name="country" placeholder="France, Vietnam, Indonésie…">
+                </div>
+                <div class="form-group">
+                    <label for="message">Message</label>
+                    <textarea id="message" name="message" rows="5" required placeholder="Décrivez votre besoin ou votre profil IoT…"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg btn-glow">Envoyer</button>
+            </form>
+
+            <div class="contact-info reveal">
+                <h3>Informations</h3>
+                <div class="info-item">
+                    <span class="info-label">Email</span>
+                    <span>{{ page.email }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Réponse</span>
+                    <span>Sous 48 heures ouvrées</span>
+                </div>
+
+                <div class="contact-cards">
+                    <div class="mini-card">
+                        <h4>🏢 Entreprise ?</h4>
+                        <p>Publiez vos projets IoT et trouvez la startup idéale en Asie.</p>
+                        <a href="{{ url_for('compte.register_enterprise') }}" class="btn btn-sm btn-primary">Créer un compte entreprise</a>
+                    </div>
+                    <div class="mini-card">
+                        <h4>🚀 Startup ?</h4>
+                        <p>Accédez aux missions de sous-traitance des grandes entreprises.</p>
+                        <a href="{{ url_for('compte.register_startup') }}" class="btn btn-sm btn-outline">Créer un compte startup</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

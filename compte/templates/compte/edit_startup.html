@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="page-hero page-hero-sm">
+    <div class="container reveal">
+        <h1>Modifier le profil startup</h1>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <form class="register-form reveal" method="POST">
+            <fieldset class="form-section-card">
+                <legend>Startup</legend>
+                <div class="form-row">
+                    <div class="form-group"><label for="startup_name">Nom</label><input type="text" id="startup_name" name="startup_name" required value="{{ profile.name }}"></div>
+                    <div class="form-group"><label for="contact_name">Contact</label><input type="text" id="contact_name" name="contact_name" value="{{ profile.contact_name or '' }}"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label for="country">Pays</label><input type="text" id="country" name="country" required value="{{ profile.country or '' }}"></div>
+                    <div class="form-group"><label for="flag">Drapeau</label><input type="text" id="flag" name="flag" value="{{ profile.flag or '' }}"></div>
+                    <div class="form-group"><label for="city">Ville</label><input type="text" id="city" name="city" value="{{ profile.city or '' }}"></div>
+                </div>
+                <div class="form-group"><label for="specialty">Spécialité</label><input type="text" id="specialty" name="specialty" required value="{{ profile.specialty or '' }}"></div>
+                <div class="form-row">
+                    <div class="form-group"><label for="team_size">Équipe</label><input type="number" id="team_size" name="team_size" min="1" value="{{ profile.team_size or '' }}"></div>
+                    <div class="form-group"><label for="projects_done">Projets réalisés</label><input type="number" id="projects_done" name="projects_done" min="0" value="{{ profile.projects_done or 0 }}"></div>
+                    <div class="form-group"><label for="phone">Téléphone</label><input type="tel" id="phone" name="phone" value="{{ profile.phone or '' }}"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label for="availability">Disponibilité</label><input type="text" id="availability" name="availability" value="{{ profile.availability or '' }}"></div>
+                    <div class="form-group"><label for="rate_range">Tarifs</label><input type="text" id="rate_range" name="rate_range" value="{{ profile.rate_range or '' }}"></div>
+                </div>
+                <div class="form-group"><label for="skills">Compétences</label><input type="text" id="skills" name="skills" value="{{ profile.skills|join(', ') if profile.skills else '' }}"></div>
+                <div class="form-group"><label for="description">Description</label><textarea id="description" name="description" rows="4">{{ profile.description or '' }}</textarea></div>
+            </fieldset>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Enregistrer</button>
+                <a href="{{ url_for('compte.startup_dashboard') }}" class="btn btn-ghost">Annuler</a>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

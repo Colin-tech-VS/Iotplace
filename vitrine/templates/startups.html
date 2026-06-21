@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Startups{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="container reveal">
+        <h1>{{ page.title }}</h1>
+        <p class="page-sub">{{ page.subtitle }}</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        {% if countries %}
+        <div class="filter-bar reveal">
+            <span>Filtrer par pays :</span>
+            <a href="{{ url_for('vitrine.startups') }}" class="filter-btn {% if not selected_country %}active{% endif %}">Tous</a>
+            {% for country in countries %}
+            <a href="{{ url_for('vitrine.startups', country=country) }}" class="filter-btn {% if selected_country == country %}active{% endif %}">{{ country }}</a>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if startups %}
+        <div class="cards-grid">
+            {% for startup in startups %}
+            <div class="card startup-card reveal">
+                <div class="card-header">
+                    {% if startup.flag %}<span class="flag">{{ startup.flag }}</span>{% endif %}
+                    <div>
+                        <h3>{{ startup.name }}</h3>
+                        <span class="meta">{{ startup.city }}{% if startup.city and startup.country %}, {% endif %}{{ startup.country }}</span>
+                    </div>
+                </div>
+                {% if startup.specialty %}<span class="specialty">{{ startup.specialty }}</span>{% endif %}
+                <p class="card-desc">{{ startup.description }}</p>
+                {% if startup.skills %}
+                <div class="tags">
+                    {% for skill in startup.skills %}
+                    <span class="tag">{{ skill }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                <div class="card-footer">
+                    {% if startup.rating %}<span class="rating">★ {{ startup.rating }}</span>{% endif %}
+                    {% if startup.team_size %}<span class="meta">{{ startup.team_size }} personnes</span>{% endif %}
+                    {% if startup.projects_done %}<span class="meta">{{ startup.projects_done }} projets</span>{% endif %}
+                </div>
+                <a href="{{ url_for('vitrine.contact') }}" class="btn btn-sm btn-outline" style="margin-top: 1rem; width: 100%; text-align: center;">Proposer un projet</a>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state reveal">
+            <div class="empty-icon">🚀</div>
+            <p>{% if selected_country %}Aucune startup trouvée pour ce pays.{% else %}Aucune startup inscrite pour le moment.{% endif %}</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<section class="cta-section">
+    <div class="container cta-inner reveal">
+        <h2>Vous êtes une startup IoT en Asie ?</h2>
+        <p>Inscrivez-vous sur Iotplace et accédez aux projets de sous-traitance des grandes entreprises.</p>
+        <a href="{{ url_for('vitrine.contact') }}" class="btn btn-primary btn-lg btn-glow">Rejoindre la plateforme</a>
+    </div>
+</section>
+{% endblock %}
