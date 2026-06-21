@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "compte/_macros.html" import tag_input, sector_select %}
+{% from "compte/_macros.html" import tag_input %}
 
 {% block content %}
 <section class="page-hero page-hero-sm">
@@ -22,7 +22,8 @@
                     <div class="form-group"><label for="flag">Drapeau</label><input type="text" id="flag" name="flag" value="{{ profile.flag or '' }}"></div>
                     <div class="form-group"><label for="city">Ville</label><input type="text" id="city" name="city" value="{{ profile.city or '' }}"></div>
                 </div>
-                {{ sector_select(form, required=true) }}
+                {% set sector_required = true %}
+                {% include "compte/_sector_select.html" %}
                 <div class="form-group"><label for="specialty">Spécialité</label><input type="text" id="specialty" name="specialty" required value="{{ profile.specialty or '' }}"></div>
                 <div class="form-row">
                     <div class="form-group"><label for="team_size">Équipe</label><input type="number" id="team_size" name="team_size" min="1" value="{{ profile.team_size or '' }}"></div>

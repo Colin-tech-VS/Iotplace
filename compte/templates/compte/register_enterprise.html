@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "compte/_macros.html" import field_value, tag_input, sector_select %}
+{% from "compte/_macros.html" import field_value, tag_input %}
 
 {% block content %}
 <section class="page-hero page-hero-sm">
@@ -44,7 +44,8 @@
                         <input type="text" id="company_name" name="company_name" required value="{{ field_value(form, 'company_name') }}">
                     </div>
                 </div>
-                {{ sector_select(form, required=true) }}
+                {% set sector_required = true %}
+                {% include "compte/_sector_select.html" %}
                 <div class="form-row">
                     <div class="form-group">
                         <label for="country">{{ t('compte.country') }}</label>

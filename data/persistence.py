@@ -77,8 +77,16 @@ class JsonFileBackend(StateBackend):
                 self.path.parent.mkdir(parents=True, exist_ok=True)
                 self._write_file(seed)
                 return seed.copy()
-            with open(self.path, encoding="utf-8") as handle:
-                return json.load(handle)
+            try:
+                with open(self.path, encoding="utf-8") as handle:
+                    return json.load(handle)
+            except json.JSONDecodeError:
+                backup = self.path.with_suffix(".json.bak")
+                if self.path.stat().st_size > 0:
+                    self.path.replace(backup)
+                seed = _read_seed_document()
+                self._write_file(seed)
+                return seed.copy()
 
     def save(self, data: dict[str, Any]) -> None:
         with _lock:

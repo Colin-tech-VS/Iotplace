@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "compte/_macros.html" import field_value, tag_input, sector_select %}
+{% from "compte/_macros.html" import field_value, tag_input %}
 
 {% block content %}
 <section class="page-hero page-hero-sm">
@@ -62,7 +62,8 @@
                         <input type="text" id="city" name="city" value="{{ field_value(form, 'city') }}">
                     </div>
                 </div>
-                {{ sector_select(form, required=true) }}
+                {% set sector_required = true %}
+                {% include "compte/_sector_select.html" %}
                 <div class="form-group">
                     <label for="specialty">{{ t('compte.specialty') }} <span class="req">*</span></label>
                     <input type="text" id="specialty" name="specialty" required value="{{ field_value(form, 'specialty') }}" placeholder="{{ t('compte.specialty_ph') }}">
