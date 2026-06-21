@@ -5,6 +5,7 @@ import time
 from functools import wraps
 
 from flask import abort, flash, redirect, request, session, url_for
+from werkzeug.security import check_password_hash
 
 CRM_SESSION_TOKEN = "crm_admin_token"
 CRM_SESSION_AT = "crm_admin_at"
@@ -16,20 +17,28 @@ LOCKOUT_SECONDS = 15 * 60
 _login_attempts = {}
 
 
-def _client_ip():
-    forwarded = (request.headers.get("X-Forwarded-For") or "").split(",")[0].strip()
-    return forwarded or request.remote_addr or "unknown"
+def _env(name):
+    return (os.environ.get(name) or "").strip()
 
 
 def get_crm_credentials():
-    username = (os.environ.get("CRM_ADMIN_USERNAME") or "").strip()
-    password = os.environ.get("CRM_ADMIN_PASSWORD") or ""
-    return username, password
+    return _env("CRM_ADMIN_USERNAME"), _env("CRM_ADMIN_PASSWORD")
+
+
+def get_crm_password_hash():
+    return _env("CRM_ADMIN_PASSWORD_HASH")
 
 
 def is_crm_configured():
-    username, password = get_crm_credentials()
-    return bool(username and password)
+    username = _env("CRM_ADMIN_USERNAME")
+    if not username:
+        return False
+    return bool(_env("CRM_ADMIN_PASSWORD") or get_crm_password_hash())
+
+
+def _client_ip():
+    forwarded = (request.headers.get("X-Forwarded-For") or "").split(",")[0].strip()
+    return forwarded or request.remote_addr or "unknown"
 
 
 def is_login_locked(ip=None):
@@ -61,10 +70,14 @@ def clear_login_attempts(ip=None):
 
 def verify_crm_login(username, password):
     expected_user, expected_pass = get_crm_credentials()
-    if not expected_user or not expected_pass:
+    password_hash = get_crm_password_hash()
+    if not expected_user or (not expected_pass and not password_hash):
         return False
     user_ok = hmac.compare_digest((username or "").strip(), expected_user)
-    pass_ok = hmac.compare_digest(password or "", expected_pass)
+    if password_hash:
+        pass_ok = check_password_hash(password_hash, password or "")
+    else:
+        pass_ok = hmac.compare_digest(password or "", expected_pass)
     return user_ok and pass_ok
 
 

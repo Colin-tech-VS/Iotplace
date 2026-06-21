@@ -27,7 +27,8 @@
             {% if not configured %}
             <div class="crm-login-alert">
                 <h1>Accès non configuré</h1>
-                <p>Définissez les variables d'environnement Scalingo <code>CRM_ADMIN_USERNAME</code> et <code>CRM_ADMIN_PASSWORD</code>.</p>
+                <p>Définissez <code>CRM_ADMIN_USERNAME</code> et <code>CRM_ADMIN_PASSWORD</code> (ou <code>CRM_ADMIN_PASSWORD_HASH</code>) dans les variables d'environnement Scalingo, puis redémarrez l'application.</p>
+                <p class="muted" style="margin-top:0.75rem;font-size:0.8rem">Ne pas les mettre dans <code>scalingo.json</code> avec une valeur vide — cela les efface à chaque déploiement.</p>
             </div>
             {% else %}
             <h1>Connexion sécurisée</h1>

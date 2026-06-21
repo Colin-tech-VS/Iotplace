@@ -27,7 +27,7 @@ def protect_crm():
     if not crm_auth.is_crm_configured():
         if endpoint.startswith("crm.") and "api" in endpoint:
             return jsonify({"ok": False, "error": "CRM non configuré."}), 503
-        return render_template("crm/login.html", configured=False, locked=False, csrf_token="", next_url=""), 503
+        return redirect(url_for("crm.login"))
     if not crm_auth.is_crm_authenticated():
         return redirect(url_for("crm.login", next=request.path))
 
