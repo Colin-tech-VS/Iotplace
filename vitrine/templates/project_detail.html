@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% from "_seo_macros.html" import breadcrumbs_nav %}
+{% from "_phase_badge.html" import phase_badge %}
 {% block seo_title %}{{ seo.title }}{% endblock %}
 {% block seo_canonical %}{{ seo_canonical }}{% endblock %}
 
@@ -8,7 +9,7 @@
 <section class="page-hero page-hero-sm">
     <div class="container reveal">
         <a href="{{ url_for('vitrine.projects') }}" class="back-link">{{ t('common.back') }}</a>
-        <h1>{{ project.title }}</h1>
+        <h1>{{ project.title }} {{ phase_badge(project.engagement_phase) }}</h1>
         <p class="page-sub">
             {{ t('detail.posted_by') }}
             {% if enterprise %}
@@ -17,6 +18,9 @@
             {{ project.enterprise }}
             {% endif %}
             · <span class="status status-{{ project.status|lower|replace(' ', '-') }}">{{ translate_status(project.status) }}</span>
+            {% if project.engagement_phase %}
+            · <span class="engagement-phase-inline">{{ t('engagement.phases.' ~ project.engagement_phase ~ '.name') }}</span>
+            {% endif %}
         </p>
     </div>
 </section>
@@ -43,6 +47,9 @@
                     {% endif %}
                     {% if project.duration %}
                     <dt>{{ t('common.duration') }}</dt><dd>{{ project.duration }}</dd>
+                    {% endif %}
+                    {% if project.engagement_phase %}
+                    <dt>{{ t('engagement.phase_label') }}</dt><dd>{{ t('engagement.phases.' ~ project.engagement_phase ~ '.name') }}</dd>
                     {% endif %}
                     <dt>{{ t('common.status') }}</dt><dd>{{ translate_status(project.status) }}</dd>
                 </dl>

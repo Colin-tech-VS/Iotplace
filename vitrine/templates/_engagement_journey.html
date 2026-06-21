@@ -1,0 +1,43 @@
+{# Three-phase enterprise journey — PoC → scale → partnership #}
+<section class="section{% if alt %} section-alt{% endif %}" id="engagement-journey">
+    <div class="container">
+        <div class="section-header reveal">
+            <h2>{{ t('engagement.title') }}</h2>
+            <p>{{ t('engagement.subtitle') }}</p>
+        </div>
+        <p class="engagement-intro reveal">{{ t('engagement.intro') }}</p>
+
+        <div class="engagement-timeline reveal">
+            {% for phase_id in engagement_phases %}
+            <article class="engagement-phase-card engagement-phase-{{ phase_id }}">
+                <div class="engagement-phase-header">
+                    <span class="engagement-phase-step">{{ loop.index }}</span>
+                    <span class="engagement-phase-badge">{{ t('engagement.phases.' ~ phase_id ~ '.short_label') }}</span>
+                </div>
+                <h3>{{ t('engagement.phases.' ~ phase_id ~ '.name') }}</h3>
+                <p class="engagement-phase-duration">{{ t('engagement.phases.' ~ phase_id ~ '.duration') }}</p>
+                <p class="engagement-phase-goal">{{ t('engagement.phases.' ~ phase_id ~ '.goal') }}</p>
+                <details class="engagement-phase-details">
+                    <summary>{{ t('engagement.learn_more') }}</summary>
+                    <p>{{ t('engagement.phases.' ~ phase_id ~ '.explain') }}</p>
+                    <p><strong>{{ t('engagement.enterprise_seeks') }}</strong> {{ t('engagement.phases.' ~ phase_id ~ '.enterprise_seeks') }}</p>
+                    <p><strong>{{ t('engagement.iotplace_offer') }}</strong> {{ t('engagement.phases.' ~ phase_id ~ '.iotplace_offer') }}</p>
+                </details>
+            </article>
+            {% if not loop.last %}
+            <div class="engagement-connector" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+
+        <p class="engagement-note reveal">{{ t('engagement.journey_note') }}</p>
+        {% if show_cta is not defined or show_cta %}
+        <div class="engagement-cta reveal">
+            <a href="{{ url_for('compte.register_enterprise') }}" class="btn btn-primary btn-glow">{{ t('engagement.cta_enterprise') }}</a>
+            <a href="{{ url_for('vitrine.pricing') }}" class="btn btn-outline">{{ t('engagement.cta_pricing') }}</a>
+        </div>
+        {% endif %}
+    </div>
+</section>

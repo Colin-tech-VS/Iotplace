@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% from "_seo_macros.html" import faq_section, breadcrumbs_nav %}
+{% from "_phase_badge.html" import phase_badge %}
 {% block title %}{{ t('nav.enterprises') }}{% endblock %}
 
 {% block content %}
@@ -38,6 +39,8 @@
         </div>
     </div>
 </section>
+
+{% include "_engagement_journey.html" %}
 
 <section class="section section-alt">
     <div class="container">
@@ -84,7 +87,7 @@
             {% for project in projects %}
             <a href="{{ url_for('vitrine.project_detail', project_id=project.id) }}" class="project-row project-row-link reveal">
                 <div class="project-info">
-                    <h3>{{ project.title }}</h3>
+                    <h3>{{ project.title }} {{ phase_badge(project.engagement_phase) }}</h3>
                     <span class="meta">{{ project.enterprise }}</span>
                     {% if project.skills %}
                     <div class="tags" style="margin-top: 0.5rem;">

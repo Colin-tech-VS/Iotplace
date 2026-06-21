@@ -9,10 +9,14 @@
     </div>
 </section>
 
+{% with show_cta=false %}
+{% include "_engagement_journey.html" %}
+{% endwith %}
+
 <section class="section">
     <div class="container">
         <p class="pricing-intro reveal">{{ t('pricing.intro') }}</p>
-
+        <h2 class="section-title reveal">{{ t('pricing.offers_title') }}</h2>
         <div class="pricing-grid reveal">
             {% for plan_id in pricing.plan_ids %}
             {% set featured = plan_id == 'commission' %}

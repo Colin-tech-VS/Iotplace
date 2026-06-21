@@ -96,13 +96,26 @@ def translate_status(status: str) -> str:
     return labels.get(status or "", status or "")
 
 
+def translate_phase(phase: str) -> str:
+    if not phase:
+        return ""
+    key = f"engagement.phases.{phase}.short_label"
+    label = t(key, default="")
+    if label and label != key:
+        return label
+    return phase
+
+
 def inject_i18n_context():
+    from data.engagement_phases import ENGAGEMENT_PHASES
     from vitrine import advisor_ai
 
     return {
         "t": t,
         "locale": get_locale(),
         "translate_status": translate_status,
+        "translate_phase": translate_phase,
+        "engagement_phases": ENGAGEMENT_PHASES,
         "locale_url_en": locale_url("en"),
         "locale_url_fr": locale_url("fr"),
         "advisor_enabled": advisor_ai.is_configured(),

@@ -446,8 +446,15 @@ def get_startup_countries():
     return sorted({s["country"] for s in _load_raw()["startups"] if s.get("country")})
 
 
-def get_projects():
-    return _load_raw()["projects"]
+def get_projects(phase=None):
+    projects = _load_raw()["projects"]
+    norm = None
+    if phase:
+        from data.engagement_phases import normalize_phase
+        norm = normalize_phase(phase)
+    if norm:
+        projects = [p for p in projects if p.get("engagement_phase") == norm]
+    return projects
 
 
 def get_contacts():
@@ -756,18 +763,26 @@ def register_enterprise_account(user_fields, enterprise_fields, project_fields=N
     update_enterprise(enterprise["id"], {"user_id": user["id"]})
 
     if project_fields and project_fields.get("title"):
+        from data.engagement_phases import normalize_phase, phase_defaults
+
         budget = project_fields.get("budget", "")
+        phase = normalize_phase(project_fields.get("engagement_phase"))
+        defaults = phase_defaults(phase) if phase else {}
+        if not budget and defaults.get("budget"):
+            budget = defaults["budget"]
+        duration = project_fields.get("duration", "") or defaults.get("duration", "")
         add_project({
             "title": project_fields["title"],
             "enterprise": name,
             "enterprise_id": enterprise["id"],
             "description": project_fields.get("description", ""),
             "budget": budget,
-            "budget_cents": resolve_budget_cents(budget),
+            "budget_cents": defaults.get("budget_cents") or resolve_budget_cents(budget),
             "currency": "eur",
-            "duration": project_fields.get("duration", ""),
+            "duration": duration,
             "skills": project_fields.get("skills") or [],
             "status": "Ouvert",
+            "engagement_phase": phase,
         })
 
     return user, get_enterprise(enterprise["id"])
@@ -823,7 +838,14 @@ def get_project(project_id):
 
 
 def add_project_for_enterprise(enterprise, fields):
+    from data.engagement_phases import normalize_phase, phase_defaults
+
     budget = fields.get("budget", "").strip()
+    phase = normalize_phase(fields.get("engagement_phase"))
+    defaults = phase_defaults(phase) if phase else {}
+    if not budget and defaults.get("budget"):
+        budget = defaults["budget"]
+    duration = fields.get("duration", "").strip() or defaults.get("duration", "")
     budget_cents = fields.get("budget_cents") or resolve_budget_cents(budget)
     return add_project({
         "title": fields.get("title", "").strip(),
@@ -833,9 +855,10 @@ def add_project_for_enterprise(enterprise, fields):
         "budget": budget,
         "budget_cents": budget_cents,
         "currency": fields.get("currency", "eur"),
-        "duration": fields.get("duration", "").strip(),
+        "duration": duration,
         "skills": fields.get("skills") or [],
         "status": fields.get("status", "Ouvert"),
+        "engagement_phase": phase,
     })
 
 

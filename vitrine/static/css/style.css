@@ -1644,6 +1644,174 @@ a:hover { color: #33e0be; }
     .pricing-escrow { grid-template-columns: 1fr; }
 }
 
+/* ── Engagement journey (PoC → scale → partnership) ── */
+.engagement-intro {
+    max-width: 720px;
+    margin: 0 auto 2rem;
+    text-align: center;
+    color: var(--text-muted);
+    line-height: 1.65;
+}
+
+.engagement-timeline {
+    display: flex;
+    align-items: stretch;
+    gap: 0.5rem;
+    margin: 2rem 0;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+}
+
+.engagement-phase-card {
+    flex: 1;
+    min-width: 220px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+}
+
+.engagement-phase-poc { border-top: 3px solid #3b82f6; }
+.engagement-phase-scale { border-top: 3px solid #8b5cf6; }
+.engagement-phase-partnership { border-top: 3px solid var(--accent); }
+
+.engagement-phase-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.engagement-phase-step {
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    background: var(--accent-dim);
+    color: var(--accent);
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.engagement-phase-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+}
+
+.engagement-phase-card h3 {
+    font-size: 1.1rem;
+    margin: 0 0 0.35rem;
+}
+
+.engagement-phase-duration {
+    font-size: 0.8rem;
+    color: var(--accent);
+    font-weight: 600;
+    margin: 0 0 0.5rem;
+}
+
+.engagement-phase-goal {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin: 0 0 0.75rem;
+    line-height: 1.5;
+}
+
+.engagement-phase-details {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.engagement-phase-details summary {
+    cursor: pointer;
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.engagement-connector {
+    display: flex;
+    align-items: center;
+    color: var(--text-muted);
+    opacity: 0.5;
+    flex-shrink: 0;
+}
+
+.engagement-note {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    max-width: 640px;
+    margin: 0 auto 1.5rem;
+}
+
+.engagement-cta {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.phase-badge {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    vertical-align: middle;
+    margin-left: 0.35rem;
+}
+
+.phase-badge-poc { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+.phase-badge-scale { background: rgba(139, 92, 246, 0.15); color: #a78bfa; }
+.phase-badge-partnership { background: var(--accent-dim); color: var(--accent); }
+
+.phase-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.phase-filter {
+    padding: 0.4rem 0.85rem;
+    border-radius: 999px;
+    border: 1px solid var(--border-subtle);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.phase-filter:hover,
+.phase-filter.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-dim);
+}
+
+.engagement-phase-inline {
+    font-size: 0.9rem;
+    color: var(--accent);
+}
+
+.field-hint {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.35rem;
+}
+
+@media (max-width: 900px) {
+    .engagement-timeline { flex-direction: column; }
+    .engagement-connector { transform: rotate(90deg); justify-content: center; }
+}
+
 @media (max-width: 480px) {
     .footer-grid { grid-template-columns: 1fr; }
     .cards-grid { grid-template-columns: 1fr; }

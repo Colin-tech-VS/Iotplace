@@ -238,9 +238,11 @@ def startup_detail(startup_id):
 def projects():
     if not _check_published("projects"):
         return render_template("unpublished.html"), 404
+    phase = request.args.get("phase", "").strip() or None
     return render_template(
         "projects.html",
-        projects=store.get_projects(),
+        projects=store.get_projects(phase=phase),
+        selected_phase=phase,
         page=store.get_page_content("projects", get_locale()),
     )
 

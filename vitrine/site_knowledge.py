@@ -99,6 +99,10 @@ def build_site_knowledge(site_url: str = "") -> dict:
             "Iotplace matches qualified IoT startups in Southeast Asia.",
             "Structured B2B subcontracting with contracts, tracking and secure payments.",
         ],
+        "engagement_journey": {
+            "phases": ["poc", "scale", "partnership"],
+            "summary": "Large enterprises typically progress: quick PoC (3–6 months) → large-scale deployment → long-term partnership if results are good.",
+        },
         "startup_countries": store.get_startup_countries(),
         "featured_startups": [_summarize_startup(s) for s in store.get_featured_startups(6)],
         "sample_startups": [_summarize_startup(s) for s in store.get_startups()[:10]],

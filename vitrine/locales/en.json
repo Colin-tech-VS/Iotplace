@@ -299,6 +299,7 @@
     "project_duration": "Estimated duration",
     "project_skills": "Required skills (comma-separated)",
     "project_skills_ph": "PCB design, MQTT, AWS IoT",
+    "project_new_title": "New IoT project",
     "submit_register_ent": "Create enterprise account",
     "section_startup": "Startup",
     "startup_name": "Startup name",
@@ -318,7 +319,9 @@
     "besoin_st_ph": "E.g. Firmware/hardware missions for large industrial clients…",
     "skills": "Technical skills",
     "skills_ph": "Firmware C/C++, PCB, MQTT, AWS IoT, BLE",
-    "submit_register_st": "Create startup account"
+    "submit_register_st": "Create startup account",
+    "project_engagement_phase": "Engagement phase",
+    "project_engagement_phase_ph": "— Select phase —"
   },
   "pricing": {
     "badge": "Transparent pricing",
@@ -465,6 +468,50 @@
         "explain": "If you publish several IoT outsourcing needs per quarter, Pro lowers your commission and removes the one-project limit. Contact us to activate — billing will be added soon; meanwhile we onboard Pro clients manually.",
         "cta": "Contact us for Pro",
         "cta_route": "vitrine.contact"
+      }
+    },
+    "offers_title": "Plans aligned with your journey"
+  },
+  "engagement": {
+    "title": "The enterprise outsourcing journey",
+    "subtitle": "What large groups actually look for: validate fast, then scale, then commit long term.",
+    "intro": "Iotplace structures IoT subcontracting in three progressive phases — the model used by industrial leaders to de-risk outsourcing before committing volume.",
+    "learn_more": "Details",
+    "enterprise_seeks": "What enterprises seek:",
+    "iotplace_offer": "How Iotplace supports you:",
+    "journey_note": "Each phase can be a separate project on the platform. Startups see the phase upfront and can position for long-term partnership from the PoC.",
+    "cta_enterprise": "Start with a PoC project",
+    "cta_pricing": "See pricing per phase",
+    "phase_label": "Engagement phase",
+    "phase_hint": "Select the stage that matches your outsourcing intent. Budget and duration suggestions adapt automatically.",
+    "filter_all": "All phases",
+    "phases": {
+      "poc": {
+        "name": "Quick PoC",
+        "short_label": "PoC",
+        "duration": "3–6 months",
+        "goal": "Validate technology, team and ROI on a limited scope before any large commitment.",
+        "explain": "A bounded pilot: firmware bring-up, sensor prototype, cloud MVP or integration slice. Clear success criteria, fixed budget, go/no-go at the end.",
+        "enterprise_seeks": "Proof of feasibility, startup responsiveness, quality of deliverables and fit with internal teams — without multi-year risk.",
+        "iotplace_offer": "Free enterprise account, 1 active project, matching with agile IoT startups, escrow invoice on acceptance, 10% commission only if the PoC is signed."
+      },
+      "scale": {
+        "name": "Large-scale deployment",
+        "short_label": "Scale",
+        "duration": "6–18 months",
+        "goal": "Roll out the validated solution to production volumes, sites or product lines after a successful PoC.",
+        "explain": "Industrialisation, multi-site rollout, supply chain, certification, DevOps and sustained engineering capacity from the same startup or a broader shortlist.",
+        "enterprise_seeks": "Repeatable delivery, capacity to scale teams, project governance and predictable costs across regions or business units.",
+        "iotplace_offer": "Multi-project tracking, escrow on each tranche, optional Enterprise Pro for unlimited publications and 7% commission, dedicated support for active outsourcers."
+      },
+      "partnership": {
+        "name": "Long-term commercial partnership",
+        "short_label": "Partnership",
+        "duration": "12+ months · renewable",
+        "goal": "Embed a startup (or pool) as a strategic subcontractor for ongoing IoT roadmap execution.",
+        "explain": "After strong PoC and scale results: framework agreement, preferred rates, continuous backlog of firmware/hardware/cloud missions, co-innovation on the IoT roadmap.",
+        "enterprise_seeks": "A trusted extension of their engineering capacity in Asia, reduced sourcing friction, aligned incentives and multi-year cost optimisation.",
+        "iotplace_offer": "Enterprise Pro, reduced commission (7%), priority matching, structured partnership projects on Iotplace, Stripe Connect payouts and escrow on each mission."
       }
     }
   }

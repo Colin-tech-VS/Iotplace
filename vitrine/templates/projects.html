@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% from "_seo_macros.html" import faq_section, breadcrumbs_nav %}
+{% from "_phase_badge.html" import phase_badge %}
 {% block title %}{{ t('nav.projects') }}{% endblock %}
 
 {% block content %}
@@ -14,12 +15,18 @@
 
 <section class="section">
     <div class="container">
+        <div class="phase-filters reveal">
+            <a href="{{ url_for('vitrine.projects') }}" class="phase-filter{% if not selected_phase %} active{% endif %}">{{ t('engagement.filter_all') }}</a>
+            {% for phase_id in engagement_phases %}
+            <a href="{{ url_for('vitrine.projects', phase=phase_id) }}" class="phase-filter phase-filter-{{ phase_id }}{% if selected_phase == phase_id %} active{% endif %}">{{ translate_phase(phase_id) }}</a>
+            {% endfor %}
+        </div>
         {% if projects %}
         <div class="projects-list projects-full">
             {% for project in projects %}
             <a href="{{ url_for('vitrine.project_detail', project_id=project.id) }}" class="project-row project-card-full project-row-link reveal">
                 <div class="project-info">
-                    <h3>{{ project.title }}</h3>
+                    <h3>{{ project.title }} {{ phase_badge(project.engagement_phase) }}</h3>
                     <span class="meta">{{ project.enterprise }}</span>
                     {% if project.skills %}
                     <div class="tags" style="margin-top: 0.75rem;">

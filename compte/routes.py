@@ -104,6 +104,7 @@ def register_enterprise():
                     "budget": request.form.get("project_budget", "").strip(),
                     "duration": request.form.get("project_duration", "").strip(),
                     "skills": store.parse_list_field(request.form.get("project_skills")),
+                    "engagement_phase": request.form.get("project_engagement_phase", "").strip(),
                 }
 
             user, _profile = store.register_enterprise_account(
@@ -233,6 +234,7 @@ def enterprise_new_project():
             "duration": request.form.get("duration", "").strip(),
             "skills": store.parse_list_field(request.form.get("skills")),
             "status": "Ouvert",
+            "engagement_phase": request.form.get("engagement_phase", "").strip(),
         })
         flash("Projet publié.", "success")
         return redirect(url_for("compte.enterprise_dashboard"))

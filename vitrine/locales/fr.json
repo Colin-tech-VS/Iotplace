@@ -299,6 +299,7 @@
     "project_duration": "Durée estimée",
     "project_skills": "Compétences requises (virgules)",
     "project_skills_ph": "PCB design, MQTT, AWS IoT",
+    "project_new_title": "Nouveau projet IoT",
     "submit_register_ent": "Créer mon compte entreprise",
     "section_startup": "Startup",
     "startup_name": "Nom de la startup",
@@ -318,7 +319,9 @@
     "besoin_st_ph": "Ex. Missions firmware/hardware pour grands comptes industriels…",
     "skills": "Compétences techniques",
     "skills_ph": "Firmware C/C++, PCB, MQTT, AWS IoT, BLE",
-    "submit_register_st": "Créer mon compte startup"
+    "submit_register_st": "Créer mon compte startup",
+    "project_engagement_phase": "Phase d'engagement",
+    "project_engagement_phase_ph": "— Choisir la phase —"
   },
   "pricing": {
     "badge": "Tarifs transparents",
@@ -465,6 +468,50 @@
         "explain": "Si vous publiez plusieurs besoins IoT par trimestre, Pro réduit la commission et supprime la limite d'un projet. Contactez-nous pour activer l'offre — facturation en ligne bientôt disponible.",
         "cta": "Nous contacter pour le Pro",
         "cta_route": "vitrine.contact"
+      }
+    },
+    "offers_title": "Offres alignées sur votre parcours"
+  },
+  "engagement": {
+    "title": "Le parcours de sous-traitance entreprise",
+    "subtitle": "Ce que les grands groupes recherchent : valider vite, déployer à l'échelle, puis s'engager sur le long terme.",
+    "intro": "Iotplace structure la sous-traitance IoT en trois phases progressives — le modèle des industriels pour réduire le risque avant d'engager des volumes.",
+    "learn_more": "En savoir plus",
+    "enterprise_seeks": "Ce que l'entreprise recherche :",
+    "iotplace_offer": "Comment Iotplace vous accompagne :",
+    "journey_note": "Chaque phase peut être un projet distinct sur la plateforme. Les startups voient la phase dès le départ et peuvent se positionner pour un partenariat long terme dès le PoC.",
+    "cta_enterprise": "Démarrer par un PoC",
+    "cta_pricing": "Voir les tarifs par phase",
+    "phase_label": "Phase d'engagement",
+    "phase_hint": "Choisissez l'étape qui correspond à votre intention de sous-traitance. Budget et durée sont suggérés automatiquement.",
+    "filter_all": "Toutes les phases",
+    "phases": {
+      "poc": {
+        "name": "PoC rapide",
+        "short_label": "PoC",
+        "duration": "3 à 6 mois",
+        "goal": "Valider la technologie, l'équipe et le ROI sur un périmètre limité avant tout engagement majeur.",
+        "explain": "Pilote borné : firmware, prototype capteur, MVP cloud ou tranche d'intégration. Critères de succès clairs, budget fixe, décision go/no-go en fin de phase.",
+        "enterprise_seeks": "Preuve de faisabilité, réactivité startup, qualité des livrables et adéquation avec les équipes internes — sans risque pluriannuel.",
+        "iotplace_offer": "Compte entreprise gratuit, 1 projet actif, matching startups IoT agiles, facture séquestre à l'acceptation, 10 % de commission uniquement si le PoC est signé."
+      },
+      "scale": {
+        "name": "Déploiement à grande échelle",
+        "short_label": "Scale",
+        "duration": "6 à 18 mois",
+        "goal": "Déployer la solution validée en production, sur les sites ou gammes produits, après un PoC réussi.",
+        "explain": "Industrialisation, déploiement multi-sites, supply chain, certification, DevOps et capacité d'ingénierie soutenue avec la même startup ou un panel élargi.",
+        "enterprise_seeks": "Livraison répétable, capacité à monter en charge, gouvernance projet et coûts prévisibles sur plusieurs sites ou BU.",
+        "iotplace_offer": "Suivi multi-projets, séquestre par tranche, option Entreprise Pro (projets illimités, 7 % de commission), support dédié pour les donneurs d'ordre actifs."
+      },
+      "partnership": {
+        "name": "Partenariat commercial long terme",
+        "short_label": "Partenariat",
+        "duration": "12+ mois · renouvelable",
+        "goal": "Intégrer une startup (ou un pool) comme sous-traitant stratégique pour la roadmap IoT continue.",
+        "explain": "Après PoC et scale réussis : accord-cadre, tarifs préférentiels, backlog continu firmware/hardware/cloud, co-innovation sur la roadmap IoT.",
+        "enterprise_seeks": "Une extension de confiance de leur capacité d'ingénierie en Asie, moins de friction sourcing, incitations alignées et optimisation des coûts sur plusieurs années.",
+        "iotplace_offer": "Entreprise Pro, commission réduite (7 %), matching prioritaire, projets partenariat structurés sur Iotplace, paiements Stripe Connect et séquestre par mission."
       }
     }
   }
