@@ -5,6 +5,7 @@ import uuid
 import auth
 from data import store
 from vitrine import vitrine_bp
+from vitrine import advisor_ai
 from vitrine.i18n import get_locale, t, translate_status
 
 ENDPOINT_PAGE_SLUG = {
@@ -107,6 +108,9 @@ def inject_vitrine_context():
         "t": t,
         "locale": get_locale(),
         "translate_status": translate_status,
+        "advisor_enabled": advisor_ai.is_configured(),
+        "advisor_suggestions_enterprise": advisor_ai.get_suggestions("enterprise"),
+        "advisor_suggestions_startup": advisor_ai.get_suggestions("startup"),
     }
 
 
@@ -291,3 +295,24 @@ def contact():
         flash(t("contact.flash_success"), "success")
         return redirect(url_for("vitrine.contact"))
     return render_template("contact.html", page=store.get_page_content("contact"))
+
+
+@vitrine_bp.route("/api/advisor/chat", methods=["POST"])
+def advisor_chat():
+    from vitrine import advisor_ai
+
+    if not advisor_ai.is_configured():
+        return jsonify({"ok": False, "error": t("advisor.not_configured")}), 503
+
+    payload = request.get_json(silent=True) or {}
+    try:
+        result = advisor_ai.chat(
+            user_type=payload.get("user_type", "enterprise"),
+            message=payload.get("message", ""),
+            history=payload.get("history", []),
+            site_url=store.get_site_url(),
+        )
+    except advisor_ai.AdvisorError as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 400
+
+    return jsonify({"ok": True, **result})

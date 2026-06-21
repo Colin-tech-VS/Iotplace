@@ -1,0 +1,58 @@
+{% if advisor_enabled %}
+<div id="advisor-root" class="advisor-root" data-chat-url="{{ url_for('vitrine.advisor_chat') }}">
+    <button type="button" class="advisor-fab" id="advisor-fab" aria-label="{{ t('advisor.fab_label') }}" aria-expanded="false" aria-controls="advisor-panel">
+        <span class="advisor-fab-icon" aria-hidden="true">⬡</span>
+        <span class="advisor-fab-text">{{ t('advisor.fab_label') }}</span>
+    </button>
+
+    <div class="advisor-overlay" id="advisor-overlay" hidden></div>
+
+    <aside class="advisor-panel" id="advisor-panel" aria-label="{{ t('advisor.title') }}" hidden>
+        <header class="advisor-header">
+            <div class="advisor-header-brand">
+                <span class="advisor-header-icon" aria-hidden="true">⬡</span>
+                <div>
+                    <strong>{{ t('advisor.title') }}</strong>
+                    <small>{{ t('advisor.subtitle') }}</small>
+                </div>
+            </div>
+            <button type="button" class="advisor-close" id="advisor-close" aria-label="{{ t('advisor.close') }}">×</button>
+        </header>
+
+        <div class="advisor-profile" role="tablist" aria-label="{{ t('advisor.profile_label') }}">
+            <span class="advisor-profile-label">{{ t('advisor.profile_label') }}</span>
+            <button type="button" class="advisor-profile-btn active" data-profile="enterprise" role="tab" aria-selected="true">{{ t('advisor.profile_enterprise') }}</button>
+            <button type="button" class="advisor-profile-btn" data-profile="startup" role="tab" aria-selected="false">{{ t('advisor.profile_startup') }}</button>
+        </div>
+
+        <div class="advisor-messages" id="advisor-messages" aria-live="polite"></div>
+
+        <div class="advisor-suggestions" id="advisor-suggestions"></div>
+
+        <form class="advisor-form" id="advisor-form">
+            <textarea id="advisor-input" rows="2" placeholder="{{ t('advisor.placeholder') }}" maxlength="2000" required></textarea>
+            <button type="submit" class="btn btn-primary advisor-send" id="advisor-send">{{ t('advisor.send') }}</button>
+        </form>
+
+        <footer class="advisor-footer">
+            <small>{{ t('advisor.powered') }}</small>
+        </footer>
+    </aside>
+</div>
+
+<script>
+window.IOTPLACE_ADVISOR = {
+    chatUrl: {{ url_for('vitrine.advisor_chat')|tojson }},
+    i18n: {
+        welcomeEnterprise: {{ t('advisor.welcome_enterprise')|tojson }},
+        welcomeStartup: {{ t('advisor.welcome_startup')|tojson }},
+        thinking: {{ t('advisor.thinking')|tojson }},
+        notConfigured: {{ t('advisor.not_configured')|tojson }},
+        errorGeneric: {{ t('advisor.error_generic')|tojson }},
+        suggestionsEnterprise: {{ advisor_suggestions_enterprise|tojson }},
+        suggestionsStartup: {{ advisor_suggestions_startup|tojson }}
+    }
+};
+</script>
+<script src="{{ url_for('vitrine.static', filename='js/advisor.js') }}?v=1"></script>
+{% endif %}

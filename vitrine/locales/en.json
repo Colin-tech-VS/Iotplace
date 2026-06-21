@@ -202,5 +202,22 @@
   "unpublished": {
     "title": "Page unavailable",
     "text": "This page is not published yet."
+  },
+  "advisor": {
+    "fab_label": "Ask Iotplace AI",
+    "title": "Iotplace Advisor",
+    "subtitle": "Your guide to IoT subcontracting on the platform",
+    "close": "Close",
+    "profile_label": "I am a",
+    "profile_enterprise": "Enterprise",
+    "profile_startup": "Startup",
+    "welcome_enterprise": "Hello! I'm your Iotplace guide. Tell me about your IoT outsourcing needs — firmware, hardware, cloud — and I'll point you to the right startups and projects.",
+    "welcome_startup": "Hello! I'm your Iotplace guide. Ask me about open IoT missions, how to apply, or which skills are in demand from enterprises.",
+    "placeholder": "Ask anything about Iotplace…",
+    "send": "Send",
+    "thinking": "Thinking…",
+    "not_configured": "AI advisor is temporarily unavailable.",
+    "error_generic": "Something went wrong. Please try again.",
+    "powered": "Powered by Mistral AI"
   }
 }
