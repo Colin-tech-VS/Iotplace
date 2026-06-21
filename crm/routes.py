@@ -143,7 +143,49 @@ def edit_page(slug):
         store.update_page(slug, fields)
         flash("Page mise à jour.", "success")
         return redirect(url_for("crm.pages"))
-    return render_template("crm/page_edit.html", meta=meta, content=content)
+    from crm import mistral_ai
+
+    return render_template(
+        "crm/page_edit.html",
+        meta=meta,
+        content=content,
+        mistral_configured=mistral_ai.is_configured(),
+    )
+
+
+@crm_bp.route("/api/pages/<slug>/generate", methods=["POST"])
+def api_page_generate(slug):
+    from crm import mistral_ai
+
+    if not mistral_ai.is_configured():
+        return jsonify({"ok": False, "error": "MISTRAL_API_KEY is not configured."}), 503
+
+    meta = store.get_page_meta(slug)
+    if not meta:
+        return jsonify({"ok": False, "error": "Page not found."}), 404
+
+    payload = request.get_json(silent=True) or {}
+    try:
+        result = mistral_ai.generate_page_content(
+            slug=slug,
+            page_name=meta["name"],
+            page_path=meta["path"],
+            user_prompt=payload.get("prompt", ""),
+            current_content=store.get_page_content(slug),
+            include_seo=payload.get("include_seo", True),
+            include_faq=payload.get("include_faq", True),
+        )
+    except mistral_ai.MistralError as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 502
+
+    if payload.get("save"):
+        store.update_page(slug, result["content"])
+        if result.get("seo"):
+            store.update_seo_page(slug, result["seo"])
+        if result.get("faq"):
+            store.update_page_faq(slug, result["faq"])
+
+    return jsonify({"ok": True, **result})
 
 
 # ── SEO ──

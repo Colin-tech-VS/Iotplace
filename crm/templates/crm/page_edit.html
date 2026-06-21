@@ -9,6 +9,39 @@
     <button type="submit" form="page-form" class="btn btn-primary btn-sm">Enregistrer</button>
 {% endcall %}
 
+<section class="card form-section ai-panel" id="ai-panel" data-page-slug="{{ meta.slug }}" data-generate-url="{{ url_for('crm.api_page_generate', slug=meta.slug) }}">
+    <div class="section-title">
+        <h2>Génération IA (Mistral)</h2>
+        <span class="badge {% if mistral_configured %}badge-success{% else %}badge-muted{% endif %}">
+            {% if mistral_configured %}API configurée{% else %}MISTRAL_API_KEY manquante{% endif %}
+        </span>
+    </div>
+    <p class="muted ai-panel-desc">Génère le contenu de la page en anglais, plus le SEO et la FAQ. Vous pouvez appliquer au formulaire puis enregistrer.</p>
+    <div class="field">
+        <label for="ai-prompt">Instructions (optionnel)</label>
+        <textarea id="ai-prompt" rows="3" placeholder="Ex. : ton plus technique, cibler les entreprises européennes, mettre en avant le Vietnam…" {% if not mistral_configured %}disabled{% endif %}></textarea>
+    </div>
+    <div class="ai-panel-options">
+        <label class="toggle compact">
+            <input type="checkbox" id="ai-include-seo" checked {% if not mistral_configured %}disabled{% endif %}>
+            <span class="toggle-track"></span>
+            <span class="toggle-label">Inclure le SEO</span>
+        </label>
+        <label class="toggle compact">
+            <input type="checkbox" id="ai-include-faq" checked {% if not mistral_configured %}disabled{% endif %}>
+            <span class="toggle-track"></span>
+            <span class="toggle-label">Inclure la FAQ</span>
+        </label>
+    </div>
+    <div class="ai-panel-actions">
+        <button type="button" class="btn btn-outline btn-sm" id="ai-generate-btn" {% if not mistral_configured %}disabled{% endif %}>Générer avec Mistral</button>
+        <button type="button" class="btn btn-primary btn-sm" id="ai-apply-btn" hidden>Appliquer au formulaire</button>
+        <button type="button" class="btn btn-primary btn-sm" id="ai-save-btn" hidden>Générer et enregistrer</button>
+    </div>
+    <div id="ai-status" class="ai-status muted" hidden></div>
+    <pre id="ai-preview" class="ai-preview" hidden></pre>
+</section>
+
 <form id="page-form" method="POST" class="form-layout">
     <section class="card form-section">
         <div class="section-title"><h2>Contenu</h2></div>
@@ -45,4 +78,8 @@
         </div>
     </section>
 </form>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('crm.static', filename='js/page-ai.js') }}?v=1"></script>
 {% endblock %}

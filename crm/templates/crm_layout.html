@@ -130,5 +130,6 @@
     </div>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
     <script src="{{ url_for('crm.static', filename='js/crm.js') }}?v=2"></script>
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

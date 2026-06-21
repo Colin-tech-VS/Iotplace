@@ -1283,7 +1283,20 @@ def get_seo_for_vitrine(slug, page_title="", overrides=None, robots="index, foll
 
 
 def get_page_faq(slug):
+    data = _load_raw()
+    saved = data.get("faq", {}).get(slug)
+    if saved:
+        return saved
     return PAGE_FAQ.get(slug, [])
+
+
+def update_page_faq(slug, items):
+    data = _load_raw()
+    if "faq" not in data:
+        data["faq"] = {}
+    data["faq"][slug] = items
+    _save_raw(data)
+    return items
 
 
 def build_breadcrumbs(slug, site_url, extra=None):
