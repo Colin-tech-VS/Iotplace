@@ -18,10 +18,11 @@
     let busy = false;
     let typewriterToken = 0;
 
-    const TYPE_SPEED = 14;
-    const TYPE_PAUSE_SENTENCE = 90;
-    const TYPE_PAUSE_COMMA = 36;
-    const TYPE_PAUSE_NEWLINE = 48;
+    const CHARS_PER_MS = 0.14;
+    const PAUSE_SENTENCE_MS = 22;
+    const PAUSE_COMMA_MS = 10;
+    const MIN_CHARS_PER_FRAME = 2;
+    const MAX_CHARS_PER_FRAME = 8;
 
     function openPanel() {
         root.classList.add('open');
@@ -75,8 +76,21 @@
         return html.replace(/\n/g, '<br>');
     }
 
-    function scrollMessages() {
-        messagesEl.scrollTop = messagesEl.scrollHeight;
+    function scrollMessages(smooth) {
+        if (smooth) {
+            messagesEl.scrollTo({ top: messagesEl.scrollHeight, behavior: 'smooth' });
+        } else {
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+        }
+    }
+
+    let scrollRaf = 0;
+    function scrollMessagesThrottled() {
+        if (scrollRaf) return;
+        scrollRaf = requestAnimationFrame(() => {
+            scrollRaf = 0;
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+        });
     }
 
     function appendMessage(role, content, extraClass) {
@@ -100,39 +114,70 @@
         return el;
     }
 
-    function typingDelay(char) {
-        if (char === '.' || char === '!' || char === '?' || char === '…') return TYPE_PAUSE_SENTENCE;
-        if (char === ',' || char === ';' || char === ':') return TYPE_PAUSE_COMMA;
-        if (char === '\n') return TYPE_PAUSE_NEWLINE;
-        return TYPE_SPEED;
+    function punctuationPause(text, from, to) {
+        const chunk = text.slice(from, to);
+        if (/[.!?…](?:\s|$)/.test(chunk)) return PAUSE_SENTENCE_MS;
+        if (/[,;:\n]/.test(chunk)) return PAUSE_COMMA_MS;
+        return 0;
     }
 
     function typewriterBotMessage(el, fullText) {
         const token = ++typewriterToken;
         el.classList.add('advisor-msg-typing');
         let index = 0;
+        let pauseUntil = 0;
+        let lastTime = 0;
+        let charCarry = 0;
 
         return new Promise(resolve => {
-            function tick() {
+            function frame(now) {
                 if (token !== typewriterToken) {
                     resolve();
                     return;
                 }
+
+                if (!lastTime) lastTime = now;
+                if (now < pauseUntil) {
+                    requestAnimationFrame(frame);
+                    return;
+                }
+
+                const dt = Math.min(now - lastTime, 48);
+                lastTime = now;
+                charCarry += dt * CHARS_PER_MS;
+
+                let advance = Math.floor(charCarry);
+                if (advance < MIN_CHARS_PER_FRAME && index < fullText.length) {
+                    requestAnimationFrame(frame);
+                    return;
+                }
+                advance = Math.min(
+                    Math.max(advance, MIN_CHARS_PER_FRAME),
+                    MAX_CHARS_PER_FRAME,
+                    fullText.length - index
+                );
+                charCarry -= advance;
+
+                const prev = index;
+                index += advance;
+
                 if (index >= fullText.length) {
                     el.innerHTML = formatBotMessage(fullText);
                     el.classList.remove('advisor-msg-typing');
-                    scrollMessages();
+                    scrollMessages(true);
                     resolve();
                     return;
                 }
-                index += 1;
+
+                const pause = punctuationPause(fullText, prev, index);
+                if (pause) pauseUntil = now + pause;
+
                 const visible = trimIncompleteMarkdown(fullText.slice(0, index));
                 el.innerHTML = `${formatBotMessage(visible)}<span class="advisor-cursor" aria-hidden="true"></span>`;
-                scrollMessages();
-                const delay = typingDelay(fullText[index - 1]);
-                setTimeout(tick, delay);
+                scrollMessagesThrottled();
+                requestAnimationFrame(frame);
             }
-            tick();
+            requestAnimationFrame(frame);
         });
     }
 
