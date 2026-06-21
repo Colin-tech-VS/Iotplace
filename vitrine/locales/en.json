@@ -17,7 +17,8 @@
     "home_aria": "Iotplace — Home",
     "lang": "Language",
     "lang_en": "EN",
-    "lang_fr": "FR"
+    "lang_fr": "FR",
+    "pricing": "Pricing"
   },
   "footer": {
     "tagline": "B2B IoT subcontracting marketplace: enterprises outsource firmware, hardware and cloud to qualified startups in Southeast Asia.",
@@ -318,5 +319,153 @@
     "skills": "Technical skills",
     "skills_ph": "Firmware C/C++, PCB, MQTT, AWS IoT, BLE",
     "submit_register_st": "Create startup account"
+  },
+  "pricing": {
+    "badge": "Transparent pricing",
+    "free": "Free",
+    "forever": "forever",
+    "per_month": "/ month",
+    "per_mission": "per signed mission",
+    "how_it_works_label": "How it works",
+    "intro": "Iotplace is free to join. You only pay when a subcontracting mission is signed — or optionally upgrade for high-volume outsourcing. Startups never pay to access missions.",
+    "escrow_title": "Secure escrow on every mission",
+    "escrow_text": "When you accept a startup application, an invoice is generated automatically. Funds are held in escrow until you validate delivery — then the startup is paid (minus platform commission).",
+    "escrow_steps": [
+      "Enterprise accepts the application → automatic Stripe invoice",
+      "Payment received → funds held in escrow on Iotplace",
+      "Mission delivered and validated → release to startup via Stripe Connect",
+      "Platform commission deducted only at release"
+    ],
+    "flow_title": "From signup to payment",
+    "flow_steps": [
+      {
+        "title": "Free signup",
+        "text": "Enterprise or startup creates an account at no cost. Browse projects, profiles and the marketplace."
+      },
+      {
+        "title": "Matching & application",
+        "text": "Enterprise publishes a need. Startup applies. Messaging opens between both parties."
+      },
+      {
+        "title": "Acceptance & invoice",
+        "text": "Enterprise accepts the application. Iotplace generates an invoice based on project budget and holds funds in escrow."
+      },
+      {
+        "title": "Delivery & payout",
+        "text": "After mission validation, funds are released to the startup (Stripe Connect). Commission applies only on success."
+      }
+    ],
+    "compare_title": "Enterprise plans compared",
+    "compare_feature": "Feature",
+    "compare_rows": [
+      {
+        "feature": "Monthly fee",
+        "free": "€0",
+        "commission": "€0",
+        "pro": "From €399/mo"
+      },
+      {
+        "feature": "Open projects",
+        "free": "1 active",
+        "commission": "1 active",
+        "pro": "Unlimited"
+      },
+      {
+        "feature": "Commission per mission",
+        "free": "10%",
+        "commission": "10%",
+        "pro": "7%"
+      },
+      {
+        "feature": "Escrow & auto-invoice",
+        "free": "✓",
+        "commission": "✓",
+        "pro": "✓"
+      },
+      {
+        "feature": "Priority matching",
+        "free": "—",
+        "commission": "—",
+        "pro": "✓"
+      },
+      {
+        "feature": "Dedicated support",
+        "free": "—",
+        "commission": "—",
+        "pro": "✓"
+      }
+    ],
+    "startup_note": "Startups: 100% free — no subscription, no commission on your side. You receive the agreed mission amount minus nothing from Iotplace (commission is paid by the enterprise).",
+    "faq_title": "Pricing FAQ",
+    "cta_title": "Ready to get started?",
+    "cta_sub": "Join for free. Pay only when you subcontract a real IoT mission.",
+    "cta_enterprise": "Enterprise signup",
+    "cta_startup": "Startup signup",
+    "plans": {
+      "free_startup": {
+        "badge": "For startups",
+        "audience": "IoT startups in Asia",
+        "name": "Startup Free",
+        "summary": "Access all open IoT missions from large enterprises. No subscription, ever.",
+        "features": [
+          "Startup profile & skills showcase",
+          "Browse and apply to open projects",
+          "B2B messaging with enterprises",
+          "Stripe Connect payout when mission is validated",
+          "Zero platform fees for startups"
+        ],
+        "explain": "Designed so IoT startups in Vietnam, Indonesia, Thailand and beyond can join without friction. You invest time in applications, not in subscriptions. Payment arrives after the enterprise validates delivery.",
+        "cta": "Create startup account",
+        "cta_route": "compte.register_startup"
+      },
+      "free_enterprise": {
+        "badge": "To get started",
+        "audience": "Enterprises & groups",
+        "name": "Enterprise Free",
+        "summary": "Test Iotplace with one active project and full access to startup profiles.",
+        "features": [
+          "1 open IoT project published",
+          "Receive startup applications",
+          "Messaging & application management",
+          "Escrow invoice on acceptance (10% commission at release)",
+          "No credit card required to sign up"
+        ],
+        "explain": "Ideal for a first outsourcing pilot: publish a firmware, hardware or cloud need, compare startups and accept the best fit. Upgrade to Pro when you outsource regularly.",
+        "cta": "Create enterprise account",
+        "cta_route": "compte.register_enterprise"
+      },
+      "commission": {
+        "badge": "Most popular",
+        "audience": "Pay on success",
+        "name": "Success commission",
+        "summary": "No fixed fee. 10% commission only when a mission is signed and paid through Iotplace.",
+        "features": [
+          "Automatic invoice when you accept an application",
+          "Funds held in escrow until delivery",
+          "Startup paid via Stripe Connect",
+          "Aligned incentives — we earn when you outsource",
+          "Works with Enterprise Free plan"
+        ],
+        "explain": "The standard model for B2B marketplaces: you pay nothing upfront. When you accept a startup for a project, Iotplace invoices the mission amount. Funds stay in escrow until you confirm completion. We take 10% at release; the startup receives the rest.",
+        "cta": "Publish a project",
+        "cta_route": "compte.register_enterprise"
+      },
+      "pro_enterprise": {
+        "badge": "High volume",
+        "audience": "Active outsourcers",
+        "name": "Enterprise Pro",
+        "summary": "For companies running multiple IoT subcontracting projects per year.",
+        "features": [
+          "Unlimited open projects",
+          "Reduced commission: 7% per mission",
+          "Priority matching & visibility",
+          "Dedicated support channel",
+          "All escrow & invoicing features included"
+        ],
+        "explain": "If you publish several IoT outsourcing needs per quarter, Pro lowers your commission and removes the one-project limit. Contact us to activate — billing will be added soon; meanwhile we onboard Pro clients manually.",
+        "cta": "Contact us for Pro",
+        "cta_route": "vitrine.contact"
+      }
+    }
   }
 }

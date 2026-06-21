@@ -89,6 +89,7 @@ def build_site_knowledge(site_url: str = "") -> dict:
             "projects": f"{site_url}/projects",
             "about": f"{site_url}/about",
             "contact": f"{site_url}/contact",
+            "pricing": f"{site_url}/pricing",
             "register_enterprise": f"{site_url}/inscription/entreprise",
             "register_startup": f"{site_url}/inscription/startup",
             "login": f"{site_url}/connexion",
@@ -105,6 +106,6 @@ def build_site_knowledge(site_url: str = "") -> dict:
         "open_projects": [_summarize_project(p) for p in (open_projects or store.get_projects())[:12]],
         "faq_by_page": {
             slug: store.get_page_faq(slug)[:3]
-            for slug in ("home", "enterprises", "startups", "projects")
+            for slug in ("home", "enterprises", "startups", "projects", "pricing")
         },
     }

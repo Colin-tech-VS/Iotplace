@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="page-hero">
+    <div class="container reveal">
+        <span class="hero-badge">{{ t('pricing.badge') }}</span>
+        <h1>{{ page.title }}</h1>
+        <p class="page-sub">{{ page.subtitle }}</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <p class="pricing-intro reveal">{{ t('pricing.intro') }}</p>
+
+        <div class="pricing-grid reveal">
+            {% for plan_id in pricing.plan_ids %}
+            {% set featured = plan_id == 'commission' %}
+            <article class="pricing-card{% if featured %} pricing-card-featured{% endif %}{% if plan_id == 'pro_enterprise' %} pricing-card-pro{% endif %}">
+                {% if t('pricing.plans.' ~ plan_id ~ '.badge') %}
+                <span class="pricing-badge">{{ t('pricing.plans.' ~ plan_id ~ '.badge') }}</span>
+                {% endif %}
+                <p class="pricing-audience">{{ t('pricing.plans.' ~ plan_id ~ '.audience') }}</p>
+                <h2 class="pricing-name">{{ t('pricing.plans.' ~ plan_id ~ '.name') }}</h2>
+                <div class="pricing-price-wrap">
+                    {% if plan_id == 'commission' %}
+                    <span class="pricing-price">{{ pricing.commission_percent|int }}%</span>
+                    <span class="pricing-period">{{ t('pricing.per_mission') }}</span>
+                    {% elif plan_id == 'pro_enterprise' %}
+                    <span class="pricing-price">{{ pricing.pro_price_eur }} €</span>
+                    <span class="pricing-period">{{ t('pricing.per_month') }}</span>
+                    {% else %}
+                    <span class="pricing-price">{{ t('pricing.free') }}</span>
+                    <span class="pricing-period">{{ t('pricing.forever') }}</span>
+                    {% endif %}
+                </div>
+                <p class="pricing-summary">{{ t('pricing.plans.' ~ plan_id ~ '.summary') }}</p>
+                <ul class="pricing-features">
+                    {% for feat in t('pricing.plans.' ~ plan_id ~ '.features') %}
+                    <li>{{ feat }}</li>
+                    {% endfor %}
+                </ul>
+                <details class="pricing-details">
+                    <summary>{{ t('pricing.how_it_works_label') }}</summary>
+                    <p>{{ t('pricing.plans.' ~ plan_id ~ '.explain') }}</p>
+                </details>
+                <a href="{{ url_for(t('pricing.plans.' ~ plan_id ~ '.cta_route')) }}" class="btn {% if featured %}btn-primary btn-glow{% else %}btn-outline{% endif %} pricing-cta">
+                    {{ t('pricing.plans.' ~ plan_id ~ '.cta') }}
+                </a>
+            </article>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="section section-alt">
+    <div class="container">
+        <div class="pricing-escrow reveal">
+            <div class="pricing-escrow-icon" aria-hidden="true">🔒</div>
+            <div>
+                <h2>{{ t('pricing.escrow_title') }}</h2>
+                <p>{{ t('pricing.escrow_text') }}</p>
+                <ol class="pricing-steps">
+                    {% for step in t('pricing.escrow_steps') %}
+                    <li>{{ step }}</li>
+                    {% endfor %}
+                </ol>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <h2 class="section-title reveal">{{ t('pricing.flow_title') }}</h2>
+        <div class="pricing-flow-grid reveal">
+            {% for step in t('pricing.flow_steps') %}
+            <div class="pricing-flow-step">
+                <span class="pricing-flow-num">{{ loop.index }}</span>
+                <h3>{{ step.title }}</h3>
+                <p>{{ step.text }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="section section-alt">
+    <div class="container">
+        <h2 class="section-title reveal">{{ t('pricing.compare_title') }}</h2>
+        <div class="table-wrap reveal">
+            <table class="pricing-table">
+                <thead>
+                    <tr>
+                        <th>{{ t('pricing.compare_feature') }}</th>
+                        <th>{{ t('pricing.plans.free_enterprise.name') }}</th>
+                        <th>{{ t('pricing.plans.commission.name') }}</th>
+                        <th>{{ t('pricing.plans.pro_enterprise.name') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in t('pricing.compare_rows') %}
+                    <tr>
+                        <td>{{ row.feature }}</td>
+                        <td>{{ row.free }}</td>
+                        <td>{{ row.commission }}</td>
+                        <td>{{ row.pro }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <p class="pricing-note reveal">{{ t('pricing.startup_note') }}</p>
+    </div>
+</section>
+
+{% if seo_faq %}
+<section class="section">
+    <div class="container">
+        <h2 class="section-title reveal">{{ t('pricing.faq_title') }}</h2>
+        <div class="faq-list reveal">
+            {% for item in seo_faq %}
+            <details class="faq-item">
+                <summary>{{ item.q }}</summary>
+                <p>{{ item.a }}</p>
+            </details>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<section class="section cta-section">
+    <div class="container cta-box reveal">
+        <h2>{{ t('pricing.cta_title') }}</h2>
+        <p>{{ t('pricing.cta_sub') }}</p>
+        <div class="cta-buttons">
+            <a href="{{ url_for('compte.register_enterprise') }}" class="btn btn-primary btn-lg btn-glow">{{ t('pricing.cta_enterprise') }}</a>
+            <a href="{{ url_for('compte.register_startup') }}" class="btn btn-outline btn-lg">{{ t('pricing.cta_startup') }}</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

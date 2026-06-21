@@ -14,6 +14,7 @@ ENDPOINT_PAGE_SLUG = {
     "vitrine.projects": "projects",
     "vitrine.about": "about",
     "vitrine.contact": "contact",
+    "vitrine.pricing": "pricing",
 }
 
 
@@ -267,6 +268,25 @@ def project_detail(project_id):
         seo_canonical=canonical,
         seo_breadcrumbs=breadcrumbs,
         seo_json_ld=store.build_json_ld("projects", canonical, site_url, breadcrumbs=breadcrumbs, locale=locale),
+    )
+
+
+@vitrine_bp.route("/tarifs")
+def legacy_pricing_fr():
+    return redirect(url_for("vitrine.pricing", **request.args), code=301)
+
+
+@vitrine_bp.route("/pricing")
+@vitrine_bp.route("/vitrine/pricing")
+def pricing():
+    if not _check_published("pricing"):
+        return render_template("unpublished.html"), 404
+    from payments.pricing_plans import get_pricing_numbers
+
+    return render_template(
+        "pricing.html",
+        page=store.get_page_content("pricing", get_locale()),
+        pricing=get_pricing_numbers(),
     )
 
 

@@ -17,7 +17,8 @@
     "home_aria": "Iotplace — Accueil",
     "lang": "Langue",
     "lang_en": "EN",
-    "lang_fr": "FR"
+    "lang_fr": "FR",
+    "pricing": "Tarifs"
   },
   "footer": {
     "tagline": "Marketplace B2B de sous-traitance IoT : les entreprises externalisent firmware, hardware et cloud auprès de startups qualifiées en Asie du Sud-Est.",
@@ -318,5 +319,153 @@
     "skills": "Compétences techniques",
     "skills_ph": "Firmware C/C++, PCB, MQTT, AWS IoT, BLE",
     "submit_register_st": "Créer mon compte startup"
+  },
+  "pricing": {
+    "badge": "Tarifs transparents",
+    "free": "Gratuit",
+    "forever": "à vie",
+    "per_month": "/ mois",
+    "per_mission": "par mission signée",
+    "how_it_works_label": "Comment ça marche",
+    "intro": "Iotplace est gratuit à l'inscription. Vous payez uniquement lorsqu'une mission de sous-traitance est signée — ou en option pour un volume élevé d'externalisation. Les startups ne paient jamais pour accéder aux missions.",
+    "escrow_title": "Séquestre sécurisé sur chaque mission",
+    "escrow_text": "Lorsque vous acceptez une candidature startup, une facture est générée automatiquement. Les fonds restent en séquestre jusqu'à validation de la livraison — puis la startup est payée (moins la commission plateforme).",
+    "escrow_steps": [
+      "L'entreprise accepte la candidature → facture Stripe automatique",
+      "Paiement reçu → fonds en séquestre sur Iotplace",
+      "Mission livrée et validée → versement à la startup via Stripe Connect",
+      "Commission plateforme prélevée uniquement à la libération"
+    ],
+    "flow_title": "De l'inscription au paiement",
+    "flow_steps": [
+      {
+        "title": "Inscription gratuite",
+        "text": "Entreprise ou startup crée un compte sans frais. Parcourez projets, profils et la marketplace."
+      },
+      {
+        "title": "Matching & candidature",
+        "text": "L'entreprise publie un besoin. La startup postule. La messagerie B2B s'ouvre entre les deux parties."
+      },
+      {
+        "title": "Acceptation & facture",
+        "text": "L'entreprise accepte la candidature. Iotplace génère une facture selon le budget projet et met les fonds en séquestre."
+      },
+      {
+        "title": "Livraison & paiement",
+        "text": "Après validation de la mission, les fonds sont versés à la startup (Stripe Connect). La commission ne s'applique qu'en cas de succès."
+      }
+    ],
+    "compare_title": "Comparatif offres entreprise",
+    "compare_feature": "Fonctionnalité",
+    "compare_rows": [
+      {
+        "feature": "Abonnement mensuel",
+        "free": "0 €",
+        "commission": "0 €",
+        "pro": "À partir de 399 €/mois"
+      },
+      {
+        "feature": "Projets ouverts",
+        "free": "1 actif",
+        "commission": "1 actif",
+        "pro": "Illimités"
+      },
+      {
+        "feature": "Commission par mission",
+        "free": "10 %",
+        "commission": "10 %",
+        "pro": "7 %"
+      },
+      {
+        "feature": "Séquestre & facture auto",
+        "free": "✓",
+        "commission": "✓",
+        "pro": "✓"
+      },
+      {
+        "feature": "Matching prioritaire",
+        "free": "—",
+        "commission": "—",
+        "pro": "✓"
+      },
+      {
+        "feature": "Support dédié",
+        "free": "—",
+        "commission": "—",
+        "pro": "✓"
+      }
+    ],
+    "startup_note": "Startups : 100 % gratuit — pas d'abonnement, pas de commission de votre côté. Vous recevez le montant convenu (la commission est payée par l'entreprise donneuse d'ordre).",
+    "faq_title": "FAQ — Tarifs",
+    "cta_title": "Prêt à démarrer ?",
+    "cta_sub": "Inscrivez-vous gratuitement. Payez uniquement lorsque vous sous-traitez une vraie mission IoT.",
+    "cta_enterprise": "Inscription entreprise",
+    "cta_startup": "Inscription startup",
+    "plans": {
+      "free_startup": {
+        "badge": "Pour les startups",
+        "audience": "Startups IoT en Asie",
+        "name": "Startup Gratuit",
+        "summary": "Accès à toutes les missions IoT ouvertes des grandes entreprises. Sans abonnement, pour toujours.",
+        "features": [
+          "Profil startup & vitrine de compétences",
+          "Parcourir et postuler aux projets ouverts",
+          "Messagerie B2B avec les entreprises",
+          "Paiement Stripe Connect après validation mission",
+          "Zéro frais plateforme côté startup"
+        ],
+        "explain": "Conçu pour que les startups IoT au Vietnam, en Indonésie, en Thaïlande et au-delà rejoignent sans friction. Vous investissez du temps dans les candidatures, pas dans un abonnement.",
+        "cta": "Créer un compte startup",
+        "cta_route": "compte.register_startup"
+      },
+      "free_enterprise": {
+        "badge": "Pour démarrer",
+        "audience": "Entreprises & grands groupes",
+        "name": "Entreprise Gratuit",
+        "summary": "Testez Iotplace avec un projet actif et l'accès complet aux profils startups.",
+        "features": [
+          "1 projet IoT ouvert publié",
+          "Réception des candidatures startups",
+          "Messagerie & gestion des candidatures",
+          "Facture séquestre à l'acceptation (10 % à la libération)",
+          "Aucune carte bancaire à l'inscription"
+        ],
+        "explain": "Idéal pour un premier pilote d'externalisation : publiez un besoin firmware, hardware ou cloud, comparez les startups et acceptez la meilleure. Passez en Pro quand vous sous-traitez régulièrement.",
+        "cta": "Créer un compte entreprise",
+        "cta_route": "compte.register_enterprise"
+      },
+      "commission": {
+        "badge": "Le plus pertinent",
+        "audience": "Paiement au succès",
+        "name": "Commission au succès",
+        "summary": "Pas de frais fixes. 10 % de commission uniquement quand une mission est signée et payée via Iotplace.",
+        "features": [
+          "Facture automatique à l'acceptation d'une candidature",
+          "Fonds en séquestre jusqu'à la livraison",
+          "Startup payée via Stripe Connect",
+          "Intérêts alignés — nous gagnons quand vous sous-traitez",
+          "Compatible avec l'offre Entreprise Gratuit"
+        ],
+        "explain": "Le modèle standard des marketplaces B2B : rien à payer en amont. Quand vous acceptez une startup, Iotplace facture le montant de la mission. Les fonds restent en séquestre jusqu'à validation. Nous prélevons 10 % à la libération ; la startup reçoit le reste.",
+        "cta": "Publier un projet",
+        "cta_route": "compte.register_enterprise"
+      },
+      "pro_enterprise": {
+        "badge": "Gros volume",
+        "audience": "Donneurs d'ordre actifs",
+        "name": "Entreprise Pro",
+        "summary": "Pour les entreprises qui gèrent plusieurs projets IoT en sous-traitance par an.",
+        "features": [
+          "Projets ouverts illimités",
+          "Commission réduite : 7 % par mission",
+          "Matching prioritaire & visibilité",
+          "Canal support dédié",
+          "Séquestre & facturation inclus"
+        ],
+        "explain": "Si vous publiez plusieurs besoins IoT par trimestre, Pro réduit la commission et supprime la limite d'un projet. Contactez-nous pour activer l'offre — facturation en ligne bientôt disponible.",
+        "cta": "Nous contacter pour le Pro",
+        "cta_route": "vitrine.contact"
+      }
+    }
   }
 }

@@ -15,6 +15,7 @@ PAGE_CATALOG = [
     {"slug": "projects", "name": "Projects", "path": "/projects", "vitrine_endpoint": "vitrine.projects"},
     {"slug": "about", "name": "About", "path": "/about", "vitrine_endpoint": "vitrine.about"},
     {"slug": "contact", "name": "Contact", "path": "/contact", "vitrine_endpoint": "vitrine.contact"},
+    {"slug": "pricing", "name": "Pricing", "path": "/pricing", "vitrine_endpoint": "vitrine.pricing"},
 ]
 
 DEFAULT_PAGE_CONTENT = {
@@ -49,6 +50,10 @@ DEFAULT_PAGE_CONTENT = {
         "subtitle": "Enterprise or IoT startup: start your subcontracting journey on Iotplace.",
         "email": "hello@iotplace.io",
     },
+    "pricing": {
+        "title": "Pricing & offers",
+        "subtitle": "Free to join. Pay only on success — commission on signed IoT missions, optional Pro for high volume.",
+    },
 }
 
 DEFAULT_PAGE_CONTENT_FR = {
@@ -82,6 +87,10 @@ DEFAULT_PAGE_CONTENT_FR = {
         "title": "Nous contacter",
         "subtitle": "Entreprise ou startup IoT : démarrez votre sous-traitance sur Iotplace.",
         "email": "hello@iotplace.io",
+    },
+    "pricing": {
+        "title": "Tarifs & offres",
+        "subtitle": "Inscription gratuite. Payez uniquement au succès — commission sur les missions IoT signées, option Pro pour les gros volumes.",
     },
 }
 
@@ -151,6 +160,17 @@ DEFAULT_SEO_PAGES = {
         "keywords": (
             "IoT subcontracting contact, join IoT marketplace, "
             "publish IoT project, IoT startup signup"
+        ),
+    },
+    "pricing": {
+        "title": "Pricing — IoT subcontracting marketplace",
+        "description": (
+            "Iotplace pricing: free startup access, free enterprise tier, 10% success commission "
+            "on signed missions, escrow payments and Enterprise Pro for unlimited projects."
+        ),
+        "keywords": (
+            "IoT marketplace pricing, subcontracting commission, B2B IoT fees, "
+            "escrow IoT payment, enterprise Pro outsourcing"
         ),
     },
 }
@@ -233,6 +253,28 @@ PAGE_FAQ = {
             "a": "Large enterprises and industrial groups on Iotplace that outsource part of their IoT development to qualified startups.",
         },
     ],
+    "pricing": [
+        {
+            "q": "Is Iotplace free for startups?",
+            "a": "Yes, 100%. Startups never pay a subscription or commission. They receive the mission amount when the enterprise releases escrow funds after delivery validation.",
+        },
+        {
+            "q": "When does the enterprise pay?",
+            "a": "When you accept a startup application, Iotplace automatically generates a Stripe invoice. Payment puts funds in escrow until you validate the mission is complete.",
+        },
+        {
+            "q": "What is the commission rate?",
+            "a": "10% on each signed mission for Free plans, deducted at fund release. Enterprise Pro reduces this to 7% with unlimited projects.",
+        },
+        {
+            "q": "How does escrow work?",
+            "a": "Funds are held securely after invoice payment. The startup is paid via Stripe Connect only when the enterprise confirms delivery — protecting both parties.",
+        },
+        {
+            "q": "Can I try Iotplace without paying?",
+            "a": "Yes. Sign up free, publish one project (enterprise) or apply to missions (startup). Commission applies only when a mission is actually signed and paid.",
+        },
+    ],
 }
 
 BREADCRUMB_LABELS = {
@@ -242,6 +284,7 @@ BREADCRUMB_LABELS = {
     "projects": "IoT Projects",
     "about": "About",
     "contact": "Contact",
+    "pricing": "Pricing",
 }
 
 BREADCRUMB_LABELS_FR = {
@@ -251,6 +294,7 @@ BREADCRUMB_LABELS_FR = {
     "projects": "Projets IoT",
     "about": "À propos",
     "contact": "Contact",
+    "pricing": "Tarifs",
 }
 
 PAGE_FAQ_FR = {
@@ -273,6 +317,13 @@ PAGE_FAQ_FR = {
     "projects": [
         {"q": "Comment postuler à un projet IoT ouvert ?", "a": "Créez un compte startup, complétez votre profil et postulez depuis votre tableau de bord."},
         {"q": "Qui publie les projets de sous-traitance IoT ?", "a": "Les grandes entreprises inscrites sur Iotplace qui externalisent leur développement IoT."},
+    ],
+    "pricing": [
+        {"q": "Iotplace est-il gratuit pour les startups ?", "a": "Oui, à 100 %. Aucun abonnement ni commission côté startup. Le paiement arrive quand l'entreprise libère le séquestre après validation de la livraison."},
+        {"q": "Quand l'entreprise paie-t-elle ?", "a": "À l'acceptation d'une candidature, Iotplace génère automatiquement une facture Stripe. Le paiement place les fonds en séquestre jusqu'à validation de la mission."},
+        {"q": "Quel est le taux de commission ?", "a": "10 % par mission signée sur les offres Gratuit, prélevé à la libération des fonds. L'offre Pro entreprise descend à 7 % avec projets illimités."},
+        {"q": "Comment fonctionne le séquestre ?", "a": "Les fonds sont conservés en sécurité après paiement de la facture. La startup est payée via Stripe Connect uniquement quand l'entreprise confirme la livraison."},
+        {"q": "Puis-je tester sans payer ?", "a": "Oui. Inscription gratuite, un projet publié (entreprise) ou des candidatures (startup). La commission ne s'applique que lorsqu'une mission est réellement signée et payée."},
     ],
 }
 

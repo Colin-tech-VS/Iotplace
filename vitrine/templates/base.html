@@ -70,6 +70,7 @@
                 <li><a href="{{ url_for('vitrine.startups') }}" {% if request.endpoint in ('vitrine.startups', 'vitrine.startup_detail') %}class="active"{% endif %}>{{ t('nav.startups') }}</a></li>
                 <li><a href="{{ url_for('vitrine.projects') }}" {% if request.endpoint in ('vitrine.projects', 'vitrine.project_detail') %}class="active"{% endif %}>{{ t('nav.projects') }}</a></li>
                 <li><a href="{{ url_for('vitrine.about') }}" {% if request.endpoint == 'vitrine.about' %}class="active"{% endif %}>{{ t('nav.about') }}</a></li>
+                <li><a href="{{ url_for('vitrine.pricing') }}" {% if request.endpoint == 'vitrine.pricing' %}class="active"{% endif %}>{{ t('nav.pricing') }}</a></li>
                 {% if current_user %}
                 <li>
                     <a href="{{ url_for('compte.home') }}" class="btn btn-sm btn-outline nav-msg-link">
@@ -151,6 +152,7 @@
                 <h4>{{ t('footer.platform') }}</h4>
                 <ul>
                     <li><a href="{{ url_for('vitrine.about') }}">{{ t('footer.about') }}</a></li>
+                    <li><a href="{{ url_for('vitrine.pricing') }}">{{ t('nav.pricing') }}</a></li>
                     <li><a href="{{ url_for('vitrine.contact') }}">{{ t('footer.contact') }}</a></li>
                     <li><a href="{{ url_for('vitrine.sitemap_xml') }}">{{ t('footer.sitemap') }}</a></li>
                 </ul>
