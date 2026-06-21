@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% from "_seo_macros.html" import breadcrumbs_nav %}
+{% block seo_title %}{{ seo.title }}{% endblock %}
+{% block seo_canonical %}{{ seo_canonical }}{% endblock %}
+
+{% block content %}
+{{ breadcrumbs_nav(seo_breadcrumbs) }}
+<section class="page-hero page-hero-sm">
+    <div class="container reveal">
+        <a href="{{ url_for('vitrine.enterprises') }}" class="back-link">{{ t('common.back') }}</a>
+        <div class="detail-hero-header">
+            <div class="enterprise-logo enterprise-logo-lg">{{ enterprise.logo_initials or enterprise.name[:2]|upper }}</div>
+            <div>
+                <h1>{{ enterprise.name }}</h1>
+                {% if enterprise.sector %}<p class="page-sub">{{ enterprise.sector }}</p>{% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container detail-layout">
+        <div class="detail-main reveal">
+            <div class="detail-card">
+                <h2>{{ t('common.description') }}</h2>
+                <p>{{ enterprise.description or t('common.no_description') }}</p>
+                {% if enterprise.needs %}
+                <h3>{{ t('common.needs') }}</h3>
+                <div class="tags">
+                    {% for need in enterprise.needs %}<span class="tag tag-accent">{{ need }}</span>{% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            {% if related_projects %}
+            <div class="detail-card" style="margin-top:1.5rem">
+                <h2>{{ t('common.related_projects') }}</h2>
+                <div class="projects-list">
+                    {% for project in related_projects %}
+                    <a href="{{ url_for('vitrine.project_detail', project_id=project.id) }}" class="project-row project-row-link reveal">
+                        <div class="project-info">
+                            <h3>{{ project.title }}</h3>
+                            <span class="status status-{{ project.status|lower|replace(' ', '-') }}">{{ translate_status(project.status) }}</span>
+                        </div>
+                        <div class="project-meta">
+                            {% if project.budget %}<span class="budget">{{ project.budget }}</span>{% endif %}
+                            {% if project.duration %}<span class="duration">{{ project.duration }}</span>{% endif %}
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        <aside class="detail-sidebar reveal">
+            <div class="detail-card detail-sidebar-card">
+                <h3>{{ t('detail.enterprise_profile') }}</h3>
+                <dl class="profile-dl">
+                    {% if enterprise.sector %}
+                    <dt>{{ t('common.sector') }}</dt><dd>{{ enterprise.sector }}</dd>
+                    {% endif %}
+                    {% if enterprise.city or enterprise.country %}
+                    <dt>{{ t('common.location') }}</dt><dd>{{ enterprise.city }}{% if enterprise.city and enterprise.country %}, {% endif %}{{ enterprise.country }}</dd>
+                    {% endif %}
+                    {% if enterprise.company_size %}
+                    <dt>{{ t('common.company_size') }}</dt><dd>{{ enterprise.company_size }}</dd>
+                    {% endif %}
+                    {% if enterprise.website %}
+                    <dt>{{ t('common.website') }}</dt><dd><a href="{{ enterprise.website }}" target="_blank" rel="noopener">{{ enterprise.website }}</a></dd>
+                    {% endif %}
+                </dl>
+                <a href="{{ url_for('compte.register_enterprise') }}" class="btn btn-primary btn-glow" style="width:100%;margin-top:1rem">{{ t('detail.register_enterprise') }}</a>
+            </div>
+        </aside>
+    </div>
+</section>
+{% endblock %}

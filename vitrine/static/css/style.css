@@ -1222,6 +1222,94 @@ a:hover { color: #33e0be; }
     color: var(--accent, inherit);
 }
 
+/* ── Clickable cards & detail pages ── */
+.card-clickable {
+    display: flex;
+    flex-direction: column;
+    color: inherit;
+    text-decoration: none;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.card-clickable:hover {
+    color: inherit;
+    transform: translateY(-3px);
+    border-color: var(--accent);
+    box-shadow: 0 12px 40px rgba(0, 232, 200, 0.08);
+}
+
+.card-link-hint {
+    display: block;
+    margin-top: auto;
+    padding-top: 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--accent);
+}
+
+.project-row-link {
+    display: flex;
+    color: inherit;
+    text-decoration: none;
+    transition: border-color 0.2s, background 0.2s;
+    cursor: pointer;
+}
+
+.project-row-link:hover {
+    color: inherit;
+    border-color: var(--accent);
+    background: rgba(0, 232, 200, 0.04);
+}
+
+.detail-layout {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.detail-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+.detail-card h2, .detail-card h3 {
+    margin-bottom: 0.75rem;
+}
+
+.detail-sidebar-card {
+    position: sticky;
+    top: 88px;
+}
+
+.detail-hero-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.enterprise-logo-lg {
+    width: 64px;
+    height: 64px;
+    font-size: 1.25rem;
+}
+
+.flag-lg {
+    font-size: 2.5rem;
+}
+
+@media (max-width: 768px) {
+    .detail-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .detail-sidebar-card {
+        position: static;
+    }
+}
+
 /* ── Responsive ── */
 @media (max-width: 768px) {
     .nav-toggle { display: flex; }

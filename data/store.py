@@ -9,114 +9,114 @@ from pathlib import Path
 DATA_FILE = Path(__file__).parent / "content.json"
 
 PAGE_CATALOG = [
-    {"slug": "home", "name": "Accueil", "path": "/", "vitrine_endpoint": "vitrine.index"},
-    {"slug": "enterprises", "name": "Entreprises", "path": "/entreprises", "vitrine_endpoint": "vitrine.enterprises"},
+    {"slug": "home", "name": "Home", "path": "/", "vitrine_endpoint": "vitrine.index"},
+    {"slug": "enterprises", "name": "Enterprises", "path": "/enterprises", "vitrine_endpoint": "vitrine.enterprises"},
     {"slug": "startups", "name": "Startups", "path": "/startups", "vitrine_endpoint": "vitrine.startups"},
-    {"slug": "projects", "name": "Projets", "path": "/projets", "vitrine_endpoint": "vitrine.projects"},
-    {"slug": "about", "name": "À propos", "path": "/a-propos", "vitrine_endpoint": "vitrine.about"},
+    {"slug": "projects", "name": "Projects", "path": "/projects", "vitrine_endpoint": "vitrine.projects"},
+    {"slug": "about", "name": "About", "path": "/about", "vitrine_endpoint": "vitrine.about"},
     {"slug": "contact", "name": "Contact", "path": "/contact", "vitrine_endpoint": "vitrine.contact"},
 ]
 
 DEFAULT_PAGE_CONTENT = {
     "home": {
-        "hero_badge": "Marketplace IoT B2B — Sous-traitance Asie × Monde",
-        "hero_title": "Sous-traitance IoT : connectez entreprises et startups d'Asie",
-        "hero_highlight": "Sous-traitance IoT",
-        "hero_subtitle": "Les entreprises externalisent firmware, hardware et cloud. Les startups IoT accèdent aux missions des grands groupes. Iotplace structure cette sous-traitance B2B en Asie du Sud-Est.",
-        "cta_primary": "Je suis une entreprise",
-        "cta_secondary": "Je suis une startup",
+        "hero_badge": "B2B IoT Marketplace — Asia × World Subcontracting",
+        "hero_title": "IoT subcontracting: connect enterprises and Asian startups",
+        "hero_highlight": "IoT subcontracting",
+        "hero_subtitle": "Enterprises outsource firmware, hardware and cloud. IoT startups access missions from large groups. Iotplace structures this B2B subcontracting across Southeast Asia.",
+        "cta_primary": "I'm an enterprise",
+        "cta_secondary": "I'm a startup",
     },
     "enterprises": {
-        "title": "Sous-traiter vos projets IoT à des startups qualifiées",
-        "subtitle": "Externalisez firmware, hardware et cloud vers des startups IoT en Vietnam, Indonésie et Asie du Sud-Est — rapidement et en toute sécurité.",
+        "title": "Subcontract your IoT projects to qualified startups",
+        "subtitle": "Outsource firmware, hardware and cloud to IoT startups in Vietnam, Indonesia and Southeast Asia — quickly and securely.",
     },
     "startups": {
-        "title": "Startups IoT : trouvez des missions de sous-traitance",
-        "subtitle": "Accédez aux projets IoT publiés par les grandes entreprises qui cherchent à externaliser firmware, PCB, cloud et intégration.",
+        "title": "IoT startups: find subcontracting missions",
+        "subtitle": "Access IoT projects published by large enterprises looking to outsource firmware, PCB, cloud and integration.",
     },
     "projects": {
-        "title": "Projets IoT ouverts à la sous-traitance",
-        "subtitle": "Missions publiées par les entreprises qui externalisent leur développement IoT vers des startups qualifiées.",
+        "title": "Open IoT subcontracting projects",
+        "subtitle": "Missions published by enterprises outsourcing IoT development to qualified startups.",
     },
     "about": {
-        "title": "À propos d'Iotplace",
-        "subtitle": "La plateforme qui structure la sous-traitance IoT entre l'Occident et l'Asie du Sud-Est.",
-        "mission_1": "L'Internet des Objets connaît une croissance exponentielle. Les grandes entreprises ont des besoins massifs en développement hardware, firmware et cloud.",
-        "mission_2": "Iotplace comble ce fossé en offrant une marketplace B2B dédiée à la sous-traitance IoT.",
+        "title": "About Iotplace",
+        "subtitle": "The platform structuring IoT subcontracting between the West and Southeast Asia.",
+        "mission_1": "The Internet of Things is growing exponentially. Large enterprises have massive needs in hardware, firmware and cloud development.",
+        "mission_2": "Iotplace bridges this gap with a B2B marketplace dedicated to IoT subcontracting.",
     },
     "contact": {
-        "title": "Nous contacter",
-        "subtitle": "Entreprise ou startup IoT : démarrez votre sous-traitance sur Iotplace.",
+        "title": "Contact us",
+        "subtitle": "Enterprise or IoT startup: start your subcontracting journey on Iotplace.",
         "email": "hello@iotplace.io",
     },
 }
 
 DEFAULT_SEO_PAGES = {
     "home": {
-        "title": "Sous-traitance IoT B2B — Entreprises & Startups Asie",
+        "title": "B2B IoT Subcontracting — Enterprises & Asian Startups",
         "description": (
-            "Iotplace, marketplace IoT B2B : entreprises, externalisez firmware, hardware et cloud "
-            "vers des startups qualifiées en Asie du Sud-Est. Startups IoT, accédez aux missions "
-            "de sous-traitance des grands groupes."
+            "Iotplace, B2B IoT marketplace: enterprises outsource firmware, hardware and cloud "
+            "to qualified startups in Southeast Asia. IoT startups access subcontracting missions "
+            "from large enterprises."
         ),
         "keywords": (
-            "sous-traitance IoT, externalisation IoT, marketplace IoT B2B, startups IoT Asie, "
-            "Vietnam IoT, Indonésie IoT, firmware IoT, hardware connecté, missions IoT entreprise"
+            "IoT subcontracting, IoT outsourcing, B2B IoT marketplace, Asian IoT startups, "
+            "Vietnam IoT, Indonesia IoT, IoT firmware, connected hardware, enterprise IoT missions"
         ),
     },
     "enterprises": {
-        "title": "Externaliser vos projets IoT — Sous-traiter des startups",
+        "title": "Outsource your IoT projects — Subcontract startups",
         "description": (
-            "Entreprise IoT : publiez vos besoins et sous-traitez firmware, PCB, cloud et intégration "
-            "à des startups vietnamiennes et asiatiques qualifiées. Matching, contrats et suivi sur Iotplace."
+            "IoT enterprise: publish your needs and subcontract firmware, PCB, cloud and integration "
+            "to qualified Vietnamese and Asian startups. Matching, contracts and tracking on Iotplace."
         ),
         "keywords": (
-            "entreprise sous-traiter IoT, externalisation projet IoT, sous-traitance firmware, "
-            "développement IoT offshore, startups IoT Vietnam, donneur d'ordre IoT"
+            "enterprise IoT subcontracting, IoT project outsourcing, firmware subcontracting, "
+            "offshore IoT development, Vietnam IoT startups, IoT client"
         ),
     },
     "startups": {
-        "title": "Startups IoT — Missions de sous-traitance entreprises",
+        "title": "IoT Startups — Enterprise subcontracting missions",
         "description": (
-            "Startup IoT en Asie du Sud-Est : trouvez des projets de sous-traitance publiés par "
-            "les grandes entreprises — firmware, PCB, LoRaWAN, cloud IoT, intégration hardware."
+            "IoT startup in Southeast Asia: find subcontracting projects published by "
+            "large enterprises — firmware, PCB, LoRaWAN, IoT cloud, hardware integration."
         ),
         "keywords": (
-            "startup IoT missions, sous-traitance IoT startup, projet IoT entreprise, "
-            "Vietnam développement IoT, startup hardware connecté, freelance IoT B2B"
+            "IoT startup missions, IoT subcontracting startup, enterprise IoT project, "
+            "Vietnam IoT development, connected hardware startup, B2B IoT freelance"
         ),
     },
     "projects": {
-        "title": "Projets IoT ouverts — Missions de sous-traitance",
+        "title": "Open IoT projects — Subcontracting missions",
         "description": (
-            "Liste des projets IoT ouverts à la sous-traitance : firmware, capteurs, cloud, "
-            "intégration. Startups IoT, postulez aux missions publiées par les entreprises sur Iotplace."
+            "List of open IoT subcontracting projects: firmware, sensors, cloud, "
+            "integration. IoT startups, apply to missions published by enterprises on Iotplace."
         ),
         "keywords": (
-            "projets IoT ouverts, mission sous-traitance IoT, appel d'offres IoT, "
-            "projet firmware startup, budget IoT externalisation"
+            "open IoT projects, IoT subcontracting mission, IoT RFP, "
+            "firmware startup project, IoT outsourcing budget"
         ),
     },
     "about": {
-        "title": "À propos — Marketplace sous-traitance IoT B2B",
+        "title": "About — B2B IoT subcontracting marketplace",
         "description": (
-            "Iotplace structure la sous-traitance IoT entre entreprises mondiales et startups "
-            "d'Asie du Sud-Est : Vietnam, Indonésie, Thaïlande, Philippines."
+            "Iotplace structures IoT subcontracting between global enterprises and startups "
+            "in Southeast Asia: Vietnam, Indonesia, Thailand, Philippines."
         ),
         "keywords": (
-            "marketplace IoT, sous-traitance IoT Asie, hub IoT Vietnam, "
-            "externalisation hardware firmware, plateforme B2B IoT"
+            "IoT marketplace, Asian IoT subcontracting, Vietnam IoT hub, "
+            "hardware firmware outsourcing, B2B IoT platform"
         ),
     },
     "contact": {
-        "title": "Contact — Démarrer une sous-traitance IoT",
+        "title": "Contact — Start IoT subcontracting",
         "description": (
-            "Contactez Iotplace : entreprise cherchant à sous-traiter un projet IoT ou startup "
-            "IoT cherchant des missions. Réponse sous 48 h."
+            "Contact Iotplace: enterprise looking to subcontract an IoT project or IoT startup "
+            "looking for missions. Response within 48 hours."
         ),
         "keywords": (
-            "contact sous-traitance IoT, rejoindre marketplace IoT, "
-            "publier projet IoT, inscription startup IoT"
+            "IoT subcontracting contact, join IoT marketplace, "
+            "publish IoT project, IoT startup signup"
         ),
     },
 }
@@ -145,68 +145,68 @@ COMPTE_SEO_PAGES = {
 PAGE_FAQ = {
     "home": [
         {
-            "q": "Comment une entreprise peut-elle sous-traiter un projet IoT sur Iotplace ?",
-            "a": "Créez un compte entreprise, décrivez votre besoin (firmware, hardware, cloud) et publiez votre projet. Iotplace vous met en relation avec des startups IoT qualifiées en Asie du Sud-Est.",
+            "q": "How can an enterprise subcontract an IoT project on Iotplace?",
+            "a": "Create an enterprise account, describe your need (firmware, hardware, cloud) and publish your project. Iotplace connects you with qualified IoT startups in Southeast Asia.",
         },
         {
-            "q": "Comment une startup IoT trouve-t-elle des missions de sous-traitance ?",
-            "a": "Inscrivez votre startup, renseignez vos compétences IoT et parcourez les projets ouverts publiés par les entreprises. Postulez directement aux missions qui correspondent à votre expertise.",
+            "q": "How does an IoT startup find subcontracting missions?",
+            "a": "Sign up your startup, list your IoT skills and browse open projects published by enterprises. Apply directly to missions that match your expertise.",
         },
         {
-            "q": "Quels types de projets IoT peut-on sous-traiter ?",
-            "a": "Firmware embarqué, conception PCB, capteurs connectés, protocoles LoRaWAN/MQTT, backends cloud, applications mobiles IoT et intégration système complète.",
+            "q": "What types of IoT projects can be subcontracted?",
+            "a": "Embedded firmware, PCB design, connected sensors, LoRaWAN/MQTT protocols, cloud backends, IoT mobile apps and full system integration.",
         },
         {
-            "q": "Pourquoi externaliser vers des startups IoT en Asie du Sud-Est ?",
-            "a": "Coûts compétitifs, équipes agiles, expertise hardware héritée de l'électronique grand public et fuseaux horaires favorables pour les entreprises européennes et américaines.",
+            "q": "Why outsource to IoT startups in Southeast Asia?",
+            "a": "Competitive costs, agile teams, hardware expertise inherited from consumer electronics and favorable time zones for European and American enterprises.",
         },
     ],
     "enterprises": [
         {
-            "q": "Quels avantages pour externaliser un projet IoT vers une startup ?",
-            "a": "Time-to-market réduit, coûts maîtrisés, accès à des talents spécialisés firmware et hardware sans recruter en interne, avec flexibilité sur la durée des missions.",
+            "q": "What are the benefits of outsourcing an IoT project to a startup?",
+            "a": "Reduced time-to-market, controlled costs, access to specialized firmware and hardware talent without in-house hiring, with flexibility on mission duration.",
         },
         {
-            "q": "Comment Iotplace sécurise la sous-traitance IoT ?",
-            "a": "NDA, contrats encadrés, suivi de projet via la plateforme et paiements sécurisés. Vous gardez le contrôle sur les livrables et la propriété intellectuelle.",
+            "q": "How does Iotplace secure IoT subcontracting?",
+            "a": "NDAs, structured contracts, project tracking via the platform and secure payments. You keep control over deliverables and intellectual property.",
         },
         {
-            "q": "Quelles compétences IoT sont disponibles chez les startups partenaires ?",
-            "a": "Firmware C/C++, RTOS, PCB design, IoT cloud (AWS, Azure), LoRaWAN, BLE, MQTT, prototypage rapide et production en petite série.",
+            "q": "What IoT skills are available among partner startups?",
+            "a": "C/C++ firmware, RTOS, PCB design, IoT cloud (AWS, Azure), LoRaWAN, BLE, MQTT, rapid prototyping and small-batch production.",
         },
     ],
     "startups": [
         {
-            "q": "Comment accéder aux projets de sous-traitance IoT des entreprises ?",
-            "a": "Créez votre profil startup sur Iotplace, listez vos compétences et consultez la page Projets ouverts. Postulez aux missions qui correspondent à votre stack technique.",
+            "q": "How do I access enterprise IoT subcontracting projects?",
+            "a": "Create your startup profile on Iotplace, list your skills and browse open projects. Apply to missions that match your technical stack.",
         },
         {
-            "q": "Quels profils de startups IoT sont recherchés ?",
-            "a": "Équipes expertes en firmware embarqué, électronique, cloud IoT ou intégration bout-en-bout, idéalement basées au Vietnam, en Indonésie, en Thaïlande ou dans la région ASEAN.",
+            "q": "What IoT startup profiles are sought after?",
+            "a": "Teams skilled in embedded firmware, electronics, IoT cloud or end-to-end integration, ideally based in Vietnam, Indonesia, Thailand or the ASEAN region.",
         },
         {
-            "q": "Les missions sont-elles en sous-traitance B2B encadrée ?",
-            "a": "Oui. Les entreprises publient des cahiers des charges avec budget et délais. Iotplace facilite le matching, la contractualisation et le suivi jusqu'à la livraison.",
+            "q": "Are missions structured B2B subcontracting?",
+            "a": "Yes. Enterprises publish specifications with budget and timeline. Iotplace facilitates matching, contracting and tracking through delivery.",
         },
     ],
     "projects": [
         {
-            "q": "Comment postuler à un projet IoT ouvert ?",
-            "a": "Créez un compte startup, complétez votre profil avec vos compétences et contactez l'entreprise via Iotplace ou postulez directement depuis votre tableau de bord.",
+            "q": "How do I apply to an open IoT project?",
+            "a": "Create a startup account, complete your profile with your skills and contact the enterprise via Iotplace or apply directly from your dashboard.",
         },
         {
-            "q": "Qui publie les projets de sous-traitance IoT ?",
-            "a": "Les grandes entreprises et groupes industriels inscrits sur Iotplace qui externalisent une partie de leur développement IoT vers des startups qualifiées.",
+            "q": "Who publishes IoT subcontracting projects?",
+            "a": "Large enterprises and industrial groups on Iotplace that outsource part of their IoT development to qualified startups.",
         },
     ],
 }
 
 BREADCRUMB_LABELS = {
-    "home": "Accueil",
-    "enterprises": "Entreprises",
-    "startups": "Startups IoT",
-    "projects": "Projets IoT",
-    "about": "À propos",
+    "home": "Home",
+    "enterprises": "Enterprises",
+    "startups": "IoT Startups",
+    "projects": "IoT Projects",
+    "about": "About",
     "contact": "Contact",
 }
 
@@ -222,12 +222,12 @@ DEFAULT_DATA = {
             "site_url": "",
             "title_suffix": " | Marketplace IoT B2B",
             "meta_description": (
-                "Iotplace : marketplace B2B de sous-traitance IoT. Entreprises, externalisez vos projets "
-                "vers des startups qualifiées en Asie. Startups IoT, trouvez des missions des grands groupes."
+                "Iotplace: B2B IoT subcontracting marketplace. Enterprises outsource projects "
+                "to qualified startups in Asia. IoT startups find missions from large enterprises."
             ),
             "keywords": (
-                "sous-traitance IoT, externalisation IoT, marketplace IoT B2B, startups IoT Asie, "
-                "Vietnam, Indonésie, firmware, hardware connecté, missions IoT"
+                "IoT subcontracting, IoT outsourcing, B2B IoT marketplace, Asian IoT startups, "
+                "Vietnam, Indonesia, firmware, connected hardware, IoT missions"
             ),
             "og_image": "",
             "twitter_handle": "",
@@ -295,6 +295,25 @@ def get_stats():
 
 def get_enterprises():
     return _load_raw()["enterprises"]
+
+
+def get_public_enterprises():
+    return [e for e in get_enterprises() if e.get("published", True)]
+
+
+def get_public_startup(startup_id):
+    return get_startup(startup_id)
+
+
+def get_public_enterprise(enterprise_id):
+    ent = get_enterprise(enterprise_id)
+    if not ent or not ent.get("published", True):
+        return None
+    return ent
+
+
+def get_public_project(project_id):
+    return get_project(project_id)
 
 
 def get_startups(country=None):
@@ -1199,14 +1218,14 @@ def get_seo_page(slug):
 
 def get_startups_country_seo(country):
     return {
-        "title": f"Startups IoT {country} — Sous-traitance entreprises",
+        "title": f"IoT Startups in {country} — Enterprise subcontracting",
         "description": (
-            f"Startups IoT au {country} : trouvez des missions de sous-traitance publiées par "
-            f"les grandes entreprises — firmware, PCB, cloud et intégration hardware sur Iotplace."
+            f"IoT startups in {country}: find subcontracting missions published by "
+            f"large enterprises — firmware, PCB, cloud and hardware integration on Iotplace."
         ),
         "keywords": (
-            f"startup IoT {country}, sous-traitance IoT {country}, "
-            f"externalisation IoT, développement firmware {country}"
+            f"IoT startup {country}, IoT subcontracting {country}, "
+            f"IoT outsourcing, firmware development {country}"
         ),
     }
 
@@ -1226,7 +1245,7 @@ def get_compte_seo(endpoint):
             "site_name": global_seo.get("site_name", "Iotplace"),
             "twitter_handle": global_seo.get("twitter_handle", ""),
             "robots": "noindex, follow",
-            "locale": "fr_FR",
+            "locale": "en_US",
         }
     return get_seo_for_vitrine(
         "home",
@@ -1259,7 +1278,7 @@ def get_seo_for_vitrine(slug, page_title="", overrides=None, robots="index, foll
         "site_name": global_seo.get("site_name", "Iotplace"),
         "twitter_handle": global_seo.get("twitter_handle", ""),
         "robots": kwargs.get("robots", robots),
-        "locale": "fr_FR",
+        "locale": "en_US",
     }
 
 
@@ -1268,7 +1287,7 @@ def get_page_faq(slug):
 
 
 def build_breadcrumbs(slug, site_url, extra=None):
-    items = [{"name": "Accueil", "url": f"{site_url}/"}]
+    items = [{"name": "Home", "url": f"{site_url}/"}]
     if slug != "home":
         label = BREADCRUMB_LABELS.get(slug, slug)
         meta = get_page_meta(slug)
@@ -1301,7 +1320,7 @@ def build_json_ld(slug, canonical_url, site_url, faq=None, breadcrumbs=None):
         "name": site_name,
         "url": site_url,
         "description": global_seo.get("meta_description", ""),
-        "inLanguage": "fr-FR",
+        "inLanguage": "en-US",
         "potentialAction": {
             "@type": "SearchAction",
             "target": f"{site_url}/startups?country={{search_term_string}}",
@@ -1316,7 +1335,7 @@ def build_json_ld(slug, canonical_url, site_url, faq=None, breadcrumbs=None):
         "description": seo["description"],
         "url": canonical_url,
         "isPartOf": {"@type": "WebSite", "name": site_name, "url": site_url},
-        "inLanguage": "fr-FR",
+        "inLanguage": "en-US",
     })
 
     crumbs = breadcrumbs or build_breadcrumbs(slug, site_url)
@@ -1354,13 +1373,13 @@ def build_json_ld(slug, canonical_url, site_url, faq=None, breadcrumbs=None):
         graphs.append({
             "@context": "https://schema.org",
             "@type": "Service",
-            "name": "Marketplace sous-traitance IoT B2B",
+            "name": "B2B IoT subcontracting marketplace",
             "provider": {"@type": "Organization", "name": site_name},
-            "areaServed": ["Vietnam", "Indonésie", "Thaïlande", "Philippines", "Asie du Sud-Est"],
-            "serviceType": "Sous-traitance et externalisation de projets IoT",
+            "areaServed": ["Vietnam", "Indonesia", "Thailand", "Philippines", "Southeast Asia"],
+            "serviceType": "IoT project subcontracting and outsourcing",
             "audience": [
-                {"@type": "BusinessAudience", "audienceType": "Entreprises IoT cherchant à sous-traiter"},
-                {"@type": "BusinessAudience", "audienceType": "Startups IoT cherchant des missions"},
+                {"@type": "BusinessAudience", "audienceType": "Enterprises looking to subcontract IoT"},
+                {"@type": "BusinessAudience", "audienceType": "IoT startups looking for missions"},
             ],
         })
 
@@ -1395,7 +1414,53 @@ def get_sitemap_entries():
             "changefreq": "weekly",
             "priority": "0.7",
         })
+    for startup in get_startups():
+        entries.append({
+            "loc": f"{site_url}/startups/{startup['id']}",
+            "changefreq": "monthly",
+            "priority": "0.6",
+        })
+    for enterprise in get_public_enterprises():
+        entries.append({
+            "loc": f"{site_url}/enterprises/{enterprise['id']}",
+            "changefreq": "monthly",
+            "priority": "0.6",
+        })
+    for project in get_projects():
+        entries.append({
+            "loc": f"{site_url}/projects/{project['id']}",
+            "changefreq": "weekly",
+            "priority": "0.7",
+        })
     return entries
+
+
+def get_startup_detail_seo(startup):
+    name = startup.get("name", "Startup")
+    country = startup.get("country", "")
+    return {
+        "title": f"{name} — IoT Startup Profile",
+        "description": (startup.get("description") or f"IoT startup {name} profile on Iotplace.")[:300],
+        "keywords": f"IoT startup {name}, {country} IoT, subcontracting, {', '.join(startup.get('skills', [])[:5])}",
+    }
+
+
+def get_enterprise_detail_seo(enterprise):
+    name = enterprise.get("name", "Enterprise")
+    return {
+        "title": f"{name} — Enterprise Profile",
+        "description": (enterprise.get("description") or f"{name} enterprise profile on Iotplace.")[:300],
+        "keywords": f"IoT enterprise {name}, {enterprise.get('sector', '')}, subcontracting client",
+    }
+
+
+def get_project_detail_seo(project):
+    title = project.get("title", "Project")
+    return {
+        "title": f"{title} — Open IoT Project",
+        "description": (project.get("description") or f"IoT subcontracting project: {title}.")[:300],
+        "keywords": f"IoT project {title}, subcontracting, {', '.join(project.get('skills', [])[:5])}",
+    }
 
 
 def get_robots_txt():

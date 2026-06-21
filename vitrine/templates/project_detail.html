@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% from "_seo_macros.html" import breadcrumbs_nav %}
+{% block seo_title %}{{ seo.title }}{% endblock %}
+{% block seo_canonical %}{{ seo_canonical }}{% endblock %}
+
+{% block content %}
+{{ breadcrumbs_nav(seo_breadcrumbs) }}
+<section class="page-hero page-hero-sm">
+    <div class="container reveal">
+        <a href="{{ url_for('vitrine.projects') }}" class="back-link">{{ t('common.back') }}</a>
+        <h1>{{ project.title }}</h1>
+        <p class="page-sub">
+            {{ t('detail.posted_by') }}
+            {% if enterprise %}
+            <a href="{{ url_for('vitrine.enterprise_detail', enterprise_id=enterprise.id) }}">{{ project.enterprise }}</a>
+            {% else %}
+            {{ project.enterprise }}
+            {% endif %}
+            · <span class="status status-{{ project.status|lower|replace(' ', '-') }}">{{ translate_status(project.status) }}</span>
+        </p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container detail-layout">
+        <div class="detail-main reveal">
+            <div class="detail-card">
+                <h2>{{ t('detail.project_details') }}</h2>
+                <p>{{ project.description or t('common.no_description') }}</p>
+                {% if project.skills %}
+                <h3>{{ t('common.skills') }}</h3>
+                <div class="tags">
+                    {% for skill in project.skills %}<span class="tag">{{ skill }}</span>{% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <aside class="detail-sidebar reveal">
+            <div class="detail-card detail-sidebar-card">
+                <dl class="profile-dl">
+                    {% if project.budget %}
+                    <dt>{{ t('common.budget') }}</dt><dd>{{ project.budget }}</dd>
+                    {% endif %}
+                    {% if project.duration %}
+                    <dt>{{ t('common.duration') }}</dt><dd>{{ project.duration }}</dd>
+                    {% endif %}
+                    <dt>{{ t('common.status') }}</dt><dd>{{ translate_status(project.status) }}</dd>
+                </dl>
+                {% if current_user and current_user.role == 'startup' and project.status in ('Ouvert', 'Open') %}
+                <a href="{{ url_for('compte.startup_project_detail', project_id=project.id) }}" class="btn btn-primary btn-glow" style="width:100%;margin-top:1rem">{{ t('detail.apply_startup') }}</a>
+                {% elif not current_user %}
+                <a href="{{ url_for('compte.login', next=url_for('vitrine.project_detail', project_id=project.id)) }}" class="btn btn-primary btn-glow" style="width:100%;margin-top:1rem">{{ t('detail.apply_login') }}</a>
+                <a href="{{ url_for('compte.register_startup') }}" class="btn btn-outline" style="width:100%;margin-top:0.5rem">{{ t('detail.register_startup') }}</a>
+                {% endif %}
+                {% if enterprise %}
+                <a href="{{ url_for('vitrine.enterprise_detail', enterprise_id=enterprise.id) }}" class="btn btn-outline" style="width:100%;margin-top:0.5rem">{{ t('detail.view_enterprise') }}</a>
+                {% endif %}
+            </div>
+        </aside>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% from "_seo_macros.html" import breadcrumbs_nav %}
+{% block seo_title %}{{ seo.title }}{% endblock %}
+{% block seo_canonical %}{{ seo_canonical }}{% endblock %}
+
+{% block content %}
+{{ breadcrumbs_nav(seo_breadcrumbs) }}
+<section class="page-hero page-hero-sm">
+    <div class="container reveal">
+        <a href="{{ url_for('vitrine.startups') }}" class="back-link">{{ t('common.back') }}</a>
+        <div class="detail-hero-header">
+            {% if startup.flag %}<span class="flag flag-lg">{{ startup.flag }}</span>{% endif %}
+            <div>
+                <h1>{{ startup.name }}</h1>
+                <p class="page-sub">
+                    {% if startup.specialty %}{{ startup.specialty }} · {% endif %}
+                    {{ startup.city }}{% if startup.city and startup.country %}, {% endif %}{{ startup.country }}
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container detail-layout">
+        <div class="detail-main reveal">
+            <div class="detail-card">
+                <h2>{{ t('common.description') }}</h2>
+                <p>{{ startup.description or t('common.no_description') }}</p>
+                {% if startup.skills %}
+                <h3>{{ t('common.skills') }}</h3>
+                <div class="tags">
+                    {% for skill in startup.skills %}<span class="tag">{{ skill }}</span>{% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <aside class="detail-sidebar reveal">
+            <div class="detail-card detail-sidebar-card">
+                <h3>{{ t('detail.startup_profile') }}</h3>
+                <dl class="profile-dl">
+                    {% if startup.rating %}
+                    <dt>{{ t('common.rating') }}</dt><dd>★ {{ startup.rating }}</dd>
+                    {% endif %}
+                    {% if startup.team_size %}
+                    <dt>{{ t('common.team_size') }}</dt><dd>{{ startup.team_size }} {{ t('common.people') }}</dd>
+                    {% endif %}
+                    {% if startup.projects_done %}
+                    <dt>{{ t('common.projects_done') }}</dt><dd>{{ startup.projects_done }}</dd>
+                    {% endif %}
+                    {% if startup.availability %}
+                    <dt>{{ t('common.availability') }}</dt><dd>{{ startup.availability }}</dd>
+                    {% endif %}
+                    {% if startup.rate_range %}
+                    <dt>{{ t('common.rate_range') }}</dt><dd>{{ startup.rate_range }}</dd>
+                    {% endif %}
+                </dl>
+                <a href="{{ url_for('vitrine.contact') }}" class="btn btn-primary btn-glow" style="width:100%;margin-top:1rem">{{ t('detail.contact_enterprise') }}</a>
+                <a href="{{ url_for('compte.register_startup') }}" class="btn btn-outline" style="width:100%;margin-top:0.5rem">{{ t('detail.register_startup') }}</a>
+            </div>
+        </aside>
+    </div>
+</section>
+{% endblock %}

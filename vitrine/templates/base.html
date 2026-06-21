@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ locale|default('en') }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,7 +12,7 @@
 
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="{{ seo.site_name }}">
-    <meta property="og:locale" content="{{ seo.locale|default('fr_FR') }}">
+    <meta property="og:locale" content="{{ seo.locale|default('en_US') }}">
     <meta property="og:url" content="{{ seo_canonical }}">
     <meta property="og:title" content="{% block og_title %}{{ seo.title }}{% endblock %}">
     <meta property="og:description" content="{% block og_description %}{{ seo.description }}{% endblock %}">
@@ -24,7 +24,7 @@
     {% if seo.twitter_handle %}<meta name="twitter:site" content="@{{ seo.twitter_handle.lstrip('@') }}">{% endif %}
     {% if seo.og_image_abs %}<meta name="twitter:image" content="{{ seo.og_image_abs }}">{% endif %}
 
-    <link rel="alternate" hreflang="fr" href="{{ seo_canonical }}">
+    <link rel="alternate" hreflang="en" href="{{ seo_canonical }}">
     <link rel="alternate" hreflang="x-default" href="{{ seo_canonical }}">
 
     {% for graph in seo_json_ld|default([]) %}
@@ -37,8 +37,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/style.css') }}?v=3">
-    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/iot-theme.css') }}?v=2">
+    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/style.css') }}?v=4">
+    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/iot-theme.css') }}?v=3">
     <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/dashboard-ux.css') }}?v=1">
     {% block extra_head %}{% endblock %}
 </head>
@@ -53,48 +53,48 @@
         <div class="grid-overlay"></div>
     </div>
 
-    <nav class="navbar" aria-label="Navigation principale">
+    <nav class="navbar" aria-label="Main navigation">
         <div class="container nav-inner">
-            <a href="{{ url_for('vitrine.index') }}" class="logo" aria-label="Iotplace — Accueil">
+            <a href="{{ url_for('vitrine.index') }}" class="logo" aria-label="{{ t('nav.home_aria') }}">
                 <span class="logo-icon pulse" aria-hidden="true">⬡</span>
                 <span class="logo-text">Iot<span class="accent">place</span></span>
             </a>
-            <button class="nav-toggle" aria-label="Menu" onclick="document.querySelector('.nav-links').classList.toggle('open')">
+            <button class="nav-toggle" aria-label="{{ t('nav.menu') }}" onclick="document.querySelector('.nav-links').classList.toggle('open')">
                 <span></span><span></span><span></span>
             </button>
             <ul class="nav-links">
-                <li><a href="{{ url_for('vitrine.index') }}" {% if request.endpoint == 'vitrine.index' %}class="active"{% endif %}>Accueil</a></li>
-                <li><a href="{{ url_for('vitrine.enterprises') }}" {% if request.endpoint == 'vitrine.enterprises' %}class="active"{% endif %}>Entreprises</a></li>
-                <li><a href="{{ url_for('vitrine.startups') }}" {% if request.endpoint == 'vitrine.startups' %}class="active"{% endif %}>Startups</a></li>
-                <li><a href="{{ url_for('vitrine.projects') }}" {% if request.endpoint == 'vitrine.projects' %}class="active"{% endif %}>Projets</a></li>
-                <li><a href="{{ url_for('vitrine.about') }}" {% if request.endpoint == 'vitrine.about' %}class="active"{% endif %}>À propos</a></li>
+                <li><a href="{{ url_for('vitrine.index') }}" {% if request.endpoint == 'vitrine.index' %}class="active"{% endif %}>{{ t('nav.home') }}</a></li>
+                <li><a href="{{ url_for('vitrine.enterprises') }}" {% if request.endpoint in ('vitrine.enterprises', 'vitrine.enterprise_detail') %}class="active"{% endif %}>{{ t('nav.enterprises') }}</a></li>
+                <li><a href="{{ url_for('vitrine.startups') }}" {% if request.endpoint in ('vitrine.startups', 'vitrine.startup_detail') %}class="active"{% endif %}>{{ t('nav.startups') }}</a></li>
+                <li><a href="{{ url_for('vitrine.projects') }}" {% if request.endpoint in ('vitrine.projects', 'vitrine.project_detail') %}class="active"{% endif %}>{{ t('nav.projects') }}</a></li>
+                <li><a href="{{ url_for('vitrine.about') }}" {% if request.endpoint == 'vitrine.about' %}class="active"{% endif %}>{{ t('nav.about') }}</a></li>
                 {% if current_user %}
                 <li>
                     <a href="{{ url_for('compte.home') }}" class="btn btn-sm btn-outline nav-msg-link">
-                        Messages
+                        {{ t('nav.messages') }}
                         <span class="nav-msg-badge" data-msg-badge {% if not unread_count|default(0) %}hidden{% endif %}>{{ unread_count|default(0) or '' }}</span>
                     </a>
                 </li>
                 {% else %}
-                <li><a href="{{ url_for('compte.login') }}">Connexion</a></li>
+                <li><a href="{{ url_for('compte.login') }}">{{ t('nav.login') }}</a></li>
                 <li class="nav-dropdown">
                     <button type="button" class="btn btn-sm btn-outline nav-dropdown-toggle" aria-expanded="false" aria-haspopup="true" aria-controls="nav-register-menu" id="nav-register-toggle">
-                        S'inscrire
+                        {{ t('nav.signup') }}
                         <svg class="nav-dropdown-chevron" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
                     </button>
                     <div class="nav-dropdown-menu" id="nav-register-menu" role="menu" aria-labelledby="nav-register-toggle">
                         <a href="{{ url_for('compte.register_enterprise') }}" role="menuitem" class="nav-dropdown-item" {% if request.endpoint == 'compte.register_enterprise' %}aria-current="page"{% endif %}>
-                            <span class="nav-dropdown-item-title">Entreprise</span>
-                            <span class="nav-dropdown-item-desc">Publier un projet IoT</span>
+                            <span class="nav-dropdown-item-title">{{ t('nav.signup_enterprise') }}</span>
+                            <span class="nav-dropdown-item-desc">{{ t('nav.signup_enterprise_desc') }}</span>
                         </a>
                         <a href="{{ url_for('compte.register_startup') }}" role="menuitem" class="nav-dropdown-item" {% if request.endpoint == 'compte.register_startup' %}aria-current="page"{% endif %}>
-                            <span class="nav-dropdown-item-title">Startup</span>
-                            <span class="nav-dropdown-item-desc">Trouver des missions</span>
+                            <span class="nav-dropdown-item-title">{{ t('nav.signup_startup') }}</span>
+                            <span class="nav-dropdown-item-desc">{{ t('nav.signup_startup_desc') }}</span>
                         </a>
                     </div>
                 </li>
                 {% endif %}
-                <li><a href="{{ url_for('vitrine.contact') }}" class="btn btn-sm btn-primary">Contact</a></li>
+                <li><a href="{{ url_for('vitrine.contact') }}" class="btn btn-sm btn-primary">{{ t('nav.contact') }}</a></li>
             </ul>
         </div>
     </nav>
@@ -120,38 +120,38 @@
                     <span class="logo-icon" aria-hidden="true">⬡</span>
                     <span class="logo-text">Iot<span class="accent">place</span></span>
                 </a>
-                <p>Marketplace B2B de <strong>sous-traitance IoT</strong> : entreprises qui externalisent firmware, hardware et cloud vers des startups qualifiées en Asie du Sud-Est.</p>
+                <p>{{ t('footer.tagline') }}</p>
             </div>
             <div>
-                <h4>Entreprises</h4>
+                <h4>{{ t('footer.enterprises') }}</h4>
                 <ul>
-                    <li><a href="{{ url_for('vitrine.enterprises') }}">Sous-traiter un projet IoT</a></li>
-                    <li><a href="{{ url_for('compte.register_enterprise') }}">Inscription entreprise</a></li>
-                    <li><a href="{{ url_for('vitrine.projects') }}">Publier un projet</a></li>
+                    <li><a href="{{ url_for('vitrine.enterprises') }}">{{ t('footer.outsource_project') }}</a></li>
+                    <li><a href="{{ url_for('compte.register_enterprise') }}">{{ t('footer.enterprise_signup') }}</a></li>
+                    <li><a href="{{ url_for('vitrine.projects') }}">{{ t('footer.publish_project') }}</a></li>
                 </ul>
             </div>
             <div>
-                <h4>Startups IoT</h4>
+                <h4>{{ t('footer.startups') }}</h4>
                 <ul>
-                    <li><a href="{{ url_for('vitrine.startups') }}">Trouver des missions</a></li>
-                    <li><a href="{{ url_for('compte.register_startup') }}">Inscription startup</a></li>
+                    <li><a href="{{ url_for('vitrine.startups') }}">{{ t('footer.find_missions') }}</a></li>
+                    <li><a href="{{ url_for('compte.register_startup') }}">{{ t('footer.startup_signup') }}</a></li>
                     {% for country in countries|default([]) %}
-                    <li><a href="{{ url_for('vitrine.startups', country=country) }}">Startups {{ country }}</a></li>
+                    <li><a href="{{ url_for('vitrine.startups', country=country) }}">{{ t('footer.startups_in', country=country) }}</a></li>
                     {% endfor %}
                 </ul>
             </div>
             <div>
-                <h4>Plateforme</h4>
+                <h4>{{ t('footer.platform') }}</h4>
                 <ul>
-                    <li><a href="{{ url_for('vitrine.about') }}">À propos</a></li>
-                    <li><a href="{{ url_for('vitrine.contact') }}">Contact</a></li>
-                    <li><a href="{{ url_for('vitrine.sitemap_xml') }}">Plan du site</a></li>
+                    <li><a href="{{ url_for('vitrine.about') }}">{{ t('footer.about') }}</a></li>
+                    <li><a href="{{ url_for('vitrine.contact') }}">{{ t('footer.contact') }}</a></li>
+                    <li><a href="{{ url_for('vitrine.sitemap_xml') }}">{{ t('footer.sitemap') }}</a></li>
                 </ul>
             </div>
         </div>
         <div class="footer-bottom container">
-            <p>&copy; 2026 Iotplace — Sous-traitance IoT B2B. Tous droits réservés.</p>
-            <a href="{{ url_for('crm.dashboard') }}" class="footer-admin-link" rel="nofollow">Administration</a>
+            <p>{{ t('footer.copyright') }}</p>
+            <a href="{{ url_for('crm.dashboard') }}" class="footer-admin-link" rel="nofollow">{{ t('footer.admin') }}</a>
         </div>
     </footer>
 

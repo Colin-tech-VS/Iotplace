@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% from "_seo_macros.html" import faq_section, breadcrumbs_nav %}
-{% block title %}Projets{% endblock %}
+{% block title %}{{ t('nav.projects') }}{% endblock %}
 
 {% block content %}
 {{ breadcrumbs_nav(seo_breadcrumbs) }}
@@ -8,7 +8,7 @@
     <div class="container reveal">
         <h1>{{ page.title }}</h1>
         <p class="page-sub">{{ page.subtitle }}</p>
-        <p class="seo-intro">Liste des <strong>projets IoT ouverts à la sous-traitance</strong> : startups, consultez les missions et postulez. Entreprises, <a href="{{ url_for('compte.register_enterprise') }}">publiez votre besoin</a>.</p>
+        <p class="seo-intro">{{ t('projects.seo_intro', register_url=url_for('compte.register_enterprise'))|safe }}</p>
     </div>
 </section>
 
@@ -17,7 +17,7 @@
         {% if projects %}
         <div class="projects-list projects-full">
             {% for project in projects %}
-            <div class="project-row project-card-full reveal">
+            <a href="{{ url_for('vitrine.project_detail', project_id=project.id) }}" class="project-row project-card-full project-row-link reveal">
                 <div class="project-info">
                     <h3>{{ project.title }}</h3>
                     <span class="meta">{{ project.enterprise }}</span>
@@ -32,32 +32,30 @@
                 <div class="project-meta">
                     {% if project.budget %}
                     <div class="project-detail">
-                        <span class="label">Budget</span>
+                        <span class="label">{{ t('common.budget') }}</span>
                         <span class="budget">{{ project.budget }}</span>
                     </div>
                     {% endif %}
                     {% if project.duration %}
                     <div class="project-detail">
-                        <span class="label">Durée</span>
+                        <span class="label">{{ t('common.duration') }}</span>
                         <span class="duration">{{ project.duration }}</span>
                     </div>
                     {% endif %}
-                    <span class="status status-{{ project.status|lower|replace(' ', '-') }}">{{ project.status }}</span>
-                    {% if project.status == 'Ouvert' %}
-                    <a href="{{ url_for('vitrine.contact') }}" class="btn btn-sm btn-primary">Postuler</a>
-                    {% endif %}
+                    <span class="status status-{{ project.status|lower|replace(' ', '-') }}">{{ translate_status(project.status) }}</span>
+                    <span class="card-link-hint">{{ t('common.view_details') }} →</span>
                 </div>
-            </div>
+            </a>
             {% endfor %}
         </div>
         {% else %}
         <div class="empty-state reveal">
             <div class="empty-icon">📋</div>
-            <p>Aucun projet publié pour le moment. <a href="{{ url_for('vitrine.contact') }}">Soyez le premier</a>.</p>
+            <p>{{ t('projects.no_projects', link='<a href="' ~ url_for('vitrine.contact') ~ '">' ~ t('projects.be_first') ~ '</a>')|safe }}</p>
         </div>
         {% endif %}
     </div>
 </section>
 
-{{ faq_section(seo_faq, "FAQ — Projets IoT ouverts") }}
+{{ faq_section(seo_faq, t('projects.faq_title')) }}
 {% endblock %}

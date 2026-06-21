@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}À propos{% endblock %}
+{% block title %}{{ t('nav.about') }}{% endblock %}
 
 {% block content %}
 <section class="page-hero">
@@ -12,42 +12,36 @@
 <section class="section">
     <div class="container about-content">
         <div class="about-block reveal">
-            <h2>Notre mission</h2>
+            <h2>{{ t('about.mission_title') }}</h2>
             <p>{{ page.mission_1 }}</p>
             <p>{{ page.mission_2 }}</p>
         </div>
 
         <div class="about-block reveal">
-            <h2>Le modèle</h2>
+            <h2>{{ t('about.model_title') }}</h2>
             <div class="model-grid">
                 <div class="model-card">
-                    <h3>🏢 Entreprises (donneurs d'ordre)</h3>
+                    <h3>{{ t('about.model_enterprise_title') }}</h3>
                     <ul>
-                        <li>Publient des projets de sous-traitance IoT</li>
-                        <li>Définissent budget, délais et compétences requises</li>
-                        <li>Sélectionnent les startups via notre matching</li>
-                        <li>Suivent l'avancement via le dashboard Iotplace</li>
+                        {% for item in t('about.model_enterprise_items') %}
+                        <li>{{ item }}</li>
+                        {% endfor %}
                     </ul>
                 </div>
                 <div class="model-card">
-                    <h3>🚀 Startups (sous-traitants)</h3>
+                    <h3>{{ t('about.model_startup_title') }}</h3>
                     <ul>
-                        <li>Créent un profil avec leurs compétences IoT</li>
-                        <li>Accèdent aux projets des grandes entreprises</li>
-                        <li>Postulent et négocient les missions</li>
-                        <li>Livrent et sont payées via notre système escrow</li>
+                        {% for item in t('about.model_startup_items') %}
+                        <li>{{ item }}</li>
+                        {% endfor %}
                     </ul>
                 </div>
             </div>
         </div>
 
         <div class="about-block reveal">
-            <h2>Pourquoi l'Asie du Sud-Est ?</h2>
-            <p>
-                Le Vietnam, l'Indonésie, la Thaïlande et les Philippines forment un hub IoT en pleine explosion :
-                ingénieurs formés, coûts compétitifs, fuseaux horaires favorables, et une culture d'innovation hardware
-                héritée de l'électronique grand public. Iotplace valorise ces talents auprès des entreprises mondiales.
-            </p>
+            <h2>{{ t('about.why_sea_title') }}</h2>
+            <p>{{ t('about.why_sea_text') }}</p>
         </div>
     </div>
 </section>

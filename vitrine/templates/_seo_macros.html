@@ -1,4 +1,4 @@
-{% macro faq_section(faq_items, title="Questions fréquentes") %}
+{% macro faq_section(faq_items, title="Frequently asked questions") %}
 {% if faq_items %}
 <section class="section seo-faq" aria-labelledby="faq-heading">
     <div class="container">
@@ -20,7 +20,7 @@
 
 {% macro breadcrumbs_nav(crumbs) %}
 {% if crumbs|length > 1 %}
-<nav class="seo-breadcrumbs container" aria-label="Fil d'Ariane">
+<nav class="seo-breadcrumbs container" aria-label="Breadcrumb">
     <ol>
         {% for crumb in crumbs %}
         <li>

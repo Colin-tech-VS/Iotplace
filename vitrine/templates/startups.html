@@ -1,15 +1,15 @@
 {% extends "base.html" %}
 {% from "_seo_macros.html" import faq_section, breadcrumbs_nav %}
-{% block title %}Startups{% endblock %}
+{% block title %}{{ t('nav.startups') }}{% endblock %}
 
 {% block content %}
 {{ breadcrumbs_nav(seo_breadcrumbs) }}
 <section class="page-hero">
     <div class="container reveal">
-        <h1>{% if selected_country %}Startups IoT {{ selected_country }} — missions de sous-traitance{% else %}{{ page.title }}{% endif %}</h1>
-        <p class="page-sub">{% if selected_country %}Startups IoT au {{ selected_country }} : postulez aux projets de sous-traitance publiés par les entreprises sur Iotplace.{% else %}{{ page.subtitle }}{% endif %}</p>
+        <h1>{% if selected_country %}{{ t('startups.country_title', country=selected_country) }}{% else %}{{ page.title }}{% endif %}</h1>
+        <p class="page-sub">{% if selected_country %}{{ t('startups.country_sub', country=selected_country) }}{% else %}{{ page.subtitle }}{% endif %}</p>
         {% if not selected_country %}
-        <p class="seo-intro">Vous êtes une <strong>startup IoT</strong> et cherchez des <strong>missions de sous-traitance</strong> ? Parcourez les projets ouverts et inscrivez-vous pour postuler aux besoins firmware, hardware et cloud des grands groupes.</p>
+        <p class="seo-intro">{{ t('startups.seo_intro')|safe }}</p>
         {% endif %}
     </div>
 </section>
@@ -18,8 +18,8 @@
     <div class="container">
         {% if countries %}
         <div class="filter-bar reveal">
-            <span>Filtrer par pays :</span>
-            <a href="{{ url_for('vitrine.startups') }}" class="filter-btn {% if not selected_country %}active{% endif %}">Tous</a>
+            <span>{{ t('common.filter_by_country') }}</span>
+            <a href="{{ url_for('vitrine.startups') }}" class="filter-btn {% if not selected_country %}active{% endif %}">{{ t('common.all') }}</a>
             {% for country in countries %}
             <a href="{{ url_for('vitrine.startups', country=country) }}" class="filter-btn {% if selected_country == country %}active{% endif %}">{{ country }}</a>
             {% endfor %}
@@ -29,7 +29,7 @@
         {% if startups %}
         <div class="cards-grid">
             {% for startup in startups %}
-            <div class="card startup-card reveal">
+            <a href="{{ url_for('vitrine.startup_detail', startup_id=startup.id) }}" class="card startup-card card-clickable reveal">
                 <div class="card-header">
                     {% if startup.flag %}<span class="flag">{{ startup.flag }}</span>{% endif %}
                     <div>
@@ -48,17 +48,17 @@
                 {% endif %}
                 <div class="card-footer">
                     {% if startup.rating %}<span class="rating">★ {{ startup.rating }}</span>{% endif %}
-                    {% if startup.team_size %}<span class="meta">{{ startup.team_size }} personnes</span>{% endif %}
-                    {% if startup.projects_done %}<span class="meta">{{ startup.projects_done }} projets</span>{% endif %}
+                    {% if startup.team_size %}<span class="meta">{{ startup.team_size }} {{ t('common.people') }}</span>{% endif %}
+                    {% if startup.projects_done %}<span class="meta">{{ startup.projects_done }} {{ t('common.projects_done') }}</span>{% endif %}
                 </div>
-                <a href="{{ url_for('vitrine.contact') }}" class="btn btn-sm btn-outline" style="margin-top: 1rem; width: 100%; text-align: center;">Proposer un projet</a>
-            </div>
+                <span class="card-link-hint">{{ t('common.view_details') }} →</span>
+            </a>
             {% endfor %}
         </div>
         {% else %}
         <div class="empty-state reveal">
             <div class="empty-icon">🚀</div>
-            <p>{% if selected_country %}Aucune startup trouvée pour ce pays.{% else %}Aucune startup inscrite pour le moment.{% endif %}</p>
+            <p>{% if selected_country %}{{ t('startups.no_country') }}{% else %}{{ t('startups.no_startups') }}{% endif %}</p>
         </div>
         {% endif %}
     </div>
@@ -66,11 +66,11 @@
 
 <section class="cta-section">
     <div class="container cta-inner reveal">
-        <h2>Vous êtes une startup IoT en Asie ?</h2>
-        <p>Inscrivez-vous sur Iotplace et accédez aux projets de sous-traitance des grandes entreprises.</p>
-        <a href="{{ url_for('compte.register_startup') }}" class="btn btn-primary btn-lg btn-glow">Rejoindre la plateforme</a>
+        <h2>{{ t('startups.cta_title') }}</h2>
+        <p>{{ t('startups.cta_sub') }}</p>
+        <a href="{{ url_for('compte.register_startup') }}" class="btn btn-primary btn-lg btn-glow">{{ t('startups.cta_btn') }}</a>
     </div>
 </section>
 
-{{ faq_section(seo_faq, "FAQ — Missions IoT pour startups") }}
+{{ faq_section(seo_faq, t('startups.faq_title')) }}
 {% endblock %}

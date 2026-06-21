@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% from "_seo_macros.html" import faq_section, breadcrumbs_nav %}
-{% block title %}Entreprises{% endblock %}
+{% block title %}{{ t('nav.enterprises') }}{% endblock %}
 
 {% block content %}
 {{ breadcrumbs_nav(seo_breadcrumbs) }}
@@ -8,7 +8,7 @@
     <div class="container reveal">
         <h1>{{ page.title }}</h1>
         <p class="page-sub">{{ page.subtitle }}</p>
-        <p class="seo-intro">Vous cherchez à <strong>sous-traiter un projet IoT</strong> ? Iotplace vous met en relation avec des startups expertes en firmware, PCB, cloud et intégration hardware en Asie du Sud-Est.</p>
+        <p class="seo-intro">{{ t('enterprises.seo_intro')|safe }}</p>
     </div>
 </section>
 
@@ -17,23 +17,23 @@
         <div class="benefits-grid">
             <div class="benefit reveal">
                 <div class="benefit-icon float-icon">⚡</div>
-                <h3>Rapidité</h3>
-                <p>Des équipes agiles qui livrent en semaines, pas en mois.</p>
+                <h3>{{ t('enterprises.benefit_speed_title') }}</h3>
+                <p>{{ t('enterprises.benefit_speed_text') }}</p>
             </div>
             <div class="benefit reveal">
                 <div class="benefit-icon float-icon delay-1">💰</div>
-                <h3>Coûts optimisés</h3>
-                <p>Des tarifs compétitifs par rapport aux équipes internes occidentales.</p>
+                <h3>{{ t('enterprises.benefit_cost_title') }}</h3>
+                <p>{{ t('enterprises.benefit_cost_text') }}</p>
             </div>
             <div class="benefit reveal">
                 <div class="benefit-icon float-icon delay-2">🛡️</div>
-                <h3>Sécurité</h3>
-                <p>Contrats, NDA, suivi qualité et paiements escrow intégrés.</p>
+                <h3>{{ t('enterprises.benefit_security_title') }}</h3>
+                <p>{{ t('enterprises.benefit_security_text') }}</p>
             </div>
             <div class="benefit reveal">
                 <div class="benefit-icon float-icon delay-3">🎯</div>
-                <h3>Matching intelligent</h3>
-                <p>Trouvez la startup parfaite selon vos compétences et votre budget.</p>
+                <h3>{{ t('enterprises.benefit_matching_title') }}</h3>
+                <p>{{ t('enterprises.benefit_matching_text') }}</p>
             </div>
         </div>
     </div>
@@ -42,13 +42,13 @@
 <section class="section section-alt">
     <div class="container">
         <div class="section-header reveal">
-            <h2>Entreprises partenaires</h2>
-            <p>Les leaders de l'IoT qui sous-traitent via Iotplace.</p>
+            <h2>{{ t('enterprises.partners_title') }}</h2>
+            <p>{{ t('enterprises.partners_sub') }}</p>
         </div>
         {% if enterprises %}
         <div class="cards-grid">
             {% for ent in enterprises %}
-            <div class="card enterprise-card reveal">
+            <a href="{{ url_for('vitrine.enterprise_detail', enterprise_id=ent.id) }}" class="card enterprise-card card-clickable reveal">
                 <div class="enterprise-logo">{{ ent.logo_initials or ent.name[:2]|upper }}</div>
                 <h3>{{ ent.name }}</h3>
                 {% if ent.sector %}<span class="meta">{{ ent.sector }}</span>{% endif %}
@@ -60,13 +60,14 @@
                     {% endfor %}
                 </div>
                 {% endif %}
-            </div>
+                <span class="card-link-hint">{{ t('common.view_details') }} →</span>
+            </a>
             {% endfor %}
         </div>
         {% else %}
         <div class="empty-state reveal">
             <div class="empty-icon">🏢</div>
-            <p>Aucune entreprise partenaire pour le moment.</p>
+            <p>{{ t('enterprises.no_partners') }}</p>
         </div>
         {% endif %}
     </div>
@@ -75,13 +76,13 @@
 <section class="section">
     <div class="container">
         <div class="section-header reveal">
-            <h2>Projets ouverts</h2>
-            <p>Missions de sous-traitance actuellement disponibles.</p>
+            <h2>{{ t('enterprises.open_projects_title') }}</h2>
+            <p>{{ t('enterprises.open_projects_sub') }}</p>
         </div>
         {% if projects %}
         <div class="projects-list">
             {% for project in projects %}
-            <div class="project-row reveal">
+            <a href="{{ url_for('vitrine.project_detail', project_id=project.id) }}" class="project-row project-row-link reveal">
                 <div class="project-info">
                     <h3>{{ project.title }}</h3>
                     <span class="meta">{{ project.enterprise }}</span>
@@ -96,22 +97,22 @@
                 <div class="project-meta">
                     {% if project.budget %}<span class="budget">{{ project.budget }}</span>{% endif %}
                     {% if project.duration %}<span class="duration">{{ project.duration }}</span>{% endif %}
-                    <span class="status status-{{ project.status|lower|replace(' ', '-') }}">{{ project.status }}</span>
+                    <span class="status status-{{ project.status|lower|replace(' ', '-') }}">{{ translate_status(project.status) }}</span>
                 </div>
-            </div>
+            </a>
             {% endfor %}
         </div>
         {% else %}
         <div class="empty-state reveal">
             <div class="empty-icon">📋</div>
-            <p>Aucun projet ouvert pour le moment.</p>
+            <p>{{ t('enterprises.no_projects') }}</p>
         </div>
         {% endif %}
         <div style="text-align: center; margin-top: 2rem;" class="reveal">
-            <a href="{{ url_for('compte.register_enterprise') }}" class="btn btn-primary btn-lg btn-glow">Publier un projet IoT</a>
+            <a href="{{ url_for('compte.register_enterprise') }}" class="btn btn-primary btn-lg btn-glow">{{ t('enterprises.publish_btn') }}</a>
         </div>
     </div>
 </section>
 
-{{ faq_section(seo_faq, "FAQ — Externaliser un projet IoT") }}
+{{ faq_section(seo_faq, t('enterprises.faq_title')) }}
 {% endblock %}

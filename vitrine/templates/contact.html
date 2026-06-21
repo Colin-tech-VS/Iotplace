@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Contact{% endblock %}
+{% block title %}{{ t('nav.contact') }}{% endblock %}
 
 {% block content %}
 <section class="page-hero">
@@ -14,56 +14,56 @@
         <div class="contact-grid">
             <form class="contact-form reveal" method="POST" action="{{ url_for('vitrine.contact') }}">
                 <div class="form-group">
-                    <label for="type">Je suis</label>
+                    <label for="type">{{ t('contact.i_am') }}</label>
                     <select id="type" name="type" required>
-                        <option value="">— Choisir —</option>
-                        <option value="enterprise">Une grande entreprise (donneur d'ordre)</option>
-                        <option value="startup">Une startup IoT (sous-traitant)</option>
-                        <option value="other">Autre</option>
+                        <option value="">{{ t('contact.choose') }}</option>
+                        <option value="enterprise">{{ t('contact.type_enterprise') }}</option>
+                        <option value="startup">{{ t('contact.type_startup') }}</option>
+                        <option value="other">{{ t('contact.type_other') }}</option>
                     </select>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="name">Nom / Société</label>
-                        <input type="text" id="name" name="name" required placeholder="Votre nom ou raison sociale">
+                        <label for="name">{{ t('contact.name') }}</label>
+                        <input type="text" id="name" name="name" required placeholder="{{ t('contact.name_ph') }}">
                     </div>
                     <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" name="email" required placeholder="contact@exemple.com">
+                        <label for="email">{{ t('contact.email') }}</label>
+                        <input type="email" id="email" name="email" required placeholder="{{ t('contact.email_ph') }}">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="country">Pays</label>
-                    <input type="text" id="country" name="country" placeholder="France, Vietnam, Indonésie…">
+                    <label for="country">{{ t('contact.country') }}</label>
+                    <input type="text" id="country" name="country" placeholder="{{ t('contact.country_ph') }}">
                 </div>
                 <div class="form-group">
-                    <label for="message">Message</label>
-                    <textarea id="message" name="message" rows="5" required placeholder="Décrivez votre besoin ou votre profil IoT…"></textarea>
+                    <label for="message">{{ t('contact.message') }}</label>
+                    <textarea id="message" name="message" rows="5" required placeholder="{{ t('contact.message_ph') }}"></textarea>
                 </div>
-                <button type="submit" class="btn btn-primary btn-lg btn-glow">Envoyer</button>
+                <button type="submit" class="btn btn-primary btn-lg btn-glow">{{ t('contact.send') }}</button>
             </form>
 
             <div class="contact-info reveal">
-                <h3>Informations</h3>
+                <h3>{{ t('contact.info') }}</h3>
                 <div class="info-item">
-                    <span class="info-label">Email</span>
+                    <span class="info-label">{{ t('contact.email') }}</span>
                     <span>{{ page.email }}</span>
                 </div>
                 <div class="info-item">
-                    <span class="info-label">Réponse</span>
-                    <span>Sous 48 heures ouvrées</span>
+                    <span class="info-label">{{ t('contact.response') }}</span>
+                    <span>{{ t('contact.response_time') }}</span>
                 </div>
 
                 <div class="contact-cards">
                     <div class="mini-card">
-                        <h4>🏢 Entreprise ?</h4>
-                        <p>Publiez vos projets IoT et trouvez la startup idéale en Asie.</p>
-                        <a href="{{ url_for('compte.register_enterprise') }}" class="btn btn-sm btn-primary">Créer un compte entreprise</a>
+                        <h4>{{ t('contact.enterprise_card_title') }}</h4>
+                        <p>{{ t('contact.enterprise_card_text') }}</p>
+                        <a href="{{ url_for('compte.register_enterprise') }}" class="btn btn-sm btn-primary">{{ t('contact.enterprise_card_btn') }}</a>
                     </div>
                     <div class="mini-card">
-                        <h4>🚀 Startup ?</h4>
-                        <p>Accédez aux missions de sous-traitance des grandes entreprises.</p>
-                        <a href="{{ url_for('compte.register_startup') }}" class="btn btn-sm btn-outline">Créer un compte startup</a>
+                        <h4>{{ t('contact.startup_card_title') }}</h4>
+                        <p>{{ t('contact.startup_card_text') }}</p>
+                        <a href="{{ url_for('compte.register_startup') }}" class="btn btn-sm btn-outline">{{ t('contact.startup_card_btn') }}</a>
                     </div>
                 </div>
             </div>

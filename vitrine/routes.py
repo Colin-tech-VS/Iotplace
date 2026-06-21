@@ -1,9 +1,11 @@
-from flask import render_template, request, redirect, url_for, flash, session, jsonify, Response
+from flask import render_template, request, redirect, url_for, flash, session, jsonify, Response, abort
+
 import uuid
 
 import auth
 from data import store
 from vitrine import vitrine_bp
+from vitrine.i18n import get_locale, t, translate_status
 
 ENDPOINT_PAGE_SLUG = {
     "vitrine.index": "home",
@@ -13,6 +15,16 @@ ENDPOINT_PAGE_SLUG = {
     "vitrine.about": "about",
     "vitrine.contact": "contact",
 }
+
+
+@vitrine_bp.route("/projets")
+def legacy_projects():
+    return redirect(url_for("vitrine.projects", **request.args), code=301)
+
+
+@vitrine_bp.route("/a-propos")
+def legacy_about():
+    return redirect(url_for("vitrine.about", **request.args), code=301)
 
 
 def _resolve_page_slug():
@@ -65,8 +77,15 @@ def inject_vitrine_context():
     if request.endpoint == "vitrine.startups" and request.args.get("country"):
         country = request.args.get("country")
         seo_overrides = store.get_startups_country_seo(country)
-        breadcrumbs_extra = {"name": f"Startups {country}", "url": store.build_canonical_url(site_url, request.path, request.query_string)}
-    canonical = store.build_canonical_url(site_url, request.path, request.query_string if request.args.get("country") else b"")
+        breadcrumbs_extra = {
+            "name": f"Startups {country}",
+            "url": store.build_canonical_url(site_url, request.path, request.query_string),
+        }
+    canonical = store.build_canonical_url(
+        site_url,
+        request.path,
+        request.query_string if request.args.get("country") else b"",
+    )
     breadcrumbs = store.build_breadcrumbs(slug, site_url, breadcrumbs_extra)
     faq = store.get_page_faq(slug)
     user = auth.get_current_user()
@@ -85,6 +104,9 @@ def inject_vitrine_context():
         "analytics_enabled": enabled,
         "current_user": user,
         "unread_count": store.get_unread_count(user["id"]) if user else 0,
+        "t": t,
+        "locale": get_locale(),
+        "translate_status": translate_status,
     }
 
 
@@ -141,15 +163,38 @@ def index():
     )
 
 
-@vitrine_bp.route("/entreprises")
+@vitrine_bp.route("/enterprises")
 def enterprises():
     if not _check_published("enterprises"):
         return render_template("unpublished.html"), 404
     return render_template(
         "enterprises.html",
-        enterprises=store.get_enterprises(),
+        enterprises=store.get_public_enterprises(),
         projects=store.get_projects(),
         page=store.get_page_content("enterprises"),
+    )
+
+
+@vitrine_bp.route("/enterprises/<enterprise_id>")
+def enterprise_detail(enterprise_id):
+    enterprise = store.get_public_enterprise(enterprise_id)
+    if not enterprise:
+        abort(404)
+    site_url = store.get_site_url()
+    path = f"/enterprises/{enterprise_id}"
+    canonical = store.build_canonical_url(site_url, path)
+    seo_overrides = store.get_enterprise_detail_seo(enterprise)
+    breadcrumbs_extra = {"name": enterprise.get("name", "Enterprise"), "url": canonical}
+    breadcrumbs = store.build_breadcrumbs("enterprises", site_url, breadcrumbs_extra)
+    related = store.get_projects_for_enterprise(enterprise["id"], enterprise.get("name", ""))
+    return render_template(
+        "enterprise_detail.html",
+        enterprise=enterprise,
+        related_projects=related,
+        seo=store.get_seo_for_vitrine("enterprises", overrides=seo_overrides),
+        seo_canonical=canonical,
+        seo_breadcrumbs=breadcrumbs,
+        seo_json_ld=store.build_json_ld("enterprises", canonical, site_url, breadcrumbs=breadcrumbs),
     )
 
 
@@ -167,7 +212,28 @@ def startups():
     )
 
 
-@vitrine_bp.route("/projets")
+@vitrine_bp.route("/startups/<startup_id>")
+def startup_detail(startup_id):
+    startup = store.get_public_startup(startup_id)
+    if not startup:
+        abort(404)
+    site_url = store.get_site_url()
+    path = f"/startups/{startup_id}"
+    canonical = store.build_canonical_url(site_url, path)
+    seo_overrides = store.get_startup_detail_seo(startup)
+    breadcrumbs_extra = {"name": startup.get("name", "Startup"), "url": canonical}
+    breadcrumbs = store.build_breadcrumbs("startups", site_url, breadcrumbs_extra)
+    return render_template(
+        "startup_detail.html",
+        startup=startup,
+        seo=store.get_seo_for_vitrine("startups", overrides=seo_overrides),
+        seo_canonical=canonical,
+        seo_breadcrumbs=breadcrumbs,
+        seo_json_ld=store.build_json_ld("startups", canonical, site_url, breadcrumbs=breadcrumbs),
+    )
+
+
+@vitrine_bp.route("/projects")
 def projects():
     if not _check_published("projects"):
         return render_template("unpublished.html"), 404
@@ -178,7 +244,32 @@ def projects():
     )
 
 
-@vitrine_bp.route("/a-propos")
+@vitrine_bp.route("/projects/<project_id>")
+def project_detail(project_id):
+    project = store.get_public_project(project_id)
+    if not project:
+        abort(404)
+    enterprise = None
+    if project.get("enterprise_id"):
+        enterprise = store.get_public_enterprise(project["enterprise_id"])
+    site_url = store.get_site_url()
+    path = f"/projects/{project_id}"
+    canonical = store.build_canonical_url(site_url, path)
+    seo_overrides = store.get_project_detail_seo(project)
+    breadcrumbs_extra = {"name": project.get("title", "Project"), "url": canonical}
+    breadcrumbs = store.build_breadcrumbs("projects", site_url, breadcrumbs_extra)
+    return render_template(
+        "project_detail.html",
+        project=project,
+        enterprise=enterprise,
+        seo=store.get_seo_for_vitrine("projects", overrides=seo_overrides),
+        seo_canonical=canonical,
+        seo_breadcrumbs=breadcrumbs,
+        seo_json_ld=store.build_json_ld("projects", canonical, site_url, breadcrumbs=breadcrumbs),
+    )
+
+
+@vitrine_bp.route("/about")
 def about():
     if not _check_published("about"):
         return render_template("unpublished.html"), 404
@@ -197,6 +288,6 @@ def contact():
             "country": request.form.get("country", ""),
             "message": request.form.get("message", ""),
         })
-        flash("Merci ! Votre message a bien été envoyé. Nous vous recontacterons sous 48h.", "success")
+        flash(t("contact.flash_success"), "success")
         return redirect(url_for("vitrine.contact"))
     return render_template("contact.html", page=store.get_page_content("contact"))
