@@ -86,8 +86,9 @@ def login():
             next_url = request.args.get("next") or url_for("compte.home")
             return redirect(next_url)
         flash(t("compte.flash_login_fail"), "error")
+        return render_template("compte/login.html", form={"email": email})
 
-    return render_template("compte/login.html")
+    return render_template("compte/login.html", form={})
 
 
 @compte_bp.route("/connexion/mot-de-passe-oublie", methods=["GET", "POST"])

@@ -1,44 +1,58 @@
-{% extends "base.html" %}
+{% extends "register_layout.html" %}
 {% from "compte/_macros.html" import field_value %}
 
-{% block content %}
-<section class="page-hero page-hero-sm">
-    <div class="container reveal">
-        <h1>{{ t('compte.login_title') }}</h1>
-        <p class="page-sub">{{ t('compte.login_sub') }}</p>
-    </div>
-</section>
+{% block title %}{{ t('compte.login_title') }}{% endblock %}
 
-<section class="section">
-    <div class="container auth-wrap">
-        <form class="auth-form reveal" method="POST">
+{% block auth_header_link %}
+<a href="{{ url_for('compte.register_enterprise') }}" class="reg-wizard-header-link">{{ t('compte.login_no_account') }}</a>
+{% endblock %}
+
+{% block wizard %}
+<div class="reg-wizard-layout">
+    <div class="reg-wizard-main">
+        <h1 class="reg-wizard-title">{{ t('compte.login_title') }}</h1>
+        <p class="reg-wizard-sub">{{ t('compte.login_sub') }}</p>
+
+        <form class="reg-auth-form" method="POST">
             <div class="form-group">
                 <label for="email">{{ t('compte.email') }}</label>
-                <input type="email" id="email" name="email" required placeholder="{{ t('compte.email_ph') }}" value="{{ field_value(form, 'email') }}">
+                <input type="email" id="email" name="email" required placeholder="{{ t('compte.email_ph') }}" value="{{ field_value(form, 'email') }}" autocomplete="email">
             </div>
             <div class="form-group">
                 <label for="password">{{ t('compte.password') }}</label>
-                <input type="password" id="password" name="password" required placeholder="••••••••" minlength="8">
+                <input type="password" id="password" name="password" required placeholder="{{ t('compte.password_ph') }}" minlength="8" autocomplete="current-password">
             </div>
-            <p class="auth-forgot"><a href="{{ url_for('compte.forgot_password') }}">{{ t('compte.forgot_password') }}</a></p>
-            <button type="submit" class="btn btn-primary btn-lg btn-glow">{{ t('compte.login_btn') }}</button>
+            <p class="reg-auth-forgot">
+                <a href="{{ url_for('compte.forgot_password') }}">{{ t('compte.forgot_password') }}</a>
+            </p>
+            <div class="reg-wizard-actions reg-wizard-actions--single">
+                <button type="submit" class="btn btn-primary btn-glow">{{ t('compte.login_btn') }}</button>
+            </div>
         </form>
 
-        <div class="auth-audience-picker reveal">
-            <p class="auth-audience-label">{{ t('compte.login_choose_audience') }}</p>
-            <div class="auth-audience-cards">
-                <a href="{{ url_for('compte.register_enterprise') }}" class="auth-audience-card auth-audience-card-enterprise">
-                    <span class="auth-audience-card-badge">{{ t('journeys.badge_enterprise') }}</span>
+        <div class="reg-auth-signup">
+            <p class="reg-auth-signup-label">{{ t('compte.login_choose_audience') }}</p>
+            <div class="reg-auth-signup-grid">
+                <a href="{{ url_for('compte.register_enterprise') }}" class="reg-auth-signup-card reg-auth-signup-card--enterprise">
+                    <span class="reg-auth-signup-badge">{{ t('journeys.badge_enterprise') }}</span>
                     <strong>{{ t('compte.register_enterprise') }}</strong>
                     <span>{{ t('compte.login_enterprise_desc') }}</span>
                 </a>
-                <a href="{{ url_for('compte.register_startup') }}" class="auth-audience-card auth-audience-card-startup">
-                    <span class="auth-audience-card-badge">{{ t('journeys.badge_startup') }}</span>
+                <a href="{{ url_for('compte.register_startup') }}" class="reg-auth-signup-card reg-auth-signup-card--startup">
+                    <span class="reg-auth-signup-badge">{{ t('journeys.badge_startup') }}</span>
                     <strong>{{ t('compte.register_startup') }}</strong>
                     <span>{{ t('compte.login_startup_desc') }}</span>
                 </a>
             </div>
         </div>
     </div>
-</section>
+    <aside class="reg-wizard-aside">
+        <h2>{{ t('compte.wizard_reassurance_title') }}</h2>
+        <ul class="reg-wizard-reassurance">
+            {% for item in t('compte.wizard_reassurance_login') %}
+            <li>{{ item }}</li>
+            {% endfor %}
+        </ul>
+    </aside>
+</div>
 {% endblock %}

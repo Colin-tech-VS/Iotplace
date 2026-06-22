@@ -425,6 +425,13 @@
       "Candidature en ligne et messagerie intégrée",
       "Frais PoC uniquement si vous postulez à une mission en phase PoC"
     ],
+    "wizard_reassurance_login": [
+      "Accès à votre tableau de bord entreprise ou startup",
+      "Messagerie et suivi des missions au même endroit",
+      "Connexion sécurisée — réinitialisation du mot de passe par email",
+      "Inscription gratuite si vous n'avez pas encore de compte"
+    ],
+    "login_no_account": "Pas encore de compte ? S'inscrire",
     "choose": "— Choisir —",
     "section_account": "Compte & sécurité",
     "email_pro": "Email professionnel",

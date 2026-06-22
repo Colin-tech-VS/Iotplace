@@ -426,6 +426,13 @@
       "Apply online with built-in messaging",
       "PoC fee only when applying to a PoC-phase mission"
     ],
+    "wizard_reassurance_login": [
+      "Access your enterprise or startup dashboard",
+      "Messaging and mission tracking in one place",
+      "Secure login — password reset via email",
+      "Free signup if you don't have an account yet"
+    ],
+    "login_no_account": "No account yet? Sign up",
     "choose": "— Choose —",
     "section_account": "Account & security",
     "email_pro": "Work email",

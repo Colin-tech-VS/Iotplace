@@ -12,8 +12,17 @@
     const total = panels.length;
     let current = 0;
 
+    function setBtnVisible(btn, visible) {
+        if (!btn) return;
+        btn.hidden = !visible;
+        btn.style.display = visible ? '' : 'none';
+        btn.disabled = !visible;
+    }
+
     function showStep(index) {
         current = Math.max(0, Math.min(index, total - 1));
+        const isLast = current === total - 1;
+
         panels.forEach((panel, i) => {
             panel.classList.toggle('is-active', i === current);
             panel.hidden = i !== current;
@@ -29,16 +38,19 @@
             const tpl = stepLabel.dataset.template || 'Step {current} of {total}';
             stepLabel.textContent = tpl.replace('{current}', String(current + 1)).replace('{total}', String(total));
         }
-        if (backBtn) backBtn.hidden = current === 0;
-        if (nextBtn) nextBtn.hidden = current === total - 1;
-        if (submitBtn) submitBtn.hidden = current !== total - 1;
+
+        setBtnVisible(backBtn, current > 0);
+        setBtnVisible(nextBtn, !isLast);
+        setBtnVisible(submitBtn, isLast);
     }
 
     function validateStep(index) {
         const panel = panels[index];
         if (!panel) return true;
         const fields = [...panel.querySelectorAll('input, textarea, select')].filter((el) => {
-            return !el.disabled && el.type !== 'hidden' && el.offsetParent !== null;
+            if (el.disabled || el.type === 'hidden') return false;
+            if (el.closest('[hidden]')) return false;
+            return true;
         });
         for (const field of fields) {
             if (!field.checkValidity()) {
@@ -69,6 +81,16 @@
     backBtn?.addEventListener('click', () => showStep(current - 1));
     nextBtn?.addEventListener('click', () => {
         if (validateStep(current)) showStep(current + 1);
+    });
+
+    form.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && current !== total - 1) {
+            const tag = (e.target && e.target.tagName) || '';
+            if (tag !== 'TEXTAREA' && e.target !== submitBtn) {
+                e.preventDefault();
+                if (validateStep(current)) showStep(current + 1);
+            }
+        }
     });
 
     form.addEventListener('submit', (e) => {

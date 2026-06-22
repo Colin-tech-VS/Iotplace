@@ -30,12 +30,14 @@
     font-size: 1.05rem;
 }
 
+.reg-wizard-header-link,
 .reg-wizard-login {
     font-size: 0.85rem;
     color: #8b95a8;
     text-decoration: none;
 }
 
+.reg-wizard-header-link:hover,
 .reg-wizard-login:hover {
     color: #00e8c8;
 }
@@ -145,11 +147,191 @@
     box-shadow: 0 0 0 2px rgba(0, 232, 200, 0.12);
 }
 
+.reg-wizard-layout--narrow {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 520px;
+}
+
+.reg-wizard-layout--narrow .reg-wizard-main {
+    padding-right: 0;
+}
+
+.reg-wizard-panel .form-row,
+.reg-auth-form .form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.85rem;
+}
+
+.reg-auth-form .form-group {
+    margin-bottom: 1rem;
+}
+
+.reg-auth-form label {
+    display: block;
+    font-size: 0.82rem;
+    margin-bottom: 0.35rem;
+    color: #c5cdd9;
+}
+
+.reg-auth-form input,
+.reg-auth-form textarea {
+    width: 100%;
+    padding: 0.7rem 0.85rem;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.25);
+    color: #e8ecf4;
+    font: inherit;
+    box-sizing: border-box;
+}
+
+.reg-auth-form input:focus,
+.reg-auth-form textarea:focus {
+    outline: none;
+    border-color: rgba(0, 232, 200, 0.45);
+    box-shadow: 0 0 0 2px rgba(0, 232, 200, 0.12);
+}
+
+.reg-auth-forgot {
+    margin: -0.25rem 0 0.5rem;
+    text-align: right;
+    font-size: 0.82rem;
+}
+
+.reg-auth-forgot a {
+    color: #8b95a8;
+    text-decoration: none;
+}
+
+.reg-auth-forgot a:hover {
+    color: #00e8c8;
+}
+
+.reg-auth-footer-link {
+    margin-top: 1rem;
+    font-size: 0.85rem;
+}
+
+.reg-auth-footer-link a {
+    color: #8b95a8;
+}
+
+.reg-auth-footer-link a:hover {
+    color: #00e8c8;
+}
+
+.reg-auth-signup {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.reg-auth-signup-label {
+    font-size: 0.88rem;
+    color: #8b95a8;
+    margin: 0 0 0.85rem;
+}
+
+.reg-auth-signup-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+
+.reg-auth-signup-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.2);
+    color: inherit;
+    text-decoration: none;
+    transition: border-color 0.2s, background 0.2s, transform 0.2s;
+}
+
+.reg-auth-signup-card:hover {
+    border-color: rgba(0, 232, 200, 0.35);
+    background: rgba(0, 232, 200, 0.05);
+    transform: translateY(-2px);
+}
+
+.reg-auth-signup-card strong {
+    font-size: 0.92rem;
+}
+
+.reg-auth-signup-card span:last-child {
+    font-size: 0.78rem;
+    color: #8b95a8;
+    line-height: 1.4;
+}
+
+.reg-auth-signup-badge {
+    align-self: flex-start;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.2rem 0.45rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #93c5fd;
+}
+
+.reg-auth-signup-card--startup .reg-auth-signup-badge {
+    color: #9ef5e8;
+    border-color: rgba(0, 232, 200, 0.25);
+}
+
+.reg-wizard-panel .domain-field-label,
+.reg-wizard-panel .domain-field-hint {
+    display: block;
+    font-size: 0.82rem;
+    color: #c5cdd9;
+    margin-bottom: 0.35rem;
+}
+
+.reg-wizard-panel .domain-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 0.55rem;
+}
+
+.reg-wizard-panel .domain-card {
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.2);
+    color: inherit;
+    padding: 0.75rem;
+    text-align: left;
+    cursor: pointer;
+}
+
+.reg-wizard-panel .domain-card-selected {
+    border-color: rgba(0, 232, 200, 0.45);
+    background: rgba(0, 232, 200, 0.08);
+}
+
 .reg-wizard-actions {
     display: flex;
     gap: 0.75rem;
     margin-top: 1.5rem;
     flex-wrap: wrap;
+    align-items: center;
+}
+
+.reg-wizard-actions--single .btn {
+    width: 100%;
+}
+
+.reg-wizard-actions [hidden] {
+    display: none !important;
+}
+
+.reg-wizard-actions .btn-primary[data-wizard-submit] {
+    min-width: min(100%, 280px);
 }
 
 .reg-wizard-aside {
@@ -226,5 +408,8 @@
         padding-left: 0;
         padding-top: 1.5rem;
         position: static;
+    }
+    .reg-auth-signup-grid {
+        grid-template-columns: 1fr;
     }
 }

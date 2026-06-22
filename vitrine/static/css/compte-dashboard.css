@@ -250,6 +250,12 @@ body.compte-app .footer {
     padding: 20px 24px 32px;
 }
 
+/* No main.js on dashboard — .reveal must not stay at opacity 0 */
+.cdash-content .reveal {
+    opacity: 1;
+    transform: none;
+}
+
 .cdash-panel {
     display: none;
     animation: cdash-fade 0.28s ease;
