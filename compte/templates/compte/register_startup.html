@@ -1,121 +1,52 @@
 {% extends "base.html" %}
-{% from "compte/_macros.html" import field_value, tag_input %}
+{% from "compte/_macros.html" import field_value %}
 
 {% block content %}
 <section class="page-hero page-hero-sm">
     <div class="container reveal">
         <h1>{{ t('compte.register_st_title') }}</h1>
         <p class="page-sub">{{ t('compte.register_st_sub') }}</p>
+        <ol class="simple-steps-hint reveal">
+            {% for step in t('compte.register_st_steps') %}
+            <li>{{ step }}</li>
+            {% endfor %}
+        </ol>
     </div>
 </section>
 
 <section class="section">
-    <div class="container register-layout">
-        {% with audience='startup', journey_full_url=url_for('vitrine.startups') ~ '#startup-journey' %}
-        {% include "compte/_journey_banner.html" %}
-        {% endwith %}
-        <form class="register-form reveal" method="POST">
-            <fieldset class="form-section-card">
-                <legend>{{ t('compte.section_account') }}</legend>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="email">{{ t('compte.email_pro') }} <span class="req">*</span></label>
-                        <input type="email" id="email" name="email" required value="{{ field_value(form, 'email') }}" placeholder="{{ t('compte.email_pro_ph_st') }}">
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">{{ t('compte.phone_whatsapp') }}</label>
-                        <input type="tel" id="phone" name="phone" value="{{ field_value(form, 'phone') }}">
-                    </div>
+    <div class="container register-simple-wrap">
+        <form class="register-form register-form-simple reveal" method="POST">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="email">{{ t('compte.email_pro') }} <span class="req">*</span></label>
+                    <input type="email" id="email" name="email" required value="{{ field_value(form, 'email') }}" placeholder="{{ t('compte.email_pro_ph_st') }}">
                 </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="password">{{ t('compte.password') }} <span class="req">*</span></label>
-                        <input type="password" id="password" name="password" required minlength="8" placeholder="{{ t('compte.password_ph') }}">
-                    </div>
-                    <div class="form-group">
-                        <label for="password_confirm">{{ t('compte.password_confirm') }} <span class="req">*</span></label>
-                        <input type="password" id="password_confirm" name="password_confirm" required minlength="8" placeholder="{{ t('compte.password_confirm_ph') }}">
-                    </div>
+                <div class="form-group">
+                    <label for="startup_name">{{ t('compte.startup_name') }} <span class="req">*</span></label>
+                    <input type="text" id="startup_name" name="startup_name" required value="{{ field_value(form, 'startup_name') }}">
                 </div>
-            </fieldset>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="password">{{ t('compte.password') }} <span class="req">*</span></label>
+                    <input type="password" id="password" name="password" required minlength="8" placeholder="{{ t('compte.password_ph') }}">
+                </div>
+                <div class="form-group">
+                    <label for="password_confirm">{{ t('compte.password_confirm') }} <span class="req">*</span></label>
+                    <input type="password" id="password_confirm" name="password_confirm" required minlength="8">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="country">{{ t('compte.country') }} <span class="req">*</span></label>
+                <input type="text" id="country" name="country" required value="{{ field_value(form, 'country') }}" placeholder="{{ t('compte.country_ph_st') }}">
+            </div>
 
-            <fieldset class="form-section-card">
-                <legend>{{ t('compte.section_startup') }}</legend>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="startup_name">{{ t('compte.startup_name') }} <span class="req">*</span></label>
-                        <input type="text" id="startup_name" name="startup_name" required value="{{ field_value(form, 'startup_name') }}">
-                    </div>
-                    <div class="form-group">
-                        <label for="contact_name">{{ t('compte.founder_contact') }}</label>
-                        <input type="text" id="contact_name" name="contact_name" value="{{ field_value(form, 'contact_name') }}">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="country">{{ t('compte.country') }} <span class="req">*</span></label>
-                        <input type="text" id="country" name="country" required value="{{ field_value(form, 'country') }}" placeholder="{{ t('compte.country_ph_st') }}">
-                    </div>
-                    <div class="form-group">
-                        <label for="flag">{{ t('compte.flag') }}</label>
-                        <input type="text" id="flag" name="flag" maxlength="4" value="{{ field_value(form, 'flag') }}" placeholder="{{ t('compte.flag_ph') }}">
-                    </div>
-                    <div class="form-group">
-                        <label for="city">{{ t('compte.city') }}</label>
-                        <input type="text" id="city" name="city" value="{{ field_value(form, 'city') }}">
-                    </div>
-                </div>
-                {% set sector_required = true %}
-                {% include "compte/_sector_select.html" %}
-                <div class="form-group">
-                    <label for="specialty">{{ t('compte.specialty') }} <span class="req">*</span></label>
-                    <input type="text" id="specialty" name="specialty" required value="{{ field_value(form, 'specialty') }}" placeholder="{{ t('compte.specialty_ph') }}">
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="team_size">{{ t('compte.team_size') }}</label>
-                        <input type="number" id="team_size" name="team_size" min="1" value="{{ field_value(form, 'team_size', '5') }}">
-                    </div>
-                    <div class="form-group">
-                        <label for="projects_done">{{ t('compte.projects_done') }}</label>
-                        <input type="number" id="projects_done" name="projects_done" min="0" value="{{ field_value(form, 'projects_done', '0') }}">
-                    </div>
-                    <div class="form-group">
-                        <label for="availability">{{ t('compte.availability') }}</label>
-                        <select id="availability" name="availability">
-                            <option value="">{{ t('compte.choose') }}</option>
-                            {% for a in ['Immédiate', '1–3 mois', '3–6 mois', 'Occupée'] %}
-                            <option value="{{ a }}" {% if field_value(form, 'availability') == a %}selected{% endif %}>{{ a }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="rate_range">{{ t('compte.rate_range') }}</label>
-                    <select id="rate_range" name="rate_range">
-                        <option value="">{{ t('compte.choose') }}</option>
-                        {% for r in ['< 300€/j', '300–500€/j', '500–800€/j', '800€+/j', 'Sur devis'] %}
-                        <option value="{{ r }}" {% if field_value(form, 'rate_range') == r %}selected{% endif %}>{{ r }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="description">{{ t('compte.description_st') }}</label>
-                    <textarea id="description" name="description" rows="4" placeholder="{{ t('compte.description_st_ph') }}">{{ field_value(form, 'description') }}</textarea>
-                </div>
-            </fieldset>
-
-            <fieldset class="form-section-card">
-                <legend>{{ t('compte.section_search') }}</legend>
-                <div class="form-group">
-                    <label for="besoin">{{ t('compte.besoin_st') }}</label>
-                    <textarea id="besoin" name="besoin" rows="4" placeholder="{{ t('compte.besoin_st_ph') }}">{{ field_value(form, 'besoin') }}</textarea>
-                </div>
-                {{ tag_input('skills', 'skills', field_value(form, 'skills'), t('compte.skills'), t('compte.skills_ph'), t('compte.tag_hint'), required=true) }}
-            </fieldset>
+            {% set sector_required = true %}
+            {% include "compte/_sector_select.html" %}
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary btn-lg btn-glow">{{ t('compte.submit_register_st') }}</button>
+                <button type="submit" class="btn btn-primary btn-lg btn-glow btn-block">{{ t('compte.submit_register_st') }}</button>
                 <p class="form-footer-link">{{ t('compte.already_registered') }} <a href="{{ url_for('compte.login') }}">{{ t('compte.login_link') }}</a></p>
             </div>
         </form>
@@ -124,6 +55,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{{ url_for('vitrine.static', filename='js/tag-input.js') }}"></script>
-<script src="{{ url_for('vitrine.static', filename='js/sector-select.js') }}"></script>
+<script src="{{ url_for('vitrine.static', filename='js/sector-select.js') }}?v=2"></script>
 {% endblock %}

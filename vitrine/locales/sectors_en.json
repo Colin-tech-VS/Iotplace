@@ -1,112 +1,28 @@
 {
-  "label": "Industry sector",
-  "hint": "Select the IoT sector that best matches your activity. Badges indicate current B2B demand on Iotplace.",
-  "choose": "— Select a sector —",
-  "other_label": "Specify your sector",
-  "applications_label": "Applications:",
-  "clients_label": "Typical clients:",
-  "demand": {
-    "very_high": "Very high demand",
-    "high": "High demand",
-    "medium": "Moderate demand",
-    "lower": "Lower demand"
-  },
+  "label": "Your IoT domain",
+  "hint": "Iotplace focuses on these 5 high-potential B2B markets.",
+  "choose": "— Choose a domain —",
+  "potential_label": "Market potential",
   "items": {
-    "industry_40": {
-      "name": "Industry 4.0 (Industrial IoT — IIoT)",
-      "tagline": "The largest B2B market today.",
-      "applications": "Predictive maintenance, machine monitoring, quality control, digital twins, connected robotics",
-      "clients": "Automotive, aerospace, chemicals, food & beverage"
+    "smart_energy": {
+      "name": "Smart Energy",
+      "tagline": "Smart grid, smart meters, energy optimization."
     },
-    "logistics": {
-      "name": "Logistics & Supply Chain",
-      "tagline": "End-to-end traceability and optimisation.",
-      "applications": "GPS tracking, fleet management, goods traceability, cold-chain temperature monitoring, smart warehouses",
-      "clients": "Carriers, e-commerce, ports, airports"
+    "asset_tracking": {
+      "name": "Asset Tracking",
+      "tagline": "Geolocation, fleets, real-time asset traceability."
     },
-    "energy": {
-      "name": "Energy & Utilities",
-      "tagline": "Connected critical infrastructure.",
-      "applications": "Smart grid, smart meters, energy management, power networks, infrastructure monitoring",
-      "clients": "Energy providers, utilities, water and gas"
+    "predictive_maintenance": {
+      "name": "Predictive Maintenance",
+      "tagline": "Machine sensors, alerts, maintenance before failure."
     },
-    "smart_buildings": {
-      "name": "Smart Buildings",
-      "tagline": "Connected, efficient buildings.",
-      "applications": "Energy management, connected HVAC, security, access control, space occupancy",
-      "clients": "Real estate, malls, offices, hotels"
+    "smart_building": {
+      "name": "Smart Building",
+      "tagline": "Connected HVAC, occupancy, building energy efficiency."
     },
-    "smart_cities": {
-      "name": "Smart Cities",
-      "tagline": "Intelligent urban services.",
-      "applications": "Smart lighting, connected parking, waste management, air quality, urban monitoring",
-      "clients": "Municipalities, governments"
-    },
-    "health": {
-      "name": "Connected Health (IoMT)",
-      "tagline": "Internet of Medical Things.",
-      "applications": "Remote monitoring, medical wearables, connected hospitals, patient tracking",
-      "clients": "Hospitals, insurers, laboratories"
-    },
-    "mobility": {
-      "name": "Mobility & Connected Vehicles",
-      "tagline": "Intelligent connected transport.",
-      "applications": "Telematics, fleet management, autonomous vehicles, V2X (Vehicle-to-Everything)",
-      "clients": "Automotive OEMs, transport operators"
-    },
-    "retail": {
-      "name": "Retail & Connected Commerce",
-      "tagline": "Smart stores and inventory.",
-      "applications": "Smart shelves, stock management, behavioural analytics, connected payments",
-      "clients": "Large retailers, shopping centres"
-    },
-    "agriculture": {
-      "name": "Connected Agriculture (AgriTech IoT)",
-      "tagline": "Connected farms and cooperatives.",
-      "applications": "Smart irrigation, soil sensors, connected livestock, agricultural drones",
-      "clients": "Farms, agricultural cooperatives"
-    },
-    "security": {
-      "name": "Security & Surveillance",
-      "tagline": "Physical and industrial protection.",
-      "applications": "Smart cameras, intrusion detection, access control, industrial surveillance",
-      "clients": "Industrial sites, buildings, infrastructure"
-    },
-    "smart_home": {
-      "name": "Smart Home",
-      "tagline": "Huge volume market, dominated by major brands.",
-      "applications": "Thermostats, lighting, alarms, connected home appliances",
-      "clients": "Consumers, integrators, consumer brands"
-    },
-    "environment": {
-      "name": "Environment & Climate",
-      "tagline": "Monitoring and sustainability.",
-      "applications": "Pollution monitoring, water management, fire detection, environmental monitoring",
-      "clients": "Local authorities, industry, NGOs"
-    },
-    "maritime": {
-      "name": "Maritime & Ports",
-      "tagline": "Connected maritime supply chain.",
-      "applications": "Container tracking, vessel monitoring, smart ports",
-      "clients": "Shipping lines, ports, maritime logistics"
-    },
-    "mining": {
-      "name": "Mining & Natural Resources",
-      "tagline": "Remote sites and heavy equipment.",
-      "applications": "Worker safety, equipment monitoring, geolocation",
-      "clients": "Mines, extraction, energy"
-    },
-    "defense": {
-      "name": "Defence & National Security",
-      "tagline": "Lucrative but hard-to-access market.",
-      "applications": "Terrain surveillance, sensor networks, military logistics",
-      "clients": "Defence, national security, regulated industries"
-    },
-    "other": {
-      "name": "Other",
-      "tagline": "Your sector is not listed?",
-      "applications": "",
-      "clients": ""
+    "cold_chain_monitoring": {
+      "name": "Cold Chain Monitoring",
+      "tagline": "Temperature, humidity, cold chain compliance."
     }
   }
 }

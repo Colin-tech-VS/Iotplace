@@ -1,112 +1,28 @@
 {
-  "label": "Secteur d'activité",
-  "hint": "Sélectionnez le secteur IoT qui correspond le mieux à votre activité. Les badges indiquent la demande B2B actuelle sur Iotplace.",
-  "choose": "— Choisir un secteur —",
-  "other_label": "Précisez votre secteur",
-  "applications_label": "Applications :",
-  "clients_label": "Clients types :",
-  "demand": {
-    "very_high": "Demande très élevée",
-    "high": "Demande élevée",
-    "medium": "Demande modérée",
-    "lower": "Demande faible"
-  },
+  "label": "Votre domaine IoT",
+  "hint": "Iotplace est spécialisé sur ces 5 marchés B2B à fort potentiel.",
+  "choose": "— Choisir un domaine —",
+  "potential_label": "Potentiel marché",
   "items": {
-    "industry_40": {
-      "name": "Industrie 4.0 (Industrial IoT — IIoT)",
-      "tagline": "Le plus gros marché B2B actuellement.",
-      "applications": "Maintenance prédictive, surveillance des machines, contrôle qualité, jumeaux numériques (Digital Twins), robotique connectée",
-      "clients": "Automobile, aéronautique, chimie, agroalimentaire"
+    "smart_energy": {
+      "name": "Smart Energy",
+      "tagline": "Smart grid, compteurs intelligents, optimisation énergétique."
     },
-    "logistics": {
-      "name": "Logistique & Supply Chain",
-      "tagline": "Traçabilité et optimisation bout-en-bout.",
-      "applications": "Tracking GPS, gestion de flotte, traçabilité des marchandises, surveillance température (chaîne du froid), entrepôts intelligents",
-      "clients": "Transporteurs, e-commerce, ports, aéroports"
+    "asset_tracking": {
+      "name": "Asset Tracking",
+      "tagline": "Géolocalisation, flottes, traçabilité des actifs en temps réel."
     },
-    "energy": {
-      "name": "Énergie & Utilities",
-      "tagline": "Infrastructures critiques connectées.",
-      "applications": "Smart Grid, compteurs intelligents, gestion énergétique, réseaux électriques, surveillance des infrastructures",
-      "clients": "Fournisseurs d'énergie, réseaux électriques, eau et gaz"
+    "predictive_maintenance": {
+      "name": "Predictive Maintenance",
+      "tagline": "Capteurs machines, alertes, maintenance avant panne."
     },
-    "smart_buildings": {
-      "name": "Smart Buildings",
-      "tagline": "Bâtiments connectés et efficaces.",
-      "applications": "Gestion énergétique, HVAC connecté, sécurité, contrôle d'accès, occupation des espaces",
-      "clients": "Immobilier, centres commerciaux, bureaux, hôtels"
+    "smart_building": {
+      "name": "Smart Building",
+      "tagline": "HVAC connecté, occupation, efficacité énergétique des bâtiments."
     },
-    "smart_cities": {
-      "name": "Smart Cities",
-      "tagline": "Services urbains intelligents.",
-      "applications": "Éclairage intelligent, parking connecté, gestion des déchets, qualité de l'air, surveillance urbaine",
-      "clients": "Municipalités, gouvernements"
-    },
-    "health": {
-      "name": "Santé connectée (IoMT)",
-      "tagline": "Internet of Medical Things.",
-      "applications": "Télésurveillance, wearables médicaux, hôpitaux connectés, suivi des patients",
-      "clients": "Hôpitaux, assureurs, laboratoires"
-    },
-    "mobility": {
-      "name": "Mobilité & Véhicules connectés",
-      "tagline": "Transport intelligent et connecté.",
-      "applications": "Télématique, gestion de flotte, véhicules autonomes, V2X (Vehicle-to-Everything)",
-      "clients": "Constructeurs automobiles, transport"
-    },
-    "retail": {
-      "name": "Retail & Commerce connecté",
-      "tagline": "Magasins et stocks intelligents.",
-      "applications": "Étiquettes intelligentes, gestion des stocks, analyse comportementale, paiement connecté",
-      "clients": "Grandes enseignes, centres commerciaux"
-    },
-    "agriculture": {
-      "name": "Agriculture connectée (AgriTech IoT)",
-      "tagline": "Fermes et coopératives connectées.",
-      "applications": "Irrigation intelligente, capteurs de sol, élevage connecté, drones agricoles",
-      "clients": "Exploitations agricoles, coopératives"
-    },
-    "security": {
-      "name": "Sécurité & Surveillance",
-      "tagline": "Protection physique et industrielle.",
-      "applications": "Caméras intelligentes, détection d'intrusion, contrôle d'accès, surveillance industrielle",
-      "clients": "Sites industriels, bâtiments, infrastructures"
-    },
-    "smart_home": {
-      "name": "Smart Home",
-      "tagline": "Grand volume, marché dominé par les grandes marques.",
-      "applications": "Thermostats, éclairage, alarmes, appareils domestiques connectés",
-      "clients": "Consommateurs, intégrateurs, marques grand public"
-    },
-    "environment": {
-      "name": "Environnement & Climat",
-      "tagline": "Surveillance et durabilité.",
-      "applications": "Surveillance pollution, gestion de l'eau, détection incendies, monitoring environnemental",
-      "clients": "Collectivités, industriels, ONG"
-    },
-    "maritime": {
-      "name": "Maritime & Ports",
-      "tagline": "Chaîne logistique maritime connectée.",
-      "applications": "Tracking de conteneurs, surveillance navires, ports intelligents",
-      "clients": "Armateurs, ports, logistique maritime"
-    },
-    "mining": {
-      "name": "Mines & Ressources naturelles",
-      "tagline": "Sites isolés et équipements lourds.",
-      "applications": "Sécurité des travailleurs, surveillance des équipements, géolocalisation",
-      "clients": "Mines, extraction, énergie"
-    },
-    "defense": {
-      "name": "Défense & Sécurité nationale",
-      "tagline": "Marché rentable mais d'accès difficile.",
-      "applications": "Surveillance de terrain, réseaux de capteurs, logistique militaire",
-      "clients": "Défense, sécurité nationale, industries réglementées"
-    },
-    "other": {
-      "name": "Autres",
-      "tagline": "Votre secteur n'est pas listé ?",
-      "applications": "",
-      "clients": ""
+    "cold_chain_monitoring": {
+      "name": "Cold Chain Monitoring",
+      "tagline": "Température, humidité, conformité chaîne du froid."
     }
   }
 }

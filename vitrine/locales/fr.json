@@ -23,7 +23,7 @@
     "pricing": "Tarifs"
   },
   "footer": {
-    "tagline": "Marketplace B2B de sous-traitance IoT : les entreprises externalisent firmware, hardware et cloud auprès de startups qualifiées en Asie du Sud-Est.",
+    "tagline": "Marketplace B2B IoT — Smart Energy, Asset Tracking, Predictive Maintenance, Smart Building, Cold Chain.",
     "enterprises": "Entreprises",
     "outsource_project": "Externaliser un projet IoT",
     "enterprise_signup": "Inscription entreprise",
@@ -71,6 +71,27 @@
     "startup": "Startup"
   },
   "home": {
+    "hero_badge": "5 domaines IoT B2B",
+    "hero_title": "La marketplace IoT pour l'énergie, la maintenance et la traçabilité",
+    "hero_sub": "Entreprises : publiez un besoin. Startups : postulez aux missions. Un seul domaine, un parcours simple.",
+    "domains_title": "Nos 5 domaines à fort potentiel",
+    "domains_sub": "Iotplace se concentre exclusivement sur ces marchés B2B — pas de dispersion.",
+    "simple_flow_title": "Comment ça marche",
+    "simple_flow_sub": "Trois étapes. Pas de formulaire interminable.",
+    "simple_ent_title": "Entreprise",
+    "simple_ent_steps": [
+      "Inscription en 2 min — choisissez votre domaine IoT",
+      "Publiez un besoin (optionnel dès l'inscription)",
+      "Acceptez une startup — paiement séquestre automatique"
+    ],
+    "simple_ent_cta": "Créer un compte entreprise",
+    "simple_st_title": "Startup",
+    "simple_st_steps": [
+      "Inscription en 2 min — choisissez votre domaine IoT",
+      "Parcourez les missions et postulez",
+      "Livrez la mission — paiement Stripe Connect"
+    ],
+    "simple_st_cta": "Créer un compte startup",
     "stat_enterprises": "Entreprises",
     "stat_startups": "Startups",
     "stat_projects": "Projets",
@@ -132,7 +153,7 @@
     "faq_title": "FAQ — Sous-traitance IoT pour entreprises & startups"
   },
   "enterprises": {
-    "seo_intro": "Vous souhaitez <strong>externaliser un projet IoT</strong> ? Iotplace vous met en relation avec des startups expertes en firmware, PCB, cloud et intégration hardware en Asie du Sud-Est.",
+    "seo_intro": "Externalisez vos projets <strong>Smart Energy, Asset Tracking, Predictive Maintenance, Smart Building</strong> ou <strong>Cold Chain</strong> auprès de startups IoT qualifiées.",
     "benefit_speed_title": "Rapidité",
     "benefit_speed_text": "Des équipes agiles qui livrent en semaines, pas en mois.",
     "benefit_cost_title": "Coûts optimisés",
@@ -153,7 +174,7 @@
   "startups": {
     "country_title": "Startups IoT en {country} — missions de sous-traitance",
     "country_sub": "Startups IoT en {country} : postulez aux projets de sous-traitance publiés par les entreprises sur Iotplace.",
-    "seo_intro": "Vous êtes une <strong>startup IoT asiatique</strong> qui veut vendre aux grands groupes ? La stratégie la plus efficace : trouver un client pilote, réaliser un <strong>PoC payé</strong>, le transformer en contrat cadre, puis construire un partenariat stratégique. Iotplace structure ce parcours.",
+    "seo_intro": "Startup IoT spécialisée dans l'un de nos <strong>5 domaines B2B</strong> ? Postulez aux missions des entreprises sur Iotplace — inscription en 2 minutes.",
     "propose_project": "Proposer un projet",
     "no_country": "Aucune startup trouvée pour ce pays.",
     "no_startups": "Aucune startup inscrite pour le moment.",
@@ -274,16 +295,20 @@
     "error_email_exists": "Un compte existe déjà avec cet email.",
     "error_company_name_required": "La raison sociale est requise.",
     "error_contact_name_required": "Le nom du contact est requis.",
-    "error_sector_required": "Veuillez sélectionner un secteur d'activité.",
+    "error_sector_required": "Veuillez sélectionner un domaine IoT.",
     "error_sector_other_required": "Précisez votre secteur dans le champ « Autres ».",
     "error_project_title_required": "Le titre du projet est requis si vous publiez un besoin.",
     "error_startup_name_required": "Le nom de la startup est requis.",
     "error_country_required": "Le pays est requis.",
     "error_specialty_required": "La spécialité IoT est requise.",
     "register_ent_title": "Inscription entreprise",
-    "register_ent_sub": "Créez votre compte donneur d'ordre et publiez vos besoins IoT en sous-traitance.",
+    "register_ent_sub": "2 minutes — email, société, domaine IoT. C'est tout.",
+    "register_ent_steps": ["Compte", "Domaine IoT", "C'est parti"],
     "register_st_title": "Inscription startup",
-    "register_st_sub": "Rejoignez Iotplace et accédez aux missions IoT des grandes entreprises.",
+    "register_st_sub": "2 minutes — email, startup, pays, domaine IoT.",
+    "register_st_steps": ["Compte", "Domaine IoT", "Missions"],
+    "project_need_optional": "Votre besoin (optionnel)",
+    "project_need_ph": "Ex. Déploiement capteurs température sur 10 sites logistiques…",
     "already_registered": "Déjà inscrit ?",
     "login_link": "Se connecter",
     "choose": "— Choisir —",

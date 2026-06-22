@@ -23,7 +23,7 @@
     "pricing": "Pricing"
   },
   "footer": {
-    "tagline": "B2B IoT subcontracting marketplace: enterprises outsource firmware, hardware and cloud to qualified startups in Southeast Asia.",
+    "tagline": "B2B IoT marketplace — Smart Energy, Asset Tracking, Predictive Maintenance, Smart Building, Cold Chain.",
     "enterprises": "Enterprises",
     "outsource_project": "Outsource an IoT project",
     "enterprise_signup": "Enterprise signup",
@@ -71,6 +71,27 @@
     "startup": "Startup"
   },
   "home": {
+    "hero_badge": "5 B2B IoT domains",
+    "hero_title": "The IoT marketplace for energy, maintenance and traceability",
+    "hero_sub": "Enterprises: publish a need. Startups: apply to missions. One domain, one simple path.",
+    "domains_title": "Our 5 high-potential domains",
+    "domains_sub": "Iotplace focuses exclusively on these B2B markets — no noise.",
+    "simple_flow_title": "How it works",
+    "simple_flow_sub": "Three steps. No endless forms.",
+    "simple_ent_title": "Enterprise",
+    "simple_ent_steps": [
+      "2-min signup — pick your IoT domain",
+      "Publish a need (optional at signup)",
+      "Accept a startup — automatic escrow payment"
+    ],
+    "simple_ent_cta": "Create enterprise account",
+    "simple_st_title": "Startup",
+    "simple_st_steps": [
+      "2-min signup — pick your IoT domain",
+      "Browse missions and apply",
+      "Deliver — Stripe Connect payout"
+    ],
+    "simple_st_cta": "Create startup account",
     "stat_enterprises": "Enterprises",
     "stat_startups": "Startups",
     "stat_projects": "Projects",
@@ -132,7 +153,7 @@
     "faq_title": "FAQ — IoT subcontracting for enterprises & startups"
   },
   "enterprises": {
-    "seo_intro": "Looking to <strong>outsource an IoT project</strong>? Iotplace connects you with startups skilled in firmware, PCB, cloud and hardware integration across Southeast Asia.",
+    "seo_intro": "Outsource <strong>Smart Energy, Asset Tracking, Predictive Maintenance, Smart Building</strong> or <strong>Cold Chain</strong> projects to qualified IoT startups.",
     "benefit_speed_title": "Speed",
     "benefit_speed_text": "Agile teams that deliver in weeks, not months.",
     "benefit_cost_title": "Optimized costs",
@@ -153,7 +174,7 @@
   "startups": {
     "country_title": "IoT Startups in {country} — subcontracting missions",
     "country_sub": "IoT startups in {country}: apply to subcontracting projects published by enterprises on Iotplace.",
-    "seo_intro": "Are you an <strong>Asian IoT startup</strong> selling to large enterprises? The most effective strategy: find a pilot client, run a <strong>paid PoC</strong>, turn it into a framework contract, then build a strategic partnership. Iotplace structures this journey.",
+    "seo_intro": "IoT startup in one of our <strong>5 B2B domains</strong>? Apply to enterprise missions on Iotplace — 2-minute signup.",
     "propose_project": "Propose a project",
     "no_country": "No startups found for this country.",
     "no_startups": "No startups registered yet.",
@@ -275,16 +296,20 @@
     "error_email_exists": "An account already exists with this email.",
     "error_company_name_required": "Company name is required.",
     "error_contact_name_required": "Contact name is required.",
-    "error_sector_required": "Please select an industry sector.",
+    "error_sector_required": "Please select an IoT domain.",
     "error_sector_other_required": "Please specify your sector in the « Other » field.",
     "error_project_title_required": "Project title is required when publishing a need.",
     "error_startup_name_required": "Startup name is required.",
     "error_country_required": "Country is required.",
     "error_specialty_required": "IoT specialty is required.",
     "register_ent_title": "Enterprise signup",
-    "register_ent_sub": "Create your client account and publish your IoT subcontracting needs.",
+    "register_ent_sub": "2 minutes — email, company, IoT domain. That's it.",
+    "register_ent_steps": ["Account", "IoT domain", "Go"],
     "register_st_title": "Startup signup",
-    "register_st_sub": "Join Iotplace and access IoT subcontracting missions from large enterprises.",
+    "register_st_sub": "2 minutes — email, startup, country, IoT domain.",
+    "register_st_steps": ["Account", "IoT domain", "Missions"],
+    "project_need_optional": "Your need (optional)",
+    "project_need_ph": "E.g. Temperature sensors across 10 logistics sites…",
     "already_registered": "Already registered?",
     "login_link": "Log in",
     "choose": "— Choose —",

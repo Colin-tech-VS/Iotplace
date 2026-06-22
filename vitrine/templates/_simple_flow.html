@@ -1,0 +1,31 @@
+{# Parcours simplifié — 3 étapes par audience #}
+<section class="section">
+    <div class="container">
+        <div class="section-header reveal">
+            <h2>{{ t('home.simple_flow_title') }}</h2>
+            <p>{{ t('home.simple_flow_sub') }}</p>
+        </div>
+        <div class="simple-flow-grid reveal">
+            <article class="simple-flow-card simple-flow-enterprise">
+                <span class="audience-path-badge">{{ t('journeys.badge_enterprise') }}</span>
+                <h3>{{ t('home.simple_ent_title') }}</h3>
+                <ol class="simple-flow-steps">
+                    {% for step in t('home.simple_ent_steps') %}
+                    <li><strong>{{ loop.index }}.</strong> {{ step }}</li>
+                    {% endfor %}
+                </ol>
+                <a href="{{ url_for('compte.register_enterprise') }}" class="btn btn-primary">{{ t('home.simple_ent_cta') }}</a>
+            </article>
+            <article class="simple-flow-card simple-flow-startup">
+                <span class="audience-path-badge audience-path-badge-startup">{{ t('journeys.badge_startup') }}</span>
+                <h3>{{ t('home.simple_st_title') }}</h3>
+                <ol class="simple-flow-steps">
+                    {% for step in t('home.simple_st_steps') %}
+                    <li><strong>{{ loop.index }}.</strong> {{ step }}</li>
+                    {% endfor %}
+                </ol>
+                <a href="{{ url_for('compte.register_startup') }}" class="btn btn-primary">{{ t('home.simple_st_cta') }}</a>
+            </article>
+        </div>
+    </div>
+</section>

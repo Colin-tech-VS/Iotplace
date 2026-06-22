@@ -115,7 +115,7 @@ def translate_phase(phase: str) -> str:
 
 def inject_i18n_context():
     from data.engagement_phases import ENGAGEMENT_PHASES, STARTUP_JOURNEY_STEPS
-    from data.iot_sectors import sector_groups_for_template
+    from data.iot_sectors import list_domains_for_template, sector_groups_for_template
     from vitrine import advisor_ai
 
     return {
@@ -126,6 +126,7 @@ def inject_i18n_context():
         "engagement_phases": ENGAGEMENT_PHASES,
         "startup_journey_steps": STARTUP_JOURNEY_STEPS,
         "iot_sector_groups": sector_groups_for_template(t),
+        "iot_domains": list_domains_for_template(t),
         "locale_url_en": locale_url("en"),
         "locale_url_fr": locale_url("fr"),
         "advisor_enabled": advisor_ai.is_configured(),

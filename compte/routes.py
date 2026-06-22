@@ -89,13 +89,7 @@ def register_enterprise():
             errors.append(t("compte.error_contact_name_required"))
         sector_fields = parse_sector_fields(request.form, t)
         if not sector_fields.get("sector_id"):
-            errors.append(t("compte.error_sector_required", default="Veuillez sélectionner un secteur d'activité."))
-        if sector_fields.get("sector_id") == "other" and not sector_fields.get("sector_other"):
-            errors.append(t("compte.error_sector_other_required", default="Précisez votre secteur."))
-
-        has_project = request.form.get("has_project") == "yes"
-        if has_project and not request.form.get("project_title", "").strip():
-            errors.append(t("compte.error_project_title_required"))
+            errors.append(t("compte.error_sector_required", default="Veuillez sélectionner un domaine IoT."))
 
         if errors:
             for err in errors:
@@ -104,14 +98,15 @@ def register_enterprise():
 
         try:
             project_fields = None
-            if has_project:
+            project_need = request.form.get("project_need", "").strip()
+            if project_need:
                 project_fields = {
-                    "title": request.form.get("project_title", "").strip(),
-                    "description": request.form.get("project_description", "").strip(),
-                    "budget": request.form.get("project_budget", "").strip(),
-                    "duration": request.form.get("project_duration", "").strip(),
-                    "skills": store.parse_list_field(request.form.get("project_skills")),
-                    "engagement_phase": request.form.get("project_engagement_phase", "").strip(),
+                    "title": project_need[:120],
+                    "description": project_need,
+                    "budget": "",
+                    "duration": "",
+                    "skills": [],
+                    "engagement_phase": "poc",
                 }
 
             user, _profile = store.register_enterprise_account(
@@ -122,17 +117,8 @@ def register_enterprise():
                 {
                     "name": request.form.get("company_name", "").strip(),
                     **sector_fields,
-                    "country": request.form.get("country", "").strip(),
-                    "city": request.form.get("city", "").strip(),
-                    "company_size": request.form.get("company_size", "").strip(),
                     "contact_name": request.form.get("contact_name", "").strip(),
-                    "contact_role": request.form.get("contact_role", "").strip(),
-                    "phone": request.form.get("phone", "").strip(),
-                    "website": request.form.get("website", "").strip(),
                     "email": request.form.get("email", "").strip().lower(),
-                    "description": request.form.get("description", "").strip(),
-                    "besoin": request.form.get("besoin", "").strip(),
-                    "needs": store.parse_list_field(request.form.get("needs")),
                 },
                 project_fields,
             )
@@ -162,13 +148,9 @@ def register_startup():
             errors.append(t("compte.error_startup_name_required"))
         if not request.form.get("country", "").strip():
             errors.append(t("compte.error_country_required"))
-        if not request.form.get("specialty", "").strip():
-            errors.append(t("compte.error_specialty_required"))
         sector_fields = parse_sector_fields(request.form, t)
         if not sector_fields.get("sector_id"):
-            errors.append(t("compte.error_sector_required", default="Veuillez sélectionner un secteur d'activité."))
-        if sector_fields.get("sector_id") == "other" and not sector_fields.get("sector_other"):
-            errors.append(t("compte.error_sector_other_required", default="Précisez votre secteur."))
+            errors.append(t("compte.error_sector_required", default="Veuillez sélectionner un domaine IoT."))
 
         if errors:
             for err in errors:
@@ -176,6 +158,7 @@ def register_startup():
             return render_template("compte/register_startup.html", form=dict(request.form))
 
         try:
+            sector_label = sector_fields.get("sector") or ""
             user, _profile = store.register_startup_account(
                 {
                     "email": request.form.get("email", "").strip().lower(),
@@ -185,18 +168,8 @@ def register_startup():
                     "name": request.form.get("startup_name", "").strip(),
                     **sector_fields,
                     "country": request.form.get("country", "").strip(),
-                    "flag": request.form.get("flag", "").strip(),
-                    "city": request.form.get("city", "").strip(),
-                    "contact_name": request.form.get("contact_name", "").strip(),
-                    "phone": request.form.get("phone", "").strip(),
-                    "specialty": request.form.get("specialty", "").strip(),
-                    "team_size": int(request.form.get("team_size") or 0),
-                    "projects_done": int(request.form.get("projects_done") or 0),
-                    "availability": request.form.get("availability", "").strip(),
-                    "rate_range": request.form.get("rate_range", "").strip(),
-                    "description": request.form.get("description", "").strip(),
-                    "besoin": request.form.get("besoin", "").strip(),
-                    "skills": store.parse_list_field(request.form.get("skills")),
+                    "specialty": sector_label,
+                    "skills": [sector_label] if sector_label else [],
                 },
             )
             auth.login_user(user)

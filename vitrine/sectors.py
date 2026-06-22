@@ -15,9 +15,5 @@ def parse_sector_fields(form_data, translate) -> dict:
     if not is_valid_sector_id(sector_id):
         return {"sector_id": "", "sector": "", "sector_other": ""}
 
-    if sector_id == "other":
-        label = sector_other or translate("sectors.items.other.name", default="Autres")
-        return {"sector_id": sector_id, "sector": label, "sector_other": sector_other}
-
     label = translate(f"sectors.items.{sector_id}.name", default=sector_id)
     return {"sector_id": sector_id, "sector": label, "sector_other": ""}

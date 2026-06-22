@@ -4,114 +4,23 @@
 
 {% block content %}
 {{ breadcrumbs_nav(seo_breadcrumbs) }}
-<section class="hero">
+<section class="hero hero-focused">
     <div class="hero-bg"></div>
     <div class="container hero-content">
-        <div class="hero-badge animate-in">{{ page.hero_badge }}</div>
-        <h1 class="animate-in delay-1">{{ page.hero_title }}</h1>
-        <p class="hero-sub animate-in delay-2">{{ page.hero_subtitle }}</p>
+        <div class="hero-badge animate-in">{{ t('home.hero_badge') }}</div>
+        <h1 class="animate-in delay-1">{{ t('home.hero_title') }}</h1>
+        <p class="hero-sub animate-in delay-2">{{ t('home.hero_sub') }}</p>
         <div class="hero-actions animate-in delay-3">
-            <a href="{{ url_for('compte.register_enterprise') }}" class="btn btn-primary btn-lg">{{ page.cta_primary }}</a>
-            <a href="{{ url_for('compte.register_startup') }}" class="btn btn-outline btn-lg">{{ page.cta_secondary }}</a>
+            <a href="{{ url_for('compte.register_enterprise') }}" class="btn btn-primary btn-lg">{{ t('home.cta_enterprise') }}</a>
+            <a href="{{ url_for('compte.register_startup') }}" class="btn btn-outline btn-lg">{{ t('home.cta_startup') }}</a>
         </div>
-        <div class="hero-stats animate-in delay-4">
-            <div class="stat">
-                <span class="stat-value" data-count="{{ stats.enterprises }}">0</span>
-                <span class="stat-label">{{ t('home.stat_enterprises') }}</span>
-            </div>
-            <div class="stat">
-                <span class="stat-value" data-count="{{ stats.startups }}">0</span>
-                <span class="stat-label">{{ t('home.stat_startups') }}</span>
-            </div>
-            <div class="stat">
-                <span class="stat-value" data-count="{{ stats.projects }}">0</span>
-                <span class="stat-label">{{ t('home.stat_projects') }}</span>
-            </div>
-            <div class="stat">
-                <span class="stat-value" data-count="{{ stats.countries }}">0</span>
-                <span class="stat-label">{{ t('home.stat_countries') }}</span>
-            </div>
-        </div>
-    </div>
-    <div class="hero-flow">
-        <div class="flow-node flow-left">{{ t('home.flow_enterprise') }}</div>
-        <div class="flow-line"><span class="flow-dot"></span></div>
-        <div class="flow-node flow-center">Iotplace</div>
-        <div class="flow-line"><span class="flow-dot"></span></div>
-        <div class="flow-node flow-right">{{ t('home.flow_startup') }}</div>
     </div>
 </section>
+
+{% include "_domains_grid.html" %}
+{% include "_simple_flow.html" %}
 
 <section class="section section-alt">
-    <div class="container">
-        <div class="section-header reveal">
-            <h2>{{ t('home.audiences_title') }}</h2>
-            <p>{{ t('home.audiences_sub') }}</p>
-        </div>
-        <div class="steps-grid">
-            <div class="step-card reveal">
-                <div class="step-num">🏢</div>
-                <h3>{{ t('home.enterprise_card_title') }}</h3>
-                <p>{{ t('home.enterprise_card_text') }}</p>
-                <a href="{{ url_for('vitrine.enterprises') }}" class="link-arrow">{{ t('home.enterprise_card_link') }}</a>
-            </div>
-            <div class="step-card reveal">
-                <div class="step-num">🚀</div>
-                <h3>{{ t('home.startup_card_title') }}</h3>
-                <p>{{ t('home.startup_card_text') }}</p>
-                <a href="{{ url_for('vitrine.startups') }}" class="link-arrow">{{ t('home.startup_card_link') }}</a>
-            </div>
-        </div>
-    </div>
-</section>
-
-{% include "_dual_journey_paths.html" %}
-
-<section class="section section-alt">
-    <div class="container">
-        <div class="section-header reveal">
-            <h2>{{ t('home.featured_startups') }}</h2>
-            <p>{{ t('home.featured_startups_sub') }}</p>
-            {% if featured_startups %}
-            <a href="{{ url_for('vitrine.startups') }}" class="link-arrow">{{ t('home.all_startups') }}</a>
-            {% endif %}
-        </div>
-        {% if featured_startups %}
-        <div class="cards-grid">
-            {% for startup in featured_startups %}
-            <a href="{{ url_for('vitrine.startup_detail', startup_id=startup.id) }}" class="card startup-card card-clickable reveal">
-                <div class="card-header">
-                    {% if startup.flag %}<span class="flag">{{ startup.flag }}</span>{% endif %}
-                    <div>
-                        <h3>{{ startup.name }}</h3>
-                        <span class="meta">{{ startup.city }}{% if startup.city and startup.country %}, {% endif %}{{ startup.country }}</span>
-                    </div>
-                </div>
-                <p class="card-desc">{{ startup.description }}</p>
-                {% if startup.skills %}
-                <div class="tags">
-                    {% for skill in startup.skills %}
-                    <span class="tag">{{ skill }}</span>
-                    {% endfor %}
-                </div>
-                {% endif %}
-                <div class="card-footer">
-                    {% if startup.rating %}<span class="rating">★ {{ startup.rating }}</span>{% endif %}
-                    {% if startup.projects_done %}<span class="meta">{{ startup.projects_done }} {{ t('common.projects_done') }}</span>{% endif %}
-                </div>
-            </a>
-            {% endfor %}
-        </div>
-        {% else %}
-        <div class="empty-state reveal">
-            <div class="empty-icon">🚀</div>
-            <p>{{ t('home.no_startups', link='<a href="' ~ url_for('vitrine.contact') ~ '">' ~ t('common.contact_us') ~ '</a>')|safe }}</p>
-        </div>
-        {% endif %}
-    </div>
-</section>
-
-<section class="section">
     <div class="container">
         <div class="section-header reveal">
             <h2>{{ t('home.featured_projects') }}</h2>
@@ -130,7 +39,6 @@
                 </div>
                 <div class="project-meta">
                     {% if project.budget %}<span class="budget">{{ project.budget }}</span>{% endif %}
-                    {% if project.duration %}<span class="duration">{{ project.duration }}</span>{% endif %}
                     <span class="status status-{{ project.status|lower|replace(' ', '-') }}">{{ translate_status(project.status) }}</span>
                 </div>
             </a>
@@ -138,8 +46,7 @@
         </div>
         {% else %}
         <div class="empty-state reveal">
-            <div class="empty-icon">📋</div>
-            <p>{{ t('home.no_projects', link='<a href="' ~ url_for('vitrine.contact') ~ '">' ~ t('home.publish_yours') ~ '</a>')|safe }}</p>
+            <p>{{ t('home.no_projects', link='<a href="' ~ url_for('compte.register_enterprise') ~ '">' ~ t('home.publish_yours') ~ '</a>')|safe }}</p>
         </div>
         {% endif %}
     </div>
