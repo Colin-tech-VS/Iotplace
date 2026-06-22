@@ -16,6 +16,11 @@
                     <div class="ux-dash-avatar enterprise" aria-hidden="true"></div>
                     <div>
                         <span class="ux-dash-badge">Espace entreprise</span>
+                        {% if profile.plan == 'pro_enterprise' %}
+                        <span class="ux-dash-badge ux-dash-badge-pro">Offre Pro</span>
+                        {% else %}
+                        <span class="ux-dash-badge ux-dash-badge-muted">Offre Gratuit · 1 projet ouvert</span>
+                        {% endif %}
                         <h1>{{ profile.name }}</h1>
                         <p class="ux-dash-sub">{{ profile.sector or 'Donneur d\'ordre IoT' }} · {{ profile.country or '—' }}</p>
                     </div>
@@ -173,7 +178,7 @@
 </section>
 
 <script src="{{ url_for('vitrine.static', filename='js/dashboard.js') }}?v=1"></script>
-<script src="{{ url_for('vitrine.static', filename='js/messaging.js') }}?v=1"></script>
+<script src="{{ url_for('vitrine.static', filename='js/messaging.js') }}?v=2"></script>
 <script>
 document.querySelectorAll('.ux-open-chat').forEach(btn => {
     btn.addEventListener('click', () => {

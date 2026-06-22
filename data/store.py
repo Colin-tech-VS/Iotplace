@@ -253,7 +253,7 @@ PAGE_FAQ = {
     "pricing": [
         {
             "q": "Is Iotplace free for startups?",
-            "a": "Yes, 100%. Startups never pay a subscription or commission. They receive the mission amount when the enterprise releases escrow funds after delivery validation.",
+            "a": "Signup and Scale/Partnership applications are free. PoC project applications require a one-time application fee (via Stripe). Mission payout arrives when the enterprise releases escrow funds.",
         },
         {
             "q": "When does the enterprise pay?",
@@ -380,19 +380,31 @@ def _deep_merge(base, override):
 
 
 def _load_raw():
+    from flask import g, has_request_context
+
+    if has_request_context() and getattr(g, "_iotplace_data", None) is not None:
+        return g._iotplace_data
+
     from data.persistence import load_state
 
     data = load_state()
     for key, value in DEFAULT_DATA.items():
         if key not in data:
             data[key] = value
+
+    if has_request_context():
+        g._iotplace_data = data
+
     return data
 
 
 def _save_raw(data):
+    from flask import g, has_request_context
     from data.persistence import save_state
 
     save_state(data)
+    if has_request_context():
+        g._iotplace_data = data
 
 
 def get_all():
@@ -750,6 +762,7 @@ def register_enterprise_account(user_fields, enterprise_fields, project_fields=N
         "name": name,
         "logo_initials": enterprise_fields.get("logo_initials") or _initials(name),
         "needs": enterprise_fields.get("needs") or [],
+        "plan": enterprise_fields.get("plan") or "free_enterprise",
         "published": False,
         "created_at": datetime.now(timezone.utc).isoformat(),
     })
@@ -837,8 +850,47 @@ def get_project(project_id):
     return next((p for p in get_projects() if p["id"] == project_id), None)
 
 
+def count_open_projects_for_enterprise(enterprise_id: str) -> int:
+    return sum(
+        1
+        for project in get_projects()
+        if project.get("enterprise_id") == enterprise_id and project.get("status") == "Ouvert"
+    )
+
+
+def can_enterprise_add_open_project(enterprise) -> tuple[bool, str | None]:
+    from payments.pricing_plans import FREE_ENTERPRISE_MAX_OPEN_PROJECTS, is_pro_enterprise
+
+    if is_pro_enterprise(enterprise):
+        return True, None
+    if count_open_projects_for_enterprise(enterprise["id"]) >= FREE_ENTERPRISE_MAX_OPEN_PROJECTS:
+        return False, (
+            f"Limite atteinte : {FREE_ENTERPRISE_MAX_OPEN_PROJECTS} projet ouvert sur l'offre Gratuit. "
+            "Contactez-nous pour activer l'offre Pro (projets illimités, commission réduite)."
+        )
+    return True, None
+
+
+def get_enterprise_plan_label(enterprise, locale: str = "fr") -> str:
+    from payments.pricing_plans import ENTERPRISE_PLAN_PRO, get_enterprise_plan_id
+
+    if get_enterprise_plan_id(enterprise) == ENTERPRISE_PLAN_PRO:
+        return "Entreprise Pro" if locale == "fr" else "Enterprise Pro"
+    return "Entreprise Gratuit" if locale == "fr" else "Enterprise Free"
+
+
 def add_project_for_enterprise(enterprise, fields):
     from data.engagement_phases import normalize_phase, phase_defaults
+    from payments.pricing_plans import FREE_ENTERPRISE_MAX_OPEN_PROJECTS, is_pro_enterprise
+
+    status = fields.get("status", "Ouvert")
+    if status == "Ouvert" and not is_pro_enterprise(enterprise):
+        open_count = count_open_projects_for_enterprise(enterprise["id"])
+        if open_count >= FREE_ENTERPRISE_MAX_OPEN_PROJECTS:
+            raise ValueError(
+                f"Limite atteinte : {FREE_ENTERPRISE_MAX_OPEN_PROJECTS} projet ouvert sur l'offre Gratuit. "
+                "Passez en Pro ou archivez un projet existant."
+            )
 
     budget = fields.get("budget", "").strip()
     phase = normalize_phase(fields.get("engagement_phase"))

@@ -223,15 +223,23 @@ def enterprise_new_project():
         if not title:
             flash("Le titre du projet est requis.", "error")
             return render_template("compte/project_form.html", profile=profile, user=user, form=dict(request.form))
-        store.add_project_for_enterprise(profile, {
-            "title": title,
-            "description": request.form.get("description", "").strip(),
-            "budget": request.form.get("budget", "").strip(),
-            "duration": request.form.get("duration", "").strip(),
-            "skills": store.parse_list_field(request.form.get("skills")),
-            "status": "Ouvert",
-            "engagement_phase": request.form.get("engagement_phase", "").strip(),
-        })
+        allowed, limit_msg = store.can_enterprise_add_open_project(profile)
+        if not allowed:
+            flash(limit_msg, "warning")
+            return render_template("compte/project_form.html", profile=profile, user=user, form=dict(request.form))
+        try:
+            store.add_project_for_enterprise(profile, {
+                "title": title,
+                "description": request.form.get("description", "").strip(),
+                "budget": request.form.get("budget", "").strip(),
+                "duration": request.form.get("duration", "").strip(),
+                "skills": store.parse_list_field(request.form.get("skills")),
+                "status": "Ouvert",
+                "engagement_phase": request.form.get("engagement_phase", "").strip(),
+            })
+        except ValueError as exc:
+            flash(str(exc), "warning")
+            return render_template("compte/project_form.html", profile=profile, user=user, form=dict(request.form))
         flash("Projet publié.", "success")
         return redirect(url_for("compte.enterprise_dashboard"))
 
@@ -259,13 +267,25 @@ def enterprise_edit_project(project_id):
                 project=project,
                 form=dict(request.form),
             )
+        new_status = request.form.get("status", "").strip()
+        if new_status == "Ouvert" and project.get("status") != "Ouvert":
+            allowed, limit_msg = store.can_enterprise_add_open_project(profile)
+            if not allowed:
+                flash(limit_msg, "warning")
+                return render_template(
+                    "compte/project_form.html",
+                    profile=profile,
+                    user=user,
+                    project=project,
+                    form=dict(request.form),
+                )
         store.update_project_for_enterprise(profile, project_id, {
             "title": title,
             "description": request.form.get("description", "").strip(),
             "budget": request.form.get("budget", "").strip(),
             "duration": request.form.get("duration", "").strip(),
             "skills": store.parse_list_field(request.form.get("skills")),
-            "status": request.form.get("status", "").strip(),
+            "status": new_status,
             "engagement_phase": request.form.get("engagement_phase", "").strip(),
         })
         flash("Projet mis à jour.", "success")
@@ -453,7 +473,7 @@ def startup_apply_poc_success(project_id):
         flash("Candidature PoC envoyée — paiement confirmé.", "success")
         return redirect(url_for("compte.startup_dashboard") + "#messages")
 
-    flash(result.get("error", "Paiement en cours de validation. Réessayez dans quelques instants."), "error")
+    flash(result.get("error", "Paiement en cours de validation. Réessayez dans quelques instants."), "warning")
     return redirect(url_for("compte.startup_project_detail", project_id=project_id))
 
 
@@ -573,7 +593,7 @@ def message_update_status(message_id):
             )
             return redirect(payment_result["invoice_url"])
         if payment_result and payment_result.get("payment_error"):
-            flash(f"Paiement : {payment_result['payment_error']}", "error")
+            flash(f"Paiement : {payment_result['payment_error']}", "warning")
     return redirect(url_for("compte.message_detail", message_id=message_id))
 
 
@@ -710,6 +730,7 @@ def startup_stripe_return():
 @compte_bp.route("/compte/startup/stripe/refresh")
 @auth.login_required(role="startup")
 def startup_stripe_refresh():
+    flash("Reprise de la configuration Stripe. Complétez les informations demandées.", "info")
     return redirect(url_for("compte.startup_stripe_onboard"))
 
 

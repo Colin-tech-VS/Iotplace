@@ -42,9 +42,13 @@
     <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/iot-theme.css') }}?v=3">
     <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/dashboard-ux.css') }}?v=1">
     <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/advisor.css') }}?v=4">
+    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/toast.css') }}?v=1">
+    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/page-loader.css') }}?v=1">
+    <script>document.documentElement.classList.add('iot-loading');</script>
     {% block extra_head %}{% endblock %}
 </head>
 <body class="vitrine">
+    {% include "_page_loader.html" %}
     <div class="page-bg">
         <div class="iot-scanline"></div>
         <div class="iot-circuit iot-circuit-1"></div>
@@ -113,13 +117,15 @@
 
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-            <div class="flash-container container">
+            <div class="flash-container container" hidden aria-hidden="true">
                 {% for category, message in messages %}
-                    <div class="flash flash-{{ category }}">{{ message }}</div>
+                    <div class="flash flash-{{ category }}" data-iot-flash="{{ category }}">{{ message }}</div>
                 {% endfor %}
             </div>
         {% endif %}
     {% endwith %}
+
+    <div id="iot-toast-stack" class="iot-toast-stack" aria-live="polite"></div>
 
     <main id="main-content">
         {% block content %}{% endblock %}
@@ -169,7 +175,9 @@
         </div>
     </footer>
 
+    <script src="{{ url_for('vitrine.static', filename='js/page-loader.js') }}?v=1"></script>
     <script src="{{ url_for('vitrine.static', filename='js/main.js') }}?v=3"></script>
+    <script src="{{ url_for('vitrine.static', filename='js/toast.js') }}?v=1"></script>
     {% if analytics_enabled %}
     <script src="{{ url_for('vitrine.static', filename='js/analytics.js') }}"></script>
     {% endif %}

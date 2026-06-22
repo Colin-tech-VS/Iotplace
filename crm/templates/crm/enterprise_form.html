@@ -50,6 +50,21 @@
                 <span class="field-hint">Ces tags aident au matching avec les startups.</span>
             </div>
         </section>
+
+        <section class="card form-section">
+            <div class="section-title">
+                <h2>Offre commerciale</h2>
+                <p>Alignée avec la page Tarifs (Gratuit / Pro)</p>
+            </div>
+            <div class="field">
+                <label for="plan">Plan entreprise</label>
+                <select id="plan" name="plan">
+                    <option value="free_enterprise" {% if not entry or entry.plan|default('free_enterprise') == 'free_enterprise' %}selected{% endif %}>Gratuit — 1 projet ouvert, commission standard</option>
+                    <option value="pro_enterprise" {% if entry and entry.plan == 'pro_enterprise' %}selected{% endif %}>Pro — projets illimités, commission réduite</option>
+                </select>
+                <span class="field-hint">Le plan Pro est activé manuellement après contact commercial.</span>
+            </div>
+        </section>
     </div>
 </form>
 {% endblock %}

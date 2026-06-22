@@ -40,6 +40,22 @@ def get_commission_percent() -> float:
         return DEFAULT_COMMISSION_PERCENT
 
 
+def get_pro_commission_percent() -> float:
+    raw = os.environ.get("IOTPLACE_PRO_COMMISSION_PERCENT", "7")
+    try:
+        return float(raw)
+    except ValueError:
+        return 7.0
+
+
+def get_commission_percent_for_enterprise(enterprise: dict | None) -> float:
+    from payments.pricing_plans import is_pro_enterprise
+
+    if is_pro_enterprise(enterprise):
+        return get_pro_commission_percent()
+    return get_commission_percent()
+
+
 def get_poc_application_fee_cents() -> int:
     raw = os.environ.get("IOTPLACE_POC_APPLICATION_FEE_EUR", str(DEFAULT_POC_APPLICATION_FEE_EUR))
     try:
@@ -199,7 +215,7 @@ def create_escrow_invoice(
             "startup_id": engagement.get("startup_id", ""),
         },
         description=(
-            f"Commission Iotplace : {get_commission_percent():g}% prélevée à la libération des fonds. "
+            f"Commission Iotplace : {get_commission_percent_for_enterprise(enterprise):g}% prélevée à la libération des fonds. "
             "Les fonds restent en séquestre jusqu'à validation de la mission."
         ),
     )

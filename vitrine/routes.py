@@ -283,12 +283,14 @@ def legacy_pricing_fr():
 def pricing():
     if not _check_published("pricing"):
         return render_template("unpublished.html"), 404
-    from payments.pricing_plans import get_pricing_numbers
+    from payments.pricing_plans import build_pricing_page_context
+    from vitrine.i18n import get_locale
 
+    locale = get_locale()
     return render_template(
         "pricing.html",
-        page=store.get_page_content("pricing", get_locale()),
-        pricing=get_pricing_numbers(),
+        page=store.get_page_content("pricing", locale),
+        pricing=build_pricing_page_context(locale),
     )
 
 
@@ -304,16 +306,30 @@ def contact():
     if not _check_published("contact"):
         return render_template("unpublished.html"), 404
     if request.method == "POST":
+        name = request.form.get("name", "").strip()
+        email = request.form.get("email", "").strip()
+        message = request.form.get("message", "").strip()
+        if not name or not email or not message:
+            flash(t("contact.flash_error_required"), "error")
+            return render_template(
+                "contact.html",
+                page=store.get_page_content("contact", get_locale()),
+                form=dict(request.form),
+            )
         store.add_contact({
             "type": request.form.get("type", ""),
-            "name": request.form.get("name", ""),
-            "email": request.form.get("email", ""),
+            "name": name,
+            "email": email,
             "country": request.form.get("country", ""),
-            "message": request.form.get("message", ""),
+            "message": message,
         })
         flash(t("contact.flash_success"), "success")
         return redirect(url_for("vitrine.contact"))
-    return render_template("contact.html", page=store.get_page_content("contact", get_locale()))
+    return render_template(
+        "contact.html",
+        page=store.get_page_content("contact", get_locale()),
+        form={},
+    )
 
 
 def _domain_breadcrumbs(domain_name: str, canonical: str, locale: str):

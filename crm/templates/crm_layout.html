@@ -10,8 +10,12 @@
     <link rel="stylesheet" href="{{ url_for('crm.static', filename='css/crm.css') }}?v=7">
     <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/iot-theme.css') }}?v=1">
     <link rel="stylesheet" href="{{ url_for('crm.static', filename='css/dashboard-ux.css') }}?v=1">
+    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/toast.css') }}?v=1">
+    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/page-loader.css') }}?v=1">
+    <script>document.documentElement.classList.add('iot-loading');</script>
 </head>
 <body class="crm">
+    {% include "_page_loader.html" %}
     <div class="crm-bg" aria-hidden="true"></div>
     <div class="app" id="app">
         <aside class="sidebar" id="sidebar">
@@ -116,20 +120,23 @@
                 <div class="content-inner">
                 {% with messages = get_flashed_messages(with_categories=true) %}
                     {% if messages %}
-                    <div class="toasts" id="toasts">
+                    <div class="toasts" id="toasts" hidden aria-hidden="true">
                         {% for category, message in messages %}
-                        <div class="toast toast-{{ category }}" role="alert">{{ message }}</div>
+                        <div class="toast toast-{{ category }}" data-iot-flash="{{ category }}" role="alert">{{ message }}</div>
                         {% endfor %}
                     </div>
                     {% endif %}
                 {% endwith %}
+                <div id="iot-toast-stack" class="iot-toast-stack" aria-live="polite"></div>
                 {% block content %}{% endblock %}
                 </div>
             </div>
         </div>
     </div>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
-    <script src="{{ url_for('crm.static', filename='js/crm.js') }}?v=2"></script>
+    <script src="{{ url_for('vitrine.static', filename='js/page-loader.js') }}?v=1"></script>
+    <script src="{{ url_for('vitrine.static', filename='js/toast.js') }}?v=1"></script>
+    <script src="{{ url_for('crm.static', filename='js/crm.js') }}?v=3"></script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

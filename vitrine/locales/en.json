@@ -290,7 +290,8 @@
     "startup_card_title": "🚀 Startup?",
     "startup_card_text": "Access subcontracting missions from large enterprises.",
     "startup_card_btn": "Create startup account",
-    "flash_success": "Thank you! Your message has been sent. We will get back to you within 48 hours."
+    "flash_success": "Thank you! Your message has been sent. We will get back to you within 48 hours.",
+    "flash_error_required": "Please fill in your name, email and message."
   },
   "detail": {
     "startup_profile": "Startup profile",

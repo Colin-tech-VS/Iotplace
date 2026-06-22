@@ -72,12 +72,17 @@
             );
             if (save) {
                 applyToForm(data.content);
+                if (window.IotToast) {
+                    IotToast.show('Contenu, SEO et FAQ enregistrés.', { type: 'success' });
+                }
                 if (data.seo) {
                     setStatus('Contenu, SEO et FAQ enregistrés. Rechargez la page SEO pour les voir.', false);
                 }
             }
         } catch (error) {
-            setStatus(error.message || 'Erreur Mistral', true);
+            const msg = error.message || 'Erreur Mistral';
+            setStatus(msg, true);
+            if (window.IotToast) IotToast.show(msg, { type: 'error' });
         } finally {
             setLoading(false);
         }

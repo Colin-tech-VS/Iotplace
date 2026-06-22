@@ -41,7 +41,7 @@ def on_application_accepted(message: dict, enterprise_user: dict) -> dict:
         }
 
     amount_cents = store.resolve_project_amount_cents(project)
-    fee_percent = stripe_service.get_commission_percent()
+    fee_percent = stripe_service.get_commission_percent_for_enterprise(profile)
     platform_fee_cents = int(amount_cents * fee_percent / 100)
     startup_payout_cents = amount_cents - platform_fee_cents
 

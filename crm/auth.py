@@ -130,6 +130,8 @@ def crm_login_required(view):
         if not is_crm_configured():
             abort(503)
         if not is_crm_authenticated():
+            if session.get(CRM_SESSION_TOKEN):
+                flash("Session expirée. Reconnectez-vous.", "warning")
             return redirect(url_for("crm.login", next=request.path))
         return view(*args, **kwargs)
 

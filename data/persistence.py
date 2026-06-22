@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 import json
 import os
 import threading
@@ -11,6 +12,11 @@ from typing import Any
 
 _lock = threading.RLock()
 _backend: "StateBackend | None" = None
+_process_cache: dict[str, Any] | None = None
+_process_cache_version: str | None = None
+_pools: dict[str, Any] = {}
+_schema_ready_urls: set[str] = set()
+_supabase_clients: dict[tuple[str, str], Any] = {}
 
 DATA_DIR = Path(__file__).parent
 DEFAULT_JSON_FILE = DATA_DIR / "content.json"
@@ -112,6 +118,11 @@ class JsonFileBackend(StateBackend):
     def name(self) -> str:
         return "json"
 
+    def get_state_version(self) -> str:
+        if self.path.exists():
+            return str(int(self.path.stat().st_mtime_ns))
+        return ""
+
     def load(self) -> dict[str, Any]:
         with _lock:
             if not self.path.exists():
@@ -148,13 +159,23 @@ class SupabaseRestBackend(StateBackend):
         if not config and not (url and key):
             raise RuntimeError("SUPABASE_URL et SUPABASE_KEY requis pour le backend Supabase.")
         self.url, self.key = (url, key) if url and key else config  # type: ignore[misc]
-        from supabase import create_client
-
-        self.client = create_client(self.url, self.key)
+        self.client = _get_supabase_client(self.url, self.key)
 
     @property
     def name(self) -> str:
         return "supabase"
+
+    def get_state_version(self) -> str:
+        result = (
+            self.client.table("iotplace_state")
+            .select("updated_at")
+            .eq("id", 1)
+            .limit(1)
+            .execute()
+        )
+        if result.data:
+            return str(result.data[0].get("updated_at") or "")
+        return ""
 
     def load(self) -> dict[str, Any]:
         with _lock:
@@ -184,6 +205,30 @@ class SupabaseRestBackend(StateBackend):
             ).execute()
 
 
+def _get_supabase_client(url: str, key: str):
+    cache_key = (url, key)
+    if cache_key not in _supabase_clients:
+        from supabase import create_client
+
+        _supabase_clients[cache_key] = create_client(url, key)
+    return _supabase_clients[cache_key]
+
+
+def _get_connection_pool(database_url: str):
+    if database_url not in _pools:
+        from psycopg_pool import ConnectionPool
+
+        _pools[database_url] = ConnectionPool(
+            database_url,
+            min_size=1,
+            max_size=8,
+            timeout=10,
+            kwargs={"prepare_threshold": None},
+            open=True,
+        )
+    return _pools[database_url]
+
+
 class PostgresBackend(StateBackend):
     SCHEMA_VERSION = "1"
 
@@ -196,13 +241,27 @@ class PostgresBackend(StateBackend):
     def name(self) -> str:
         return "postgres"
 
+    def get_state_version(self) -> str:
+        pool = _get_connection_pool(self.database_url)
+        with pool.connection() as conn:
+            row = conn.execute(
+                "SELECT updated_at FROM iotplace_state WHERE id = 1"
+            ).fetchone()
+            if row and row[0] is not None:
+                return str(row[0])
+        return ""
+
     def load(self) -> dict[str, Any]:
-        import psycopg
         from psycopg.types.json import Jsonb
 
+        pool = _get_connection_pool(self.database_url)
         with _lock:
-            with psycopg.connect(self.database_url) as conn:
-                self._ensure_schema(conn)
+            with pool.connection() as conn:
+                if self.database_url not in _schema_ready_urls:
+                    self._ensure_schema(conn)
+                    conn.commit()
+                    _schema_ready_urls.add(self.database_url)
+
                 row = conn.execute(
                     "SELECT data FROM iotplace_state WHERE id = 1"
                 ).fetchone()
@@ -224,12 +283,14 @@ class PostgresBackend(StateBackend):
                 return seed.copy()
 
     def save(self, data: dict[str, Any]) -> None:
-        import psycopg
         from psycopg.types.json import Jsonb
 
+        pool = _get_connection_pool(self.database_url)
         with _lock:
-            with psycopg.connect(self.database_url) as conn:
-                self._ensure_schema(conn)
+            with pool.connection() as conn:
+                if self.database_url not in _schema_ready_urls:
+                    self._ensure_schema(conn)
+                    _schema_ready_urls.add(self.database_url)
                 conn.execute(
                     """
                     INSERT INTO iotplace_state (id, data, updated_at)
@@ -296,12 +357,53 @@ def get_backend() -> StateBackend:
     return _backend
 
 
+def invalidate_state_cache() -> None:
+    global _process_cache, _process_cache_version
+    with _lock:
+        _process_cache = None
+        _process_cache_version = None
+
+
+def _backend_state_version(backend: StateBackend) -> str:
+    if hasattr(backend, "get_state_version"):
+        try:
+            return backend.get_state_version()
+        except Exception:
+            return ""
+    if isinstance(backend, JsonFileBackend):
+        path = backend.path
+        if path.exists():
+            return str(int(path.stat().st_mtime_ns))
+    return ""
+
+
 def load_state() -> dict[str, Any]:
-    return get_backend().load()
+    global _process_cache, _process_cache_version
+
+    backend = get_backend()
+    version = _backend_state_version(backend)
+
+    with _lock:
+        if _process_cache is not None and _process_cache_version == version and version:
+            return copy.deepcopy(_process_cache)
+
+    data = backend.load()
+
+    with _lock:
+        _process_cache = data
+        _process_cache_version = version or "loaded"
+
+    return copy.deepcopy(data)
 
 
 def save_state(data: dict[str, Any]) -> None:
-    get_backend().save(data)
+    global _process_cache, _process_cache_version
+
+    backend = get_backend()
+    backend.save(data)
+    with _lock:
+        _process_cache = copy.deepcopy(data)
+        _process_cache_version = _backend_state_version(backend) or "saved"
 
 
 def persistence_info() -> dict[str, str]:

@@ -335,6 +335,7 @@ def new_enterprise():
             "logo_initials": request.form.get("logo_initials", "")[:3].upper(),
             "description": request.form.get("description", ""),
             "needs": store.parse_list_field(request.form.get("needs", "")),
+            "plan": request.form.get("plan", "free_enterprise"),
         })
         flash("Entreprise créée.", "success")
         return redirect(url_for("crm.enterprises"))
@@ -348,14 +349,19 @@ def edit_enterprise(entry_id):
         flash("Entreprise introuvable.", "error")
         return redirect(url_for("crm.enterprises"))
     if request.method == "POST":
+        plan = request.form.get("plan", "free_enterprise")
         store.update_enterprise(entry_id, {
             "name": request.form["name"],
             "sector": request.form.get("sector", ""),
             "logo_initials": request.form.get("logo_initials", "")[:3].upper(),
             "description": request.form.get("description", ""),
             "needs": store.parse_list_field(request.form.get("needs", "")),
+            "plan": plan,
         })
-        flash("Entreprise mise à jour.", "success")
+        if plan == "pro_enterprise":
+            flash("Entreprise mise à jour — offre Pro activée (projets illimités, commission réduite).", "success")
+        else:
+            flash("Entreprise mise à jour.", "success")
         return redirect(url_for("crm.enterprises"))
     return render_template("crm/enterprise_form.html", entry=entry, is_new=False)
 

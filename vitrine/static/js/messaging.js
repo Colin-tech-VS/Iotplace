@@ -82,22 +82,23 @@
         });
     }
 
-    function showToast(title, body) {
+    function showToast(title, body, type) {
+        if (window.IotToast) {
+            IotToast.show(body, { title, type: type || 'info' });
+            return;
+        }
         let container = document.getElementById('msg-toasts');
         if (!container) {
             container = document.createElement('div');
             container.id = 'msg-toasts';
-            container.className = 'msg-toasts';
+            container.className = 'iot-toast-stack';
             document.body.appendChild(container);
         }
         const toast = document.createElement('div');
-        toast.className = 'msg-toast';
+        toast.className = 'iot-toast iot-toast--info';
         toast.innerHTML = `<strong>${escapeHtml(title)}</strong><p>${escapeHtml(body)}</p>`;
         container.appendChild(toast);
-        setTimeout(() => {
-            toast.classList.add('msg-toast-out');
-            setTimeout(() => toast.remove(), 300);
-        }, 4500);
+        setTimeout(() => toast.remove(), 4500);
 
         if (Notification.permission === 'granted' && document.hidden) {
             new Notification(title, { body, icon: '/vitrine/static/favicon.ico' });
@@ -238,15 +239,27 @@
         });
         const data = await res.json();
         if (!data.ok) {
-            alert(data.error || 'Erreur');
+            if (window.IotToast) IotToast.show(data.error || 'Erreur', { type: 'error' });
+            else alert(data.error || 'Erreur');
             return;
+        }
+        if (status === 'accepted') {
+            if (window.IotToast) {
+                IotToast.show('Candidature acceptée.', { type: 'success' });
+            }
+        } else if (status === 'declined' && window.IotToast) {
+            IotToast.show('Candidature refusée.', { type: 'info' });
         }
         if (status === 'accepted' && data.payment && data.payment.invoice_url) {
             if (confirm('Candidature acceptée. Ouvrir la facture pour paiement (séquestre) ?')) {
                 window.open(data.payment.invoice_url, '_blank', 'noopener');
             }
         } else if (status === 'accepted' && data.payment && data.payment.error) {
-            alert('Acceptée, mais facture : ' + data.payment.error);
+            if (window.IotToast) {
+                IotToast.show('Acceptée, mais facture : ' + data.payment.error, { type: 'warning' });
+            } else {
+                alert('Acceptée, mais facture : ' + data.payment.error);
+            }
         }
         const idx = state.activeMessages.findIndex((m) => m.id === messageId);
         if (idx >= 0) state.activeMessages[idx] = data.message;
@@ -294,8 +307,10 @@
         els.input.disabled = true;
         try {
             await sendMessage(body);
+            if (window.IotToast) IotToast.show('Message envoyé.', { type: 'success' });
         } catch (err) {
-            alert(err.message);
+            if (window.IotToast) IotToast.show(err.message, { type: 'error' });
+            else alert(err.message);
         } finally {
             els.input.disabled = false;
             els.input.focus();

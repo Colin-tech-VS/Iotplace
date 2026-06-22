@@ -17,28 +17,28 @@
                     <label for="type">{{ t('contact.i_am') }}</label>
                     <select id="type" name="type" required>
                         <option value="">{{ t('contact.choose') }}</option>
-                        <option value="enterprise">{{ t('contact.type_enterprise') }}</option>
-                        <option value="startup">{{ t('contact.type_startup') }}</option>
-                        <option value="other">{{ t('contact.type_other') }}</option>
+                        <option value="enterprise" {% if form.get('type') == 'enterprise' %}selected{% endif %}>{{ t('contact.type_enterprise') }}</option>
+                        <option value="startup" {% if form.get('type') == 'startup' %}selected{% endif %}>{{ t('contact.type_startup') }}</option>
+                        <option value="other" {% if form.get('type') == 'other' %}selected{% endif %}>{{ t('contact.type_other') }}</option>
                     </select>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label for="name">{{ t('contact.name') }}</label>
-                        <input type="text" id="name" name="name" required placeholder="{{ t('contact.name_ph') }}">
+                        <input type="text" id="name" name="name" required placeholder="{{ t('contact.name_ph') }}" value="{{ form.get('name', '') }}">
                     </div>
                     <div class="form-group">
                         <label for="email">{{ t('contact.email') }}</label>
-                        <input type="email" id="email" name="email" required placeholder="{{ t('contact.email_ph') }}">
+                        <input type="email" id="email" name="email" required placeholder="{{ t('contact.email_ph') }}" value="{{ form.get('email', '') }}">
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="country">{{ t('contact.country') }}</label>
-                    <input type="text" id="country" name="country" placeholder="{{ t('contact.country_ph') }}">
+                    <input type="text" id="country" name="country" placeholder="{{ t('contact.country_ph') }}" value="{{ form.get('country', '') }}">
                 </div>
                 <div class="form-group">
                     <label for="message">{{ t('contact.message') }}</label>
-                    <textarea id="message" name="message" rows="5" required placeholder="{{ t('contact.message_ph') }}"></textarea>
+                    <textarea id="message" name="message" rows="5" required placeholder="{{ t('contact.message_ph') }}">{{ form.get('message', '') }}</textarea>
                 </div>
                 <button type="submit" class="btn btn-primary btn-lg btn-glow">{{ t('contact.send') }}</button>
             </form>

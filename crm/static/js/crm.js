@@ -21,15 +21,6 @@ document.querySelectorAll('[data-confirm]').forEach(form => {
     });
 });
 
-document.querySelectorAll('.toast').forEach(toast => {
-    setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transform = 'translateX(20px)';
-        toast.style.transition = 'all 0.3s ease';
-        setTimeout(() => toast.remove(), 300);
-    }, 4000);
-});
-
 document.querySelectorAll('.kpi-card').forEach((card, i) => {
     card.classList.add('iot-enter');
     card.style.animationDelay = `${i * 0.06}s`;

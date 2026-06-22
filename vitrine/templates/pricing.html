@@ -48,10 +48,10 @@
                         <span class="pricing-period">{{ t('pricing.forever') }}</span>
                         {% endif %}
                     </div>
-                    <p class="pricing-summary">{{ t('pricing.plans.' ~ plan_id ~ '.summary') }}</p>
+                    <p class="pricing-summary">{{ t('pricing.plans.' ~ plan_id ~ '.summary')|replace('10 %', (pricing.commission_percent|int) ~ ' %')|replace('10%', (pricing.commission_percent|int) ~ '%')|replace('7 %', (pricing.pro_commission_percent|int) ~ ' %')|replace('7%', (pricing.pro_commission_percent|int) ~ '%') }}</p>
                     <ul class="pricing-features">
                         {% for feat in t('pricing.plans.' ~ plan_id ~ '.features') %}
-                        <li>{{ feat }}</li>
+                        <li>{{ feat|replace('10 %', (pricing.commission_percent|int) ~ ' %')|replace('10%', (pricing.commission_percent|int) ~ '%')|replace('7 %', (pricing.pro_commission_percent|int) ~ ' %')|replace('7%', (pricing.pro_commission_percent|int) ~ '%')|replace('399 €', (pricing.pro_price_eur) ~ ' €')|replace('€399', '€' ~ (pricing.pro_price_eur)) }}</li>
                         {% endfor %}
                     </ul>
                     <a href="{{ url_for(t('pricing.plans.' ~ plan_id ~ '.cta_route')) }}" class="btn {% if featured %}btn-primary btn-glow{% else %}btn-outline{% endif %} pricing-cta">
@@ -73,7 +73,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for row in t('pricing.compare_rows') %}
+                        {% for row in pricing.compare_rows %}
                         <tr>
                             <td>{{ row.feature }}</td>
                             <td>{{ row.free }}</td>
@@ -112,10 +112,10 @@
                         <span class="pricing-price">{{ t('pricing.free') }}</span>
                         <span class="pricing-period">{{ t('pricing.forever') }}</span>
                     </div>
-                    <p class="pricing-summary">{{ t('pricing.plans.' ~ plan_id ~ '.summary') }}</p>
+                    <p class="pricing-summary">{{ t('pricing.plans.' ~ plan_id ~ '.summary')|replace('10 %', (pricing.commission_percent|int) ~ ' %')|replace('10%', (pricing.commission_percent|int) ~ '%')|replace('7 %', (pricing.pro_commission_percent|int) ~ ' %')|replace('7%', (pricing.pro_commission_percent|int) ~ '%') }}</p>
                     <ul class="pricing-features">
                         {% for feat in t('pricing.plans.' ~ plan_id ~ '.features') %}
-                        <li>{{ feat }}</li>
+                        <li>{{ feat|replace('10 %', (pricing.commission_percent|int) ~ ' %')|replace('10%', (pricing.commission_percent|int) ~ '%')|replace('7 %', (pricing.pro_commission_percent|int) ~ ' %')|replace('7%', (pricing.pro_commission_percent|int) ~ '%')|replace('399 €', (pricing.pro_price_eur) ~ ' €')|replace('€399', '€' ~ (pricing.pro_price_eur)) }}</li>
                         {% endfor %}
                     </ul>
                     <a href="{{ url_for(t('pricing.plans.' ~ plan_id ~ '.cta_route')) }}" class="btn btn-primary btn-glow pricing-cta">
@@ -136,7 +136,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for row in t('pricing.startup_fee_rows') %}
+                        {% for row in pricing.startup_fee_rows %}
                         <tr>
                             <td>{{ row.phase }}</td>
                             <td>{{ row.apply }}</td>
@@ -146,7 +146,7 @@
                     </tbody>
                 </table>
             </div>
-            <p class="pricing-note reveal">{{ t('pricing.startup_note') }}</p>
+            <p class="pricing-note reveal">{{ t('pricing.startup_note')|replace('49 €', pricing.poc_application_fee_label)|replace('€49', pricing.poc_application_fee_label) }}</p>
         </div>
     </section>
 </div>

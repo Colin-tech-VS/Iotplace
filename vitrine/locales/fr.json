@@ -290,7 +290,8 @@
     "startup_card_title": "🚀 Startup ?",
     "startup_card_text": "Accédez aux missions de sous-traitance des grandes entreprises.",
     "startup_card_btn": "Créer un compte startup",
-    "flash_success": "Merci ! Votre message a bien été envoyé. Nous vous répondrons sous 48 heures."
+    "flash_success": "Merci ! Votre message a bien été envoyé. Nous vous répondrons sous 48 heures.",
+    "flash_error_required": "Veuillez renseigner votre nom, email et message."
   },
   "detail": {
     "startup_profile": "Profil startup",
