@@ -9,14 +9,22 @@ from typing import Any
 from data.site_config import CONTACT_EMAIL, PRODUCTION_SITE_URL
 
 KNOWS_ABOUT = [
-    "Internet of Things (IoT)",
-    "B2B subcontracting",
-    "IoT outsourcing",
-    "Embedded firmware",
-    "Connected hardware",
-    "Southeast Asia tech startups",
-    "PoC and scale-up partnerships",
-    "Stripe escrow payments",
+    "Predictive Maintenance",
+    "Energy Monitoring",
+    "Industrial IoT",
+    "Asset Tracking",
+    "Smart Metering",
+    "Condition Monitoring",
+    "Building Automation",
+    "Industrial AI",
+    "Supply Chain Visibility",
+    "Cold Chain Monitoring",
+    "LoRaWAN",
+    "MQTT",
+    "Modbus",
+    "BACnet",
+    "Edge AI",
+    "B2B IoT subcontracting",
 ]
 
 AI_USER_AGENTS = (

@@ -1,28 +1,28 @@
 {
   "label": "Votre domaine IoT",
-  "hint": "Iotplace est spécialisé sur ces 5 marchés B2B à fort potentiel.",
+  "hint": "5 marchés B2B à fort potentiel : Energy Monitoring, Predictive Maintenance, Asset Tracking, Smart Building, Cold Chain.",
   "choose": "— Choisir un domaine —",
   "potential_label": "Potentiel marché",
   "items": {
     "smart_energy": {
-      "name": "Smart Energy",
-      "tagline": "Smart grid, compteurs intelligents, optimisation énergétique."
+      "name": "Solutions Energy Monitoring",
+      "tagline": "Energy Management, Smart Metering, ESG, MQTT, Modbus, BACnet."
     },
     "asset_tracking": {
-      "name": "Asset Tracking",
-      "tagline": "Géolocalisation, flottes, traçabilité des actifs en temps réel."
+      "name": "Solutions Asset Tracking",
+      "tagline": "Fleet Management, RTLS, supply chain visibility, GPS, RFID."
     },
     "predictive_maintenance": {
-      "name": "Predictive Maintenance",
-      "tagline": "Capteurs machines, alertes, maintenance avant panne."
+      "name": "Solutions Maintenance prédictive",
+      "tagline": "Condition Monitoring, Industrial AI, SCADA, OPC-UA, capteurs vibrations."
     },
     "smart_building": {
-      "name": "Smart Building",
-      "tagline": "HVAC connecté, occupation, efficacité énergétique des bâtiments."
+      "name": "Solutions Smart Building",
+      "tagline": "Building Automation, HVAC, occupation, qualité air intérieur."
     },
     "cold_chain_monitoring": {
-      "name": "Cold Chain Monitoring",
-      "tagline": "Température, humidité, conformité chaîne du froid."
+      "name": "Solutions Cold Chain Monitoring",
+      "tagline": "Conformité température, pharma, food safety, alertes temps réel."
     }
   }
 }

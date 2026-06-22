@@ -117,48 +117,52 @@ DEFAULT_PAGE_CONTENT_FR = {
 
 DEFAULT_SEO_PAGES = {
     "home": {
-        "title": "B2B IoT Subcontracting — Enterprises & Asian Startups",
+        "title": "IoT B2B Marketplace — Predictive Maintenance, Energy Monitoring & Asset Tracking",
         "description": (
-            "Iotplace, B2B IoT marketplace: enterprises outsource firmware, hardware and cloud "
-            "to qualified startups in Southeast Asia. IoT startups access subcontracting missions "
-            "from large enterprises."
+            "Iotplace connects enterprises with IoT startups for Predictive Maintenance, Energy Monitoring, "
+            "Industrial IoT, Asset Tracking, Smart Metering, Condition Monitoring, Building Automation, "
+            "Industrial AI, Supply Chain Visibility and Cold Chain Monitoring projects. Stripe escrow."
         ),
         "keywords": (
-            "IoT subcontracting, IoT outsourcing, B2B IoT marketplace, Asian IoT startups, "
-            "Vietnam IoT, Indonesia IoT, IoT firmware, connected hardware, enterprise IoT missions"
+            "Predictive Maintenance, Energy Monitoring, Industrial IoT, Asset Tracking, Smart Metering, "
+            "Condition Monitoring, Building Automation, Industrial AI, Supply Chain Visibility, "
+            "Cold Chain Monitoring, IoT subcontracting, B2B IoT marketplace, LoRaWAN, Edge AI, MQTT, Modbus"
         ),
     },
     "enterprises": {
-        "title": "Outsource your IoT projects — Subcontract startups",
+        "title": "Enterprise IoT Outsourcing — Energy, Maintenance & Asset Tracking Solutions",
         "description": (
-            "IoT enterprise: publish your needs and subcontract firmware, PCB, cloud and integration "
-            "to qualified Vietnamese and Asian startups. Matching, contracts and tracking on Iotplace."
+            "Publish Predictive Maintenance, Energy Monitoring, Asset Tracking, Smart Building or Cold Chain "
+            "needs. Reduce costs, CO₂ and ESG reporting effort. Match startups expert in LoRaWAN, MQTT, "
+            "Modbus, BACnet, Edge AI and industrial sensors."
         ),
         "keywords": (
-            "enterprise IoT subcontracting, IoT project outsourcing, firmware subcontracting, "
-            "offshore IoT development, Vietnam IoT startups, IoT client"
+            "Energy Management, Energy Monitoring, Predictive Maintenance, Asset Tracking, Fleet Management, "
+            "Building Automation, Cold Chain Monitoring, Condition Monitoring, Industrial AI, ESG Reporting, "
+            "Smart Metering, enterprise IoT outsourcing, B2B subcontracting"
         ),
     },
     "startups": {
-        "title": "IoT Startups — Enterprise subcontracting missions",
+        "title": "IoT Startups — LoRaWAN, Edge AI & Industrial IoT Missions",
         "description": (
-            "IoT startup in Southeast Asia: find subcontracting projects published by "
-            "large enterprises — firmware, PCB, LoRaWAN, IoT cloud, hardware integration."
+            "LoRaWAN experts, Industrial IoT developers, embedded engineers, Edge AI specialists, smart metering "
+            "providers and sensor integrators: apply to enterprise missions in Predictive Maintenance, Energy "
+            "Monitoring, Asset Tracking, Smart Building and Cold Chain."
         ),
         "keywords": (
-            "IoT startup missions, IoT subcontracting startup, enterprise IoT project, "
-            "Vietnam IoT development, connected hardware startup, B2B IoT freelance"
+            "LoRaWAN, MQTT, Modbus, BACnet, Edge AI, Industrial IoT, vibration sensors, GPS tracking, RFID, "
+            "OPC-UA, SCADA integration, Digital Twin, IoT platform developer, startup IoT missions, B2B subcontracting"
         ),
     },
     "projects": {
-        "title": "Open IoT projects — Subcontracting missions",
+        "title": "Open IoT Projects — Predictive Maintenance, Energy & Asset Tracking Missions",
         "description": (
-            "List of open IoT subcontracting projects: firmware, sensors, cloud, "
-            "integration. IoT startups, apply to missions published by enterprises on Iotplace."
+            "Browse open Industrial IoT subcontracting projects: Predictive Maintenance, Energy Monitoring, "
+            "Smart Metering, Asset Tracking, Building Automation, Cold Chain Monitoring and Supply Chain Visibility."
         ),
         "keywords": (
-            "open IoT projects, IoT subcontracting mission, IoT RFP, "
-            "firmware startup project, IoT outsourcing budget"
+            "open IoT projects, Predictive Maintenance project, Energy Monitoring RFP, Asset Tracking mission, "
+            "Condition Monitoring, Cold Chain IoT, Industrial AI, subcontracting budget, B2B IoT mission"
         ),
     },
     "about": {
@@ -249,6 +253,10 @@ PAGE_FAQ = {
         {
             "q": "Why outsource to IoT startups in Southeast Asia?",
             "a": "Competitive costs, agile teams, hardware expertise inherited from consumer electronics and favorable time zones for European and American enterprises.",
+        },
+        {
+            "q": "Where can I outsource Predictive Maintenance or Energy Monitoring projects?",
+            "a": "On Iotplace, publish a need in Predictive Maintenance, Energy Monitoring, Asset Tracking, Smart Building or Cold Chain Monitoring and receive applications from startups skilled in LoRaWAN, MQTT, Modbus, Edge AI and industrial sensors.",
         },
     ],
     "enterprises": [
@@ -373,6 +381,7 @@ PAGE_FAQ_FR = {
         {"q": "Comment une startup IoT trouve-t-elle des missions de sous-traitance ?", "a": "Inscrivez votre startup, renseignez vos compétences IoT et parcourez les projets ouverts publiés par les entreprises."},
         {"q": "Quels types de projets IoT peut-on sous-traiter ?", "a": "Firmware embarqué, conception PCB, capteurs connectés, LoRaWAN/MQTT, backends cloud, applications mobiles IoT et intégration système."},
         {"q": "Pourquoi externaliser vers des startups IoT en Asie du Sud-Est ?", "a": "Coûts compétitifs, équipes agiles, expertise hardware et fuseaux horaires favorables pour les entreprises européennes et américaines."},
+        {"q": "Où externaliser un projet Predictive Maintenance ou Energy Monitoring ?", "a": "Sur Iotplace, publiez un besoin en maintenance prédictive, energy monitoring, asset tracking, smart building ou cold chain et recevez des candidatures startups LoRaWAN, MQTT, Modbus et Edge AI."},
     ],
     "enterprises": [
         {"q": "Quels avantages pour externaliser un projet IoT vers une startup ?", "a": "Time-to-market réduit, coûts maîtrisés, accès à des talents firmware et hardware sans recruter en interne."},
@@ -424,12 +433,13 @@ DEFAULT_DATA = {
             "site_url": "",
             "title_suffix": " | Marketplace IoT B2B",
             "meta_description": (
-                "Iotplace: B2B IoT subcontracting marketplace. Enterprises outsource projects "
-                "to qualified startups in Asia. IoT startups find missions from large enterprises."
+                "Iotplace: B2B IoT marketplace for Predictive Maintenance, Energy Monitoring, Asset Tracking, "
+                "Smart Metering, Building Automation, Cold Chain Monitoring and Industrial IoT subcontracting."
             ),
             "keywords": (
-                "IoT subcontracting, IoT outsourcing, B2B IoT marketplace, Asian IoT startups, "
-                "Vietnam, Indonesia, firmware, connected hardware, IoT missions"
+                "Predictive Maintenance, Energy Monitoring, Industrial IoT, Asset Tracking, Smart Metering, "
+                "Condition Monitoring, Building Automation, Industrial AI, Supply Chain Visibility, "
+                "Cold Chain Monitoring, IoT subcontracting, LoRaWAN, MQTT, Modbus, BACnet, Edge AI"
             ),
             "og_image": BRAND_OG_IMAGE,
             "twitter_handle": "",
@@ -2359,10 +2369,26 @@ def get_seo_page(slug, locale="en"):
     saved = data.get("seo", {}).get("pages", {}).get(slug, {})
     if locale == "fr":
         defaults_map = {
-            "home": {"title": "Sous-traitance IoT B2B — Entreprises & Startups Asie", "description": "Iotplace, marketplace IoT B2B : entreprises et startups IoT en Asie du Sud-Est.", "keywords": "sous-traitance IoT, externalisation IoT, marketplace IoT B2B"},
-            "enterprises": {"title": "Externaliser vos projets IoT — Sous-traiter des startups", "description": "Publiez vos besoins et sous-traitez firmware, PCB, cloud à des startups qualifiées.", "keywords": "entreprise sous-traiter IoT, externalisation projet IoT"},
-            "startups": {"title": "Startups IoT — Missions de sous-traitance", "description": "Trouvez des projets de sous-traitance publiés par les grandes entreprises.", "keywords": "startup IoT missions, sous-traitance IoT"},
-            "projects": {"title": "Projets IoT ouverts — Missions de sous-traitance", "description": "Liste des projets IoT ouverts à la sous-traitance sur Iotplace.", "keywords": "projets IoT ouverts, mission sous-traitance IoT"},
+            "home": {
+                "title": "Marketplace IoT B2B — Maintenance prédictive, Energy Monitoring & Asset Tracking",
+                "description": "Iotplace : Predictive Maintenance, Energy Monitoring, IoT industriel, Asset Tracking, Smart Metering, Building Automation, Cold Chain. Sous-traitance startups qualifiées.",
+                "keywords": "maintenance prédictive, energy monitoring, IoT industriel, asset tracking, smart metering, condition monitoring, building automation, IA industrielle, cold chain monitoring, sous-traitance IoT, LoRaWAN, MQTT, Modbus",
+            },
+            "enterprises": {
+                "title": "Solutions IoT entreprises — Energy Monitoring, Maintenance prédictive, Asset Tracking",
+                "description": "Publiez un besoin Predictive Maintenance, Energy Monitoring, Asset Tracking, Smart Building ou Cold Chain. Réduction coûts, CO₂ et conformité ESG.",
+                "keywords": "energy management, energy monitoring, maintenance prédictive, asset tracking, fleet management, building automation, cold chain, ESG reporting, smart metering, externalisation IoT",
+            },
+            "startups": {
+                "title": "Startups IoT — LoRaWAN, Edge AI, IoT industriel & capteurs",
+                "description": "Experts LoRaWAN, développeurs IoT industriel, Edge AI, MQTT, Modbus, OPC-UA : postulez aux missions Predictive Maintenance, Energy Monitoring et Asset Tracking.",
+                "keywords": "LoRaWAN, MQTT, Modbus, BACnet, Edge AI, IoT industriel, capteurs vibrations, GPS tracking, RFID, OPC-UA, SCADA, digital twin, missions startup IoT",
+            },
+            "projects": {
+                "title": "Projets IoT ouverts — Maintenance prédictive, énergie & traçabilité",
+                "description": "Missions ouvertes : Predictive Maintenance, Energy Monitoring, Smart Metering, Asset Tracking, Building Automation, Cold Chain et Supply Chain Visibility.",
+                "keywords": "projets IoT ouverts, maintenance prédictive, energy monitoring, asset tracking, condition monitoring, cold chain, mission sous-traitance IoT",
+            },
             "about": {"title": "À propos — Marketplace sous-traitance IoT B2B", "description": "Iotplace structure la sous-traitance IoT entre entreprises et startups d'Asie.", "keywords": "marketplace IoT, sous-traitance IoT Asie"},
             "contact": {"title": "Contact — Démarrer une sous-traitance IoT", "description": "Contactez Iotplace pour sous-traiter ou trouver des missions IoT.", "keywords": "contact sous-traitance IoT"},
             "privacy": {"title": "Politique de confidentialité — Iotplace", "description": "Traitement des données personnelles sur Iotplace : formulaire, comptes, analytics et vos droits RGPD.", "keywords": "confidentialité Iotplace, RGPD, données personnelles"},

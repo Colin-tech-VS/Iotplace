@@ -1,28 +1,28 @@
 {
   "label": "Your IoT domain",
-  "hint": "Iotplace focuses on these 5 high-potential B2B markets.",
+  "hint": "5 high-potential B2B markets: Energy Monitoring, Predictive Maintenance, Asset Tracking, Smart Building, Cold Chain.",
   "choose": "— Choose a domain —",
   "potential_label": "Market potential",
   "items": {
     "smart_energy": {
-      "name": "Smart Energy",
-      "tagline": "Smart grid, smart meters, energy optimization."
+      "name": "Energy Monitoring Solutions",
+      "tagline": "Energy Management, Smart Metering, ESG, MQTT, Modbus, BACnet."
     },
     "asset_tracking": {
-      "name": "Asset Tracking",
-      "tagline": "Geolocation, fleets, real-time asset traceability."
+      "name": "Asset Tracking Solutions",
+      "tagline": "Fleet Management, RTLS, supply chain visibility, GPS, RFID."
     },
     "predictive_maintenance": {
-      "name": "Predictive Maintenance",
-      "tagline": "Machine sensors, alerts, maintenance before failure."
+      "name": "Predictive Maintenance Solutions",
+      "tagline": "Condition Monitoring, Industrial AI, SCADA, OPC-UA, vibration sensors."
     },
     "smart_building": {
-      "name": "Smart Building",
-      "tagline": "Connected HVAC, occupancy, building energy efficiency."
+      "name": "Smart Building Solutions",
+      "tagline": "Building Automation, HVAC, occupancy analytics, indoor air quality."
     },
     "cold_chain_monitoring": {
-      "name": "Cold Chain Monitoring",
-      "tagline": "Temperature, humidity, cold chain compliance."
+      "name": "Cold Chain Monitoring Solutions",
+      "tagline": "Temperature compliance, pharma, food safety, real-time alerts."
     }
   }
 }
