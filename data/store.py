@@ -1794,6 +1794,22 @@ def get_sitemap_entries():
             "changefreq": "weekly",
             "priority": "0.7",
         })
+    try:
+        from data.domain_pages import all_domain_slugs
+
+        for _domain_id, url_slug in all_domain_slugs():
+            entries.append({
+                "loc": f"{site_url}/domaines/{url_slug}",
+                "changefreq": "monthly",
+                "priority": "0.85",
+            })
+    except ImportError:
+        pass
+    entries.append({
+        "loc": f"{site_url}/domaines",
+        "changefreq": "monthly",
+        "priority": "0.9",
+    })
     return entries
 
 

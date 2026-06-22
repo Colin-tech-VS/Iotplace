@@ -4,14 +4,16 @@
         <div class="section-header reveal">
             <h2>{{ t('home.domains_title') }}</h2>
             <p>{{ t('home.domains_sub') }}</p>
+            <a href="{{ url_for('vitrine.domains_index') }}" class="link-arrow">{{ t('domains.index_link') }}</a>
         </div>
         <div class="domain-showcase-grid reveal">
             {% for domain in iot_domains %}
-            <article class="domain-showcase-card domain-{{ domain.id }}">
+            <a href="{{ url_for('vitrine.domain_detail', slug=domain.slug) }}" class="domain-showcase-card domain-showcase-link domain-{{ domain.id }}">
                 <span class="domain-showcase-stars" title="{{ t('sectors.potential_label') }}">{{ domain.stars_label }}</span>
                 <h3>{{ domain.name }}</h3>
                 <p>{{ domain.tagline }}</p>
-            </article>
+                <span class="domain-card-more">{{ t('common.learn_more') }} →</span>
+            </a>
             {% endfor %}
         </div>
     </div>

@@ -47,6 +47,12 @@ def _load_catalog(locale: str) -> dict:
     if sectors_path.exists():
         with open(sectors_path, encoding="utf-8") as handle:
             catalog["sectors"] = json.load(handle)
+    domains_path = LOCALES_DIR / f"domains_{locale}.json"
+    if not domains_path.exists() and locale != DEFAULT_LOCALE:
+        domains_path = LOCALES_DIR / f"domains_{DEFAULT_LOCALE}.json"
+    if domains_path.exists():
+        with open(domains_path, encoding="utf-8") as handle:
+            catalog["domains"] = json.load(handle)
     return catalog
 
 

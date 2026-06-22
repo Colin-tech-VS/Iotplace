@@ -19,6 +19,11 @@
                     selectCard(field, card);
                 });
             });
+            const params = new URLSearchParams(window.location.search);
+            const preselect = params.get('sector_id') || params.get('domain');
+            if (preselect && input) {
+                input.value = preselect;
+            }
             if (input && input.value) {
                 const selected = field.querySelector('[data-domain-card][data-sector-id="' + input.value + '"]');
                 if (selected) selectCard(field, selected);

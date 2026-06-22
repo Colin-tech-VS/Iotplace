@@ -1,0 +1,205 @@
+{
+  "index_title": "Domaines IoT B2B",
+  "index_sub": "Smart Energy, Asset Tracking, Predictive Maintenance, Smart Building et Cold Chain — guides marché et sous-traitance sur Iotplace.",
+  "index_seo_title": "Domaines IoT B2B — Smart Energy, Asset Tracking, Maintenance prédictive | Iotplace",
+  "index_seo_description": "Guides complets par domaine IoT B2B : enjeux, cas d'usage, acteurs cibles et comment Iotplace connecte entreprises et startups pour externaliser vos projets connectés.",
+  "index_seo_keywords": "IoT B2B, smart energy, asset tracking, maintenance prédictive, smart building, chaîne du froid, marketplace IoT, sous-traitance",
+  "breadcrumb": "Domaines IoT",
+  "section_market": "Marché & enjeux",
+  "section_use_cases": "Cas d'usage typiques",
+  "section_challenges": "Défis projet",
+  "section_iotplace": "Comment Iotplace vous aide",
+  "section_iotplace_ent": "Côté entreprise",
+  "section_iotplace_st": "Côté startup",
+  "cta_ent": "Publier un besoin {name}",
+  "cta_st": "Postuler en {name}",
+  "related_domains": "Autres domaines Iotplace",
+  "index_link": "Voir tous les guides domaine →",
+  "items": {
+    "smart_energy": {
+      "slug": "smart-energy",
+      "seo_title": "Smart Energy IoT — Smart grid, compteurs & optimisation | Iotplace",
+      "seo_description": "Externalisez vos projets Smart Energy : smart grid, compteurs intelligents, DER et optimisation énergétique. Iotplace connecte industriels et startups IoT spécialisées.",
+      "seo_keywords": "smart energy IoT, smart grid, compteur intelligent, optimisation énergétique, sous-traitance IoT énergie, marketplace B2B",
+      "name": "Smart Energy",
+      "tagline": "Smart grid, compteurs intelligents, optimisation énergétique.",
+      "hero_sub": "Le marché IoT énergie explose : compteurs connectés, pilotage réseau, effacement et intégration ENR. Externalisez firmware, edge et cloud à des startups expertes.",
+      "intro": "Le <strong>Smart Energy</strong> regroupe tous les projets IoT visant à mesurer, piloter et optimiser la production, le transport et la consommation d'énergie. Les utilities, industriels et gestionnaires d'actifs déploient capteurs, passerelles et plateformes cloud pour réduire les pertes, anticiper les pannes et intégrer solaire, stockage et véhicules électriques.",
+      "market_text": "Potentiel marché ⭐⭐⭐⭐⭐. Drivers : décarbonation, smart metering obligatoire, vieillissement des réseaux, explosion des données DER. Les grands comptes externalisent firmware embarqué, protocoles (Modbus, DLMS, IEC), edge analytics et intégration SCADA/cloud.",
+      "use_cases": [
+        { "title": "Compteurs intelligents & AMI", "text": "Déploiement massif de compteurs connectés, collecte télérelève, facturation dynamique." },
+        { "title": "Smart grid & supervision réseau", "text": "Capteurs substations, détection défauts, équilibrage charge, intégration IT/OT." },
+        { "title": "Optimisation bâtiments & sites", "text": "Pilotage consommation, effacement, corrélation météo et occupation." },
+        { "title": "Monitoring ENR & stockage", "text": "Suivi production solaire/éolien, batteries, performance ratio et alertes." }
+      ],
+      "challenges": [
+        "Interopérabilité protocoles legacy (IEC 61850, DLMS, Modbus)",
+        "Sécurité OT et conformité réglementaire",
+        "Scalabilité millions de points de mesure",
+        "Time-to-market sur pilotes régionaux"
+      ],
+      "iotplace_ent": [
+        "Publiez un besoin Smart Energy en quelques minutes",
+        "Recevez des candidatures startups spécialisées énergie",
+        "Séquestre Stripe à l'acceptation — commission au succès uniquement"
+      ],
+      "iotplace_st": [
+        "Profil tagué Smart Energy visible des utilities et industriels",
+        "Accès aux missions PoC, Scale et Partenariat du domaine",
+        "Paiement mission via Stripe Connect après validation"
+      ],
+      "faq": [
+        { "q": "Quelles compétences rechercher pour un projet Smart Energy ?", "a": "Firmware embarqué, protocoles énergie (DLMS, Modbus, IEC), edge gateway, intégration cloud AWS/Azure IoT, cybersécurité OT et data time-series." },
+        { "q": "Combien coûte l'inscription entreprise sur Iotplace ?", "a": "L'inscription est gratuite. Vous payez via séquestre lorsque vous acceptez une startup et validez la livraison (commission plateforme ~10 %)." },
+        { "q": "Les startups peuvent-elles se spécialiser uniquement Smart Energy ?", "a": "Oui — choisissez le domaine à l'inscription. Votre profil et le matching ciblent les missions du secteur énergie." }
+      ]
+    },
+    "asset_tracking": {
+      "slug": "asset-tracking",
+      "seo_title": "Asset Tracking IoT — Géolocalisation & traçabilité B2B | Iotplace",
+      "seo_description": "Projets Asset Tracking : GPS, BLE, RFID, flottes et traçabilité d'actifs en temps réel. Trouvez une startup IoT sur Iotplace pour livrer votre POC ou déploiement.",
+      "seo_keywords": "asset tracking IoT, géolocalisation B2B, fleet management, traçabilité actifs, RTLS, marketplace IoT logistique",
+      "name": "Asset Tracking",
+      "tagline": "Géolocalisation, flottes, traçabilité des actifs en temps réel.",
+      "hero_sub": "Savoir où sont vos actifs — conteneurs, engins, palettes, véhicules — en temps réel. Iotplace met en relation donneurs d'ordre logistiques/industriels et startups RTLS/GPS.",
+      "intro": "L'<strong>Asset Tracking</strong> couvre la localisation et le suivi d'actifs mobiles ou dispersés : flottes véhicules, conteneurs, outillage industriel, équipements sur chantier. Technologies : GPS/GNSS, BLE beacons, RFID UHF, LoRaWAN, cellulaire NB-IoT et plateformes de visibilité supply chain.",
+      "market_text": "Potentiel ⭐⭐⭐⭐⭐. E-commerce, supply chain globale et réglementation traçabilité poussent les déploiements. ROI rapide sur réduction pertes, vols et immobilisation stocks.",
+      "use_cases": [
+        { "title": "Gestion de flotte", "text": "Tracking véhicules, comportement conducteur, maintenance préventive km." },
+        { "title": "Conteneurs & maritime", "text": "Géolocalisation intermodale, alertes ouverture portes, ETA." },
+        { "title": "Actifs industriels & chantier", "text": "RTLS ateliers, outillage connecté, géofencing zones sensibles." },
+        { "title": "Retail & entrepôts", "text": "Palettes, chariots, flux intra-logistique temps réel." }
+      ],
+      "challenges": [
+        "Autonomie batterie sur trackers longue durée",
+        "Couverture indoor/outdoor homogène",
+        "Intégration TMS/WMS/ERP existants",
+        "Coût device à grande échelle"
+      ],
+      "iotplace_ent": [
+        "Publiez un pilote tracking sur un site ou une flotte",
+        "Comparez startups GPS/BLE/LoRa en candidatures",
+        "Paiement sécurisé au livrable validé"
+      ],
+      "iotplace_st": [
+        "Missions asset tracking des logisticiens et industriels",
+        "Candidature PoC payante pour projets sérieux",
+        "Visibilité par domaine Asset Tracking"
+      ],
+      "faq": [
+        { "q": "GPS ou BLE pour mon cas d'usage ?", "a": "GPS/GNSS pour actifs outdoor et flottes. BLE/UWB/RFID pour précision indoor et entrepôts. Les startups Iotplace couvrent souvent les deux avec une architecture hybride." },
+        { "q": "Puis-je lancer un PoC sur 50 actifs ?", "a": "Oui — phase PoC typique 3–6 mois. Publiez le périmètre, budget indicatif et stack attendue sur Iotplace." }
+      ]
+    },
+    "predictive_maintenance": {
+      "slug": "predictive-maintenance",
+      "seo_title": "Predictive Maintenance IoT — Capteurs & maintenance prédictive | Iotplace",
+      "seo_description": "Maintenance prédictive IoT : capteurs vibrations, edge AI, alertes avant panne. Externalisez votre projet IIoT sur Iotplace avec des startups spécialisées.",
+      "seo_keywords": "predictive maintenance, maintenance prédictive IoT, IIoT, capteurs vibrations, edge AI industrie, marketplace sous-traitance",
+      "name": "Predictive Maintenance",
+      "tagline": "Capteurs machines, alertes, maintenance avant panne.",
+      "hero_sub": "Réduire les arrêts non planifiés grâce aux capteurs, l'edge et l'analytics. Iotplace connecte sites industriels et startups IIoT.",
+      "intro": "La <strong>maintenance prédictive</strong> utilise capteurs (vibrations, température, courant, acoustique), edge computing et modèles ML pour anticiper les défaillances machines tournantes, lignes de production et infrastructures critiques — avant la panne coûteuse.",
+      "market_text": "Potentiel ⭐⭐⭐⭐⭐. Industrie 4.0, coût horaire d'arrêt et pénurie de maintenance terrain accélèrent l'adoption. Projets typiques : pilote 10–50 machines puis scale site.",
+      "use_cases": [
+        { "title": "Monitoring vibrations", "text": "Roulements, pompes, compresseurs — seuils et spectres FFT." },
+        { "title": "Edge + cloud analytics", "text": "Inférence locale, agrégation cloud, dashboards OEE." },
+        { "title": "Intégration GMAO/CMMS", "text": "Création automatique work orders sur alerte." },
+        { "title": "Jumeaux numériques légers", "text": "Modèle asset + historique capteurs pour simulation." }
+      ],
+      "challenges": [
+        "Qualité et volume données capteurs",
+        "Faux positifs / adoption terrain",
+        "Environnements ATEX, poussière, EMI",
+        "Alignement maintenance + IT"
+      ],
+      "iotplace_ent": [
+        "Décrivez parc machines et KPI (MTBF, OEE)",
+        "Sélectionnez startups IIoT avec références industrie",
+        "Séquestre par phase pilote puis déploiement"
+      ],
+      "iotplace_st": [
+        "Accès missions maintenance sur sites industriels",
+        "PoC payant pour valider sérieux du donneur d'ordre",
+        "Paiement mission après livraison algorithmes + plateforme"
+      ],
+      "faq": [
+        { "q": "Faut-il commencer par un PoC ?", "a": "Recommandé : valider capteurs, connectivité et modèles sur un lignage limité avant scale multi-sites." },
+        { "q": "Quelles stacks voit-on sur Iotplace ?", "a": "MQTT, OPC-UA, TimescaleDB, Influx, AWS IoT, Azure IoT, TensorFlow Lite embarqué, dashboards Grafana/custom." }
+      ]
+    },
+    "smart_building": {
+      "slug": "smart-building",
+      "seo_title": "Smart Building IoT — HVAC, occupation & efficacité énergétique | Iotplace",
+      "seo_description": "Projets Smart Building : HVAC connecté, capteurs occupation, BMS et efficacité énergétique. Externalisez sur Iotplace auprès de startups IoT bâtiment.",
+      "seo_keywords": "smart building IoT, HVAC connecté, BMS, capteurs occupation, efficacité énergétique bâtiment, marketplace IoT immobilier",
+      "name": "Smart Building",
+      "tagline": "HVAC connecté, occupation, efficacité énergétique des bâtiments.",
+      "hero_sub": "Optimiser confort, sécurité et consommation des bâtiments tertiaires et industriels. Iotplace relie promoteurs, foncières et startups BMS/IoT.",
+      "intro": "Le <strong>Smart Building</strong> connecte HVAC, éclairage, contrôle d'accès, qualité d'air et occupation pour réduire l'énergie et améliorer l'expérience occupants. Projets : rétrofit capteurs, intégration BMS existants (BACnet, KNX), plateformes multi-sites.",
+      "market_text": "Potentiel ⭐⭐⭐⭐. Décret tertiaire, CSRD et coûts énergie poussent le rétrofit connecté. Externalisation fréquente sur pilotes par immeuble ou campus.",
+      "use_cases": [
+        { "title": "Pilotage HVAC", "text": "Setpoints dynamiques, free cooling, corrélation météo." },
+        { "title": "Occupation & espaces", "text": "Capteurs présence CO₂, réservation salles, densité." },
+        { "title": "Qualité air intérieur", "text": "PM2.5, CO₂, alertes ventilation." },
+        { "title": "Multi-sites & reporting", "text": "Consolidation énergie portefeuille immobilier." }
+      ],
+      "challenges": [
+        "Hétérogénéité protocoles BMS",
+        "Installation sans perturbation occupants",
+        "ROI sur patrimoine ancien",
+        "Gouvernance données locataires/propriétaires"
+      ],
+      "iotplace_ent": [
+        "Publiez un pilote sur un bâtiment ou campus",
+        "Matching startups BACnet/KNX/LoRa",
+        "Contrat cadre possible après PoC réussi"
+      ],
+      "iotplace_st": [
+        "Missions smart building des foncières et industriels",
+        "Profil domaine visible des donneurs d'ordre",
+        "Candidatures Scale gratuites après PoC"
+      ],
+      "faq": [
+        { "q": "Smart Building ou Smart Energy ?", "a": "Smart Building = focus bâtiment (HVAC, occupation, confort). Smart Energy = réseaux, compteurs, production. Les deux se complètent sur un campus." }
+      ]
+    },
+    "cold_chain_monitoring": {
+      "slug": "cold-chain-monitoring",
+      "seo_title": "Cold Chain Monitoring IoT — Température & conformité | Iotplace",
+      "seo_description": "Chaîne du froid connectée : capteurs température, alertes, traçabilité HACCP et pharma. Externalisez votre projet Cold Chain sur Iotplace.",
+      "seo_keywords": "cold chain IoT, chaîne du froid connectée, monitoring température, HACCP IoT, pharma logistics, marketplace IoT",
+      "name": "Cold Chain Monitoring",
+      "tagline": "Température, humidité, conformité chaîne du froid.",
+      "hero_sub": "Garantir la conformité température de la production au dernier kilomètre. Iotplace connecte logisticiens, pharma/agro et startups capteurs + cloud.",
+      "intro": "Le <strong>Cold Chain Monitoring</strong> assure la traçabilité température/humidité sur entrepôts, transport réfrigéré et points de vente — avec alertes, rapports d'audit et preuves réglementaires (HACCP, GDP pharma).",
+      "market_text": "Potentiel ⭐⭐⭐⭐. Gaspillage alimentaire, médicaments thermosensibles et normes strictes imposent la connectivité bout-en-bout.",
+      "use_cases": [
+        { "title": "Transport réfrigéré", "text": "Loggers GPS + température, portes, géofencing." },
+        { "title": "Entrepôts & chambres froides", "text": "Capteurs permanents, seuils, escalation SMS." },
+        { "title": "Pharma & santé", "text": "GDP, rapports audit, chaîne d'intégrité données." },
+        { "title": "Retail frais", "text": "Meubles froids, alertes ouverture, maintenance préventive." }
+      ],
+      "challenges": [
+        "Calibration et conformité capteurs",
+        "Zones blanches réseau transport",
+        "Preuve légale en cas d'excursion",
+        "Intégration TMS et qualité"
+      ],
+      "iotplace_ent": [
+        "Lancez un pilote sur une ligne ou un hub logistique",
+        "Startups spécialisées froid + réglementation",
+        "Séquestre jusqu'à validation rapports conformité"
+      ],
+      "iotplace_st": [
+        "Missions cold chain des agro, pharma, 3PL",
+        "Expertise domaine mise en avant sur le profil",
+        "PoC payant pour filtrer projets sérieux"
+      ],
+      "faq": [
+        { "q": "Quelle précision capteur pour la pharma ?", "a": "Souvent ±0,5 °C avec calibration traçable. Précisez normes (GDP, EN 12830) dans votre besoin publié." },
+        { "q": "Asset Tracking vs Cold Chain ?", "a": "Asset Tracking = position actif. Cold Chain = conformité température/humidité — souvent combinés sur camions frigorifiques." }
+      ]
+    }
+  }
+}

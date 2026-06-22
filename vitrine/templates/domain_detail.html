@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% from "_seo_macros.html" import faq_section, breadcrumbs_nav %}
+
+{% block seo_title %}{{ seo.title }}{% endblock %}
+{% block seo_description %}{{ seo.description }}{% endblock %}
+
+{% block content %}
+{{ breadcrumbs_nav(seo_breadcrumbs) }}
+
+<section class="page-hero domain-hero domain-hero-{{ domain_id }}">
+    <div class="container reveal">
+        <span class="domain-showcase-stars" title="{{ t('sectors.potential_label') }}">{{ stars_label }}</span>
+        <h1>{{ domain.name }}</h1>
+        <p class="page-sub">{{ domain.hero_sub }}</p>
+        <p class="domain-tagline">{{ domain.tagline }}</p>
+        <div class="hero-actions" style="margin-top:1.25rem">
+            <a href="{{ url_for('compte.register_enterprise', sector_id=domain_id) }}" class="btn btn-primary">{{ t('domains.cta_ent', name=domain.name) }}</a>
+            <a href="{{ url_for('compte.register_startup', sector_id=domain_id) }}" class="btn btn-outline">{{ t('domains.cta_st', name=domain.name) }}</a>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container domain-content reveal">
+        <p class="domain-intro seo-intro">{{ domain.intro|safe }}</p>
+
+        <h2>{{ t('domains.section_market') }}</h2>
+        <p class="domain-market">{{ domain.market_text }}</p>
+
+        <h2>{{ t('domains.section_use_cases') }}</h2>
+        <div class="domain-use-cases">
+            {% for uc in domain.use_cases %}
+            <article class="domain-use-case-card">
+                <h3>{{ uc.title }}</h3>
+                <p>{{ uc.text }}</p>
+            </article>
+            {% endfor %}
+        </div>
+
+        <h2>{{ t('domains.section_challenges') }}</h2>
+        <ul class="domain-challenges">
+            {% for item in domain.challenges %}
+            <li>{{ item }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</section>
+
+<section class="section section-alt">
+    <div class="container reveal">
+        <h2 class="section-title">{{ t('domains.section_iotplace') }}</h2>
+        <div class="domain-iotplace-grid">
+            <article class="domain-iotplace-col domain-iotplace-ent">
+                <h3>{{ t('domains.section_iotplace_ent') }}</h3>
+                <ul>
+                    {% for item in domain.iotplace_ent %}
+                    <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+                <a href="{{ url_for('compte.register_enterprise', sector_id=domain_id) }}" class="btn btn-primary">{{ t('domains.cta_ent', name=domain.name) }}</a>
+            </article>
+            <article class="domain-iotplace-col domain-iotplace-st">
+                <h3>{{ t('domains.section_iotplace_st') }}</h3>
+                <ul>
+                    {% for item in domain.iotplace_st %}
+                    <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+                <a href="{{ url_for('compte.register_startup', sector_id=domain_id) }}" class="btn btn-outline">{{ t('domains.cta_st', name=domain.name) }}</a>
+            </article>
+        </div>
+    </div>
+</section>
+
+{% if domain_projects %}
+<section class="section">
+    <div class="container">
+        <h2 class="section-title reveal">{{ t('home.featured_projects') }}</h2>
+        <div class="projects-list">
+            {% for project in domain_projects[:5] %}
+            <a href="{{ url_for('vitrine.project_detail', project_id=project.id) }}" class="project-row project-row-link reveal">
+                <div class="project-info">
+                    <h3>{{ project.title }}</h3>
+                    <span class="meta">{{ project.enterprise }}</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<section class="section section-alt">
+    <div class="container">
+        <h2 class="section-title reveal">{{ t('domains.related_domains') }}</h2>
+        <div class="domain-showcase-grid reveal">
+            {% for d in other_domains %}
+            <a href="{{ url_for('vitrine.domain_detail', slug=d.slug) }}" class="domain-showcase-card domain-showcase-link domain-{{ d.id }}">
+                <span class="domain-showcase-stars">{{ d.stars_label }}</span>
+                <h3>{{ d.name }}</h3>
+                <p>{{ d.tagline }}</p>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+{{ faq_section(domain.faq, domain.name ~ ' — FAQ') }}
+{% endblock %}

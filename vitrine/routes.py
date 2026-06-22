@@ -316,6 +316,109 @@ def contact():
     return render_template("contact.html", page=store.get_page_content("contact", get_locale()))
 
 
+def _domain_breadcrumbs(domain_name: str, canonical: str, locale: str):
+    from vitrine.domain_content import get_domains_meta
+
+    site_url = store.get_site_url()
+    home = "Accueil" if locale == "fr" else "Home"
+    meta = get_domains_meta(locale)
+    return [
+        {"name": home, "url": f"{site_url}/"},
+        {"name": meta.get("breadcrumb", "IoT Domains"), "url": f"{site_url}/domaines"},
+        {"name": domain_name, "url": canonical},
+    ]
+
+
+def _domain_seo(item: dict, locale: str):
+    global_seo = store.get_seo_global()
+    site_name = global_seo.get("site_name", "Iotplace")
+    title = item.get("seo_title") or item.get("name", "IoT Domain")
+    suffix = global_seo.get("title_suffix", "")
+    full_title = title if suffix and suffix in title else f"{title}{suffix}" if suffix else title
+    return {
+        "title": full_title,
+        "description": (item.get("seo_description") or "")[:320],
+        "keywords": item.get("seo_keywords", ""),
+        "og_image": global_seo.get("og_image", ""),
+        "og_image_abs": "",
+        "google_analytics_id": global_seo.get("google_analytics_id", ""),
+        "site_name": site_name,
+        "twitter_handle": global_seo.get("twitter_handle", ""),
+        "robots": "index, follow",
+        "locale": "fr_FR" if locale == "fr" else "en_US",
+    }
+
+
+@vitrine_bp.route("/domaines")
+@vitrine_bp.route("/domains")
+def domains_index():
+    locale = get_locale()
+    site_url = store.get_site_url()
+    from vitrine.domain_content import get_domains_meta
+
+    meta = get_domains_meta(locale)
+    canonical = f"{site_url}/domaines"
+    seo = _domain_seo(
+        {
+            "seo_title": meta.get("index_seo_title"),
+            "seo_description": meta.get("index_seo_description"),
+            "seo_keywords": meta.get("index_seo_keywords"),
+        },
+        locale,
+    )
+    breadcrumbs = [
+        {"name": "Accueil" if locale == "fr" else "Home", "url": f"{site_url}/"},
+        {"name": meta.get("breadcrumb", "IoT Domains"), "url": canonical},
+    ]
+    return render_template(
+        "domains_index.html",
+        seo=seo,
+        seo_canonical=canonical,
+        seo_breadcrumbs=breadcrumbs,
+        seo_json_ld=store.build_json_ld("home", canonical, site_url, breadcrumbs=breadcrumbs, locale=locale),
+    )
+
+
+@vitrine_bp.route("/domaines/<slug>")
+def domain_detail(slug):
+    from data.domain_pages import domain_slug, resolve_domain_id
+    from data.iot_sectors import list_domains_for_template, sector_stars
+    from vitrine.domain_content import get_domain_item
+
+    domain_id = resolve_domain_id(slug)
+    if not domain_id:
+        abort(404)
+
+    locale = get_locale()
+    item = get_domain_item(domain_id, locale)
+    if not item:
+        abort(404)
+
+    site_url = store.get_site_url()
+    canonical_slug = item.get("slug") or domain_slug(domain_id)
+    canonical = f"{site_url}/domaines/{canonical_slug}"
+    seo = _domain_seo(item, locale)
+    breadcrumbs = _domain_breadcrumbs(item.get("name", domain_id), canonical, locale)
+    faq = item.get("faq") or []
+    stars_label = "⭐" * sector_stars(domain_id)
+    other_domains = [d for d in list_domains_for_template(t) if d["id"] != domain_id]
+
+    return render_template(
+        "domain_detail.html",
+        domain_id=domain_id,
+        domain=item,
+        stars_label=stars_label,
+        other_domains=other_domains,
+        domain_projects=[],
+        seo=seo,
+        seo_canonical=canonical,
+        seo_breadcrumbs=breadcrumbs,
+        seo_json_ld=store.build_json_ld(
+            f"domain-{domain_id}", canonical, site_url, faq=faq, breadcrumbs=breadcrumbs, locale=locale
+        ),
+    )
+
+
 @vitrine_bp.route("/api/advisor/chat", methods=["POST"])
 def advisor_chat():
     from vitrine import advisor_ai

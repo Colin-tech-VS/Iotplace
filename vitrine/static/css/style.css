@@ -2366,6 +2366,135 @@ a:hover { color: #33e0be; }
     .audience-landing-grid { grid-template-columns: 1fr; }
 }
 
+.domain-showcase-card h3 {
+    font-size: 1rem;
+    margin: 0 0 0.35rem;
+}
+
+.domain-showcase-link {
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    display: block;
+}
+
+.domain-showcase-link:hover {
+    transform: translateY(-3px);
+    border-color: rgba(0, 212, 170, 0.45);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.2);
+}
+
+.domain-card-more,
+.domain-showcase-link .link-arrow {
+    display: inline-block;
+    margin-top: 0.5rem;
+    font-size: 0.78rem;
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.domain-card-title {
+    font-size: 1.1rem;
+    margin: 0 0 0.35rem;
+}
+
+.domain-hero {
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.domain-tagline {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-top: 0.5rem;
+}
+
+.domain-content h2 {
+    font-size: 1.2rem;
+    margin: 2rem 0 0.75rem;
+}
+
+.domain-content h2:first-of-type {
+    margin-top: 0;
+}
+
+.domain-intro {
+    font-size: 1rem;
+    line-height: 1.65;
+    max-width: 820px;
+}
+
+.domain-market {
+    color: var(--text-muted);
+    line-height: 1.6;
+    max-width: 820px;
+}
+
+.domain-use-cases {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+}
+
+.domain-use-case-card {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 1rem 1.1rem;
+}
+
+.domain-use-case-card h3 {
+    font-size: 0.95rem;
+    margin: 0 0 0.4rem;
+}
+
+.domain-use-case-card p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin: 0;
+    line-height: 1.5;
+}
+
+.domain-challenges {
+    margin: 0;
+    padding-left: 1.2rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    max-width: 720px;
+}
+
+.domain-iotplace-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+}
+
+.domain-iotplace-col {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem 1.35rem;
+}
+
+.domain-iotplace-ent { border-top: 3px solid #3b82f6; }
+.domain-iotplace-st { border-top: 3px solid var(--accent); }
+
+.domain-iotplace-col h3 {
+    font-size: 1rem;
+    margin: 0 0 0.75rem;
+}
+
+.domain-iotplace-col ul {
+    margin: 0 0 1rem;
+    padding-left: 1.1rem;
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    line-height: 1.55;
+}
+
+@media (max-width: 900px) {
+    .domain-iotplace-grid { grid-template-columns: 1fr; }
+}
+
 .btn-block { width: 100%; }
 
 /* ── Focus domains & simplified signup ── */

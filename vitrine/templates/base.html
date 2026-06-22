@@ -38,7 +38,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/style.css') }}?v=7">
+    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/style.css') }}?v=8">
     <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/iot-theme.css') }}?v=3">
     <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/dashboard-ux.css') }}?v=1">
     <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/advisor.css') }}?v=4">
@@ -155,6 +155,7 @@
             <div>
                 <h4>{{ t('footer.platform') }}</h4>
                 <ul>
+                    <li><a href="{{ url_for('vitrine.domains_index') }}">{{ t('footer.domains') }}</a></li>
                     <li><a href="{{ url_for('vitrine.about') }}">{{ t('footer.about') }}</a></li>
                     <li><a href="{{ url_for('vitrine.pricing') }}">{{ t('nav.pricing') }}</a></li>
                     <li><a href="{{ url_for('vitrine.contact') }}">{{ t('footer.contact') }}</a></li>

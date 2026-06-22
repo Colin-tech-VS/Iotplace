@@ -41,6 +41,9 @@ def is_valid_sector_id(sector_id: str | None) -> bool:
     return bool(sector_id and sector_id in SECTOR_DEMAND)
 
 
+from data.domain_pages import domain_slug
+
+
 def list_domains_for_template(translate) -> list[dict]:
     items = []
     for sector_id in IOT_SECTOR_IDS:
@@ -48,6 +51,7 @@ def list_domains_for_template(translate) -> list[dict]:
         stars = DEMAND_STARS.get(demand or "", 0)
         items.append({
             "id": sector_id,
+            "slug": domain_slug(sector_id),
             "demand": demand,
             "stars": stars,
             "stars_label": "⭐" * stars,

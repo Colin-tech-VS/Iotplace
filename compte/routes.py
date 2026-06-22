@@ -72,6 +72,16 @@ def home():
     return redirect(url_for("compte.startup_dashboard"))
 
 
+def _registration_form():
+    if request.method == "POST":
+        return dict(request.form)
+    form = {}
+    preselect = (request.args.get("sector_id") or request.args.get("domain") or "").strip()
+    if preselect:
+        form["sector_id"] = preselect
+    return form
+
+
 @compte_bp.route("/inscription/entreprise", methods=["GET", "POST"])
 def register_enterprise():
     if auth.get_current_user():
@@ -128,9 +138,9 @@ def register_enterprise():
             return redirect(url_for("compte.enterprise_dashboard"))
         except ValueError as exc:
             flash(str(exc), "error")
-            return render_template("compte/register_enterprise.html", form=dict(request.form))
+            return render_template("compte/register_enterprise.html", form=_registration_form())
 
-    return render_template("compte/register_enterprise.html", form={})
+    return render_template("compte/register_enterprise.html", form=_registration_form())
 
 
 @compte_bp.route("/inscription/startup", methods=["GET", "POST"])
@@ -178,9 +188,9 @@ def register_startup():
             return redirect(url_for("compte.startup_dashboard"))
         except ValueError as exc:
             flash(str(exc), "error")
-            return render_template("compte/register_startup.html", form=dict(request.form))
+            return render_template("compte/register_startup.html", form=_registration_form())
 
-    return render_template("compte/register_startup.html", form={})
+    return render_template("compte/register_startup.html", form=_registration_form())
 
 
 @compte_bp.route("/compte/entreprise")

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% from "_seo_macros.html" import breadcrumbs_nav %}
+
+{% block seo_title %}{{ seo.title }}{% endblock %}
+{% block seo_description %}{{ seo.description }}{% endblock %}
+
+{% block content %}
+{{ breadcrumbs_nav(seo_breadcrumbs) }}
+
+<section class="page-hero">
+    <div class="container reveal">
+        <h1>{{ t('domains.index_title') }}</h1>
+        <p class="page-sub">{{ t('domains.index_sub') }}</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="domain-showcase-grid reveal">
+            {% for d in iot_domains %}
+            <a href="{{ url_for('vitrine.domain_detail', slug=d.slug) }}" class="domain-showcase-card domain-showcase-link domain-{{ d.id }}">
+                <span class="domain-showcase-stars" title="{{ t('sectors.potential_label') }}">{{ d.stars_label }}</span>
+                <h2 class="domain-card-title">{{ d.name }}</h2>
+                <p>{{ d.tagline }}</p>
+                <span class="link-arrow">{{ t('common.learn_more') }}</span>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}
