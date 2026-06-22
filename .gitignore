@@ -19,3 +19,6 @@ Thumbs.db
 # Données runtime (dev) — utiliser DATABASE_URL en production
 data/content.json
 data/content.json.tmp
+
+# Outils locaux (CLI téléchargés)
+scripts/bin/

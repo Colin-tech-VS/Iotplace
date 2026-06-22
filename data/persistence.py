@@ -26,11 +26,38 @@ def resolve_data_file() -> Path:
     return DEFAULT_JSON_FILE
 
 
+def _supabase_project_ref() -> str:
+    explicit = (os.environ.get("SUPABASE_PROJECT_REF") or "").strip()
+    if explicit:
+        return explicit
+    url = (os.environ.get("SUPABASE_URL") or "").strip().rstrip("/")
+    if url.endswith(".supabase.co"):
+        return url.rsplit("//", 1)[-1].removesuffix(".supabase.co")
+    return ""
+
+
+def _build_supabase_db_url() -> str:
+    password = (os.environ.get("SUPABASE_DB_PASSWORD") or "").strip()
+    if not password:
+        return ""
+    ref = _supabase_project_ref()
+    if not ref:
+        return ""
+    from urllib.parse import quote_plus
+
+    host = (os.environ.get("SUPABASE_DB_HOST") or "aws-1-eu-central-1.pooler.supabase.com").strip()
+    port = (os.environ.get("SUPABASE_DB_PORT") or "6543").strip()
+    user = (os.environ.get("SUPABASE_DB_USER") or f"postgres.{ref}").strip()
+    dbname = (os.environ.get("SUPABASE_DB_NAME") or "postgres").strip()
+    return f"postgresql://{user}:{quote_plus(password)}@{host}:{port}/{dbname}"
+
+
 def resolve_database_url() -> str:
     raw = (
         os.environ.get("DATABASE_URL")
         or os.environ.get("SUPABASE_DB_URL")
         or os.environ.get("IOTPLACE_DATABASE_URL")
+        or _build_supabase_db_url()
         or ""
     ).strip()
     if raw.startswith("postgres://"):
@@ -38,12 +65,27 @@ def resolve_database_url() -> str:
     return raw
 
 
+def resolve_supabase_rest_config() -> tuple[str, str] | None:
+    url = (os.environ.get("SUPABASE_URL") or "").strip().rstrip("/")
+    key = (
+        os.environ.get("SUPABASE_KEY")
+        or os.environ.get("SUPABASE_ANON_KEY")
+        or os.environ.get("SUPABASE_PUBLISHABLE_KEY")
+        or ""
+    ).strip()
+    if url and key:
+        return url, key
+    return None
+
+
 def resolve_backend_name() -> str:
     explicit = (os.environ.get("IOTPLACE_DATA_BACKEND") or "auto").strip().lower()
-    if explicit in ("json", "postgres"):
+    if explicit in ("json", "postgres", "supabase"):
         return explicit
     if resolve_database_url():
         return "postgres"
+    if resolve_supabase_rest_config():
+        return "supabase"
     return "json"
 
 
@@ -98,6 +140,48 @@ class JsonFileBackend(StateBackend):
         with open(tmp, "w", encoding="utf-8") as handle:
             json.dump(data, handle, ensure_ascii=False, indent=2)
         tmp.replace(self.path)
+
+
+class SupabaseRestBackend(StateBackend):
+    def __init__(self, url: str | None = None, key: str | None = None):
+        config = resolve_supabase_rest_config()
+        if not config and not (url and key):
+            raise RuntimeError("SUPABASE_URL et SUPABASE_KEY requis pour le backend Supabase.")
+        self.url, self.key = (url, key) if url and key else config  # type: ignore[misc]
+        from supabase import create_client
+
+        self.client = create_client(self.url, self.key)
+
+    @property
+    def name(self) -> str:
+        return "supabase"
+
+    def load(self) -> dict[str, Any]:
+        with _lock:
+            result = (
+                self.client.table("iotplace_state")
+                .select("data")
+                .eq("id", 1)
+                .limit(1)
+                .execute()
+            )
+            if result.data:
+                payload = result.data[0].get("data")
+                if isinstance(payload, dict):
+                    return payload.copy()
+                if payload is not None:
+                    return json.loads(payload)
+
+            seed = _read_seed_document()
+            self.save(seed)
+            return seed.copy()
+
+    def save(self, data: dict[str, Any]) -> None:
+        with _lock:
+            self.client.table("iotplace_state").upsert(
+                {"id": 1, "data": data},
+                on_conflict="id",
+            ).execute()
 
 
 class PostgresBackend(StateBackend):
@@ -205,6 +289,8 @@ def get_backend() -> StateBackend:
     name = resolve_backend_name()
     if name == "postgres":
         _backend = PostgresBackend()
+    elif name == "supabase":
+        _backend = SupabaseRestBackend()
     else:
         _backend = JsonFileBackend()
     return _backend
@@ -225,4 +311,9 @@ def persistence_info() -> dict[str, str]:
         info["path"] = str(backend.path)
     if backend.name == "postgres":
         info["database"] = "configured"
+    if backend.name == "supabase":
+        info["database"] = "supabase-rest"
+        ref = _supabase_project_ref()
+        if ref:
+            info["project"] = ref
     return info

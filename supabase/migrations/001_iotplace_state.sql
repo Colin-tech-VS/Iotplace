@@ -21,6 +21,9 @@ INSERT INTO iotplace_schema_meta (key, value)
 VALUES ('schema_version', '1')
 ON CONFLICT (key) DO NOTHING;
 
+GRANT SELECT, INSERT, UPDATE, DELETE ON iotplace_state TO anon, authenticated, service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON iotplace_schema_meta TO anon, authenticated, service_role;
+
 -- Row Level Security: enable in Supabase dashboard when exposing tables via PostgREST.
 -- ALTER TABLE iotplace_state ENABLE ROW LEVEL SECURITY;
 -- ALTER TABLE iotplace_schema_meta ENABLE ROW LEVEL SECURITY;

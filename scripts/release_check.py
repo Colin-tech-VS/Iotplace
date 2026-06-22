@@ -33,22 +33,31 @@ def main():
     from data.persistence import resolve_backend_name, resolve_database_url, resolve_data_file
 
     backend = resolve_backend_name()
-    if backend != "postgres":
+    if backend not in ("postgres", "supabase"):
         print(
-            "WARNING: DATABASE_URL not set — data is stored in a local JSON file and will NOT "
+            "WARNING: DATABASE_URL / SUPABASE_URL not set — data is stored in a local JSON file and will NOT "
             "persist across Scalingo deploys or restarts. Add Scalingo PostgreSQL or Supabase "
-            "(DATABASE_URL / SUPABASE_DB_URL).",
+            "(DATABASE_URL / SUPABASE_DB_URL / SUPABASE_URL+SUPABASE_KEY).",
             file=sys.stderr,
         )
         data_file = resolve_data_file()
         print(f"WARNING: JSON path: {data_file}", file=sys.stderr)
         return 0
 
-    if not resolve_database_url():
-        print("ERROR: postgres backend selected but DATABASE_URL is empty.", file=sys.stderr)
+    if backend == "postgres":
+        if not resolve_database_url():
+            print("ERROR: postgres backend selected but DATABASE_URL is empty.", file=sys.stderr)
+            return 1
+        print("Persistent storage: PostgreSQL (Supabase-ready)")
+        return 0
+
+    from data.persistence import resolve_supabase_rest_config
+
+    if not resolve_supabase_rest_config():
+        print("ERROR: supabase backend selected but SUPABASE_URL / SUPABASE_KEY are empty.", file=sys.stderr)
         return 1
 
-    print("Persistent storage: PostgreSQL (Supabase-ready)")
+    print("Persistent storage: Supabase REST API")
     return 0
 
 

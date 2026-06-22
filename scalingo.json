@@ -65,6 +65,19 @@
     },
     "DATABASE_URL": {
       "description": "PostgreSQL — addon Scalingo ou Supabase (persistance obligatoire en prod)"
+    },
+    "SUPABASE_URL": {
+      "description": "URL projet Supabase (https://<ref>.supabase.co)"
+    },
+    "SUPABASE_KEY": {
+      "description": "Clé publishable Supabase (Data API)"
+    },
+    "SUPABASE_DB_PASSWORD": {
+      "description": "Mot de passe PostgreSQL Supabase (Settings > Database)"
+    },
+    "SUPABASE_DB_HOST": {
+      "description": "Hôte pooler Supabase (ex. aws-1-eu-central-1.pooler.supabase.com)",
+      "value": "aws-1-eu-central-1.pooler.supabase.com"
     }
   }
 }

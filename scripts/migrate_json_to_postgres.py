@@ -3,12 +3,21 @@
 from __future__ import annotations
 
 import json
+import os
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
+
+if os.environ.get("FLASK_ENV") != "production" and not os.environ.get("SCALINGO_APP"):
+    try:
+        from dotenv import load_dotenv
+
+        load_dotenv(ROOT / ".env")
+    except ImportError:
+        pass
 
 from data.persistence import PostgresBackend, resolve_data_file, resolve_database_url  # noqa: E402
 
@@ -31,7 +40,7 @@ def main() -> int:
 
     backend = PostgresBackend(url)
     backend.save(data)
-    print(f"migrate_json_to_postgres: imported {source} → PostgreSQL ({len(data)} top-level keys)")
+    print(f"migrate_json_to_postgres: imported {source} -> PostgreSQL ({len(data)} top-level keys)")
     return 0
 
 
