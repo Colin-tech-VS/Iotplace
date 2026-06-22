@@ -13,12 +13,19 @@ from vitrine.sectors import parse_sector_fields
 
 
 def _process_application_status(message_id, user, status):
+    if status == "accepted":
+        msg = store.get_message(message_id)
+        if msg and msg.get("kind") == "application" and not stripe_service.is_configured():
+            return None, {"ok": False, "error": "stripe_required"}
     updated = store.update_message_status(message_id, user["id"], status)
     if not updated:
         return None, None
     payment_result = None
     if status == "accepted" and updated.get("kind") == "application":
         payment_result = payment_handlers.on_application_accepted(updated, user)
+        if payment_result and not payment_result.get("ok"):
+            store.update_message_status_direct(message_id, "pending")
+            return None, payment_result
     return updated, payment_result
 
 
@@ -703,7 +710,10 @@ def message_update_status(message_id):
         return redirect(url_for("compte.home"))
     updated, payment_result = _process_application_status(message_id, user, status)
     if not updated:
-        flash(t("compte.flash_status_update_fail"), "error")
+        if payment_result and payment_result.get("error") == "stripe_required":
+            flash(t("compte.flash_accept_stripe_required"), "error")
+        else:
+            flash(t("compte.flash_status_update_fail"), "error")
     else:
         flash(t("compte.flash_status_updated"), "success")
         if payment_result and payment_result.get("invoice_url"):
@@ -801,6 +811,11 @@ def messaging_update_status(user, message_id):
         return jsonify({"ok": False, "error": "Statut invalide."}), 400
     updated, payment_result = _process_application_status(message_id, user, status)
     if not updated:
+        if payment_result and payment_result.get("error") == "stripe_required":
+            return jsonify({
+                "ok": False,
+                "error": t("compte.flash_accept_stripe_required"),
+            }), 503
         return jsonify({"ok": False, "error": "Impossible de mettre à jour."}), 400
     response = {
         "ok": True,

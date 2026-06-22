@@ -552,6 +552,7 @@
     "flash_stripe_updated": "Compte Stripe mis à jour. Vous pouvez recevoir vos paiements après validation.",
     "flash_stripe_resume": "Reprise de la configuration Stripe. Complétez les informations demandées.",
     "flash_payments_disabled": "Les paiements en ligne ne sont pas encore activés.",
+    "flash_accept_stripe_required": "L'acceptation nécessite Stripe (séquestre et facturation automatique). Contactez le support.",
     "flash_pro_already_active": "Votre offre Pro est déjà active.",
     "flash_pro_activated": "Offre Pro activée — projets illimités et commission réduite.",
     "flash_pro_confirming": "Paiement en cours de confirmation. Votre offre sera activée sous peu.",
@@ -609,6 +610,8 @@
         "subscription": "Abonnement",
         "pro_price": "Pro · {price} €/mois",
         "pro_alert": "Offre Pro — projets illimités, commission {pro} % (au lieu de {free} %).",
+        "pro_support_alert": "Support dédié Pro — réponse prioritaire par l'équipe Iotplace.",
+        "pro_support_cta": "Contacter le support",
         "subscribe": "S'abonner",
         "kpi_projects": "Projets publiés",
         "kpi_projects_sub": "{open} ouvert(s) · {active} en cours",
@@ -710,7 +713,8 @@
         "reason_skills": "Compétences",
         "reason_needs": "Besoins entreprise",
         "reason_specialty": "Spécialité",
-        "reason_domain": "Secteur"
+        "reason_domain": "Secteur",
+        "reason_priority": "Priorité Pro"
       },
       "application_status": {
         "pending": "En attente",

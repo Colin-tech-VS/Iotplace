@@ -110,9 +110,12 @@ if _persist.get("path"):
 
 @app.context_processor
 def inject_globals():
+    from data.site_config import CONTACT_EMAIL
+
     return {
         "countries": store.get_startup_countries(),
         "current_user": auth.get_current_user(),
+        "contact_email": CONTACT_EMAIL,
     }
 
 

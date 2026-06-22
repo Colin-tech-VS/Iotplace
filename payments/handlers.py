@@ -26,6 +26,13 @@ def on_application_accepted(message: dict, enterprise_user: dict) -> dict:
     if not profile or project.get("enterprise_id") != profile["id"]:
         return {"ok": False, "error": "Non autorisé sur ce projet."}
 
+    if not stripe_service.is_configured():
+        return {
+            "ok": False,
+            "error": "stripe_required",
+            "message": "Le séquestre et la facturation automatique nécessitent Stripe.",
+        }
+
     startup_id = message.get("from_profile_id")
     startup = store.get_startup(startup_id) if startup_id else None
     if not startup:
@@ -67,13 +74,6 @@ def on_application_accepted(message: dict, enterprise_user: dict) -> dict:
         "stripe_configured": stripe_service.is_checkout_ready(),
         "startup_onboarding_required": not startup.get("stripe_onboarding_complete"),
     }
-
-    if not stripe_service.is_configured():
-        store.update_engagement(engagement["id"], {
-            "status": "pending_payment",
-            "notes": "Stripe non configuré — facture manuelle requise.",
-        })
-        return result
 
     try:
         startup_user = store._user_for_startup_id(startup["id"])

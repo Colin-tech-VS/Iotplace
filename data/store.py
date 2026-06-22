@@ -2024,8 +2024,14 @@ def send_message(from_user, to_user, subject, body, kind="contact", project=None
 
 
 def apply_to_project(startup_user, startup, project, message_body, *, poc_fee_cents=None, poc_checkout_id=None):
+    from data.engagement_phases import requires_startup_application_fee
+
     if startup_already_applied(startup["id"], project["id"]):
         raise ValueError("Vous avez déjà candidaté à ce projet.")
+    if requires_startup_application_fee(project.get("engagement_phase")) and not poc_fee_cents:
+        raise ValueError(
+            "Les frais de candidature PoC doivent être réglés avant d'envoyer la candidature."
+        )
     enterprise_user = _user_for_enterprise_id(project.get("enterprise_id"))
     if not enterprise_user:
         raise ValueError("Entreprise destinataire introuvable.")

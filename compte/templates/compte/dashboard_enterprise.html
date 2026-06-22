@@ -52,6 +52,11 @@
     <span>{{ t(de ~ '.pro_alert', pro=pricing.pro_commission_percent|int, free=pricing.commission_percent|int) }}</span>
     <a href="{{ url_for('compte.enterprise_subscribe_pro') }}" class="btn btn-primary btn-sm">{{ t(de ~ '.subscribe') }}</a>
 </div>
+{% elif is_pro %}
+<div class="cdash-alert cdash-alert-support reveal">
+    <span>{{ t(de ~ '.pro_support_alert') }}</span>
+    <a href="mailto:{{ contact_email }}" class="btn btn-outline btn-sm">{{ t(de ~ '.pro_support_cta') }}</a>
+</div>
 {% endif %}
 
 <section class="cdash-panel{% if active_section == 'overview' %} active{% endif %}" id="cdash-panel-overview" data-section="overview">

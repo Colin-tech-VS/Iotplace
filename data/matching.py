@@ -11,6 +11,26 @@ REASON_SKILLS = "skills"
 REASON_NEEDS = "needs"
 REASON_SPECIALTY = "specialty"
 REASON_DOMAIN = "domain"
+REASON_PRIORITY = "priority"
+
+PRO_ENTERPRISE_MATCH_BOOST = 10
+PRO_ENTERPRISE_THRESHOLD_REDUCTION = 4
+
+
+def _pro_enterprise_boost(enterprise: dict | None) -> int:
+    if not enterprise:
+        return 0
+    from payments.pricing_plans import is_pro_enterprise
+
+    return PRO_ENTERPRISE_MATCH_BOOST if is_pro_enterprise(enterprise) else 0
+
+
+def _apply_pro_priority(score: int, reasons: list[dict], enterprise: dict | None) -> tuple[int, list[dict]]:
+    boost = _pro_enterprise_boost(enterprise)
+    if not boost:
+        return score, reasons
+    reasons = [{"code": REASON_PRIORITY, "detail": ["Pro"]}, *reasons]
+    return min(100, score + boost), reasons
 
 
 def _normalize_token(value: str) -> str:
@@ -157,10 +177,10 @@ def score_startup_for_enterprise(startup: dict, enterprise: dict) -> tuple[int, 
     return min(100, score), reasons
 
 
-def _min_project_threshold(project: dict) -> int:
-    if project.get("skills"):
-        return 12
-    return 8
+def _min_project_threshold(project: dict, *, enterprise: dict | None = None) -> int:
+    base = 12 if project.get("skills") else 8
+    reduction = PRO_ENTERPRISE_THRESHOLD_REDUCTION if _pro_enterprise_boost(enterprise) else 0
+    return max(5, base - reduction)
 
 
 def match_projects_for_startup(
@@ -174,13 +194,15 @@ def match_projects_for_startup(
             continue
         ent = enterprises_by_id.get(project.get("enterprise_id") or "")
         score, reasons = score_startup_for_project(startup, project, ent)
-        if score < _min_project_threshold(project):
+        score, reasons = _apply_pro_priority(score, reasons, ent)
+        if score < _min_project_threshold(project, enterprise=ent):
             continue
         results.append({
             **project,
             "match_score": score,
             "match_reasons": reasons,
             "match_enterprise_sector": (ent or {}).get("sector"),
+            "match_enterprise_pro": bool(_pro_enterprise_boost(ent)),
         })
     results.sort(key=lambda item: (-item["match_score"], item.get("title") or ""))
     return results
@@ -201,6 +223,7 @@ def match_startups_for_enterprise(
 ) -> list[dict]:
     """Best startup match per startup across open enterprise projects."""
     exclude = exclude_startup_ids or set()
+    pro_enterprise = _pro_enterprise_boost(enterprise) > 0
     open_projects = [
         p for p in projects
         if p.get("enterprise_id") == enterprise.get("id") and p.get("status") == "Ouvert"
@@ -215,7 +238,9 @@ def match_startups_for_enterprise(
                 if not sid or sid in exclude:
                     continue
                 score, reasons = score_startup_for_project(startup, project, enterprise)
-                if score < _min_project_threshold(project):
+                if pro_enterprise:
+                    score, reasons = _apply_pro_priority(score, reasons, enterprise)
+                if score < _min_project_threshold(project, enterprise=enterprise):
                     continue
                 prev = best.get(sid)
                 if not prev or score > prev["match_score"]:
