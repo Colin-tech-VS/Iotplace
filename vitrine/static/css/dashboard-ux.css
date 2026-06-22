@@ -216,10 +216,7 @@
     border-radius: 12px;
     margin-bottom: 1rem;
     overflow-x: auto;
-    scrollbar-width: none;
 }
-
-.ux-tabs::-webkit-scrollbar { display: none; }
 
 .ux-tab {
     flex: 1;

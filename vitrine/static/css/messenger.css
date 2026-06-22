@@ -119,7 +119,6 @@
     flex: 1;
     overflow-y: auto;
     padding: 0.35rem 0.5rem 0.75rem;
-    scrollbar-width: thin;
 }
 
 .msg-thread {
@@ -495,7 +494,6 @@
     display: flex;
     flex-direction: column;
     gap: 0.35rem;
-    scrollbar-width: thin;
 }
 
 .msg-day-sep {
