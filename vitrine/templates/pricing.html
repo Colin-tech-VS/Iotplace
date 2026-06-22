@@ -54,8 +54,8 @@
                         <li>{{ feat|replace('10 %', (pricing.commission_percent|int) ~ ' %')|replace('10%', (pricing.commission_percent|int) ~ '%')|replace('7 %', (pricing.pro_commission_percent|int) ~ ' %')|replace('7%', (pricing.pro_commission_percent|int) ~ '%')|replace('399 €', (pricing.pro_price_eur) ~ ' €')|replace('€399', '€' ~ (pricing.pro_price_eur)) }}</li>
                         {% endfor %}
                     </ul>
-                    <a href="{{ url_for(t('pricing.plans.' ~ plan_id ~ '.cta_route')) }}" class="btn {% if featured %}btn-primary btn-glow{% else %}btn-outline{% endif %} pricing-cta">
-                        {{ t('pricing.plans.' ~ plan_id ~ '.cta') }}
+                    <a href="{% if plan_id == 'pro_enterprise' %}{% if current_user and current_user.role == 'enterprise' %}{{ url_for('compte.enterprise_subscribe_pro') }}{% else %}{{ url_for('compte.register_enterprise', plan='pro') }}{% endif %}{% else %}{{ url_for(t('pricing.plans.' ~ plan_id ~ '.cta_route')) }}{% endif %}" class="btn {% if featured %}btn-primary btn-glow{% else %}btn-outline{% endif %} pricing-cta">
+                        {% if plan_id == 'pro_enterprise' %}{{ t('pricing.plans.pro_enterprise.cta') }}{% else %}{{ t('pricing.plans.' ~ plan_id ~ '.cta') }}{% endif %}
                     </a>
                 </article>
                 {% endfor %}

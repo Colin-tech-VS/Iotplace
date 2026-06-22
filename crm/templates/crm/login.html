@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
     <title>Connexion — Iotplace Admin</title>
+    {% include "_favicons.html" %}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
@@ -12,16 +13,18 @@
     <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/iot-theme.css') }}?v=1">
     <link rel="stylesheet" href="{{ url_for('crm.static', filename='css/crm-login.css') }}?v=1">
     <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/toast.css') }}?v=1">
-    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/page-loader.css') }}?v=1">
+    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/brand-mark.css') }}?v=1">
+    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/page-loader.css') }}?v=2">
     <script>document.documentElement.classList.add('iot-loading');</script>
 </head>
 <body class="crm crm-login-page">
+    {% from "_brand_mark.html" import brand_mark %}
     {% include "_page_loader.html" %}
     <div class="crm-bg" aria-hidden="true"></div>
     <main class="crm-login-wrap">
         <div class="crm-login-card">
             <div class="crm-login-brand">
-                <span class="brand-mark">⬡</span>
+                {{ brand_mark('md') }}
                 <div>
                     <strong>Iotplace</strong>
                     <small>Administration CRM</small>
@@ -75,7 +78,7 @@
             </p>
         </div>
     </main>
-    <script src="{{ url_for('vitrine.static', filename='js/page-loader.js') }}?v=1"></script>
+    <script src="{{ url_for('vitrine.static', filename='js/page-loader.js') }}?v=2"></script>
     <script src="{{ url_for('vitrine.static', filename='js/toast.js') }}?v=1"></script>
 </body>
 </html>

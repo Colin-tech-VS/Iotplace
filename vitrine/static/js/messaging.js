@@ -101,7 +101,7 @@
         setTimeout(() => toast.remove(), 4500);
 
         if (Notification.permission === 'granted' && document.hidden) {
-            new Notification(title, { body, icon: '/vitrine/static/favicon.ico' });
+            new Notification(title, { body, icon: '/vitrine/static/brand/favicon-32.png' });
         }
     }
 

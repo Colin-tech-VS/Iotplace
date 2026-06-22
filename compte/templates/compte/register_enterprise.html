@@ -17,6 +17,10 @@
 <section class="section">
     <div class="container register-simple-wrap">
         <form class="register-form register-form-simple reveal" method="POST">
+            {% if request.args.get('plan') == 'pro' %}
+            <input type="hidden" name="plan" value="pro">
+            <p class="form-hint" style="margin-bottom:1rem">Inscription entreprise — vous serez redirigé vers l'abonnement Pro après création du compte.</p>
+            {% endif %}
             <div class="form-row">
                 <div class="form-group">
                     <label for="email">{{ t('compte.email_pro') }} <span class="req">*</span></label>

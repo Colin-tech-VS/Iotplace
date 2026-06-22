@@ -61,7 +61,10 @@
       "description": "Clé publique Stripe"
     },
     "STRIPE_WEBHOOK_SECRET": {
-      "description": "Secret webhook Stripe (checkout.session.completed + Connect)"
+      "description": "Secret webhook Stripe (checkout, abonnements Pro, Connect, factures)"
+    },
+    "STRIPE_PRO_PRICE_ID": {
+      "description": "ID Price Stripe abonnement Pro (optionnel — auto-créé si vide)"
     },
     "DATABASE_URL": {
       "description": "PostgreSQL — addon Scalingo ou Supabase (persistance obligatoire en prod)"

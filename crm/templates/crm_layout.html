@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}CRM{% endblock %} — Iotplace Admin</title>
+    {% include "_favicons.html" %}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
@@ -11,17 +12,19 @@
     <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/iot-theme.css') }}?v=1">
     <link rel="stylesheet" href="{{ url_for('crm.static', filename='css/dashboard-ux.css') }}?v=1">
     <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/toast.css') }}?v=1">
-    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/page-loader.css') }}?v=1">
+    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/brand-mark.css') }}?v=1">
+    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/page-loader.css') }}?v=2">
     <script>document.documentElement.classList.add('iot-loading');</script>
 </head>
 <body class="crm">
+    {% from "_brand_mark.html" import brand_mark %}
     {% include "_page_loader.html" %}
     <div class="crm-bg" aria-hidden="true"></div>
     <div class="app" id="app">
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-top">
                 <a href="{{ url_for('crm.dashboard') }}" class="brand">
-                    <span class="brand-mark">⬡</span>
+                    {{ brand_mark('sm') }}
                     <span class="brand-text"><strong>Iotplace</strong><small>Administration</small></span>
                 </a>
             </div>
@@ -134,7 +137,7 @@
         </div>
     </div>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
-    <script src="{{ url_for('vitrine.static', filename='js/page-loader.js') }}?v=1"></script>
+    <script src="{{ url_for('vitrine.static', filename='js/page-loader.js') }}?v=2"></script>
     <script src="{{ url_for('vitrine.static', filename='js/toast.js') }}?v=1"></script>
     <script src="{{ url_for('crm.static', filename='js/crm.js') }}?v=3"></script>
     {% block extra_js %}{% endblock %}

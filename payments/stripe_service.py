@@ -354,10 +354,40 @@ def handle_webhook_event(payload: bytes, sig_header: str) -> dict[str, Any]:
 
     elif event["type"] == "checkout.session.completed":
         session = event["data"]["object"]
-        if (session.get("metadata") or {}).get("iotplace_type") == "poc_application":
+        meta = session.get("metadata") or {}
+        if meta.get("iotplace_type") == "poc_application":
             from payments import poc_application
 
             completion = poc_application.complete_from_stripe_session(session)
+            result.update(completion)
+            result["handled"] = completion.get("ok", False)
+        elif meta.get("iotplace_type") == "pro_subscription" or session.get("mode") == "subscription":
+            from payments import subscriptions
+
+            completion = subscriptions.complete_checkout_subscription(session)
+            result.update(completion)
+            result["handled"] = completion.get("ok", False)
+
+    elif event["type"] in (
+        "customer.subscription.created",
+        "customer.subscription.updated",
+        "customer.subscription.deleted",
+    ):
+        from payments import subscriptions
+
+        subscription = event["data"]["object"]
+        completion = subscriptions.handle_subscription_event(subscription)
+        result.update(completion)
+        result["handled"] = completion.get("ok", False)
+
+    elif event["type"] == "invoice.payment_failed":
+        invoice = event["data"]["object"]
+        subscription_id = invoice.get("subscription")
+        if subscription_id:
+            from payments import subscriptions
+
+            stripe_sub = stripe.Subscription.retrieve(subscription_id)
+            completion = subscriptions.handle_subscription_event(stripe_sub)
             result.update(completion)
             result["handled"] = completion.get("ok", False)
 

@@ -16,8 +16,11 @@
                     <div class="ux-dash-avatar enterprise" aria-hidden="true"></div>
                     <div>
                         <span class="ux-dash-badge">Espace entreprise</span>
-                        {% if profile.plan == 'pro_enterprise' %}
+                        {% if profile.plan == 'pro_enterprise' or is_pro %}
                         <span class="ux-dash-badge ux-dash-badge-pro">Offre Pro</span>
+                        {% if profile.stripe_subscription_status == 'past_due' %}
+                        <span class="ux-dash-badge ux-dash-badge-warn">Paiement en attente</span>
+                        {% endif %}
                         {% else %}
                         <span class="ux-dash-badge ux-dash-badge-muted">Offre Gratuit · 1 projet ouvert</span>
                         {% endif %}
@@ -27,6 +30,13 @@
                 </div>
                 <div class="ux-dash-actions">
                     <a href="{{ url_for('compte.enterprise_new_project') }}" class="btn btn-primary btn-sm">+ Nouveau projet</a>
+                    {% if stripe_configured %}
+                        {% if is_pro %}
+                        <a href="{{ url_for('compte.enterprise_billing_portal') }}" class="btn btn-outline btn-sm">Abonnement Pro</a>
+                        {% else %}
+                        <a href="{{ url_for('compte.enterprise_subscribe_pro') }}" class="btn btn-outline btn-sm">Passer en Pro · {{ pricing.pro_price_eur }} €/mois</a>
+                        {% endif %}
+                    {% endif %}
                     <a href="{{ url_for('compte.enterprise_edit_profile') }}" class="btn btn-outline btn-sm">Profil</a>
                     <a href="{{ url_for('compte.logout') }}" class="btn btn-ghost btn-sm">Déconnexion</a>
                 </div>
@@ -56,6 +66,16 @@
                 <span class="ux-stat-label">Non lus</span>
             </a>
         </div>
+
+        {% if stripe_configured and not is_pro %}
+        <div class="ux-profile-card reveal ux-billing-upsell">
+            <div class="ux-profile-head">
+                <h3>Offre Entreprise Pro</h3>
+                <a href="{{ url_for('compte.enterprise_subscribe_pro') }}" class="btn btn-primary btn-sm">S'abonner · {{ pricing.pro_price_eur }} €/mois</a>
+            </div>
+            <p class="muted">Projets illimités et commission réduite à {{ pricing.pro_commission_percent|int }} % par mission (au lieu de {{ pricing.commission_percent|int }} %). Paiement sécurisé via Stripe — activation immédiate.</p>
+        </div>
+        {% endif %}
 
         <div class="ux-profile-card reveal">
             <div class="ux-profile-head">

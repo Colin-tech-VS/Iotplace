@@ -35,6 +35,7 @@
     {% if analytics_enabled %}
     <meta name="iot-analytics" content='{{ {"page": analytics_page_slug, "session_id": analytics_session}|tojson }}'>
     {% endif %}
+    {% include "_favicons.html" %}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
@@ -43,11 +44,13 @@
     <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/dashboard-ux.css') }}?v=1">
     <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/advisor.css') }}?v=4">
     <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/toast.css') }}?v=1">
-    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/page-loader.css') }}?v=1">
+    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/brand-mark.css') }}?v=1">
+    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/page-loader.css') }}?v=2">
     <script>document.documentElement.classList.add('iot-loading');</script>
     {% block extra_head %}{% endblock %}
 </head>
 <body class="vitrine">
+    {% from "_brand_mark.html" import brand_mark %}
     {% include "_page_loader.html" %}
     <div class="page-bg">
         <div class="iot-scanline"></div>
@@ -62,7 +65,7 @@
     <nav class="navbar" aria-label="Main navigation">
         <div class="container nav-inner">
             <a href="{{ url_for('vitrine.index') }}" class="logo" aria-label="{{ t('nav.home_aria') }}">
-                <span class="logo-icon pulse" aria-hidden="true">⬡</span>
+                {{ brand_mark('nav') }}
                 <span class="logo-text">Iot<span class="accent">place</span></span>
             </a>
             <button class="nav-toggle" aria-label="{{ t('nav.menu') }}" onclick="document.querySelector('.nav-links').classList.toggle('open')">
@@ -135,7 +138,7 @@
         <div class="container footer-grid">
             <div class="footer-brand">
                 <a href="{{ url_for('vitrine.index') }}" class="logo">
-                    <span class="logo-icon" aria-hidden="true">⬡</span>
+                    {{ brand_mark('nav') }}
                     <span class="logo-text">Iot<span class="accent">place</span></span>
                 </a>
                 <p>{{ t('footer.tagline') }}</p>
@@ -175,7 +178,7 @@
         </div>
     </footer>
 
-    <script src="{{ url_for('vitrine.static', filename='js/page-loader.js') }}?v=1"></script>
+    <script src="{{ url_for('vitrine.static', filename='js/page-loader.js') }}?v=2"></script>
     <script src="{{ url_for('vitrine.static', filename='js/main.js') }}?v=3"></script>
     <script src="{{ url_for('vitrine.static', filename='js/toast.js') }}?v=1"></script>
     {% if analytics_enabled %}

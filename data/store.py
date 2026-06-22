@@ -326,6 +326,10 @@ PAGE_FAQ_FR = {
     ],
 }
 
+BRAND_OG_IMAGE = "/vitrine/static/brand/og-image.png"
+BRAND_LOGO_IMAGE = "/vitrine/static/brand/logo-512.png"
+BRAND_MARK_SVG = "/vitrine/static/brand/iotplace-mark.svg"
+
 DEFAULT_DATA = {
     "enterprises": [],
     "startups": [],
@@ -345,7 +349,7 @@ DEFAULT_DATA = {
                 "IoT subcontracting, IoT outsourcing, B2B IoT marketplace, Asian IoT startups, "
                 "Vietnam, Indonesia, firmware, connected hardware, IoT missions"
             ),
-            "og_image": "",
+            "og_image": BRAND_OG_IMAGE,
             "twitter_handle": "",
             "google_analytics_id": "",
         },
@@ -1381,6 +1385,24 @@ def get_startup_by_connect_account(account_id: str):
     )
 
 
+def get_enterprise_by_stripe_customer(customer_id: str):
+    if not customer_id:
+        return None
+    return next(
+        (e for e in get_enterprises() if e.get("stripe_customer_id") == customer_id),
+        None,
+    )
+
+
+def get_enterprise_by_subscription_id(subscription_id: str):
+    if not subscription_id:
+        return None
+    return next(
+        (e for e in get_enterprises() if e.get("stripe_subscription_id") == subscription_id),
+        None,
+    )
+
+
 def format_engagement_label(status: str) -> str:
     labels = {
         "draft": "Brouillon",
@@ -1664,6 +1686,10 @@ def update_page(slug, fields):
 # ── SEO ──
 
 
+def default_og_image() -> str:
+    return BRAND_OG_IMAGE
+
+
 def get_site_url():
     env_url = os.environ.get("SITE_URL", "").strip().rstrip("/")
     if env_url:
@@ -1739,8 +1765,8 @@ def get_compte_seo(endpoint):
             "title": f"Espace membre{suffix}",
             "description": global_seo.get("meta_description", ""),
             "keywords": "",
-            "og_image": "",
-            "og_image_abs": "",
+            "og_image": BRAND_OG_IMAGE,
+            "og_image_abs": f"{get_site_url()}{BRAND_OG_IMAGE}",
             "google_analytics_id": global_seo.get("google_analytics_id", ""),
             "site_name": global_seo.get("site_name", "Iotplace"),
             "twitter_handle": global_seo.get("twitter_handle", ""),
@@ -1766,7 +1792,7 @@ def get_seo_for_vitrine(slug, page_title="", overrides=None, robots="index, foll
     full_title = title if suffix and suffix.strip() in title else f"{title}{suffix}" if suffix else title
     description = kwargs.get("description") or page_seo.get("description") or global_seo.get("meta_description", "")
     keywords = kwargs.get("keywords") or page_seo.get("keywords") or global_seo.get("keywords", "")
-    og_image = global_seo.get("og_image", "")
+    og_image = global_seo.get("og_image", "") or BRAND_OG_IMAGE
     site_url = get_site_url()
     return {
         "title": full_title,
@@ -1827,7 +1853,7 @@ def build_json_ld(slug, canonical_url, site_url, faq=None, breadcrumbs=None, loc
         "@type": "Organization",
         "name": site_name,
         "url": site_url,
-        "logo": f"{site_url}/vitrine/static/favicon.ico" if site_url else "",
+        "logo": f"{site_url}{BRAND_LOGO_IMAGE}" if site_url else "",
         "description": global_seo.get("meta_description", ""),
         "sameAs": [],
     })

@@ -135,6 +135,8 @@ def register_enterprise():
             auth.login_user(user)
             store.track_signup_conversion("enterprise", session.get("analytics_sid"))
             flash(t("compte.flash_register_ent_ok"), "success")
+            if request.args.get("plan") == "pro" or request.form.get("plan") == "pro":
+                return redirect(url_for("compte.enterprise_subscribe_pro"))
             return redirect(url_for("compte.enterprise_dashboard"))
         except ValueError as exc:
             flash(str(exc), "error")
@@ -201,11 +203,21 @@ def enterprise_dashboard():
     if not profile:
         flash("Profil entreprise introuvable.", "error")
         return redirect(url_for("vitrine.index"))
+    from payments import subscriptions
+    from payments.pricing_plans import get_pricing_numbers, is_pro_enterprise
+
+    profile = subscriptions.sync_enterprise_subscription(profile) or profile
+    if request.args.get("billing") == "cancel":
+        flash("Abonnement Pro non finalisé.", "info")
     dash = store.get_dashboard_data_for_enterprise(user, profile)
+    pricing = get_pricing_numbers()
     return render_template(
         "compte/dashboard_enterprise.html",
         user=user,
         profile=profile,
+        stripe_configured=stripe_service.is_configured(),
+        is_pro=is_pro_enterprise(profile),
+        pricing=pricing,
         **dash,
     )
 
@@ -732,6 +744,89 @@ def startup_stripe_return():
 def startup_stripe_refresh():
     flash("Reprise de la configuration Stripe. Complétez les informations demandées.", "info")
     return redirect(url_for("compte.startup_stripe_onboard"))
+
+
+@compte_bp.route("/compte/entreprise/abonnement/pro")
+@auth.login_required(role="enterprise")
+def enterprise_subscribe_pro():
+    user = auth.get_current_user()
+    profile = store.get_enterprise_for_user(user["id"])
+    if not profile:
+        flash("Profil entreprise introuvable.", "error")
+        return redirect(url_for("vitrine.index"))
+    if not stripe_service.is_configured():
+        flash("Les paiements en ligne ne sont pas encore activés.", "warning")
+        return redirect(url_for("compte.enterprise_dashboard"))
+
+    from payments import subscriptions
+    from payments.pricing_plans import is_pro_enterprise
+
+    profile = subscriptions.sync_enterprise_subscription(profile) or profile
+    if is_pro_enterprise(profile):
+        flash("Votre offre Pro est déjà active.", "info")
+        return redirect(url_for("compte.enterprise_billing_portal"))
+
+    try:
+        url = subscriptions.create_pro_subscription_checkout(profile, user)
+    except stripe_service.PaymentError as exc:
+        flash(str(exc), "error")
+        return redirect(url_for("compte.enterprise_dashboard"))
+
+    return redirect(url)
+
+
+@compte_bp.route("/compte/entreprise/abonnement/succes")
+@auth.login_required(role="enterprise")
+def enterprise_subscribe_success():
+    user = auth.get_current_user()
+    profile = store.get_enterprise_for_user(user["id"])
+    session_id = request.args.get("session_id", "").strip()
+
+    if session_id and stripe_service.is_configured():
+        from payments import subscriptions
+
+        try:
+            checkout_session = stripe_service.retrieve_checkout_session(session_id)
+            result = subscriptions.complete_checkout_subscription(checkout_session)
+            if result.get("ok"):
+                flash("Offre Pro activée — projets illimités et commission réduite.", "success")
+                return redirect(url_for("compte.enterprise_dashboard"))
+        except stripe_service.PaymentError:
+            pass
+
+    if profile:
+        from payments import subscriptions
+
+        refreshed = subscriptions.sync_enterprise_subscription(profile)
+        if refreshed and refreshed.get("plan") == "pro_enterprise":
+            flash("Offre Pro activée — projets illimités et commission réduite.", "success")
+        else:
+            flash("Paiement en cours de confirmation. Votre offre sera activée sous peu.", "info")
+
+    return redirect(url_for("compte.enterprise_dashboard"))
+
+
+@compte_bp.route("/compte/entreprise/abonnement")
+@auth.login_required(role="enterprise")
+def enterprise_billing_portal():
+    user = auth.get_current_user()
+    profile = store.get_enterprise_for_user(user["id"])
+    if not profile:
+        flash("Profil entreprise introuvable.", "error")
+        return redirect(url_for("vitrine.index"))
+    if not stripe_service.is_configured():
+        flash("Le portail de facturation n'est pas disponible.", "warning")
+        return redirect(url_for("compte.enterprise_dashboard"))
+
+    from payments import subscriptions
+
+    try:
+        url = subscriptions.create_billing_portal_session(profile, user)
+    except stripe_service.PaymentError as exc:
+        flash(str(exc), "error")
+        return redirect(url_for("compte.enterprise_dashboard"))
+
+    return redirect(url)
 
 
 @compte_bp.route("/compte/engagements/<engagement_id>/release", methods=["POST"])

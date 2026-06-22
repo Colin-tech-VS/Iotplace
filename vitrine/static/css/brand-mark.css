@@ -1,0 +1,80 @@
+/* Iotplace — shared brand mark (loader, nav, CRM, favicons source) */
+
+.iot-brand-mark {
+    position: relative;
+    display: grid;
+    place-items: center;
+    color: #38bdf8;
+    flex-shrink: 0;
+}
+
+.iot-brand-mark-img {
+    position: relative;
+    z-index: 1;
+    width: 58%;
+    height: 58%;
+    object-fit: contain;
+    filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.42));
+}
+
+.iot-brand-mark--nav { width: 28px; height: 28px; }
+.iot-brand-mark--sm { width: 28px; height: 28px; }
+.iot-brand-mark--md { width: 40px; height: 40px; }
+.iot-brand-mark--lg { width: 72px; height: 72px; }
+
+.iot-brand-mark--lg .iot-brand-mark-img {
+    width: 52%;
+    height: 52%;
+    filter: drop-shadow(0 0 18px rgba(56, 189, 248, 0.45));
+}
+
+.iot-brand-mark.is-animated {
+    animation: iot-brand-pulse 1.4s ease-in-out infinite;
+}
+
+.iot-brand-mark-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    border-top-color: #38bdf8;
+    border-right-color: rgba(56, 189, 248, 0.35);
+    animation: iot-brand-spin 0.9s linear infinite;
+    pointer-events: none;
+}
+
+.iot-brand-mark-ring::after {
+    content: "";
+    position: absolute;
+    inset: 8px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    border-bottom-color: #4ade80;
+    border-left-color: rgba(74, 222, 128, 0.25);
+    animation: iot-brand-spin 1.35s linear infinite reverse;
+}
+
+.logo .iot-brand-mark--nav { margin-right: 0.1rem; }
+
+.brand .iot-brand-mark--sm,
+.crm-login-brand .iot-brand-mark--md {
+    background: var(--accent-dim, rgba(0, 232, 200, 0.12));
+    border-radius: var(--radius, 8px);
+}
+
+@keyframes iot-brand-spin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes iot-brand-pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.88; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .iot-brand-mark.is-animated,
+    .iot-brand-mark-ring,
+    .iot-brand-mark-ring::after {
+        animation: none;
+    }
+}

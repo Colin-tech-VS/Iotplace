@@ -348,15 +348,17 @@ def _domain_breadcrumbs(domain_name: str, canonical: str, locale: str):
 def _domain_seo(item: dict, locale: str):
     global_seo = store.get_seo_global()
     site_name = global_seo.get("site_name", "Iotplace")
+    site_url = store.get_site_url()
     title = item.get("seo_title") or item.get("name", "IoT Domain")
     suffix = global_seo.get("title_suffix", "")
     full_title = title if suffix and suffix in title else f"{title}{suffix}" if suffix else title
+    og_image = global_seo.get("og_image", "") or store.BRAND_OG_IMAGE
     return {
         "title": full_title,
         "description": (item.get("seo_description") or "")[:320],
         "keywords": item.get("seo_keywords", ""),
-        "og_image": global_seo.get("og_image", ""),
-        "og_image_abs": "",
+        "og_image": og_image,
+        "og_image_abs": f"{og_image}" if og_image.startswith("http") else f"{site_url}{og_image}" if og_image else "",
         "google_analytics_id": global_seo.get("google_analytics_id", ""),
         "site_name": site_name,
         "twitter_handle": global_seo.get("twitter_handle", ""),

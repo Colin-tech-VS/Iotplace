@@ -60,6 +60,15 @@ def get_enterprise_plan_id(enterprise: dict | None) -> str:
 
 
 def is_pro_enterprise(enterprise: dict | None) -> bool:
+    if not enterprise:
+        return False
+    from payments.subscriptions import subscription_grants_pro
+
+    if subscription_grants_pro(enterprise.get("stripe_subscription_status")):
+        return True
+    sub_id = (enterprise.get("stripe_subscription_id") or "").strip()
+    if sub_id:
+        return False
     return get_enterprise_plan_id(enterprise) == ENTERPRISE_PLAN_PRO
 
 

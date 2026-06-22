@@ -69,13 +69,8 @@ a { color: inherit; text-decoration: none; }
 
 .brand:hover { background: var(--bg-hover); }
 
-.brand-mark {
-    width: 28px; height: 28px;
-    display: flex; align-items: center; justify-content: center;
-    background: var(--accent-dim);
-    color: var(--accent);
-    border-radius: var(--radius);
-    font-size: 14px;
+.brand .iot-brand-mark--sm {
+    flex-shrink: 0;
 }
 
 .brand-text { line-height: 1.15; }

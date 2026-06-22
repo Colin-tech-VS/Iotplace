@@ -611,9 +611,9 @@
           "Dedicated support channel",
           "All escrow & invoicing features included"
         ],
-        "explain": "If you publish several IoT outsourcing needs per quarter, Pro lowers your commission and removes the one-project limit. Contact us to activate — billing will be added soon; meanwhile we onboard Pro clients manually.",
-        "cta": "Contact us for Pro",
-        "cta_route": "vitrine.contact"
+        "explain": "If you publish several IoT outsourcing needs per quarter, Pro lowers your commission and removes the one-project limit. Monthly Stripe subscription — instant activation.",
+        "cta": "Subscribe to Pro",
+        "cta_route": "compte.enterprise_subscribe_pro"
       }
     },
     "offers_title": "Plans aligned with your journey"

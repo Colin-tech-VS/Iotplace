@@ -1,9 +1,7 @@
+{% from "_brand_mark.html" import brand_mark %}
 <div id="iot-page-loader" class="iot-page-loader is-active" role="status" aria-live="polite" aria-busy="true">
     <div class="iot-page-loader-inner">
-        <div class="iot-page-loader-mark" aria-hidden="true">
-            <span>⬡</span>
-            <span class="iot-page-loader-ring"></span>
-        </div>
+        {{ brand_mark('lg', animated=true, ring=true, class='iot-page-loader-mark') }}
         <p class="iot-page-loader-text">Chargement</p>
         <p class="iot-page-loader-sub">Connexion à la plateforme…</p>
         <div class="iot-page-loader-bar" aria-hidden="true"><span></span></div>

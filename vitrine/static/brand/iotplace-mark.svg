@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" role="img" aria-label="Iotplace">
+  <defs>
+    <linearGradient id="iot-grad" x1="4" y1="2" x2="20" y2="22" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#38bdf8"/>
+      <stop offset="1" stop-color="#4ade80"/>
+    </linearGradient>
+  </defs>
+  <path d="M12 2.2 20.4 7.4v9.2L12 21.8 3.6 16.6V7.4L12 2.2Z" stroke="url(#iot-grad)" stroke-width="1.75" stroke-linejoin="round"/>
+  <path d="M12 7.5 16.8 10.3v5.4L12 18.5 7.2 15.7v-5.4L12 7.5Z" fill="url(#iot-grad)" opacity="0.38"/>
+  <circle cx="12" cy="12" r="2" fill="#38bdf8"/>
+</svg>

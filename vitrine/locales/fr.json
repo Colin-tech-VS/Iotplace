@@ -610,9 +610,9 @@
           "Canal support dédié",
           "Séquestre & facturation inclus"
         ],
-        "explain": "Si vous publiez plusieurs besoins IoT par trimestre, Pro réduit la commission et supprime la limite d'un projet. Contactez-nous pour activer l'offre — facturation en ligne bientôt disponible.",
-        "cta": "Nous contacter pour le Pro",
-        "cta_route": "vitrine.contact"
+        "explain": "Si vous publiez plusieurs besoins IoT par trimestre, Pro réduit la commission et supprime la limite d'un projet. Abonnement mensuel Stripe — activation automatique.",
+        "cta": "S'abonner au Pro",
+        "cta_route": "compte.enterprise_subscribe_pro"
       }
     },
     "offers_title": "Offres alignées sur votre parcours"

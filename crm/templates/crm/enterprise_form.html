@@ -54,15 +54,21 @@
         <section class="card form-section">
             <div class="section-title">
                 <h2>Offre commerciale</h2>
-                <p>Alignée avec la page Tarifs (Gratuit / Pro)</p>
+                <p>Synchronisée automatiquement via Stripe</p>
             </div>
             <div class="field">
-                <label for="plan">Plan entreprise</label>
-                <select id="plan" name="plan">
-                    <option value="free_enterprise" {% if not entry or entry.plan|default('free_enterprise') == 'free_enterprise' %}selected{% endif %}>Gratuit — 1 projet ouvert, commission standard</option>
-                    <option value="pro_enterprise" {% if entry and entry.plan == 'pro_enterprise' %}selected{% endif %}>Pro — projets illimités, commission réduite</option>
-                </select>
-                <span class="field-hint">Le plan Pro est activé manuellement après contact commercial.</span>
+                <label>Plan entreprise</label>
+                <p class="mono" style="margin:0">
+                    {% if entry and entry.plan == 'pro_enterprise' %}Pro{% else %}Gratuit{% endif %}
+                    {% if entry and entry.stripe_subscription_status %}
+                    · abonnement {{ entry.stripe_subscription_status }}
+                    {% elif entry and entry.stripe_subscription_id %}
+                    · abonnement Stripe lié
+                    {% else %}
+                    · sans abonnement Stripe
+                    {% endif %}
+                </p>
+                <span class="field-hint">L'offre Pro est activée par l'abonnement Stripe de l'entreprise (checkout depuis son espace compte). Les commissions mission sont appliquées automatiquement.</span>
             </div>
         </section>
     </div>

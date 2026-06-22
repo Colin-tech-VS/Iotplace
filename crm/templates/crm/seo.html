@@ -15,7 +15,7 @@
             <div class="field"><label>Suffixe des titres</label><input name="title_suffix" value="{{ global_seo.title_suffix or '' }}"></div>
             <div class="field"><label>Meta description</label><textarea name="meta_description" rows="2">{{ global_seo.meta_description or '' }}</textarea></div>
             <div class="field"><label>Mots-clés</label><input name="keywords" value="{{ global_seo.keywords or '' }}"></div>
-            <div class="field"><label>Image Open Graph (URL)</label><input name="og_image" value="{{ global_seo.og_image or '' }}"></div>
+            <div class="field"><label>Image Open Graph (URL)</label><input name="og_image" value="{{ global_seo.og_image or '' }}" placeholder="/vitrine/static/brand/og-image.png"></div>
             <div class="field-row">
                 <div class="field"><label>Twitter @</label><input name="twitter_handle" value="{{ global_seo.twitter_handle or '' }}"></div>
                 <div class="field"><label>Google Analytics ID</label><input name="google_analytics_id" value="{{ global_seo.google_analytics_id or '' }}" placeholder="G-XXXXXXXX"></div>

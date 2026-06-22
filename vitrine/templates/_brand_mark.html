@@ -1,0 +1,6 @@
+{% macro brand_mark(size='nav', animated=false, ring=false, class='') %}
+<span class="iot-brand-mark iot-brand-mark--{{ size }}{% if animated %} is-animated{% endif %}{% if class %} {{ class }}{% endif %}" aria-hidden="true">
+    <img class="iot-brand-mark-img" src="{{ url_for('vitrine.static', filename='brand/iotplace-mark.svg') }}" alt="" width="24" height="24" decoding="async">
+    {% if ring %}<span class="iot-brand-mark-ring"></span>{% endif %}
+</span>
+{% endmacro %}

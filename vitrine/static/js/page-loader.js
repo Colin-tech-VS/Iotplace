@@ -29,10 +29,10 @@
         loader.setAttribute('aria-busy', 'false');
         loader.innerHTML = `
             <div class="iot-page-loader-inner">
-                <div class="iot-page-loader-mark" aria-hidden="true">
-                    <span>⬡</span>
-                    <span class="iot-page-loader-ring"></span>
-                </div>
+                <span class="iot-brand-mark iot-brand-mark--lg is-animated iot-page-loader-mark" aria-hidden="true">
+                    <img class="iot-brand-mark-img" src="/vitrine/static/brand/iotplace-mark.svg" alt="" width="24" height="24" decoding="async">
+                    <span class="iot-brand-mark-ring"></span>
+                </span>
                 <p class="iot-page-loader-text">${title}</p>
                 <p class="iot-page-loader-sub">${sub}</p>
                 <div class="iot-page-loader-bar" aria-hidden="true"><span></span></div>
