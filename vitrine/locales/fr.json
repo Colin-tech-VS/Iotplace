@@ -153,6 +153,32 @@
     "faq_title": "FAQ — Sous-traitance IoT pour entreprises & startups"
   },
   "enterprises": {
+    "hero_badge": "Donneurs d'ordre IoT",
+    "hero_title": "Externalisez vos projets IoT B2B",
+    "hero_sub": "Publiez un besoin, recevez des candidatures startups, payez en séquestre.",
+    "who_title": "Qui on cible",
+    "who_sub": "Les entreprises qui ont un besoin concret dans l'un de nos 5 domaines et veulent sous-traiter à une startup spécialisée.",
+    "who_targets": [
+      "Grands groupes industriels (énergie, manufacturing, logistique)",
+      "Utilities et gestionnaires d'infrastructures",
+      "Immobilier tertiaire et gestionnaires de bâtiments",
+      "Logisticiens et acteurs de la chaîne du froid",
+      "Toute structure avec un projet capteurs / connectivité / cloud à externaliser"
+    ],
+    "what_title": "Ce que vous pouvez faire",
+    "what_steps": [
+      "Créer un compte en 2 min et choisir votre domaine IoT",
+      "Publier un besoin (dès l'inscription ou depuis votre espace)",
+      "Accepter une startup — facture et séquestre automatiques"
+    ],
+    "capabilities": [
+      "Publier et gérer des projets (PoC, Scale, Partenariat)",
+      "Recevoir et comparer les candidatures startups",
+      "Échanger en messagerie B2B sécurisée",
+      "Payer via séquestre — libération après validation livraison"
+    ],
+    "pricing_note": "Inscription gratuite · Commission ~10 % uniquement à la libération des fonds",
+    "cta_register": "Créer un compte entreprise",
     "seo_intro": "Externalisez vos projets <strong>Smart Energy, Asset Tracking, Predictive Maintenance, Smart Building</strong> ou <strong>Cold Chain</strong> auprès de startups IoT qualifiées.",
     "benefit_speed_title": "Rapidité",
     "benefit_speed_text": "Des équipes agiles qui livrent en semaines, pas en mois.",
@@ -172,14 +198,45 @@
     "faq_title": "FAQ — Externaliser un projet IoT"
   },
   "startups": {
+    "hero_badge": "Startups IoT B2B",
+    "hero_title": "Vendez votre expertise aux grands comptes",
+    "hero_sub": "Postulez aux missions, livrez, soyez payée via Stripe Connect.",
+    "who_title": "Qui on cible",
+    "who_sub": "Les startups IoT spécialisées dans l'un de nos 5 domaines, capables de livrer firmware, hardware, cloud ou intégration capteurs.",
+    "who_targets": [
+      "Startups Smart Energy (compteurs, grid, optimisation)",
+      "Startups Asset Tracking (GPS, flottes, traçabilité)",
+      "Startups Predictive Maintenance (capteurs, alertes, edge)",
+      "Startups Smart Building (HVAC, occupancy, BMS)",
+      "Startups Cold Chain (température, conformité, alertes)"
+    ],
+    "what_title": "Ce que vous pouvez faire",
+    "what_steps": [
+      "Créer un compte en 2 min et choisir votre domaine IoT",
+      "Parcourir les missions ouvertes et postuler",
+      "Livrer la mission — paiement après validation entreprise"
+    ],
+    "capabilities": [
+      "Voir les projets publiés par les entreprises",
+      "Postuler avec un message de présentation",
+      "Échanger en messagerie B2B",
+      "Recevoir vos paiements via Stripe Connect"
+    ],
+    "pricing_note": "Inscription gratuite · Frais de candidature uniquement sur les projets PoC",
+    "cta_register": "Créer un compte startup",
+    "directory_title": "Startups inscrites",
+    "directory_sub": "Équipes IoT par domaine et par pays.",
+    "missions_title": "Missions ouvertes",
+    "missions_sub": "Parcourez les projets publiés par les entreprises et postulez en quelques clics.",
+    "missions_btn": "Voir les missions →",
     "country_title": "Startups IoT en {country} — missions de sous-traitance",
     "country_sub": "Startups IoT en {country} : postulez aux projets de sous-traitance publiés par les entreprises sur Iotplace.",
     "seo_intro": "Startup IoT spécialisée dans l'un de nos <strong>5 domaines B2B</strong> ? Postulez aux missions des entreprises sur Iotplace — inscription en 2 minutes.",
     "propose_project": "Proposer un projet",
     "no_country": "Aucune startup trouvée pour ce pays.",
     "no_startups": "Aucune startup inscrite pour le moment.",
-    "cta_title": "Vous êtes une startup IoT en Asie ?",
-    "cta_sub": "Rejoignez Iotplace : profil startup, projets PoC des grands comptes, paiement sécurisé et passage au contrat cadre.",
+    "cta_title": "Prête à postuler ?",
+    "cta_sub": "Inscription en 2 minutes — choisissez votre domaine et accédez aux missions.",
     "cta_btn": "Rejoindre la plateforme",
     "faq_title": "FAQ — Missions IoT pour startups"
   },

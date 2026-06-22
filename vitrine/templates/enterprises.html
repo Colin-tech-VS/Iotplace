@@ -7,74 +7,15 @@
 {{ breadcrumbs_nav(seo_breadcrumbs) }}
 <section class="page-hero">
     <div class="container reveal">
-        <h1>{{ page.title }}</h1>
-        <p class="page-sub">{{ page.subtitle }}</p>
-        <p class="seo-intro">{{ t('enterprises.seo_intro')|safe }}</p>
+        <span class="hero-badge">{{ t('enterprises.hero_badge') }}</span>
+        <h1>{{ t('enterprises.hero_title') }}</h1>
+        <p class="page-sub">{{ t('enterprises.hero_sub') }}</p>
     </div>
 </section>
 
-<section class="section">
-    <div class="container">
-        <div class="benefits-grid">
-            <div class="benefit reveal">
-                <div class="benefit-icon float-icon">⚡</div>
-                <h3>{{ t('enterprises.benefit_speed_title') }}</h3>
-                <p>{{ t('enterprises.benefit_speed_text') }}</p>
-            </div>
-            <div class="benefit reveal">
-                <div class="benefit-icon float-icon delay-1">💰</div>
-                <h3>{{ t('enterprises.benefit_cost_title') }}</h3>
-                <p>{{ t('enterprises.benefit_cost_text') }}</p>
-            </div>
-            <div class="benefit reveal">
-                <div class="benefit-icon float-icon delay-2">🛡️</div>
-                <h3>{{ t('enterprises.benefit_security_title') }}</h3>
-                <p>{{ t('enterprises.benefit_security_text') }}</p>
-            </div>
-            <div class="benefit reveal">
-                <div class="benefit-icon float-icon delay-3">🎯</div>
-                <h3>{{ t('enterprises.benefit_matching_title') }}</h3>
-                <p>{{ t('enterprises.benefit_matching_text') }}</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-{% include "_engagement_journey.html" %}
-
-<section class="section section-alt">
-    <div class="container">
-        <div class="section-header reveal">
-            <h2>{{ t('enterprises.partners_title') }}</h2>
-            <p>{{ t('enterprises.partners_sub') }}</p>
-        </div>
-        {% if enterprises %}
-        <div class="cards-grid">
-            {% for ent in enterprises %}
-            <a href="{{ url_for('vitrine.enterprise_detail', enterprise_id=ent.id) }}" class="card enterprise-card card-clickable reveal">
-                <div class="enterprise-logo">{{ ent.logo_initials or ent.name[:2]|upper }}</div>
-                <h3>{{ ent.name }}</h3>
-                {% if ent.sector %}<span class="meta">{{ ent.sector }}</span>{% endif %}
-                <p class="card-desc">{{ ent.description }}</p>
-                {% if ent.needs %}
-                <div class="tags">
-                    {% for need in ent.needs %}
-                    <span class="tag tag-accent">{{ need }}</span>
-                    {% endfor %}
-                </div>
-                {% endif %}
-                <span class="card-link-hint">{{ t('common.view_details') }} →</span>
-            </a>
-            {% endfor %}
-        </div>
-        {% else %}
-        <div class="empty-state reveal">
-            <div class="empty-icon">🏢</div>
-            <p>{{ t('enterprises.no_partners') }}</p>
-        </div>
-        {% endif %}
-    </div>
-</section>
+{% with audience='enterprise' %}
+{% include "_audience_landing.html" %}
+{% endwith %}
 
 <section class="section">
     <div class="container">
@@ -89,17 +30,9 @@
                 <div class="project-info">
                     <h3>{{ project.title }} {{ phase_badge(project.engagement_phase) }}</h3>
                     <span class="meta">{{ project.enterprise }}</span>
-                    {% if project.skills %}
-                    <div class="tags" style="margin-top: 0.5rem;">
-                        {% for skill in project.skills %}
-                        <span class="tag">{{ skill }}</span>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
                 </div>
                 <div class="project-meta">
                     {% if project.budget %}<span class="budget">{{ project.budget }}</span>{% endif %}
-                    {% if project.duration %}<span class="duration">{{ project.duration }}</span>{% endif %}
                     <span class="status status-{{ project.status|lower|replace(' ', '-') }}">{{ translate_status(project.status) }}</span>
                 </div>
             </a>
@@ -107,11 +40,10 @@
         </div>
         {% else %}
         <div class="empty-state reveal">
-            <div class="empty-icon">📋</div>
             <p>{{ t('enterprises.no_projects') }}</p>
         </div>
         {% endif %}
-        <div style="text-align: center; margin-top: 2rem;" class="reveal">
+        <div class="audience-page-cta reveal">
             <a href="{{ url_for('compte.register_enterprise') }}" class="btn btn-primary btn-lg btn-glow">{{ t('enterprises.publish_btn') }}</a>
         </div>
     </div>

@@ -1,0 +1,37 @@
+{# Qui on cible + ce que vous pouvez faire — entreprise ou startup #}
+<section class="section section-alt">
+    <div class="container">
+        <div class="audience-landing-grid reveal">
+            <article class="audience-landing-block audience-landing-who audience-landing-{{ audience }}">
+                <span class="audience-path-badge{% if audience == 'startup' %} audience-path-badge-startup{% endif %}">{{ t('journeys.badge_' ~ audience) }}</span>
+                <h2>{{ t(audience ~ 's.who_title') }}</h2>
+                <p class="audience-landing-lead">{{ t(audience ~ 's.who_sub') }}</p>
+                <ul class="audience-landing-list">
+                    {% for item in t(audience ~ 's.who_targets') %}
+                    <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+            </article>
+            <article class="audience-landing-block audience-landing-what audience-landing-{{ audience }}">
+                <h2>{{ t(audience ~ 's.what_title') }}</h2>
+                <ol class="audience-landing-steps">
+                    {% for step in t(audience ~ 's.what_steps') %}
+                    <li>
+                        <span class="audience-path-step-num">{{ loop.index }}</span>
+                        <span>{{ step }}</span>
+                    </li>
+                    {% endfor %}
+                </ol>
+                <ul class="audience-landing-capabilities">
+                    {% for cap in t(audience ~ 's.capabilities') %}
+                    <li>{{ cap }}</li>
+                    {% endfor %}
+                </ul>
+                <p class="audience-landing-pricing">{{ t(audience ~ 's.pricing_note') }}</p>
+                <a href="{{ url_for('compte.register_' ~ audience) }}" class="btn btn-primary btn-glow">{{ t(audience ~ 's.cta_register') }}</a>
+            </article>
+        </div>
+    </div>
+</section>
+
+{% include "_domains_grid.html" %}

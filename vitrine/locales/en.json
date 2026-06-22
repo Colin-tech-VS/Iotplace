@@ -153,6 +153,32 @@
     "faq_title": "FAQ — IoT subcontracting for enterprises & startups"
   },
   "enterprises": {
+    "hero_badge": "IoT clients",
+    "hero_title": "Outsource your B2B IoT projects",
+    "hero_sub": "Publish a need, receive startup applications, pay via escrow.",
+    "who_title": "Who we target",
+    "who_sub": "Enterprises with a concrete need in one of our 5 domains who want to subcontract to a specialized startup.",
+    "who_targets": [
+      "Large industrial groups (energy, manufacturing, logistics)",
+      "Utilities and infrastructure operators",
+      "Commercial real estate and building managers",
+      "Logistics and cold chain operators",
+      "Any organization with a sensors / connectivity / cloud project to outsource"
+    ],
+    "what_title": "What you can do",
+    "what_steps": [
+      "Create an account in 2 min and pick your IoT domain",
+      "Publish a need (at signup or from your workspace)",
+      "Accept a startup — automatic invoice and escrow"
+    ],
+    "capabilities": [
+      "Publish and manage projects (PoC, Scale, Partnership)",
+      "Receive and compare startup applications",
+      "Chat via secure B2B messaging",
+      "Pay via escrow — release after validated delivery"
+    ],
+    "pricing_note": "Free signup · ~10% commission only on fund release",
+    "cta_register": "Create enterprise account",
     "seo_intro": "Outsource <strong>Smart Energy, Asset Tracking, Predictive Maintenance, Smart Building</strong> or <strong>Cold Chain</strong> projects to qualified IoT startups.",
     "benefit_speed_title": "Speed",
     "benefit_speed_text": "Agile teams that deliver in weeks, not months.",
@@ -172,14 +198,45 @@
     "faq_title": "FAQ — Outsourcing an IoT project"
   },
   "startups": {
+    "hero_badge": "B2B IoT startups",
+    "hero_title": "Sell your expertise to large enterprises",
+    "hero_sub": "Apply to missions, deliver, get paid via Stripe Connect.",
+    "who_title": "Who we target",
+    "who_sub": "IoT startups specialized in one of our 5 domains, able to deliver firmware, hardware, cloud or sensor integration.",
+    "who_targets": [
+      "Smart Energy startups (meters, grid, optimization)",
+      "Asset Tracking startups (GPS, fleets, traceability)",
+      "Predictive Maintenance startups (sensors, alerts, edge)",
+      "Smart Building startups (HVAC, occupancy, BMS)",
+      "Cold Chain startups (temperature, compliance, alerts)"
+    ],
+    "what_title": "What you can do",
+    "what_steps": [
+      "Create an account in 2 min and pick your IoT domain",
+      "Browse open missions and apply",
+      "Deliver the mission — payment after enterprise validation"
+    ],
+    "capabilities": [
+      "View projects published by enterprises",
+      "Apply with a presentation message",
+      "Chat via B2B messaging",
+      "Receive payouts via Stripe Connect"
+    ],
+    "pricing_note": "Free signup · Application fee only on PoC projects",
+    "cta_register": "Create startup account",
+    "directory_title": "Registered startups",
+    "directory_sub": "IoT teams by domain and country.",
+    "missions_title": "Open missions",
+    "missions_sub": "Browse enterprise projects and apply in a few clicks.",
+    "missions_btn": "View missions →",
     "country_title": "IoT Startups in {country} — subcontracting missions",
     "country_sub": "IoT startups in {country}: apply to subcontracting projects published by enterprises on Iotplace.",
     "seo_intro": "IoT startup in one of our <strong>5 B2B domains</strong>? Apply to enterprise missions on Iotplace — 2-minute signup.",
     "propose_project": "Propose a project",
     "no_country": "No startups found for this country.",
     "no_startups": "No startups registered yet.",
-    "cta_title": "Are you an IoT startup in Asia?",
-    "cta_sub": "Join Iotplace: startup profile, enterprise PoC projects, secure payouts and a path to framework contracts.",
+    "cta_title": "Ready to apply?",
+    "cta_sub": "2-minute signup — pick your domain and access missions.",
     "cta_btn": "Join the platform",
     "faq_title": "FAQ — IoT missions for startups"
   },

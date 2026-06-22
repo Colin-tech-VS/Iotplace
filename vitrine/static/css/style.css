@@ -2263,6 +2263,109 @@ a:hover { color: #33e0be; }
     }
 }
 
+.audience-page-cta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 2rem;
+}
+
+.audience-landing-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.audience-landing-block {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 1.35rem 1.5rem;
+}
+
+.audience-landing-enterprise.audience-landing-who,
+.audience-landing-enterprise.audience-landing-what { border-top: 3px solid #3b82f6; }
+.audience-landing-startup.audience-landing-who,
+.audience-landing-startup.audience-landing-what { border-top: 3px solid var(--accent); }
+
+.audience-landing-block h2 {
+    font-size: 1.15rem;
+    margin: 0.5rem 0 0.5rem;
+}
+
+.audience-landing-lead {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.55;
+    margin: 0 0 0.85rem;
+}
+
+.audience-landing-list {
+    margin: 0;
+    padding-left: 1.15rem;
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: var(--text-muted);
+}
+
+.audience-landing-list li { margin-bottom: 0.35rem; }
+
+.audience-landing-steps {
+    list-style: none;
+    margin: 0 0 1rem;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+}
+
+.audience-landing-steps li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.55rem;
+    font-size: 0.9rem;
+    line-height: 1.45;
+}
+
+.audience-landing-capabilities {
+    margin: 0 0 1rem;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 0.35rem;
+}
+
+.audience-landing-capabilities li {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    padding-left: 1.1rem;
+    position: relative;
+}
+
+.audience-landing-capabilities li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-weight: 700;
+}
+
+.audience-landing-pricing {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin: 0 0 1rem;
+    padding: 0.5rem 0.65rem;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-subtle);
+}
+
+@media (max-width: 900px) {
+    .audience-landing-grid { grid-template-columns: 1fr; }
+}
+
 .btn-block { width: 100%; }
 
 /* ── Focus domains & simplified signup ── */

@@ -6,20 +6,29 @@
 {{ breadcrumbs_nav(seo_breadcrumbs) }}
 <section class="page-hero">
     <div class="container reveal">
-        <h1>{% if selected_country %}{{ t('startups.country_title', country=selected_country) }}{% else %}{{ page.title }}{% endif %}</h1>
-        <p class="page-sub">{% if selected_country %}{{ t('startups.country_sub', country=selected_country) }}{% else %}{{ page.subtitle }}{% endif %}</p>
-        {% if not selected_country %}
-        <p class="seo-intro">{{ t('startups.seo_intro')|safe }}</p>
+        {% if selected_country %}
+        <h1>{{ t('startups.country_title', country=selected_country) }}</h1>
+        <p class="page-sub">{{ t('startups.country_sub', country=selected_country) }}</p>
+        {% else %}
+        <span class="hero-badge">{{ t('startups.hero_badge') }}</span>
+        <h1>{{ t('startups.hero_title') }}</h1>
+        <p class="page-sub">{{ t('startups.hero_sub') }}</p>
         {% endif %}
     </div>
 </section>
 
-{% with alt=true %}
-{% include "_startup_journey.html" %}
+{% if not selected_country %}
+{% with audience='startup' %}
+{% include "_audience_landing.html" %}
 {% endwith %}
+{% endif %}
 
-<section class="section">
+<section class="section{% if not selected_country %} section-alt{% endif %}">
     <div class="container">
+        <div class="section-header reveal">
+            <h2>{{ t('startups.directory_title') }}</h2>
+            <p>{{ t('startups.directory_sub') }}</p>
+        </div>
         {% if countries %}
         <div class="filter-bar reveal">
             <span>{{ t('common.filter_by_country') }}</span>
@@ -41,40 +50,34 @@
                         <span class="meta">{{ startup.city }}{% if startup.city and startup.country %}, {% endif %}{{ startup.country }}</span>
                     </div>
                 </div>
-                {% if startup.specialty %}<span class="specialty">{{ startup.specialty }}</span>{% endif %}
+                {% if startup.sector or startup.specialty %}<span class="specialty">{{ startup.sector or startup.specialty }}</span>{% endif %}
                 <p class="card-desc">{{ startup.description }}</p>
-                {% if startup.skills %}
-                <div class="tags">
-                    {% for skill in startup.skills %}
-                    <span class="tag">{{ skill }}</span>
-                    {% endfor %}
-                </div>
-                {% endif %}
-                <div class="card-footer">
-                    {% if startup.rating %}<span class="rating">★ {{ startup.rating }}</span>{% endif %}
-                    {% if startup.team_size %}<span class="meta">{{ startup.team_size }} {{ t('common.people') }}</span>{% endif %}
-                    {% if startup.projects_done %}<span class="meta">{{ startup.projects_done }} {{ t('common.projects_done') }}</span>{% endif %}
-                </div>
                 <span class="card-link-hint">{{ t('common.view_details') }} →</span>
             </a>
             {% endfor %}
         </div>
         {% else %}
         <div class="empty-state reveal">
-            <div class="empty-icon">🚀</div>
             <p>{% if selected_country %}{{ t('startups.no_country') }}{% else %}{{ t('startups.no_startups') }}{% endif %}</p>
         </div>
         {% endif %}
     </div>
 </section>
 
-<section class="cta-section">
-    <div class="container cta-inner reveal">
-        <h2>{{ t('startups.cta_title') }}</h2>
-        <p>{{ t('startups.cta_sub') }}</p>
-        <a href="{{ url_for('compte.register_startup') }}" class="btn btn-primary btn-lg btn-glow">{{ t('startups.cta_btn') }}</a>
+{% if not selected_country %}
+<section class="section">
+    <div class="container">
+        <div class="section-header reveal">
+            <h2>{{ t('startups.missions_title') }}</h2>
+            <p>{{ t('startups.missions_sub') }}</p>
+        </div>
+        <div class="audience-page-cta reveal">
+            <a href="{{ url_for('vitrine.projects') }}" class="btn btn-outline btn-lg">{{ t('startups.missions_btn') }}</a>
+            <a href="{{ url_for('compte.register_startup') }}" class="btn btn-primary btn-lg btn-glow">{{ t('startups.cta_btn') }}</a>
+        </div>
     </div>
 </section>
+{% endif %}
 
 {{ faq_section(seo_faq, t('startups.faq_title')) }}
 {% endblock %}
