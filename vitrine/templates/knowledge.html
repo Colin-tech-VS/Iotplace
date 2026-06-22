@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% from "_seo_macros.html" import breadcrumbs_nav, faq_section %}
+
+{% block content %}
+{{ breadcrumbs_nav(seo_breadcrumbs) }}
+
+<section class="page-hero">
+    <div class="container reveal">
+        <h1>{% if locale == 'fr' %}Base de connaissances Iotplace{% else %}Iotplace knowledge base{% endif %}</h1>
+        <p class="page-sub">
+            {% if locale == 'fr' %}
+            Page structurée pour les moteurs génératifs (ChatGPT, Claude, Perplexity, Copilot, Mistral…) et le référencement.
+            {% else %}
+            Structured facts for generative engines (ChatGPT, Claude, Perplexity, Copilot, Mistral…) and search.
+            {% endif %}
+        </p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container about-content">
+        <div class="about-block reveal">
+            <h2>{% if locale == 'fr' %}Résumé{% else %}Summary{% endif %}</h2>
+            <p>{{ knowledge.tagline }}</p>
+            <p><strong>{% if locale == 'fr' %}Contact{% else %}Contact{% endif %}:</strong>
+                <a href="mailto:{{ knowledge.contact_email }}">{{ knowledge.contact_email }}</a>
+            </p>
+        </div>
+
+        <div class="about-block reveal">
+            <h2>{% if locale == 'fr' %}Fonctionnement{% else %}How it works{% endif %}</h2>
+            <ul>
+                {% for step in knowledge.how_it_works %}
+                <li>{{ step }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="about-block reveal">
+            <h2>{% if locale == 'fr' %}Offres & paiements{% else %}Plans & payments{% endif %}</h2>
+            <ul>
+                {% for key, value in knowledge.pricing_summary.items() %}
+                <li><strong>{{ key.replace('_', ' ') }}</strong> — {{ value }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="about-block reveal">
+            <h2>{% if locale == 'fr' %}Exports machine-readable{% else %}Machine-readable exports{% endif %}</h2>
+            <ul class="geo-links">
+                <li><a href="{{ knowledge.geo_endpoints.llms_txt }}">llms.txt</a> — {% if locale == 'fr' %}résumé court{% else %}short overview{% endif %}</li>
+                <li><a href="{{ knowledge.geo_endpoints.llms_full }}">llms-full.txt</a> — {% if locale == 'fr' %}base complète{% else %}full knowledge{% endif %}</li>
+                <li><a href="{{ knowledge.geo_endpoints.knowledge_json }}">knowledge.json</a> — JSON</li>
+                <li><a href="{{ knowledge.geo_endpoints.sitemap }}">sitemap.xml</a></li>
+            </ul>
+            <p class="text-muted" style="margin-top:1rem">{{ knowledge.citation_guidance }}</p>
+        </div>
+
+        <div class="about-block reveal">
+            <h2>{% if locale == 'fr' %}Pages publiques{% else %}Public pages{% endif %}</h2>
+            <ul>
+                {% for page in knowledge.pages if page.published %}
+                <li><a href="{{ page.url }}">{{ page.name }}</a>{% if page.seo_description %} — {{ page.seo_description[:120] }}{% endif %}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</section>
+
+{% set about_faq = knowledge.faq_by_page.get('about') or knowledge.faq_by_page.get('home') or [] %}
+{{ faq_section(about_faq, t('home.faq_title')) }}
+{% endblock %}

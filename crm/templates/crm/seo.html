@@ -20,6 +20,16 @@
                 <div class="field"><label>Twitter @</label><input name="twitter_handle" value="{{ global_seo.twitter_handle or '' }}"></div>
                 <div class="field"><label>Google Analytics ID</label><input name="google_analytics_id" value="{{ global_seo.google_analytics_id or '' }}" placeholder="G-XXXXXXXX"></div>
             </div>
+            <div class="field">
+                <label>Profils officiels (sameAs) — JSON-LD &amp; GEO</label>
+                <textarea name="same_as" rows="2" placeholder="https://www.linkedin.com/company/iotplace, https://github.com/...">{{ global_seo.same_as or '' }}</textarea>
+                <small class="text-muted">URLs séparées par des virgules (LinkedIn, GitHub, Crunchbase…)</small>
+            </div>
+            <p class="text-muted" style="font-size:0.85rem;margin:0 0 12px">
+                GEO : <a href="/llms.txt" target="_blank" rel="noopener">/llms.txt</a> ·
+                <a href="/knowledge.json" target="_blank" rel="noopener">/knowledge.json</a> ·
+                <a href="/knowledge" target="_blank" rel="noopener">/knowledge</a>
+            </p>
             <button type="submit" class="btn btn-primary btn-sm">Enregistrer le global</button>
         </form>
     </section>

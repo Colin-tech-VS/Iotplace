@@ -315,6 +315,30 @@ PAGE_FAQ = {
             "a": "Yes. Sign up free, publish one project (enterprise) or apply to missions (startup). Commission applies only when a mission is actually signed and paid.",
         },
     ],
+    "about": [
+        {
+            "q": "What is Iotplace?",
+            "a": "Iotplace is a B2B marketplace where enterprises subcontract IoT projects (firmware, hardware, cloud) to qualified startups, mainly in Southeast Asia, with structured PoC-to-partnership journeys and Stripe escrow payments.",
+        },
+        {
+            "q": "Who is Iotplace for?",
+            "a": "Industrial groups and large enterprises that outsource IoT development, and IoT startups seeking B2B missions from enterprise clients.",
+        },
+        {
+            "q": "Where is Iotplace based?",
+            "a": "Iotplace operates at https://iotplace.fr with a European client focus and a startup talent pool across Vietnam, Indonesia, Thailand and the ASEAN region.",
+        },
+        {
+            "q": "How do I contact Iotplace?",
+            "a": "Use the contact form at /contact or email contact@iotplace.fr for partnerships, support and press inquiries.",
+        },
+    ],
+    "contact": [
+        {
+            "q": "How can I reach the Iotplace team?",
+            "a": "Email contact@iotplace.fr or use the contact form on /contact. Enterprise and startup accounts can also use in-platform messaging after signup.",
+        },
+    ],
 }
 
 BREADCRUMB_LABELS = {
@@ -373,6 +397,15 @@ PAGE_FAQ_FR = {
         {"q": "Comment fonctionne le séquestre ?", "a": "Les fonds sont conservés en sécurité après paiement de la facture. La startup est payée via Stripe Connect uniquement quand l'entreprise confirme la livraison."},
         {"q": "Puis-je tester sans payer ?", "a": "Oui. Inscription gratuite, un projet publié (entreprise) ou des candidatures (startup). La commission ne s'applique que lorsqu'une mission est réellement signée et payée."},
     ],
+    "about": [
+        {"q": "Qu'est-ce qu'Iotplace ?", "a": "Iotplace est une marketplace B2B où les entreprises sous-traitent des projets IoT (firmware, hardware, cloud) à des startups qualifiées, principalement en Asie du Sud-Est, avec un parcours PoC → scale → partenariat et paiements séquestre Stripe."},
+        {"q": "À qui s'adresse Iotplace ?", "a": "Aux grands groupes et entreprises qui externalisent du développement IoT, et aux startups IoT qui cherchent des missions B2B auprès d'entreprises clientes."},
+        {"q": "Où est basé Iotplace ?", "a": "Iotplace opère sur https://iotplace.fr avec une clientèle européenne et un vivier de startups au Vietnam, en Indonésie, en Thaïlande et dans l'ASEAN."},
+        {"q": "Comment contacter Iotplace ?", "a": "Formulaire sur /contact ou e-mail contact@iotplace.fr pour partenariats, support et presse."},
+    ],
+    "contact": [
+        {"q": "Comment joindre l'équipe Iotplace ?", "a": "Écrivez à contact@iotplace.fr ou utilisez le formulaire sur /contact. Les comptes entreprise et startup peuvent aussi utiliser la messagerie après inscription."},
+    ],
 }
 
 BRAND_OG_IMAGE = "/vitrine/static/brand/og-image.png"
@@ -401,6 +434,7 @@ DEFAULT_DATA = {
             "og_image": BRAND_OG_IMAGE,
             "twitter_handle": "",
             "google_analytics_id": "",
+            "same_as": "",
         },
         "pages": {},
     },
@@ -2450,21 +2484,24 @@ def build_breadcrumbs(slug, site_url, extra=None, locale="en"):
 
 
 def build_json_ld(slug, canonical_url, site_url, faq=None, breadcrumbs=None, locale="en"):
+    from data.geo import organization_schema_extras
+
     lang_tag = "fr-FR" if locale == "fr" else "en-US"
     global_seo = get_seo_global()
     site_name = global_seo.get("site_name", "Iotplace")
     seo = get_seo_for_vitrine(slug, locale=locale)
     graphs = []
 
-    graphs.append({
+    org = {
         "@context": "https://schema.org",
         "@type": "Organization",
         "name": site_name,
         "url": site_url,
         "logo": f"{site_url}{BRAND_LOGO_IMAGE}" if site_url else "",
         "description": global_seo.get("meta_description", ""),
-        "sameAs": [],
-    })
+    }
+    org.update(organization_schema_extras(site_url))
+    graphs.append(org)
 
     graphs.append({
         "@context": "https://schema.org",
@@ -2535,6 +2572,16 @@ def build_json_ld(slug, canonical_url, site_url, faq=None, breadcrumbs=None, loc
             ],
         })
 
+    if slug == "pricing":
+        graphs.append({
+            "@context": "https://schema.org",
+            "@type": "Product",
+            "name": "Iotplace Enterprise Pro",
+            "description": "Unlimited IoT projects, 7% commission, priority matching and dedicated support.",
+            "brand": {"@type": "Brand", "name": site_name},
+            "url": canonical_url,
+        })
+
     return graphs
 
 
@@ -2594,6 +2641,23 @@ def get_sitemap_entries():
             "changefreq": "weekly",
             "priority": "0.7",
         })
+    for geo_path in ("/llms.txt", "/llms-full.txt", "/knowledge", "/knowledge.json", "/ai.txt"):
+        entries.append({
+            "loc": f"{site_url}{geo_path}",
+            "changefreq": "weekly",
+            "priority": "0.5",
+        })
+    for page in build_page_catalog():
+        if page.get("kind") not in ("cms", "locale", "domain"):
+            continue
+        for lang in ("fr", "en"):
+            base = page["path"]
+            sep = "&" if "?" in base else "?"
+            entries.append({
+                "loc": f"{site_url}{base}{sep}lang={lang}",
+                "changefreq": "monthly",
+                "priority": "0.75" if page["slug"] == "home" else "0.65",
+            })
     return entries
 
 
@@ -2626,16 +2690,9 @@ def get_project_detail_seo(project):
 
 
 def get_robots_txt():
-    site_url = get_site_url()
-    return f"""User-agent: *
-Allow: /
-Disallow: /crm/
-Disallow: /compte/
-Disallow: /connexion
-Disallow: /deconnexion
+    from data.geo import build_robots_txt
 
-Sitemap: {site_url}/sitemap.xml
-"""
+    return build_robots_txt(get_site_url())
 
 
 def update_seo_global(fields):

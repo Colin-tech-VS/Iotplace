@@ -110,6 +110,6 @@ def build_site_knowledge(site_url: str = "") -> dict:
         "open_projects": [_summarize_project(p) for p in (open_projects or store.get_projects())[:12]],
         "faq_by_page": {
             slug: store.get_page_faq(slug)[:3]
-            for slug in ("home", "enterprises", "startups", "projects", "pricing")
+            for slug in ("home", "about", "enterprises", "startups", "projects", "pricing")
         },
     }

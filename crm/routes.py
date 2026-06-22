@@ -217,6 +217,7 @@ def seo():
                 "og_image": request.form.get("og_image", ""),
                 "twitter_handle": request.form.get("twitter_handle", ""),
                 "google_analytics_id": request.form.get("google_analytics_id", ""),
+                "same_as": request.form.get("same_as", ""),
             })
             flash("SEO global enregistré.", "success")
         elif form_type == "page":

@@ -45,4 +45,7 @@
         </div>
     </div>
 </section>
+
+{% from "_seo_macros.html" import faq_section %}
+{{ faq_section(seo_faq, t('home.faq_title')) }}
 {% endblock %}

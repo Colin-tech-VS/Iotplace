@@ -229,6 +229,85 @@ def sitemap_xml():
     return Response("\n".join(lines), mimetype="application/xml")
 
 
+@vitrine_bp.route("/llms.txt")
+def llms_txt():
+    from data.geo import build_llms_txt
+
+    return Response(
+        build_llms_txt(store.get_site_url()),
+        mimetype="text/plain; charset=utf-8",
+        headers={"Cache-Control": "public, max-age=3600"},
+    )
+
+
+@vitrine_bp.route("/llms-full.txt")
+def llms_full_txt():
+    from data.geo import build_llms_full_txt
+
+    return Response(
+        build_llms_full_txt(store.get_site_url()),
+        mimetype="text/plain; charset=utf-8",
+        headers={"Cache-Control": "public, max-age=3600"},
+    )
+
+
+@vitrine_bp.route("/ai.txt")
+def ai_txt():
+    from data.geo import build_ai_txt
+
+    return Response(
+        build_ai_txt(store.get_site_url()),
+        mimetype="text/plain; charset=utf-8",
+        headers={"Cache-Control": "public, max-age=3600"},
+    )
+
+
+@vitrine_bp.route("/knowledge.json")
+def knowledge_json():
+    from data.geo import knowledge_json_bytes
+
+    return Response(
+        knowledge_json_bytes(store.get_site_url(), get_locale()),
+        mimetype="application/json; charset=utf-8",
+        headers={"Cache-Control": "public, max-age=1800"},
+    )
+
+
+@vitrine_bp.route("/.well-known/llms.txt")
+def wellknown_llms_txt():
+    return redirect(url_for("vitrine.llms_txt"), code=301)
+
+
+@vitrine_bp.route("/knowledge")
+def knowledge_page():
+    from data.geo import build_knowledge_document
+
+    locale = get_locale()
+    site_url = store.get_site_url()
+    doc = build_knowledge_document(site_url, locale=locale)
+    canonical = f"{site_url}/knowledge"
+    title = "Iotplace — base de connaissances" if locale == "fr" else "Iotplace — knowledge base"
+    description = (
+        "Informations structurées sur Iotplace pour moteurs de recherche et assistants IA."
+        if locale == "fr"
+        else "Structured facts about Iotplace for search engines and AI assistants."
+    )
+    seo = store.get_seo_for_vitrine("about", locale=locale)
+    seo = {**seo, "title": title, "description": description, "robots": "index, follow"}
+    breadcrumbs = [
+        {"name": "Accueil" if locale == "fr" else "Home", "url": site_url + "/"},
+        {"name": title, "url": canonical},
+    ]
+    return render_template(
+        "knowledge.html",
+        knowledge=doc,
+        seo=seo,
+        seo_canonical=canonical,
+        seo_breadcrumbs=breadcrumbs,
+        seo_json_ld=store.build_json_ld("about", canonical, site_url, breadcrumbs=breadcrumbs, locale=locale),
+    )
+
+
 @vitrine_bp.route("/mail/o/<campaign_id>/<token>")
 def mail_track_open(campaign_id, token):
     from crm.email_service import TRACKING_GIF
@@ -277,6 +356,10 @@ def enterprise_detail(enterprise_id):
     breadcrumbs_extra = {"name": enterprise.get("name", "Enterprise"), "url": canonical}
     breadcrumbs = store.build_breadcrumbs("enterprises", site_url, breadcrumbs_extra, locale)
     related = store.get_projects_for_enterprise(enterprise["id"], enterprise.get("name", ""))
+    from data.geo import build_enterprise_profile_json_ld
+
+    json_ld = store.build_json_ld("enterprises", canonical, site_url, breadcrumbs=breadcrumbs, locale=locale)
+    json_ld.append(build_enterprise_profile_json_ld(enterprise, canonical, site_url))
     return render_template(
         "enterprise_detail.html",
         enterprise=enterprise,
@@ -284,7 +367,7 @@ def enterprise_detail(enterprise_id):
         seo=store.get_seo_for_vitrine("enterprises", overrides=seo_overrides, locale=locale),
         seo_canonical=canonical,
         seo_breadcrumbs=breadcrumbs,
-        seo_json_ld=store.build_json_ld("enterprises", canonical, site_url, breadcrumbs=breadcrumbs, locale=locale),
+        seo_json_ld=json_ld,
     )
 
 
@@ -314,13 +397,17 @@ def startup_detail(startup_id):
     locale = get_locale()
     breadcrumbs_extra = {"name": startup.get("name", "Startup"), "url": canonical}
     breadcrumbs = store.build_breadcrumbs("startups", site_url, breadcrumbs_extra, locale)
+    from data.geo import build_startup_profile_json_ld
+
+    json_ld = store.build_json_ld("startups", canonical, site_url, breadcrumbs=breadcrumbs, locale=locale)
+    json_ld.append(build_startup_profile_json_ld(startup, canonical, site_url))
     return render_template(
         "startup_detail.html",
         startup=startup,
         seo=store.get_seo_for_vitrine("startups", overrides=seo_overrides, locale=locale),
         seo_canonical=canonical,
         seo_breadcrumbs=breadcrumbs,
-        seo_json_ld=store.build_json_ld("startups", canonical, site_url, breadcrumbs=breadcrumbs, locale=locale),
+        seo_json_ld=json_ld,
     )
 
 
@@ -352,6 +439,12 @@ def project_detail(project_id):
     locale = get_locale()
     breadcrumbs_extra = {"name": project.get("title", "Project"), "url": canonical}
     breadcrumbs = store.build_breadcrumbs("projects", site_url, breadcrumbs_extra, locale)
+    from data.geo import build_project_job_json_ld
+
+    json_ld = store.build_json_ld("projects", canonical, site_url, breadcrumbs=breadcrumbs, locale=locale)
+    job_ld = build_project_job_json_ld(project, canonical, site_url)
+    if job_ld:
+        json_ld.append(job_ld)
     return render_template(
         "project_detail.html",
         project=project,
@@ -359,7 +452,7 @@ def project_detail(project_id):
         seo=store.get_seo_for_vitrine("projects", overrides=seo_overrides, locale=locale),
         seo_canonical=canonical,
         seo_breadcrumbs=breadcrumbs,
-        seo_json_ld=store.build_json_ld("projects", canonical, site_url, breadcrumbs=breadcrumbs, locale=locale),
+        seo_json_ld=json_ld,
     )
 
 
@@ -547,6 +640,19 @@ def domain_detail(slug):
     faq = item.get("faq") or []
     stars_label = "⭐" * sector_stars(domain_id)
     other_domains = [d for d in list_domains_for_template(t) if d["id"] != domain_id]
+    from data.geo import build_article_json_ld
+
+    json_ld = store.build_json_ld(
+        f"domain-{domain_id}", canonical, site_url, faq=faq, breadcrumbs=breadcrumbs, locale=locale
+    )
+    json_ld.append(build_article_json_ld(
+        headline=item.get("name", domain_id),
+        description=item.get("seo_description") or item.get("intro", ""),
+        url=canonical,
+        site_url=site_url,
+        locale=locale,
+        keywords=item.get("seo_keywords"),
+    ))
 
     return render_template(
         "domain_detail.html",
@@ -558,9 +664,7 @@ def domain_detail(slug):
         seo=seo,
         seo_canonical=canonical,
         seo_breadcrumbs=breadcrumbs,
-        seo_json_ld=store.build_json_ld(
-            f"domain-{domain_id}", canonical, site_url, faq=faq, breadcrumbs=breadcrumbs, locale=locale
-        ),
+        seo_json_ld=json_ld,
     )
 
 

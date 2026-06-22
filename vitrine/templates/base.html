@@ -27,6 +27,7 @@
     <link rel="alternate" hreflang="en" href="{{ locale_url_en|default(seo_canonical) }}">
     <link rel="alternate" hreflang="fr" href="{{ locale_url_fr|default(seo_canonical) }}">
     <link rel="alternate" hreflang="x-default" href="{{ seo_canonical }}">
+    <link rel="alternate" type="text/plain" href="{{ seo_site_url|default('') }}/llms.txt" title="LLM site overview (llms.txt)">
 
     {% for graph in seo_json_ld|default([]) %}
     <script type="application/ld+json">{{ graph|tojson }}</script>
