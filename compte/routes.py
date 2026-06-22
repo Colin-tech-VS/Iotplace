@@ -443,9 +443,9 @@ def enterprise_edit_profile():
         flash(t("compte.flash_profile_ent_missing"), "error")
         return redirect(url_for("vitrine.index"))
 
-    if request.method == "POST":
-        from compte.profile_helpers import enterprise_profile_fields, maybe_reset_verification
+    from compte.profile_helpers import compute_profile_completion, enterprise_profile_fields, maybe_reset_verification
 
+    if request.method == "POST":
         fields = maybe_reset_verification(profile, enterprise_profile_fields(request.form))
         store.update_enterprise_profile(profile["id"], fields)
         flash(t("compte.flash_profile_updated"), "success")
@@ -454,6 +454,7 @@ def enterprise_edit_profile():
     return render_template(
         "compte/edit_enterprise.html",
         **_enterprise_account_context(user, profile, active_page="profile"),
+        profile_completion=compute_profile_completion(profile, "enterprise"),
         form={
             "sector_id": profile.get("sector_id", ""),
             "sector_other": profile.get("sector_other", ""),
@@ -639,9 +640,9 @@ def startup_edit_profile():
         flash(t("compte.flash_profile_st_missing"), "error")
         return redirect(url_for("vitrine.index"))
 
-    if request.method == "POST":
-        from compte.profile_helpers import maybe_reset_verification, startup_profile_fields
+    from compte.profile_helpers import compute_profile_completion, maybe_reset_verification, startup_profile_fields
 
+    if request.method == "POST":
         fields = maybe_reset_verification(profile, startup_profile_fields(request.form))
         store.update_startup_profile(profile["id"], fields)
         flash(t("compte.flash_profile_updated"), "success")
@@ -650,6 +651,7 @@ def startup_edit_profile():
     return render_template(
         "compte/edit_startup.html",
         **_startup_account_context(user, profile, active_page="profile"),
+        profile_completion=compute_profile_completion(profile, "startup"),
         form={
             "sector_id": profile.get("sector_id", ""),
             "sector_other": profile.get("sector_other", ""),

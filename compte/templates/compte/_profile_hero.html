@@ -1,0 +1,52 @@
+{% macro profile_hero(profile, completion, role) %}
+<div class="profile-hero reveal">
+    <div class="profile-hero-main">
+        <div class="profile-hero-logo">
+            {% if profile.logo_url %}
+            <img src="{{ profile.logo_url }}" alt="" class="profile-hero-logo-img">
+            {% else %}
+            <span class="profile-hero-logo-fallback">{{ profile.logo_initials or profile.name[:2]|upper }}</span>
+            {% endif %}
+            {% if profile.verified %}
+            <span class="profile-hero-verified" title="{{ t('compte.profile.verified_badge') }}">✓</span>
+            {% endif %}
+        </div>
+        <div class="profile-hero-text">
+            <p class="profile-hero-eyebrow">{{ t('compte.profile.hero_eyebrow_' ~ role) }}</p>
+            <h2 class="profile-hero-name">{{ profile.name }}</h2>
+            <p class="profile-hero-meta">
+                {{ profile.sector or profile.specialty or '—' }}
+                {% if profile.city or profile.country %} · {{ profile.city }}{% if profile.city and profile.country %}, {% endif %}{{ profile.country }}{% endif %}
+            </p>
+            <div class="profile-hero-chips">
+                {% if profile.verified %}
+                <span class="profile-chip profile-chip-success">✓ {{ t('compte.profile.verified') }}</span>
+                {% else %}
+                <span class="profile-chip profile-chip-muted">{{ t('compte.profile.not_verified') }}</span>
+                {% endif %}
+                {% if profile.logo_url %}
+                <span class="profile-chip">{{ t('compte.profile.chip_logo_ok') }}</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="profile-hero-completion" aria-label="{{ t('compte.profile.completion_label', percent=completion.percent) }}">
+        <div class="profile-ring" style="--pct: {{ completion.percent }}">
+            <svg viewBox="0 0 36 36" class="profile-ring-svg" aria-hidden="true">
+                <path class="profile-ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                <path class="profile-ring-fill" stroke-dasharray="{{ completion.percent }}, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+            </svg>
+            <span class="profile-ring-value">{{ completion.percent }}%</span>
+        </div>
+        <p class="profile-completion-label">{{ t('compte.profile.completion_label', percent=completion.percent) }}</p>
+        <ul class="profile-checklist">
+            {% for item in completion.items %}
+            <li class="profile-check-item{% if item.done %} done{% endif %}" data-check-key="{{ item.key }}">
+                <span class="profile-check-icon" aria-hidden="true">{% if item.done %}✓{% else %}○{% endif %}</span>
+                <span>{{ t('compte.profile.check_' ~ item.key) }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endmacro %}

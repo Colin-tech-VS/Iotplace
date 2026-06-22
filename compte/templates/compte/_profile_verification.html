@@ -1,9 +1,6 @@
 {% macro profile_verification(profile) %}
-<section class="cdash-form-section profile-verify-section" id="profileVerification"
-         data-verify-url="{{ url_for('compte.verify_profile') }}">
-    <h3>{{ t('compte.profile.verify_title') }}</h3>
-    <p class="muted">{{ t('compte.profile.verify_sub') }}</p>
-
+<div class="profile-verify-block" id="profileVerification"
+     data-verify-url="{{ url_for('compte.verify_profile') }}">
     <div class="form-row">
         <div class="form-group">
             <label for="siren">{{ t('compte.profile.siren') }}</label>
@@ -55,5 +52,5 @@
     {% endif %}
 
     <button type="button" class="btn btn-primary btn-sm" id="profileVerifyBtn">{{ t('compte.profile.verify_btn') }}</button>
-</section>
+</div>
 {% endmacro %}

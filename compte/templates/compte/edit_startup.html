@@ -2,6 +2,7 @@
 {% from "compte/_macros.html" import tag_input %}
 {% from "compte/_profile_logo_upload.html" import profile_logo_upload %}
 {% from "compte/_profile_verification.html" import profile_verification %}
+{% from "compte/_profile_hero.html" import profile_hero %}
 {% set d = 'compte.dashboard' %}
 {% set active_page = 'profile' %}
 
@@ -10,7 +11,7 @@
 {% block space_label %}{{ t(d ~ '.startup.space') }}{% endblock %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/profile-form.css') }}?v=1">
+<link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/profile-form.css') }}?v=2">
 {% endblock %}
 
 {% block sidebar_nav %}
@@ -34,73 +35,150 @@
 {% endblock %}
 
 {% block content %}
-<form class="cdash-form reveal" method="POST" id="profileForm">
-    <fieldset class="cdash-form-section">
-        <legend>{{ t('compte.profile.logo_section') }}</legend>
-        {{ profile_logo_upload(profile, 'startup') }}
-    </fieldset>
+<div class="profile-page">
+    {{ profile_hero(profile, profile_completion, 'startup') }}
 
-    <fieldset class="cdash-form-section">
-        <legend>{{ t('compte.section_startup') }}</legend>
-        <div class="form-row">
-            <div class="form-group"><label for="startup_name">{{ t('compte.startup_name') }}</label><input type="text" id="startup_name" name="startup_name" required value="{{ profile.name }}"></div>
-            <div class="form-group"><label for="contact_name">{{ t('compte.founder_contact') }}</label><input type="text" id="contact_name" name="contact_name" value="{{ profile.contact_name or '' }}"></div>
-        </div>
-        <div class="form-row">
-            <div class="form-group"><label for="country">{{ t('compte.country') }}</label><input type="text" id="country" name="country" required value="{{ profile.country or '' }}"></div>
-            <div class="form-group"><label for="flag">{{ t('compte.flag') }}</label><input type="text" id="flag" name="flag" value="{{ profile.flag or '' }}" placeholder="{{ t('compte.flag_ph') }}"></div>
-            <div class="form-group"><label for="city">{{ t('compte.city') }}</label><input type="text" id="city" name="city" value="{{ profile.city or '' }}"></div>
-        </div>
-        {% set sector_required = true %}
-        {% include "compte/_sector_select.html" %}
-        <div class="form-group"><label for="specialty">{{ t('compte.specialty') }}</label><input type="text" id="specialty" name="specialty" required value="{{ profile.specialty or '' }}"></div>
-        <div class="form-row">
-            <div class="form-group"><label for="team_size">{{ t('compte.team_size') }}</label><input type="number" id="team_size" name="team_size" min="1" value="{{ profile.team_size or '' }}"></div>
-            <div class="form-group"><label for="projects_done">{{ t('compte.projects_done') }}</label><input type="number" id="projects_done" name="projects_done" min="0" value="{{ profile.projects_done or 0 }}"></div>
-            <div class="form-group"><label for="founded_year">{{ t('compte.profile.founded_year') }}</label><input type="number" id="founded_year" name="founded_year" min="1990" max="2030" value="{{ profile.founded_year or '' }}"></div>
-        </div>
-        <div class="form-row">
-            <div class="form-group"><label for="availability">{{ t('compte.availability') }}</label><input type="text" id="availability" name="availability" value="{{ profile.availability or '' }}" placeholder="{{ t('compte.profile.availability_ph') }}"></div>
-            <div class="form-group"><label for="rate_range">{{ t('compte.rate_range') }}</label><input type="text" id="rate_range" name="rate_range" value="{{ profile.rate_range or '' }}" placeholder="{{ t('compte.profile.rate_ph') }}"></div>
-            <div class="form-group"><label for="phone">{{ t('compte.phone') }}</label><input type="tel" id="phone" name="phone" value="{{ profile.phone or '' }}"></div>
-        </div>
-        <div class="form-row">
-            <div class="form-group"><label for="website">{{ t('compte.website') }}</label><input type="url" id="website" name="website" value="{{ profile.website or '' }}"></div>
-            <div class="form-group"><label for="linkedin_url">{{ t('compte.profile.linkedin') }}</label><input type="url" id="linkedin_url" name="linkedin_url" value="{{ profile.linkedin_url or '' }}"></div>
-            <div class="form-group"><label for="github_url">{{ t('compte.profile.github') }}</label><input type="url" id="github_url" name="github_url" value="{{ profile.github_url or '' }}"></div>
-        </div>
-        <div class="form-group"><label for="description">{{ t('compte.description_st') }}</label><textarea id="description" name="description" rows="4">{{ profile.description or '' }}</textarea></div>
-    </fieldset>
+    <nav class="profile-tabs" role="tablist" aria-label="{{ t('compte.profile.nav_label') }}">
+        <button type="button" class="profile-tab active" role="tab" data-profile-tab="branding" aria-selected="true">
+            <span class="profile-tab-icon">◆</span>{{ t('compte.profile.tab_branding') }}
+        </button>
+        <button type="button" class="profile-tab" role="tab" data-profile-tab="identity" aria-selected="false">
+            <span class="profile-tab-icon">◇</span>{{ t('compte.profile.tab_identity') }}
+        </button>
+        <button type="button" class="profile-tab" role="tab" data-profile-tab="verify" aria-selected="false">
+            <span class="profile-tab-icon">✓</span>{{ t('compte.profile.tab_verify') }}
+        </button>
+        <button type="button" class="profile-tab" role="tab" data-profile-tab="tech" aria-selected="false">
+            <span class="profile-tab-icon">⚡</span>{{ t('compte.profile.tab_tech_st') }}
+        </button>
+        <button type="button" class="profile-tab" role="tab" data-profile-tab="matching" aria-selected="false">
+            <span class="profile-tab-icon">◎</span>{{ t('compte.profile.tab_matching') }}
+        </button>
+    </nav>
 
-    {{ profile_verification(profile) }}
+    <form class="profile-form cdash-form" method="POST" id="profileForm">
+        <section class="profile-panel active" data-panel="branding" role="tabpanel">
+            <article class="profile-card reveal">
+                <header class="profile-card-head">
+                    <h2>{{ t('compte.profile.logo_section') }}</h2>
+                    <p>{{ t('compte.profile.logo_hint') }}</p>
+                </header>
+                <div class="profile-card-body">
+                    {{ profile_logo_upload(profile, 'startup') }}
+                </div>
+            </article>
+        </section>
 
-    <fieldset class="cdash-form-section">
-        <legend>{{ t('compte.profile.iot_section_st') }}</legend>
-        {{ tag_input('tech_stack', 'tech_stack', profile.tech_stack|join(', ') if profile.tech_stack else (profile.skills|join(', ') if profile.skills else ''), t('compte.profile.tech_stack'), t('compte.profile.tech_stack_ph'), t('compte.tag_hint')) }}
-        {{ tag_input('hardware_platforms', 'hardware_platforms', profile.hardware_platforms|join(', ') if profile.hardware_platforms else '', t('compte.profile.hardware'), t('compte.profile.hardware_ph'), t('compte.tag_hint')) }}
-        {{ tag_input('cloud_platforms', 'cloud_platforms', profile.cloud_platforms|join(', ') if profile.cloud_platforms else '', t('compte.profile.cloud'), t('compte.profile.cloud_ph'), t('compte.tag_hint')) }}
-        {{ tag_input('certifications', 'certifications', profile.certifications|join(', ') if profile.certifications else '', t('compte.profile.certifications'), t('compte.profile.certifications_ph'), t('compte.tag_hint')) }}
-    </fieldset>
+        <section class="profile-panel" data-panel="identity" role="tabpanel" hidden>
+            <article class="profile-card reveal">
+                <header class="profile-card-head">
+                    <h2>{{ t('compte.section_startup') }}</h2>
+                    <p>{{ t('compte.profile.tab_identity_sub_st') }}</p>
+                </header>
+                <div class="profile-card-body">
+                    <div class="form-row">
+                        <div class="form-group"><label for="startup_name">{{ t('compte.startup_name') }}</label><input type="text" id="startup_name" name="startup_name" required value="{{ profile.name }}"></div>
+                        <div class="form-group"><label for="contact_name">{{ t('compte.founder_contact') }}</label><input type="text" id="contact_name" name="contact_name" value="{{ profile.contact_name or '' }}"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label for="country">{{ t('compte.country') }}</label><input type="text" id="country" name="country" required value="{{ profile.country or '' }}"></div>
+                        <div class="form-group"><label for="flag">{{ t('compte.flag') }}</label><input type="text" id="flag" name="flag" value="{{ profile.flag or '' }}" placeholder="{{ t('compte.flag_ph') }}"></div>
+                        <div class="form-group"><label for="city">{{ t('compte.city') }}</label><input type="text" id="city" name="city" value="{{ profile.city or '' }}"></div>
+                    </div>
+                    {% set sector_required = true %}
+                    {% include "compte/_sector_select.html" %}
+                    <div class="form-group"><label for="specialty">{{ t('compte.specialty') }}</label><input type="text" id="specialty" name="specialty" required value="{{ profile.specialty or '' }}"></div>
+                    <div class="form-row">
+                        <div class="form-group"><label for="team_size">{{ t('compte.team_size') }}</label><input type="number" id="team_size" name="team_size" min="1" value="{{ profile.team_size or '' }}"></div>
+                        <div class="form-group"><label for="projects_done">{{ t('compte.projects_done') }}</label><input type="number" id="projects_done" name="projects_done" min="0" value="{{ profile.projects_done or 0 }}"></div>
+                        <div class="form-group"><label for="founded_year">{{ t('compte.profile.founded_year') }}</label><input type="number" id="founded_year" name="founded_year" min="1990" max="2030" value="{{ profile.founded_year or '' }}"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label for="availability">{{ t('compte.availability') }}</label><input type="text" id="availability" name="availability" value="{{ profile.availability or '' }}" placeholder="{{ t('compte.profile.availability_ph') }}"></div>
+                        <div class="form-group"><label for="rate_range">{{ t('compte.rate_range') }}</label><input type="text" id="rate_range" name="rate_range" value="{{ profile.rate_range or '' }}" placeholder="{{ t('compte.profile.rate_ph') }}"></div>
+                        <div class="form-group"><label for="phone">{{ t('compte.phone') }}</label><input type="tel" id="phone" name="phone" value="{{ profile.phone or '' }}"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label for="website">{{ t('compte.website') }}</label><input type="url" id="website" name="website" value="{{ profile.website or '' }}"></div>
+                        <div class="form-group"><label for="linkedin_url">{{ t('compte.profile.linkedin') }}</label><input type="url" id="linkedin_url" name="linkedin_url" value="{{ profile.linkedin_url or '' }}"></div>
+                        <div class="form-group"><label for="github_url">{{ t('compte.profile.github') }}</label><input type="url" id="github_url" name="github_url" value="{{ profile.github_url or '' }}"></div>
+                    </div>
+                    <div class="form-group"><label for="description">{{ t('compte.description_st') }}</label><textarea id="description" name="description" rows="4">{{ profile.description or '' }}</textarea></div>
+                </div>
+            </article>
+        </section>
 
-    <fieldset class="cdash-form-section">
-        <legend>{{ t('compte.section_search') }}</legend>
-        <div class="form-group">
-            <label for="besoin">{{ t('compte.besoin_st') }}</label>
-            <textarea id="besoin" name="besoin" rows="4" placeholder="{{ t('compte.besoin_st_ph') }}">{{ profile.besoin or '' }}</textarea>
+        <section class="profile-panel" data-panel="verify" role="tabpanel" hidden>
+            <article class="profile-card reveal profile-card-verify">
+                <header class="profile-card-head">
+                    <h2>{{ t('compte.profile.verify_title') }}</h2>
+                    <p>{{ t('compte.profile.verify_sub') }}</p>
+                </header>
+                <div class="profile-card-body">
+                    {{ profile_verification(profile) }}
+                </div>
+            </article>
+        </section>
+
+        <section class="profile-panel" data-panel="tech" role="tabpanel" hidden>
+            <article class="profile-card reveal">
+                <header class="profile-card-head">
+                    <h2>{{ t('compte.profile.iot_section_st') }}</h2>
+                    <p>{{ t('compte.profile.tab_tech_sub_st') }}</p>
+                </header>
+                <div class="profile-card-body">
+                    {{ tag_input('tech_stack', 'tech_stack', profile.tech_stack|join(', ') if profile.tech_stack else (profile.skills|join(', ') if profile.skills else ''), t('compte.profile.tech_stack'), t('compte.profile.tech_stack_ph'), t('compte.tag_hint')) }}
+                    {{ tag_input('hardware_platforms', 'hardware_platforms', profile.hardware_platforms|join(', ') if profile.hardware_platforms else '', t('compte.profile.hardware'), t('compte.profile.hardware_ph'), t('compte.tag_hint')) }}
+                    {{ tag_input('cloud_platforms', 'cloud_platforms', profile.cloud_platforms|join(', ') if profile.cloud_platforms else '', t('compte.profile.cloud'), t('compte.profile.cloud_ph'), t('compte.tag_hint')) }}
+                    {{ tag_input('certifications', 'certifications', profile.certifications|join(', ') if profile.certifications else '', t('compte.profile.certifications'), t('compte.profile.certifications_ph'), t('compte.tag_hint')) }}
+                </div>
+            </article>
+        </section>
+
+        <section class="profile-panel" data-panel="matching" role="tabpanel" hidden>
+            <article class="profile-card reveal">
+                <header class="profile-card-head">
+                    <h2>{{ t('compte.section_search') }}</h2>
+                    <p>{{ t('compte.profile.tab_matching_sub_st') }}</p>
+                </header>
+                <div class="profile-card-body">
+                    <div class="form-group">
+                        <label for="besoin">{{ t('compte.besoin_st') }}</label>
+                        <textarea id="besoin" name="besoin" rows="4" placeholder="{{ t('compte.besoin_st_ph') }}">{{ profile.besoin or '' }}</textarea>
+                    </div>
+                    {{ tag_input('skills', 'skills', profile.skills|join(', ') if profile.skills else '', t('compte.skills'), t('compte.skills_ph'), t('compte.tag_hint')) }}
+                </div>
+            </article>
+        </section>
+
+        <div class="profile-form-actions-anchor"></div>
+        <div class="cdash-form-actions profile-form-actions">
+            <button type="submit" class="btn btn-primary">{{ t('compte.save_profile') }}</button>
+            <button type="button" class="btn btn-outline" id="profileNextTab">{{ t('compte.profile.next_section') }}</button>
+            <a href="{{ url_for('compte.startup_dashboard') }}" class="btn btn-ghost">{{ t('compte.cancel') }}</a>
         </div>
-        {{ tag_input('skills', 'skills', profile.skills|join(', ') if profile.skills else '', t('compte.skills'), t('compte.skills_ph'), t('compte.tag_hint')) }}
-    </fieldset>
+    </form>
 
-    <div class="cdash-form-actions">
-        <button type="submit" class="btn btn-primary">{{ t('compte.save_profile') }}</button>
-        <a href="{{ url_for('compte.startup_dashboard') }}" class="btn btn-ghost">{{ t('compte.cancel') }}</a>
+    <div class="profile-sticky-bar" id="profileStickyBar" aria-hidden="true">
+        <div class="profile-sticky-inner">
+            <span class="profile-sticky-pct">{{ profile_completion.percent }}%</span>
+            <button type="submit" form="profileForm" class="btn btn-primary btn-sm">{{ t('compte.save_profile') }}</button>
+        </div>
     </div>
-</form>
+</div>
 {% endblock %}
 
 {% block scripts %}
+<script>
+window.IOT_I18N = window.IOT_I18N || {};
+window.IOT_I18N.profile = {
+    next_section: {{ t('compte.profile.next_section')|tojson }},
+    save_hint: {{ t('compte.profile.save_hint')|tojson }}
+};
+</script>
 <script src="{{ url_for('vitrine.static', filename='js/compte-dashboard.js') }}?v=4"></script>
 <script src="{{ url_for('vitrine.static', filename='js/tag-input.js') }}"></script>
 <script src="{{ url_for('vitrine.static', filename='js/sector-select.js') }}?v=2"></script>
 <script src="{{ url_for('vitrine.static', filename='js/profile-upload.js') }}?v=1"></script>
+<script src="{{ url_for('vitrine.static', filename='js/profile-page.js') }}?v=1"></script>
 {% endblock %}
