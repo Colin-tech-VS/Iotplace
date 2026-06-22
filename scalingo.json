@@ -55,13 +55,13 @@
       "description": "Clé API Mistral — advisor IA + génération CRM"
     },
     "STRIPE_SECRET_KEY": {
-      "description": "Clé secrète Stripe (sk_test_… ou sk_live_…) — ne pas committer la valeur"
+      "description": "Clé secrète Stripe (sk_test_… ou sk_live_…) — définir dans Scalingo Environment, jamais dans git"
     },
     "STRIPE_PUBLISHABLE_KEY": {
       "description": "Clé publique Stripe (pk_test_… ou pk_live_…)"
     },
     "STRIPE_WEBHOOK_SECRET": {
-      "description": "Secret webhook Stripe → POST /webhooks/stripe (checkout, abonnements Pro, Connect, factures)"
+      "description": "Secret webhook Stripe → POST /webhooks/stripe"
     },
     "STRIPE_PRO_PRICE_ID": {
       "description": "ID Price Stripe abonnement Pro (optionnel — auto-créé si vide)",

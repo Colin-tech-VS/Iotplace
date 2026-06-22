@@ -18,10 +18,13 @@ class PaymentError(Exception):
 
 
 def is_configured() -> bool:
-    return bool(
-        (os.environ.get("STRIPE_SECRET_KEY") or "").strip()
-        and (os.environ.get("STRIPE_PUBLISHABLE_KEY") or "").strip()
-    )
+    """Server-side Checkout / Connect — secret key required; publishable recommended."""
+    return bool((os.environ.get("STRIPE_SECRET_KEY") or "").strip())
+
+
+def is_checkout_ready() -> bool:
+    """Full payment UX (PoC fee, Pro, escrow invoices)."""
+    return is_configured() and bool((os.environ.get("STRIPE_PUBLISHABLE_KEY") or "").strip())
 
 
 def is_webhook_configured() -> bool:

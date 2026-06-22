@@ -88,7 +88,7 @@ if _is_prod:
         )
     from payments import stripe_service
 
-    if not stripe_service.is_configured():
+    if not stripe_service.is_checkout_ready():
         logging.warning(
             "Stripe non configuré: définissez STRIPE_SECRET_KEY et STRIPE_PUBLISHABLE_KEY "
             "dans les variables Scalingo."

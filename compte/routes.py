@@ -48,7 +48,7 @@ def _enterprise_account_context(user, profile, active_page="dashboard"):
         "user": user,
         "profile": profile,
         "active_page": active_page,
-        "stripe_configured": stripe_service.is_configured(),
+        "stripe_configured": stripe_service.is_checkout_ready(),
         "is_pro": is_pro_enterprise(profile),
         "pricing": pricing,
         **dash,
@@ -65,7 +65,7 @@ def _startup_account_context(user, profile, active_page="dashboard"):
         "user": user,
         "profile": profile,
         "active_page": active_page,
-        "stripe_configured": stripe_service.is_configured(),
+        "stripe_configured": stripe_service.is_checkout_ready(),
         "pricing": pricing,
         **dash,
     }
@@ -298,7 +298,7 @@ def enterprise_dashboard():
         "compte/dashboard_enterprise.html",
         user=user,
         profile=profile,
-        stripe_configured=stripe_service.is_configured(),
+        stripe_configured=stripe_service.is_checkout_ready(),
         is_pro=is_pro_enterprise(profile),
         pricing=pricing,
         **dash,
@@ -493,7 +493,7 @@ def startup_dashboard():
         "compte/dashboard_startup.html",
         user=user,
         profile=profile,
-        stripe_configured=stripe_service.is_configured(),
+        stripe_configured=stripe_service.is_checkout_ready(),
         **dash,
     )
 
@@ -522,7 +522,7 @@ def startup_project_detail(project_id):
         already_applied=store.startup_already_applied(profile["id"], project_id),
         requires_poc_fee=poc_application.project_requires_poc_fee(project),
         poc_application_fee_label=stripe_service.format_poc_application_fee(),
-        stripe_configured=stripe_service.is_configured(),
+        stripe_configured=stripe_service.is_checkout_ready(),
     )
 
 
@@ -541,7 +541,7 @@ def startup_apply_project(project_id):
         return redirect(url_for("compte.startup_project_detail", project_id=project_id))
 
     if poc_application.project_requires_poc_fee(project):
-        if not stripe_service.is_configured():
+        if not stripe_service.is_checkout_ready():
             flash(t("compte.flash_poc_stripe_missing"), "error")
             return redirect(url_for("compte.startup_project_detail", project_id=project_id))
         try:
@@ -659,7 +659,7 @@ def message_detail(message_id):
         project=project,
         engagement=engagement,
         engagement_label=engagement_label,
-        stripe_configured=stripe_service.is_configured(),
+        stripe_configured=stripe_service.is_checkout_ready(),
     )
 
 

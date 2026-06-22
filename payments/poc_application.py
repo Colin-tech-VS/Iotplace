@@ -12,7 +12,7 @@ def project_requires_poc_fee(project: dict) -> bool:
 
 
 def start_poc_application(user: dict, startup: dict, project: dict, message_body: str) -> dict:
-    if not stripe_service.is_configured():
+    if not stripe_service.is_checkout_ready():
         raise stripe_service.PaymentError(
             "Stripe n'est pas configuré — candidatures PoC indisponibles."
         )

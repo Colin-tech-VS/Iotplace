@@ -64,7 +64,7 @@ def on_application_accepted(message: dict, enterprise_user: dict) -> dict:
         "ok": True,
         "engagement": engagement,
         "invoice_url": None,
-        "stripe_configured": stripe_service.is_configured(),
+        "stripe_configured": stripe_service.is_checkout_ready(),
         "startup_onboarding_required": not startup.get("stripe_onboarding_complete"),
     }
 

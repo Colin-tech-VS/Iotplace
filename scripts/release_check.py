@@ -30,6 +30,24 @@ def main():
 
     print("CRM admin credentials: OK")
 
+    from payments import stripe_service
+
+    if stripe_service.is_checkout_ready():
+        print("Stripe payments: OK (secret + publishable keys)")
+        if not stripe_service.is_webhook_configured():
+            print(
+                "WARNING: STRIPE_WEBHOOK_SECRET missing — checkout success URL still works, "
+                "but invoice/subscription webhooks will fail.",
+                file=sys.stderr,
+            )
+    else:
+        print(
+            "WARNING: STRIPE_SECRET_KEY and STRIPE_PUBLISHABLE_KEY not set — "
+            "PoC application payments and Pro checkout will be disabled. "
+            "Set them in Scalingo Environment (see scripts/scalingo_stripe.env.example).",
+            file=sys.stderr,
+        )
+
     from data.persistence import resolve_backend_name, resolve_database_url, resolve_data_file
 
     backend = resolve_backend_name()
