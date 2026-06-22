@@ -265,13 +265,11 @@
 </section>
 
 <section class="cdash-panel cdash-messenger-panel{% if active_section == 'messages' %} active{% endif %}" id="cdash-panel-messages" data-section="messages">
-    <div class="cdash-card" style="padding:12px">
-        {{ messenger_widget('startup') }}
-    </div>
+    {{ messenger_widget('startup') }}
 </section>
 {% endblock %}
 
 {% block scripts %}
 <script src="{{ url_for('vitrine.static', filename='js/compte-dashboard.js') }}?v=3"></script>
-<script src="{{ url_for('vitrine.static', filename='js/messaging.js') }}?v=3"></script>
+<script src="{{ url_for('vitrine.static', filename='js/messaging.js') }}?v=4"></script>
 {% endblock %}

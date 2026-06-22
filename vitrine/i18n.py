@@ -187,6 +187,7 @@ def compte_js_i18n() -> dict:
         "messenger": {
             "loading": t("compte.dashboard.messenger.loading"),
             "no_threads": t("compte.dashboard.messenger.no_threads"),
+            "no_search": t("compte.dashboard.messenger.no_search"),
             "empty_hint_enterprise": t("compte.dashboard.messenger.empty_hint_enterprise"),
             "empty_hint_startup": t("compte.dashboard.messenger.empty_hint_startup"),
             "conversations": t("compte.dashboard.messenger.conversations"),
@@ -196,6 +197,9 @@ def compte_js_i18n() -> dict:
             "back": t("compte.dashboard.messenger.back"),
             "placeholder": t("compte.dashboard.messenger.placeholder"),
             "send": t("compte.dashboard.messenger.send"),
+            "today": t("compte.dashboard.messenger.today"),
+            "yesterday": t("compte.dashboard.messenger.yesterday"),
+            "application": t("compte.dashboard.messenger.application"),
             "role_enterprise": t("compte.dashboard.messenger.role_enterprise"),
             "role_startup": t("compte.dashboard.messenger.role_startup"),
             "accept": t("compte.dashboard.messenger.accept"),

@@ -604,14 +604,6 @@ button.cdash-kpi {
 .cdash-badge-pro { background: rgba(74, 222, 128, 0.12); color: #4ade80; }
 .cdash-badge-muted { background: rgba(255, 255, 255, 0.06); color: var(--text-muted); }
 
-.cdash-messenger-panel .ux-messenger {
-    min-height: min(72vh, 720px);
-}
-
-.cdash-messenger-panel .ux-messenger-layout {
-    min-height: min(72vh, 720px);
-}
-
 .cdash-overlay {
     display: none;
     position: fixed;

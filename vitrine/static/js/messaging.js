@@ -22,12 +22,13 @@
         messages: document.getElementById('messengerMessages'),
         peerName: document.getElementById('messengerPeerName'),
         peerMeta: document.getElementById('messengerPeerMeta'),
+        peerAvatar: document.getElementById('messengerPeerAvatar'),
         form: document.getElementById('messengerForm'),
         input: document.getElementById('messengerInput'),
+        search: document.getElementById('messengerSearch'),
         appActions: document.getElementById('messengerAppActions'),
         back: document.getElementById('messengerBack'),
         sidebar: document.getElementById('messengerSidebar'),
-        chat: document.getElementById('messengerChat'),
     };
 
     let state = {
@@ -36,8 +37,20 @@
         activeThread: null,
         activeMessages: [],
         polling: null,
-        lastUnread: 0,
+        searchQuery: '',
     };
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function initials(name) {
+        const parts = (name || '?').trim().split(/\s+/).filter(Boolean);
+        if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+        return (parts[0] || '?').slice(0, 2).toUpperCase();
+    }
 
     function formatTime(iso) {
         if (!iso) return '';
@@ -49,14 +62,48 @@
             : d.toLocaleDateString(uiLocale(), { day: 'numeric', month: 'short' });
     }
 
-    function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
+    function dayLabel(iso) {
+        if (!iso) return '';
+        const d = new Date(iso);
+        const now = new Date();
+        const yesterday = new Date(now);
+        yesterday.setDate(yesterday.getDate() - 1);
+        if (d.toDateString() === now.toDateString()) return i18n().today || 'Today';
+        if (d.toDateString() === yesterday.toDateString()) return i18n().yesterday || 'Yesterday';
+        return d.toLocaleDateString(uiLocale(), { weekday: 'long', day: 'numeric', month: 'long' });
+    }
+
+    function roleClass(role) {
+        return role === 'enterprise' ? 'enterprise' : 'startup';
+    }
+
+    function roleLabel(role) {
+        return role === 'enterprise'
+            ? (i18n().role_enterprise || 'Enterprise')
+            : (i18n().role_startup || 'Startup');
+    }
+
+    function filteredConversations() {
+        const q = state.searchQuery.trim().toLowerCase();
+        if (!q) return state.conversations;
+        return state.conversations.filter((c) => {
+            const hay = [
+                c.counterpart_name,
+                c.project_title,
+                c.last_message,
+                roleLabel(c.counterpart_role),
+            ].join(' ').toLowerCase();
+            return hay.includes(q);
+        });
+    }
+
+    function autoResizeInput() {
+        if (!els.input) return;
+        els.input.style.height = 'auto';
+        els.input.style.height = `${Math.min(els.input.scrollHeight, 140)}px`;
     }
 
     function updateBadges(unread) {
-        state.lastUnread = unread;
         document.querySelectorAll('[data-msg-badge]').forEach((el) => {
             if (unread > 0) {
                 el.textContent = unread > 99 ? '99+' : unread;
@@ -67,15 +114,11 @@
         });
         if (els.unreadTotal) {
             if (unread > 0) {
-                els.unreadTotal.textContent = unread;
+                els.unreadTotal.textContent = unread > 99 ? '99+' : unread;
                 els.unreadTotal.hidden = false;
             } else {
                 els.unreadTotal.hidden = true;
             }
-        }
-        const statUnread = document.querySelector('.ux-stat-highlight .ux-stat-value');
-        if (statUnread && document.querySelector('[data-tab="messages"]')?.classList.contains('active')) {
-            /* keep stat in sync on poll */
         }
         document.querySelectorAll('[data-stat-unread]').forEach((el) => {
             el.textContent = unread;
@@ -84,99 +127,101 @@
         });
     }
 
-    function showToast(title, body, type) {
+    function showToast(title, body) {
         if (window.IotToast) {
-            IotToast.show(body, { title, type: type || 'info' });
+            IotToast.show(body, { title, type: 'info' });
             return;
         }
-        let container = document.getElementById('msg-toasts');
-        if (!container) {
-            container = document.createElement('div');
-            container.id = 'msg-toasts';
-            container.className = 'iot-toast-stack';
-            document.body.appendChild(container);
-        }
-        const toast = document.createElement('div');
-        toast.className = 'iot-toast iot-toast--info';
-        toast.innerHTML = `<strong>${escapeHtml(title)}</strong><p>${escapeHtml(body)}</p>`;
-        container.appendChild(toast);
-        setTimeout(() => toast.remove(), 4500);
-
         if (Notification.permission === 'granted' && document.hidden) {
             new Notification(title, { body, icon: '/vitrine/static/brand/favicon-32.png' });
         }
     }
 
     function renderThreads() {
-        if (!state.conversations.length) {
+        const list = filteredConversations();
+        if (!list.length) {
             const hint = root.dataset.emptyHint || '';
+            const noMatch = state.searchQuery.trim() && state.conversations.length;
             els.threads.innerHTML = `
-                <div class="ux-messenger-no-threads">
-                    <p>${escapeHtml(i18n().no_threads || 'No conversations')}</p>
-                    <span class="muted">${escapeHtml(hint)}</span>
+                <div class="msg-no-threads">
+                    <p>${escapeHtml(noMatch ? (i18n().no_search || 'No results') : (i18n().no_threads || 'No conversations'))}</p>
+                    ${noMatch ? '' : `<span class="muted">${escapeHtml(hint)}</span>`}
                 </div>`;
             return;
         }
 
-        els.threads.innerHTML = state.conversations.map((c) => {
+        els.threads.innerHTML = list.map((c) => {
             const active = state.activeThread &&
                 state.activeThread.counterpart_user_id === c.counterpart_user_id &&
                 (state.activeThread.project_id || '') === (c.project_id || '');
-            const roleLabel = c.counterpart_role === 'enterprise'
-                ? (i18n().role_enterprise || 'Enterprise')
-                : (i18n().role_startup || 'Startup');
+            const rc = roleClass(c.counterpart_role);
             return `
-                <button type="button" class="ux-thread-item ${active ? 'active' : ''} ${c.unread ? 'unread' : ''}"
+                <button type="button" class="msg-thread ${active ? 'active' : ''} ${c.unread ? 'unread' : ''}" role="listitem"
                     data-counterpart="${c.counterpart_user_id}"
                     data-project="${c.project_id || ''}"
                     data-name="${escapeHtml(c.counterpart_name)}"
-                    data-role="${c.counterpart_role}">
-                    <div class="ux-thread-avatar">${c.counterpart_role === 'enterprise' ? '🏢' : '🚀'}</div>
-                    <div class="ux-thread-body">
-                        <div class="ux-thread-top">
-                            <strong>${escapeHtml(c.counterpart_name)}</strong>
-                            <span class="ux-thread-time">${formatTime(c.last_at)}</span>
+                    data-role="${c.counterpart_role}"
+                    data-project-title="${escapeHtml(c.project_title || '')}">
+                    <div class="msg-thread-avatar ${rc}">${escapeHtml(initials(c.counterpart_name))}</div>
+                    <div class="msg-thread-body">
+                        <div class="msg-thread-top">
+                            <span class="msg-thread-name">${escapeHtml(c.counterpart_name)}</span>
+                            <span class="msg-thread-time">${formatTime(c.last_at)}</span>
                         </div>
-                        <div class="ux-thread-preview">${escapeHtml(c.last_message)}</div>
-                        <div class="ux-thread-meta">
-                            <span>${roleLabel}</span>
-                            ${c.project_title ? `<span>· ${escapeHtml(c.project_title)}</span>` : ''}
-                            ${c.unread ? `<span class="ux-thread-badge">${c.unread}</span>` : ''}
+                        <div class="msg-thread-preview">${escapeHtml(c.last_message)}</div>
+                        <div class="msg-thread-foot">
+                            <span class="msg-thread-role">${escapeHtml(roleLabel(c.counterpart_role))}</span>
+                            ${c.project_title ? `<span class="msg-thread-project">${escapeHtml(c.project_title)}</span>` : ''}
+                            ${c.unread ? `<span class="msg-thread-badge">${c.unread}</span>` : ''}
                         </div>
                     </div>
                 </button>`;
         }).join('');
 
-        els.threads.querySelectorAll('.ux-thread-item').forEach((btn) => {
+        els.threads.querySelectorAll('.msg-thread').forEach((btn) => {
             btn.addEventListener('click', () => openThread({
                 counterpart_user_id: btn.dataset.counterpart,
                 project_id: btn.dataset.project || null,
                 counterpart_name: btn.dataset.name,
                 counterpart_role: btn.dataset.role,
+                project_title: btn.dataset.projectTitle || '',
             }));
         });
     }
 
     function renderMessages() {
-        els.messages.innerHTML = state.activeMessages.map((m) => {
+        let lastDay = '';
+        const parts = [];
+
+        state.activeMessages.forEach((m) => {
+            const day = m.created_at ? new Date(m.created_at).toDateString() : '';
+            if (day && day !== lastDay) {
+                lastDay = day;
+                parts.push(`<div class="msg-day-sep">${escapeHtml(dayLabel(m.created_at))}</div>`);
+            }
+
             const mine = m.is_mine;
-            const appActions = (!mine && m.kind === 'application' && userRole === 'enterprise' && m.status === 'pending')
-                ? `<div class="ux-msg-actions" data-msg-id="${m.id}">
+            const isApp = m.kind === 'application';
+            const appActions = (!mine && isApp && userRole === 'enterprise' && m.status === 'pending')
+                ? `<div class="msg-actions" data-msg-id="${m.id}">
                     <button type="button" class="btn btn-primary btn-sm" data-action="accepted">${escapeHtml(i18n().accept || 'Accept')}</button>
                     <button type="button" class="btn btn-ghost btn-sm" data-action="declined">${escapeHtml(i18n().decline || 'Decline')}</button>
                    </div>`
                 : '';
-            return `
-                <div class="ux-msg ${mine ? 'mine' : 'theirs'} ${!m.read && !mine ? 'unread' : ''}">
-                    <div class="ux-msg-bubble">
-                        ${m.kind === 'application' ? `<span class="ux-msg-kind">${escapeHtml(m.kind_label)}</span>` : ''}
+
+            parts.push(`
+                <div class="msg-row ${mine ? 'mine' : 'theirs'} ${isApp ? 'application' : ''} ${!m.read && !mine ? 'unread' : ''}">
+                    <div class="msg-bubble">
+                        ${isApp ? `<span class="msg-kind">${escapeHtml(m.kind_label || i18n().application || 'Application')}</span>` : ''}
                         <p>${escapeHtml(m.body)}</p>
-                        ${m.status && m.kind === 'application' ? `<span class="status-pill status-${m.status}">${escapeHtml(m.status_label)}</span>` : ''}
+                        ${m.status && isApp ? `<span class="status-pill status-${m.status}">${escapeHtml(m.status_label)}</span>` : ''}
                         ${appActions}
                     </div>
-                    <time class="ux-msg-time">${formatTime(m.created_at)}</time>
-                </div>`;
-        }).join('');
+                    <time class="msg-time">${formatTime(m.created_at)}</time>
+                </div>`);
+        });
+
+        els.messages.innerHTML = parts.join('');
 
         els.messages.querySelectorAll('[data-action]').forEach((btn) => {
             btn.addEventListener('click', () => {
@@ -188,31 +233,49 @@
         els.messages.scrollTop = els.messages.scrollHeight;
     }
 
+    function setPeerHeader(thread) {
+        const rc = roleClass(thread.counterpart_role);
+        els.peerName.textContent = thread.counterpart_name || '—';
+        if (els.peerAvatar) {
+            els.peerAvatar.textContent = initials(thread.counterpart_name);
+            els.peerAvatar.className = `msg-peer-avatar ${rc}`;
+        }
+        const parts = [roleLabel(thread.counterpart_role)];
+        if (thread.project_title) parts.push(thread.project_title);
+        els.peerMeta.textContent = parts.join(' · ');
+    }
+
     async function openThread(thread) {
         state.activeThread = thread;
         els.empty.hidden = true;
         els.active.hidden = false;
-        els.peerName.textContent = thread.counterpart_name || '—';
-        const roleLabel = thread.counterpart_role === 'enterprise'
-            ? (i18n().role_enterprise || 'Enterprise')
-            : (i18n().role_startup || 'Startup');
-        els.peerMeta.textContent = roleLabel;
-        els.sidebar?.classList.remove('mobile-open');
+        setPeerHeader(thread);
         root.classList.add('thread-open');
 
         const params = new URLSearchParams({ counterpart: thread.counterpart_user_id });
         if (thread.project_id) params.set('project_id', thread.project_id);
+
+        els.messages.innerHTML = `<div class="msg-loading"><span class="msg-loading-dot"></span><span class="msg-loading-dot"></span><span class="msg-loading-dot"></span></div>`;
 
         try {
             const res = await fetch(`${urls.thread}?${params}`);
             const data = await res.json();
             if (!data.ok) throw new Error(data.error);
             state.activeMessages = data.messages || [];
+            const conv = state.conversations.find((c) =>
+                c.counterpart_user_id === thread.counterpart_user_id &&
+                (c.project_id || '') === (thread.project_id || '')
+            );
+            if (conv && !thread.project_title) {
+                thread.project_title = conv.project_title || '';
+                setPeerHeader(thread);
+            }
             renderMessages();
             renderThreads();
-            poll();
+            await poll();
+            els.input?.focus();
         } catch (err) {
-            els.messages.innerHTML = `<p class="muted" style="padding:1rem">${escapeHtml(err.message)}</p>`;
+            els.messages.innerHTML = `<p class="msg-no-threads">${escapeHtml(err.message)}</p>`;
         }
     }
 
@@ -232,6 +295,7 @@
         state.activeMessages.push(data.message);
         renderMessages();
         els.input.value = '';
+        autoResizeInput();
         state.since = new Date().toISOString();
         await poll();
     }
@@ -250,23 +314,18 @@
             return;
         }
         if (status === 'accepted') {
-            if (window.IotToast) {
-                IotToast.show(i18n().app_accepted || 'Application accepted.', { type: 'success' });
-            }
+            if (window.IotToast) IotToast.show(i18n().app_accepted || 'Application accepted.', { type: 'success' });
         } else if (status === 'declined' && window.IotToast) {
             IotToast.show(i18n().app_declined || 'Application declined.', { type: 'info' });
         }
-        if (status === 'accepted' && data.payment && data.payment.invoice_url) {
+        if (status === 'accepted' && data.payment?.invoice_url) {
             if (confirm(i18n().invoice_confirm || 'Open invoice for escrow payment?')) {
                 window.open(data.payment.invoice_url, '_blank', 'noopener');
             }
-        } else if (status === 'accepted' && data.payment && data.payment.error) {
-            if (window.IotToast) {
-                const tpl = i18n().invoice_warning || 'Accepted, but invoice: {error}';
-                IotToast.show(tpl.replace('{error}', data.payment.error), { type: 'warning' });
-            } else {
-                alert((i18n().invoice_warning || 'Invoice: {error}').replace('{error}', data.payment.error));
-            }
+        } else if (status === 'accepted' && data.payment?.error) {
+            const tpl = i18n().invoice_warning || 'Accepted, but invoice: {error}';
+            if (window.IotToast) IotToast.show(tpl.replace('{error}', data.payment.error), { type: 'warning' });
+            else alert(tpl.replace('{error}', data.payment.error));
         }
         const idx = state.activeMessages.findIndex((m) => m.id === messageId);
         if (idx >= 0) state.activeMessages[idx] = data.message;
@@ -311,15 +370,17 @@
         e.preventDefault();
         const body = els.input.value.trim();
         if (!body) return;
+        const sendBtn = document.getElementById('messengerSendBtn');
         els.input.disabled = true;
+        if (sendBtn) sendBtn.disabled = true;
         try {
             await sendMessage(body);
-            if (window.IotToast) IotToast.show(i18n().message_sent || 'Message sent.', { type: 'success' });
         } catch (err) {
             if (window.IotToast) IotToast.show(err.message, { type: 'error' });
             else alert(err.message);
         } finally {
             els.input.disabled = false;
+            if (sendBtn) sendBtn.disabled = false;
             els.input.focus();
         }
     });
@@ -331,11 +392,18 @@
         root.classList.remove('thread-open');
     });
 
+    els.input?.addEventListener('input', autoResizeInput);
+
     els.input?.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             els.form.requestSubmit();
         }
+    });
+
+    els.search?.addEventListener('input', () => {
+        state.searchQuery = els.search.value;
+        renderThreads();
     });
 
     if ('Notification' in window && Notification.permission === 'default') {
@@ -345,9 +413,7 @@
     window.IotMessenger = {
         openThread,
         poll,
-        openMessagesTab() {
-            document.querySelector('[data-tab="messages"]')?.click();
-        },
+        refresh: poll,
     };
 
     poll();
@@ -366,7 +432,10 @@
                 project_id: t.project || null,
                 counterpart_name: t.name,
                 counterpart_role: t.role,
+                project_title: t.project_title || '',
             }), 400);
-        } catch (_) {}
+        } catch (_) {
+            sessionStorage.removeItem('openChat');
+        }
     }
 })();
