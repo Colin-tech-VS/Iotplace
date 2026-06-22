@@ -1,217 +1,336 @@
-{% extends "base.html" %}
-{% from "compte/_macros.html" import message_row, profile_besoin_block %}
+{% extends "compte_layout.html" %}
+{% from "compte/_dashboard_macros.html" import cdash_nav_item, cdash_status, cdash_empty %}
 {% from "compte/_messenger.html" import messenger_widget %}
+{% from "_phase_badge.html" import phase_badge %}
+
+{% block title %}{{ profile.name }} — Entreprise{% endblock %}
+{% block compte_role %}enterprise{% endblock %}
+{% block space_label %}Espace entreprise{% endblock %}
+
+{% set active_section = request.args.get('section', 'overview') %}
+
+{% block sidebar_nav %}
+<span class="cdash-nav-label">Pilotage</span>
+{{ cdash_nav_item('overview', '◎', 'Vue d\'ensemble', active=active_section) }}
+{{ cdash_nav_item('projects', '📋', 'Projets', stats.projects, active=active_section) }}
+{{ cdash_nav_item('partnerships', '🤝', 'Partenariats', stats.partnerships_active, active=active_section) }}
+{{ cdash_nav_item('applications', '📨', 'Candidatures', stats.applications_pending, active=active_section) }}
+{{ cdash_nav_item('messages', '💬', 'Messagerie', unread_count, active=active_section) }}
+<span class="cdash-nav-label">Compte</span>
+<a href="{{ url_for('compte.enterprise_edit_profile') }}" class="cdash-nav-item">
+    <span class="cdash-nav-icon" aria-hidden="true">⚙</span>
+    Mon profil
+</a>
+<a href="{{ url_for('vitrine.pricing') }}" class="cdash-nav-item" target="_blank" rel="noopener">
+    <span class="cdash-nav-icon" aria-hidden="true">€</span>
+    Offres & tarifs
+</a>
+{% endblock %}
+
+{% block main_header %}
+<header class="cdash-topbar">
+    <div class="cdash-topbar-left">
+        <button type="button" class="cdash-menu-btn" id="cdashMenuBtn" aria-label="Menu">☰</button>
+        <div>
+            <div class="cdash-badges">
+                <span class="cdash-badge cdash-badge-accent">Entreprise</span>
+                {% if is_pro %}
+                <span class="cdash-badge cdash-badge-pro">Pro</span>
+                {% else %}
+                <span class="cdash-badge cdash-badge-muted">Gratuit · {{ stats.projects_open }} projet ouvert max</span>
+                {% endif %}
+            </div>
+            <h1>{{ profile.name }}</h1>
+            <p class="cdash-topbar-sub">{{ profile.sector or 'Donneur d\'ordre IoT' }} · {{ profile.country or '—' }}</p>
+        </div>
+    </div>
+    <div class="cdash-topbar-actions">
+        <a href="{{ url_for('compte.enterprise_new_project') }}" class="btn btn-primary btn-sm">+ Nouveau projet</a>
+        {% if stripe_configured %}
+            {% if is_pro %}
+            <a href="{{ url_for('compte.enterprise_billing_portal') }}" class="btn btn-outline btn-sm">Abonnement</a>
+            {% else %}
+            <a href="{{ url_for('compte.enterprise_subscribe_pro') }}" class="btn btn-outline btn-sm">Pro · {{ pricing.pro_price_eur }} €/mois</a>
+            {% endif %}
+        {% endif %}
+    </div>
+</header>
+{% endblock %}
 
 {% block content %}
-{% set ns = namespace(score=0) %}
-{% if profile.name %}{% set ns.score = ns.score + 20 %}{% endif %}
-{% if profile.besoin %}{% set ns.score = ns.score + 40 %}{% endif %}
-{% if profile.needs %}{% set ns.score = ns.score + 40 %}{% endif %}
+{% if stripe_configured and not is_pro %}
+<div class="cdash-alert cdash-alert-pro reveal">
+    <span><strong>Offre Pro</strong> — projets illimités, commission {{ pricing.pro_commission_percent|int }} % (au lieu de {{ pricing.commission_percent|int }} %).</span>
+    <a href="{{ url_for('compte.enterprise_subscribe_pro') }}" class="btn btn-primary btn-sm">S'abonner</a>
+</div>
+{% endif %}
 
-<section class="ux-dash">
-    <div class="container">
-        <header class="ux-dash-hero reveal">
-            <div class="ux-dash-hero-inner">
-                <div class="ux-dash-identity">
-                    <div class="ux-dash-avatar enterprise" aria-hidden="true"></div>
-                    <div>
-                        <span class="ux-dash-badge">Espace entreprise</span>
-                        {% if profile.plan == 'pro_enterprise' or is_pro %}
-                        <span class="ux-dash-badge ux-dash-badge-pro">Offre Pro</span>
-                        {% if profile.stripe_subscription_status == 'past_due' %}
-                        <span class="ux-dash-badge ux-dash-badge-warn">Paiement en attente</span>
-                        {% endif %}
-                        {% else %}
-                        <span class="ux-dash-badge ux-dash-badge-muted">Offre Gratuit · 1 projet ouvert</span>
-                        {% endif %}
-                        <h1>{{ profile.name }}</h1>
-                        <p class="ux-dash-sub">{{ profile.sector or 'Donneur d\'ordre IoT' }} · {{ profile.country or '—' }}</p>
+{# ── Vue d'ensemble ── #}
+<section class="cdash-panel{% if active_section == 'overview' %} active{% endif %}" id="cdash-panel-overview" data-section="overview">
+    <div class="cdash-kpis">
+        <button type="button" class="cdash-kpi" data-cdash-section="projects">
+            <strong>{{ stats.projects }}</strong>
+            <span>Projets publiés</span>
+            <small>{{ stats.projects_open }} ouvert(s) · {{ stats.projects_active }} en cours</small>
+        </button>
+        <button type="button" class="cdash-kpi" data-cdash-section="partnerships">
+            <strong>{{ stats.partnerships_active }}</strong>
+            <span>Partenariats actifs</span>
+            <small>{{ stats.partnerships }} mission(s) au total</small>
+        </button>
+        <button type="button" class="cdash-kpi" data-cdash-section="applications">
+            <strong>{{ stats.applications_pending }}</strong>
+            <span>Candidatures en attente</span>
+            <small>{{ stats.applications }} reçue(s)</small>
+        </button>
+        <button type="button" class="cdash-kpi" data-cdash-section="messages">
+            <strong>{{ stats.unread }}</strong>
+            <span>Messages non lus</span>
+            <small>{{ stats.messages }} conversation(s)</small>
+        </button>
+    </div>
+
+    <div class="cdash-grid-2">
+        <div class="cdash-card">
+            <div class="cdash-card-head">
+                <h2>Pipeline projets</h2>
+                <a href="{{ url_for('compte.enterprise_new_project') }}" class="btn btn-ghost btn-sm">+ Projet</a>
+            </div>
+            <div class="cdash-pipeline">
+                <div class="cdash-pipeline-col">
+                    <h4>Ouverts <span class="cdash-pipeline-count">{{ pipeline.counts.open }}</span></h4>
+                    {% for project in pipeline.open[:4] %}
+                    <a href="{{ url_for('compte.enterprise_project_detail', project_id=project.id) }}" class="cdash-pipeline-item">
+                        <strong>{{ project.title }}</strong>
+                        <p>{{ project.applications_pending or 0 }} candidature(s) en attente</p>
+                    </a>
+                    {% else %}
+                    <p class="cdash-pipeline-empty">Aucun projet ouvert</p>
+                    {% endfor %}
+                </div>
+                <div class="cdash-pipeline-col">
+                    <h4>En cours <span class="cdash-pipeline-count">{{ pipeline.counts.active }}</span></h4>
+                    {% for project in pipeline.active[:4] %}
+                    <a href="{{ url_for('compte.enterprise_project_detail', project_id=project.id) }}" class="cdash-pipeline-item">
+                        <strong>{{ project.title }}</strong>
+                        <p>Partenariat en cours</p>
+                    </a>
+                    {% else %}
+                    <p class="cdash-pipeline-empty">Aucune mission active</p>
+                    {% endfor %}
+                </div>
+                <div class="cdash-pipeline-col">
+                    <h4>Clôturés <span class="cdash-pipeline-count">{{ pipeline.counts.closed }}</span></h4>
+                    {% for project in pipeline.closed[:4] %}
+                    <a href="{{ url_for('compte.enterprise_project_detail', project_id=project.id) }}" class="cdash-pipeline-item">
+                        <strong>{{ project.title }}</strong>
+                        <p>{{ project.status }}</p>
+                    </a>
+                    {% else %}
+                    <p class="cdash-pipeline-empty">—</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="cdash-card">
+            <div class="cdash-card-head">
+                <h2>Activité récente</h2>
+            </div>
+            {% if activity %}
+            <ul class="cdash-activity">
+                {% for item in activity[:8] %}
+                <li>
+                    <span class="cdash-activity-icon">{% if item.type == 'partnership' %}🤝{% else %}📨{% endif %}</span>
+                    <div class="cdash-activity-body">
+                        <strong>{{ item.title }}</strong>
+                        <p>{{ item.subtitle }} · {{ item.status_label }}</p>
                     </div>
-                </div>
-                <div class="ux-dash-actions">
-                    <a href="{{ url_for('compte.enterprise_new_project') }}" class="btn btn-primary btn-sm">+ Nouveau projet</a>
-                    {% if stripe_configured %}
-                        {% if is_pro %}
-                        <a href="{{ url_for('compte.enterprise_billing_portal') }}" class="btn btn-outline btn-sm">Abonnement Pro</a>
-                        {% else %}
-                        <a href="{{ url_for('compte.enterprise_subscribe_pro') }}" class="btn btn-outline btn-sm">Passer en Pro · {{ pricing.pro_price_eur }} €/mois</a>
-                        {% endif %}
-                    {% endif %}
-                    <a href="{{ url_for('compte.enterprise_edit_profile') }}" class="btn btn-outline btn-sm">Profil</a>
-                    <a href="{{ url_for('compte.logout') }}" class="btn btn-ghost btn-sm">Déconnexion</a>
-                </div>
-            </div>
-        </header>
-
-        <div class="ux-stats reveal">
-            <div class="ux-stat">
-                <span class="ux-stat-icon">📋</span>
-                <span class="ux-stat-value">{{ stats.projects }}</span>
-                <span class="ux-stat-label">Projets publiés</span>
-            </div>
-            <a href="#candidatures" class="ux-stat ux-stat-clickable" data-tab="candidatures">
-                <span class="ux-stat-icon">📨</span>
-                <span class="ux-stat-value">{{ stats.applications }}</span>
-                <span class="ux-stat-label">Candidatures</span>
-            </a>
-            <a href="#messages" class="ux-stat ux-stat-clickable" data-tab="messages">
-                <span class="ux-stat-icon">💬</span>
-                <span class="ux-stat-value">{{ stats.messages }}</span>
-                <span class="ux-stat-label">Messages</span>
-            </a>
-            <a href="#messages" class="ux-stat ux-stat-clickable {% if stats.unread %}ux-stat-highlight{% endif %}" data-tab="messages">
-                {% if stats.unread %}<span class="ux-stat-badge" aria-label="Non lus"></span>{% endif %}
-                <span class="ux-stat-icon">🔔</span>
-                <span class="ux-stat-value" data-stat-unread>{{ stats.unread }}</span>
-                <span class="ux-stat-label">Non lus</span>
-            </a>
-        </div>
-
-        {% if stripe_configured and not is_pro %}
-        <div class="ux-profile-card reveal ux-billing-upsell">
-            <div class="ux-profile-head">
-                <h3>Offre Entreprise Pro</h3>
-                <a href="{{ url_for('compte.enterprise_subscribe_pro') }}" class="btn btn-primary btn-sm">S'abonner · {{ pricing.pro_price_eur }} €/mois</a>
-            </div>
-            <p class="muted">Projets illimités et commission réduite à {{ pricing.pro_commission_percent|int }} % par mission (au lieu de {{ pricing.commission_percent|int }} %). Paiement sécurisé via Stripe — activation immédiate.</p>
-        </div>
-        {% endif %}
-
-        <div class="ux-profile-card reveal">
-            <div class="ux-profile-head">
-                <h3>Mon profil & besoins</h3>
-                <a href="{{ url_for('compte.enterprise_edit_profile') }}" class="btn btn-outline btn-sm">Modifier</a>
-            </div>
-            <div class="ux-progress-wrap">
-                <div class="ux-progress-label">
-                    <span>Profil complété</span>
-                    <span>{{ ns.score }}%</span>
-                </div>
-                <div class="ux-progress-bar" role="progressbar" aria-valuenow="{{ ns.score }}" aria-valuemin="0" aria-valuemax="100">
-                    <div class="ux-progress-fill" style="width: {{ ns.score }}%"></div>
-                </div>
-            </div>
-            {% if profile.besoin or profile.needs %}
-            {{ profile_besoin_block(profile.besoin, profile.needs, 'Compétences recherchées') }}
+                    <span class="cdash-activity-time">{{ item.at[11:16] if item.at else '' }}</span>
+                </li>
+                {% endfor %}
+            </ul>
             {% else %}
-            <p class="muted">Décrivez votre besoin et les compétences recherchées pour attirer les bonnes startups.</p>
-            <a href="{{ url_for('compte.enterprise_edit_profile') }}" class="link-arrow">Compléter mon profil →</a>
+            {{ cdash_empty('📋', 'Aucune activité', 'Publiez un projet pour recevoir des candidatures startups.') }}
             {% endif %}
-        </div>
-
-        <nav class="ux-tabs reveal" role="tablist" aria-label="Sections du tableau de bord">
-            <button class="ux-tab active" role="tab" data-tab="projets" aria-selected="true">📋 Mes projets</button>
-            <button class="ux-tab" role="tab" data-tab="messages">
-                💬 Messages{% if unread_count %}<span class="ux-tab-count">{{ unread_count }}</span>{% endif %}
-            </button>
-            <button class="ux-tab" role="tab" data-tab="candidatures">
-                📨 Candidatures{% if stats.applications %}<span class="ux-tab-count">{{ stats.applications }}</span>{% endif %}
-            </button>
-            <button class="ux-tab" role="tab" data-tab="envoyes">↗ Envoyés</button>
-        </nav>
-
-        <div class="ux-panel active reveal" id="ux-panel-projets" role="tabpanel">
-            <div class="ux-card">
-                <div class="ux-card-head">
-                    <h3>Projets publiés</h3>
-                    <a href="{{ url_for('compte.enterprise_new_project') }}" class="btn btn-primary btn-sm">+ Ajouter</a>
-                </div>
-                {% if projects %}
-                <div class="mini-list">
-                    {% for project in projects %}
-                    <article class="ux-list-item">
-                        <div>
-                            <a href="{{ url_for('compte.enterprise_project_detail', project_id=project.id) }}"><strong>{{ project.title }}</strong></a>
-                            <p class="ux-list-meta">{{ project.budget or 'Budget à définir' }} · {{ project.duration or 'Durée non précisée' }}</p>
-                            {% if project.applications_count %}
-                            <p class="message-hint">{{ project.applications_count }} candidature(s){% if project.applications_pending %} — {{ project.applications_pending }} en attente{% endif %}</p>
-                            {% endif %}
-                        </div>
-                        <span class="status-pill status-{{ 'open' if project.status == 'Ouvert' else 'closed' }}">{{ project.status }}</span>
-                        <a href="{{ url_for('compte.enterprise_edit_project', project_id=project.id) }}" class="btn btn-outline btn-sm">Modifier</a>
-                    </article>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <div class="ux-empty">
-                    <div class="ux-empty-icon">📋</div>
-                    <h4>Aucun projet publié</h4>
-                    <p>Publiez votre premier besoin IoT pour recevoir des candidatures de startups qualifiées.</p>
-                    <a href="{{ url_for('compte.enterprise_new_project') }}" class="btn btn-primary btn-sm">Créer un projet</a>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-
-        <div class="ux-panel reveal" id="ux-panel-messages" role="tabpanel">
-            {{ messenger_widget('enterprise') }}
-        </div>
-
-        <div class="ux-panel reveal" id="ux-panel-candidatures" role="tabpanel">
-            <div class="ux-card">
-                <h3>Candidatures reçues</h3>
-                {% if applications %}
-                <div class="mini-list" style="margin-top:0.75rem">
-                    {% for msg in applications %}
-                    <article class="ux-list-item">
-                        <div>
-                            <strong>{{ msg.counterpart_name }}</strong>
-                            <p class="ux-list-meta">{{ msg.project_title or 'Projet IoT' }} · {{ msg.kind_label }}</p>
-                            <p class="message-preview">{{ msg.body[:100] }}{% if msg.body|length > 100 %}…{% endif %}</p>
-                        </div>
-                        <button type="button" class="btn btn-outline btn-sm ux-open-chat"
-                            data-counterpart="{{ msg.from_user_id }}"
-                            data-project="{{ msg.project_id or '' }}"
-                            data-name="{{ msg.counterpart_name }}"
-                            data-role="startup">Répondre</button>
-                    </article>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <div class="ux-empty">
-                    <div class="ux-empty-icon">📨</div>
-                    <h4>Aucune candidature</h4>
-                    <p>Les startups postuleront à vos projets ouverts. Publiez un projet pour commencer.</p>
-                    <a href="{{ url_for('compte.enterprise_new_project') }}" class="btn btn-outline btn-sm">Publier un projet</a>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-
-        <div class="ux-panel reveal" id="ux-panel-envoyes" role="tabpanel">
-            <div class="ux-card">
-                <h3>Messages envoyés</h3>
-                {% if sent %}
-                <div class="message-list" style="margin-top:0.75rem">
-                    {% for msg in sent %}{{ message_row(msg) }}{% endfor %}
-                </div>
-                {% else %}
-                <div class="ux-empty">
-                    <div class="ux-empty-icon">↗</div>
-                    <h4>Aucun message envoyé</h4>
-                    <p>Vos échanges avec les startups s'afficheront ici.</p>
-                </div>
-                {% endif %}
-            </div>
         </div>
     </div>
 </section>
 
-<script src="{{ url_for('vitrine.static', filename='js/dashboard.js') }}?v=1"></script>
+{# ── Projets ── #}
+<section class="cdash-panel{% if active_section == 'projects' %} active{% endif %}" id="cdash-panel-projects" data-section="projects">
+    <div class="cdash-card">
+        <div class="cdash-card-head">
+            <h2>Gestion des projets</h2>
+            <a href="{{ url_for('compte.enterprise_new_project') }}" class="btn btn-primary btn-sm">+ Nouveau projet</a>
+        </div>
+        {% if projects %}
+        <div class="cdash-table-wrap">
+            <table class="cdash-table">
+                <thead>
+                    <tr>
+                        <th>Projet</th>
+                        <th>Phase</th>
+                        <th>Statut</th>
+                        <th>Candidatures</th>
+                        <th>Partenariat</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for project in projects %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('compte.enterprise_project_detail', project_id=project.id) }}" class="cdash-table-title">{{ project.title }}</a>
+                            <div class="cdash-meta">{{ project.budget or 'Budget à définir' }} · {{ project.duration or '—' }}</div>
+                        </td>
+                        <td>{{ phase_badge(project.engagement_phase) }}</td>
+                        <td>
+                            {% if project.status == 'Ouvert' %}
+                            {{ cdash_status('open', project.status) }}
+                            {% elif project.status == 'En cours' %}
+                            {{ cdash_status('active', project.status) }}
+                            {% else %}
+                            {{ cdash_status('muted', project.status) }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="cdash-meta">{{ project.applications_count or 0 }} total</span>
+                            {% if project.applications_pending %}
+                            <br>{{ cdash_status('pending', project.applications_pending ~ ' en attente') }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if project.has_engagement %}
+                            {{ cdash_status('info', 'Mission liée') }}
+                            {% else %}
+                            <span class="cdash-meta">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="cdash-actions">
+                                <a href="{{ url_for('compte.enterprise_edit_project', project_id=project.id) }}" class="btn btn-ghost btn-sm">Modifier</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        {{ cdash_empty('📋', 'Aucun projet', 'Publiez votre premier besoin IoT pour lancer la sous-traitance.', url_for('compte.enterprise_new_project'), 'Créer un projet') }}
+        {% endif %}
+    </div>
+</section>
+
+{# ── Partenariats ── #}
+<section class="cdash-panel{% if active_section == 'partnerships' %} active{% endif %}" id="cdash-panel-partnerships" data-section="partnerships">
+    <div class="cdash-card">
+        <div class="cdash-card-head">
+            <h2>Partenariats & paiements</h2>
+        </div>
+        {% if engagements %}
+        <div class="cdash-table-wrap">
+            <table class="cdash-table">
+                <thead>
+                    <tr>
+                        <th>Mission</th>
+                        <th>Startup</th>
+                        <th>Phase</th>
+                        <th>Montant</th>
+                        <th>Statut séquestre</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for eng in engagements %}
+                    <tr>
+                        <td>
+                            <strong>{{ eng.project_title }}</strong>
+                            <div class="cdash-meta">{{ eng.created_at[:10] if eng.created_at else '' }}</div>
+                        </td>
+                        <td>{{ eng.startup_name }}</td>
+                        <td>{{ phase_badge(eng.project_phase) }}</td>
+                        <td class="mono">{{ eng.amount_label }}</td>
+                        <td>{{ cdash_status(eng.status_tone, eng.status_label) }}</td>
+                        <td>
+                            <div class="cdash-actions">
+                                {% if eng.message_id %}
+                                <a href="{{ url_for('compte.message_detail', message_id=eng.message_id) }}" class="btn btn-primary btn-sm">
+                                    {% if eng.status == 'escrowed' %}Libérer{% else %}Gérer{% endif %}
+                                </a>
+                                {% endif %}
+                                {% if eng.stripe_hosted_invoice_url and eng.status == 'pending_payment' %}
+                                <a href="{{ eng.stripe_hosted_invoice_url }}" class="btn btn-outline btn-sm" target="_blank" rel="noopener">Facture</a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        {{ cdash_empty('🤝', 'Aucun partenariat', 'Acceptez une candidature startup pour créer une mission et lancer le séquestre Stripe.', '', '') }}
+        {% endif %}
+    </div>
+</section>
+
+{# ── Candidatures ── #}
+<section class="cdash-panel{% if active_section == 'applications' %} active{% endif %}" id="cdash-panel-applications" data-section="applications">
+    <div class="cdash-card">
+        <div class="cdash-card-head">
+            <h2>Candidatures reçues</h2>
+        </div>
+        {% if applications %}
+        <div class="cdash-table-wrap">
+            <table class="cdash-table">
+                <thead>
+                    <tr>
+                        <th>Startup</th>
+                        <th>Projet</th>
+                        <th>Message</th>
+                        <th>Statut</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for msg in applications %}
+                    <tr>
+                        <td><strong>{{ msg.counterpart_name }}</strong></td>
+                        <td>{{ msg.project_title or '—' }}</td>
+                        <td><span class="cdash-meta">{{ msg.body[:90] }}{% if msg.body|length > 90 %}…{% endif %}</span></td>
+                        <td>{{ cdash_status(msg.status, msg.status_label) }}</td>
+                        <td>
+                            <div class="cdash-actions">
+                                <a href="{{ url_for('compte.message_detail', message_id=msg.id) }}" class="btn btn-primary btn-sm">Traiter</a>
+                                <button type="button" class="btn btn-ghost btn-sm cdash-open-chat"
+                                    data-counterpart="{{ msg.from_user_id }}"
+                                    data-project="{{ msg.project_id or '' }}"
+                                    data-name="{{ msg.counterpart_name }}"
+                                    data-role="startup">Chat</button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        {{ cdash_empty('📨', 'Aucune candidature', 'Les startups postuleront à vos projets ouverts.', url_for('compte.enterprise_new_project'), 'Publier un projet') }}
+        {% endif %}
+    </div>
+</section>
+
+{# ── Messagerie ── #}
+<section class="cdash-panel cdash-messenger-panel{% if active_section == 'messages' %} active{% endif %}" id="cdash-panel-messages" data-section="messages">
+    <div class="cdash-card" style="padding:12px">
+        {{ messenger_widget('enterprise') }}
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('vitrine.static', filename='js/compte-dashboard.js') }}?v=1"></script>
 <script src="{{ url_for('vitrine.static', filename='js/messaging.js') }}?v=2"></script>
-<script>
-document.querySelectorAll('.ux-open-chat').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelector('[data-tab="messages"]')?.click();
-        setTimeout(() => {
-            window.IotMessenger?.openThread({
-                counterpart_user_id: btn.dataset.counterpart,
-                project_id: btn.dataset.project || null,
-                counterpart_name: btn.dataset.name,
-                counterpart_role: btn.dataset.role,
-            });
-        }, 150);
-    });
-});
-</script>
 {% endblock %}

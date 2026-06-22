@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="{{ locale|default('fr') }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>{% block title %}Espace membre{% endblock %} — Iotplace</title>
+    {% include "_favicons.html" %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/style.css') }}?v=10">
+    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/iot-theme.css') }}?v=3">
+    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/dashboard-ux.css') }}?v=2">
+    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/compte-dashboard.css') }}?v=1">
+    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/toast.css') }}?v=1">
+    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/brand-mark.css') }}?v=1">
+    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/page-loader.css') }}?v=2">
+    <script>document.documentElement.classList.add('iot-loading');</script>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="compte-app {% block compte_role %}{% endblock %}">
+    {% from "_brand_mark.html" import brand_mark %}
+    {% include "_page_loader.html" %}
+    <div class="cdash-bg" aria-hidden="true"></div>
+
+    <div class="cdash-app" id="cdashApp">
+        <aside class="cdash-sidebar" id="cdashSidebar">
+            <div class="cdash-sidebar-top">
+                <a href="{{ url_for('vitrine.index') }}" class="cdash-brand" title="Retour vitrine">
+                    {{ brand_mark('sm') }}
+                    <span class="cdash-brand-text"><strong>Iotplace</strong><small>{% block space_label %}Espace membre{% endblock %}</small></span>
+                </a>
+            </div>
+
+            <nav class="cdash-nav" aria-label="Navigation tableau de bord">
+                {% block sidebar_nav %}{% endblock %}
+            </nav>
+
+            <div class="cdash-sidebar-bottom">
+                {% block sidebar_footer %}{% endblock %}
+                <a href="{{ url_for('compte.logout') }}" class="cdash-nav-item cdash-nav-muted">
+                    <span class="cdash-nav-icon" aria-hidden="true">⎋</span>
+                    Déconnexion
+                </a>
+            </div>
+        </aside>
+
+        <div class="cdash-overlay" id="cdashOverlay" hidden></div>
+
+        <main class="cdash-main">
+            {% block main_header %}{% endblock %}
+            <div class="cdash-content">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('vitrine.static', filename='js/toast.js') }}?v=1"></script>
+    <script src="{{ url_for('vitrine.static', filename='js/page-loader.js') }}?v=2"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

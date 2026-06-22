@@ -1,204 +1,281 @@
-{% extends "base.html" %}
-{% from "compte/_macros.html" import message_row, profile_besoin_block %}
+{% extends "compte_layout.html" %}
+{% from "compte/_dashboard_macros.html" import cdash_nav_item, cdash_status, cdash_empty %}
 {% from "compte/_messenger.html" import messenger_widget %}
+{% from "_phase_badge.html" import phase_badge %}
+
+{% block title %}{{ profile.name }} — Startup{% endblock %}
+{% block compte_role %}startup{% endblock %}
+{% block space_label %}Espace startup{% endblock %}
+
+{% set active_section = request.args.get('section', 'overview') %}
+
+{% block sidebar_nav %}
+<span class="cdash-nav-label">Pilotage</span>
+{{ cdash_nav_item('overview', '◎', 'Vue d\'ensemble', active=active_section) }}
+{{ cdash_nav_item('missions', '🎯', 'Missions', stats.matching_open, active=active_section) }}
+{{ cdash_nav_item('partnerships', '🤝', 'Partenariats', stats.partnerships_active, active=active_section) }}
+{{ cdash_nav_item('applications', '📨', 'Candidatures', stats.applications, active=active_section) }}
+{{ cdash_nav_item('messages', '💬', 'Messagerie', unread_count, active=active_section) }}
+<span class="cdash-nav-label">Compte</span>
+<a href="{{ url_for('compte.startup_edit_profile') }}" class="cdash-nav-item">
+    <span class="cdash-nav-icon" aria-hidden="true">⚙</span>
+    Mon profil
+</a>
+<a href="{{ url_for('vitrine.projects') }}" class="cdash-nav-item" target="_blank" rel="noopener">
+    <span class="cdash-nav-icon" aria-hidden="true">↗</span>
+    Vitrine projets
+</a>
+{% endblock %}
+
+{% block main_header %}
+<header class="cdash-topbar">
+    <div class="cdash-topbar-left">
+        <button type="button" class="cdash-menu-btn" id="cdashMenuBtn" aria-label="Menu">☰</button>
+        <div>
+            <div class="cdash-badges">
+                <span class="cdash-badge cdash-badge-accent">Startup IoT</span>
+            </div>
+            <h1>{{ profile.name }}</h1>
+            <p class="cdash-topbar-sub">{{ profile.specialty or 'Startup IoT' }} · {{ profile.city or '' }}{% if profile.city and profile.country %}, {% endif %}{{ profile.country or '—' }}</p>
+        </div>
+    </div>
+    <div class="cdash-topbar-actions">
+        <a href="{{ url_for('vitrine.projects') }}" class="btn btn-primary btn-sm">Trouver une mission</a>
+        {% if stripe_configured and not profile.stripe_onboarding_complete %}
+        <a href="{{ url_for('compte.startup_stripe_onboard') }}" class="btn btn-outline btn-sm">Stripe Connect</a>
+        {% endif %}
+    </div>
+</header>
+{% endblock %}
 
 {% block content %}
-{% set ns = namespace(score=0) %}
-{% if profile.name %}{% set ns.score = ns.score + 20 %}{% endif %}
-{% if profile.besoin %}{% set ns.score = ns.score + 40 %}{% endif %}
-{% if profile.skills %}{% set ns.score = ns.score + 40 %}{% endif %}
+{% if stripe_configured and not profile.stripe_onboarding_complete %}
+<div class="cdash-alert">
+    <span><strong>Paiements</strong> — configurez Stripe Connect pour recevoir vos missions après validation.</span>
+    <a href="{{ url_for('compte.startup_stripe_onboard') }}" class="btn btn-primary btn-sm">Configurer</a>
+</div>
+{% endif %}
 
-<section class="ux-dash">
-    <div class="container">
-        <header class="ux-dash-hero reveal">
-            <div class="ux-dash-hero-inner">
-                <div class="ux-dash-identity">
-                    <div class="ux-dash-avatar startup" aria-hidden="true">{{ profile.flag or '🚀' }}</div>
-                    <div>
-                        <span class="ux-dash-badge">Espace startup</span>
-                        <h1>{{ profile.name }}</h1>
-                        <p class="ux-dash-sub">{{ profile.specialty or 'Startup IoT' }} · {{ profile.city or '' }}{% if profile.city and profile.country %}, {% endif %}{{ profile.country or '—' }}</p>
-                    </div>
-                </div>
-                <div class="ux-dash-actions">
-                    <a href="{{ url_for('vitrine.projects') }}" class="btn btn-primary btn-sm">Voir les missions</a>
-                    <a href="{{ url_for('compte.startup_edit_profile') }}" class="btn btn-outline btn-sm">Profil</a>
-                    <a href="{{ url_for('compte.logout') }}" class="btn btn-ghost btn-sm">Déconnexion</a>
-                </div>
+<section class="cdash-panel{% if active_section == 'overview' %} active{% endif %}" id="cdash-panel-overview" data-section="overview">
+    <div class="cdash-kpis">
+        <button type="button" class="cdash-kpi" data-cdash-section="missions">
+            <strong>{{ stats.matching_open }}</strong>
+            <span>Missions ouvertes</span>
+            <small>{{ stats.matching }} correspondance(s)</small>
+        </button>
+        <button type="button" class="cdash-kpi" data-cdash-section="applications">
+            <strong>{{ stats.applications }}</strong>
+            <span>Candidatures envoyées</span>
+            <small>{{ stats.applications_pending }} en attente</small>
+        </button>
+        <button type="button" class="cdash-kpi" data-cdash-section="partnerships">
+            <strong>{{ stats.partnerships_active }}</strong>
+            <span>Partenariats actifs</span>
+            <small>{{ stats.applications_accepted }} acceptée(s)</small>
+        </button>
+        <button type="button" class="cdash-kpi" data-cdash-section="messages">
+            <strong>{{ stats.unread }}</strong>
+            <span>Messages non lus</span>
+            <small>{{ stats.messages }} échange(s)</small>
+        </button>
+    </div>
+
+    <div class="cdash-grid-2">
+        <div class="cdash-card">
+            <div class="cdash-card-head">
+                <h2>Missions recommandées</h2>
+                <a href="{{ url_for('vitrine.projects') }}" class="btn btn-ghost btn-sm">Tout voir</a>
             </div>
-        </header>
-
-        {% if stripe_configured and not profile.stripe_onboarding_complete %}
-        <div class="ux-alert ux-alert-info reveal" style="margin-bottom:1rem">
-            <strong>Recevoir vos paiements</strong> — Configurez votre compte Stripe Connect pour être payé après validation des missions.
-            <a href="{{ url_for('compte.startup_stripe_onboard') }}" class="btn btn-primary btn-sm" style="margin-left:0.5rem">Configurer Stripe</a>
-        </div>
-        {% endif %}
-
-        <div class="ux-stats reveal">
-            <a href="#missions" class="ux-stat ux-stat-clickable" data-tab="missions">
-                <span class="ux-stat-icon">🎯</span>
-                <span class="ux-stat-value">{{ stats.matching }}</span>
-                <span class="ux-stat-label">Missions</span>
-            </a>
-            <a href="#candidatures" class="ux-stat ux-stat-clickable" data-tab="candidatures">
-                <span class="ux-stat-icon">📨</span>
-                <span class="ux-stat-value">{{ stats.applications }}</span>
-                <span class="ux-stat-label">Candidatures</span>
-            </a>
-            <a href="#messages" class="ux-stat ux-stat-clickable" data-tab="messages">
-                <span class="ux-stat-icon">💬</span>
-                <span class="ux-stat-value">{{ stats.messages }}</span>
-                <span class="ux-stat-label">Messages</span>
-            </a>
-            <a href="#messages" class="ux-stat ux-stat-clickable {% if stats.unread %}ux-stat-highlight{% endif %}" data-tab="messages">
-                {% if stats.unread %}<span class="ux-stat-badge"></span>{% endif %}
-                <span class="ux-stat-icon">🔔</span>
-                <span class="ux-stat-value" data-stat-unread>{{ stats.unread }}</span>
-                <span class="ux-stat-label">Non lus</span>
-            </a>
-        </div>
-
-        <div class="ux-profile-card reveal">
-            <div class="ux-profile-head">
-                <h3>Mon profil & recherche</h3>
-                <a href="{{ url_for('compte.startup_edit_profile') }}" class="btn btn-outline btn-sm">Modifier</a>
+            {% if open_matching[:5] %}
+            <div class="cdash-pipeline" style="grid-template-columns:1fr">
+                {% for project in open_matching[:5] %}
+                <a href="{{ url_for('compte.startup_project_detail', project_id=project.id) }}" class="cdash-pipeline-item">
+                    <strong>{{ project.title }}</strong>
+                    <p>{{ project.enterprise }} · {{ project.budget or 'Budget à définir' }}{% if project.engagement_phase %} · {{ translate_phase(project.engagement_phase) }}{% endif %}</p>
+                </a>
+                {% endfor %}
             </div>
-            <div class="ux-progress-wrap">
-                <div class="ux-progress-label">
-                    <span>Profil complété</span>
-                    <span>{{ ns.score }}%</span>
-                </div>
-                <div class="ux-progress-bar" role="progressbar" aria-valuenow="{{ ns.score }}" aria-valuemin="0" aria-valuemax="100">
-                    <div class="ux-progress-fill" style="width: {{ ns.score }}%"></div>
-                </div>
-            </div>
-            {% if profile.besoin or profile.skills %}
-            {{ profile_besoin_block(profile.besoin, profile.skills, 'Compétences') }}
             {% else %}
-            <p class="muted">Décrivez ce que vous recherchez et vos compétences pour recevoir des missions pertinentes.</p>
-            <a href="{{ url_for('compte.startup_edit_profile') }}" class="link-arrow">Compléter mon profil →</a>
+            {{ cdash_empty('🎯', 'Aucune mission ouverte', 'Complétez votre profil ou parcourez tous les projets.', url_for('vitrine.projects'), 'Voir les projets') }}
             {% endif %}
         </div>
 
-        <nav class="ux-tabs reveal" role="tablist" aria-label="Sections du tableau de bord">
-            <button class="ux-tab active" role="tab" data-tab="missions" aria-selected="true">🎯 Missions</button>
-            <button class="ux-tab" role="tab" data-tab="candidatures">
-                📨 Candidatures{% if stats.applications %}<span class="ux-tab-count">{{ stats.applications }}</span>{% endif %}
-            </button>
-            <button class="ux-tab" role="tab" data-tab="messages">
-                💬 Messages{% if unread_count %}<span class="ux-tab-count">{{ unread_count }}</span>{% endif %}
-            </button>
-            <button class="ux-tab" role="tab" data-tab="envoyes">↗ Envoyés</button>
-        </nav>
-
-        <div class="ux-panel active reveal" id="ux-panel-missions" role="tabpanel">
-            <div class="ux-card">
-                <div class="ux-card-head">
-                    <h3>Missions correspondantes</h3>
-                    <a href="{{ url_for('vitrine.projects') }}" class="link-arrow">Tout voir →</a>
-                </div>
-                {% if matching_projects %}
-                <div class="mini-list">
-                    {% for project in matching_projects %}
-                    <article class="ux-list-item">
-                        <div>
-                            <a href="{{ url_for('compte.startup_project_detail', project_id=project.id) }}"><strong>{{ project.title }}</strong></a>
-                            <p class="ux-list-meta">{{ project.enterprise }} · {{ project.budget or 'Budget à définir' }}</p>
-                            {% if project.skills %}
-                            <div class="tag-list tag-list-sm" style="margin-top:0.4rem">
-                                {% for skill in project.skills[:4] %}<span class="tag">{{ skill }}</span>{% endfor %}
-                            </div>
-                            {% endif %}
-                        </div>
-                        {% if project.already_applied %}
-                        <span class="status-pill status-pending">Candidaté</span>
-                        {% else %}
-                        <span class="status-pill status-open">{{ project.status }}</span>
-                        {% endif %}
-                    </article>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <div class="ux-empty">
-                    <div class="ux-empty-icon">🎯</div>
-                    <h4>Aucune mission pour l'instant</h4>
-                    <p>Complétez vos compétences ou consultez tous les projets ouverts sur la vitrine.</p>
-                    <a href="{{ url_for('vitrine.projects') }}" class="btn btn-primary btn-sm">Voir les projets</a>
-                </div>
-                {% endif %}
+        <div class="cdash-card">
+            <div class="cdash-card-head">
+                <h2>Activité récente</h2>
             </div>
-        </div>
-
-        <div class="ux-panel reveal" id="ux-panel-candidatures" role="tabpanel">
-            <div class="ux-card">
-                <h3>Mes candidatures</h3>
-                {% if applications %}
-                <div class="mini-list" style="margin-top:0.75rem">
-                    {% for msg in applications %}
-                    <article class="ux-list-item">
-                        <div>
-                            <strong>{{ msg.project_title or 'Projet IoT' }}</strong>
-                            <p class="ux-list-meta">{{ msg.counterpart_name }} · {{ msg.status_label }}</p>
-                            <p class="message-preview">{{ msg.body[:80] }}…</p>
-                        </div>
-                        <button type="button" class="btn btn-outline btn-sm ux-open-chat"
-                            data-counterpart="{{ msg.to_user_id }}"
-                            data-project="{{ msg.project_id or '' }}"
-                            data-name="{{ msg.counterpart_name }}"
-                            data-role="enterprise">Messages</button>
-                    </article>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <div class="ux-empty">
-                    <div class="ux-empty-icon">📨</div>
-                    <h4>Aucune candidature</h4>
-                    <p>Parcourez les missions ouvertes et postulez aux projets qui correspondent à votre expertise.</p>
-                    <a href="{{ url_for('vitrine.projects') }}" class="btn btn-outline btn-sm">Trouver une mission</a>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-
-        <div class="ux-panel reveal" id="ux-panel-messages" role="tabpanel">
-            {{ messenger_widget('startup') }}
-        </div>
-
-        <div class="ux-panel reveal" id="ux-panel-envoyes" role="tabpanel">
-            <div class="ux-card">
-                <h3>Messages envoyés</h3>
-                {% if sent %}
-                <div class="message-list" style="margin-top:0.75rem">
-                    {% for msg in sent %}{{ message_row(msg) }}{% endfor %}
-                </div>
-                {% else %}
-                <div class="ux-empty">
-                    <div class="ux-empty-icon">↗</div>
-                    <h4>Aucun message envoyé</h4>
-                    <p>Vos candidatures et réponses s'afficheront ici.</p>
-                </div>
-                {% endif %}
-            </div>
+            {% if activity %}
+            <ul class="cdash-activity">
+                {% for item in activity[:8] %}
+                <li>
+                    <span class="cdash-activity-icon">{% if item.type == 'partnership' %}🤝{% else %}📨{% endif %}</span>
+                    <div class="cdash-activity-body">
+                        <strong>{{ item.title }}</strong>
+                        <p>{{ item.subtitle }} · {{ item.status_label }}</p>
+                    </div>
+                    <span class="cdash-activity-time">{{ item.at[11:16] if item.at else '' }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            {{ cdash_empty('📨', 'Aucune activité', 'Postulez à une mission pour démarrer un partenariat.') }}
+            {% endif %}
         </div>
     </div>
 </section>
 
-<script src="{{ url_for('vitrine.static', filename='js/dashboard.js') }}?v=1"></script>
+<section class="cdash-panel{% if active_section == 'missions' %} active{% endif %}" id="cdash-panel-missions" data-section="missions">
+    <div class="cdash-card">
+        <div class="cdash-card-head">
+            <h2>Missions & opportunités</h2>
+            <a href="{{ url_for('vitrine.projects') }}" class="btn btn-outline btn-sm">Catalogue vitrine</a>
+        </div>
+        {% if matching_projects %}
+        <div class="cdash-table-wrap">
+            <table class="cdash-table">
+                <thead>
+                    <tr>
+                        <th>Mission</th>
+                        <th>Entreprise</th>
+                        <th>Phase</th>
+                        <th>Budget</th>
+                        <th>Statut</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for project in matching_projects %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('compte.startup_project_detail', project_id=project.id) }}" class="cdash-table-title">{{ project.title }}</a>
+                            {% if project.skills %}
+                            <div class="cdash-meta">{{ project.skills[:3]|join(', ') }}</div>
+                            {% endif %}
+                        </td>
+                        <td>{{ project.enterprise }}</td>
+                        <td>{{ phase_badge(project.engagement_phase) }}</td>
+                        <td>{{ project.budget or '—' }}</td>
+                        <td>
+                            {% if project.already_applied %}
+                            {{ cdash_status('accepted', 'Candidaté') }}
+                            {% else %}
+                            {{ cdash_status('open', project.status) }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('compte.startup_project_detail', project_id=project.id) }}" class="btn btn-primary btn-sm">
+                                {% if project.already_applied %}Voir{% else %}Postuler{% endif %}
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        {{ cdash_empty('🎯', 'Aucune mission', 'Affinez vos compétences dans le profil pour améliorer le matching.', url_for('compte.startup_edit_profile'), 'Mon profil') }}
+        {% endif %}
+    </div>
+</section>
+
+<section class="cdash-panel{% if active_section == 'partnerships' %} active{% endif %}" id="cdash-panel-partnerships" data-section="partnerships">
+    <div class="cdash-card">
+        <div class="cdash-card-head">
+            <h2>Partenariats & paiements</h2>
+        </div>
+        {% if engagements %}
+        <div class="cdash-table-wrap">
+            <table class="cdash-table">
+                <thead>
+                    <tr>
+                        <th>Mission</th>
+                        <th>Entreprise</th>
+                        <th>Phase</th>
+                        <th>Versement prévu</th>
+                        <th>Statut</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for eng in engagements %}
+                    <tr>
+                        <td>
+                            <strong>{{ eng.project_title }}</strong>
+                            <div class="cdash-meta">{{ eng.created_at[:10] if eng.created_at else '' }}</div>
+                        </td>
+                        <td>{{ eng.enterprise_name }}</td>
+                        <td>{{ phase_badge(eng.project_phase) }}</td>
+                        <td class="mono">{{ eng.payout_label }}</td>
+                        <td>{{ cdash_status(eng.status_tone, eng.status_label) }}</td>
+                        <td>
+                            {% if eng.message_id %}
+                            <a href="{{ url_for('compte.message_detail', message_id=eng.message_id) }}" class="btn btn-ghost btn-sm">Détails</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        {{ cdash_empty('🤝', 'Aucun partenariat', 'Une candidature acceptée créera votre première mission rémunérée.') }}
+        {% endif %}
+    </div>
+</section>
+
+<section class="cdash-panel{% if active_section == 'applications' %} active{% endif %}" id="cdash-panel-applications" data-section="applications">
+    <div class="cdash-card">
+        <div class="cdash-card-head">
+            <h2>Mes candidatures</h2>
+        </div>
+        {% if applications %}
+        <div class="cdash-table-wrap">
+            <table class="cdash-table">
+                <thead>
+                    <tr>
+                        <th>Projet</th>
+                        <th>Entreprise</th>
+                        <th>Statut</th>
+                        <th>Date</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for msg in applications %}
+                    <tr>
+                        <td><strong>{{ msg.project_title or 'Projet IoT' }}</strong></td>
+                        <td>{{ msg.counterpart_name }}</td>
+                        <td>{{ cdash_status(msg.status, msg.status_label) }}</td>
+                        <td class="cdash-meta">{{ msg.created_at[:10] if msg.created_at else '—' }}</td>
+                        <td>
+                            <div class="cdash-actions">
+                                <a href="{{ url_for('compte.message_detail', message_id=msg.id) }}" class="btn btn-ghost btn-sm">Voir</a>
+                                <button type="button" class="btn btn-outline btn-sm cdash-open-chat"
+                                    data-counterpart="{{ msg.to_user_id }}"
+                                    data-project="{{ msg.project_id or '' }}"
+                                    data-name="{{ msg.counterpart_name }}"
+                                    data-role="enterprise">Chat</button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        {{ cdash_empty('📨', 'Aucune candidature', 'Parcourez les missions ouvertes et postulez.', url_for('vitrine.projects'), 'Trouver une mission') }}
+        {% endif %}
+    </div>
+</section>
+
+<section class="cdash-panel cdash-messenger-panel{% if active_section == 'messages' %} active{% endif %}" id="cdash-panel-messages" data-section="messages">
+    <div class="cdash-card" style="padding:12px">
+        {{ messenger_widget('startup') }}
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('vitrine.static', filename='js/compte-dashboard.js') }}?v=1"></script>
 <script src="{{ url_for('vitrine.static', filename='js/messaging.js') }}?v=2"></script>
-<script>
-document.querySelectorAll('.ux-open-chat').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelector('[data-tab="messages"]')?.click();
-        setTimeout(() => {
-            window.IotMessenger?.openThread({
-                counterpart_user_id: btn.dataset.counterpart,
-                project_id: btn.dataset.project || null,
-                counterpart_name: btn.dataset.name,
-                counterpart_role: btn.dataset.role,
-            });
-        }, 150);
-    });
-});
-</script>
 {% endblock %}

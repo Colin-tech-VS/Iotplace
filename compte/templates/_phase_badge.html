@@ -1,0 +1,5 @@
+{% macro phase_badge(phase) %}
+{% if phase %}
+<span class="phase-badge phase-badge-{{ phase }}">{{ translate_phase(phase) }}</span>
+{% endif %}
+{% endmacro %}

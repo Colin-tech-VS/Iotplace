@@ -1,0 +1,22 @@
+{% macro cdash_nav_item(section, icon, label, badge=0, active='') %}
+<button type="button" class="cdash-nav-item{% if active == section %} active{% endif %}" data-cdash-section="{{ section }}">
+    <span class="cdash-nav-icon" aria-hidden="true">{{ icon }}</span>
+    {{ label }}
+    {% if badge %}<span class="cdash-nav-badge">{{ badge }}</span>{% endif %}
+</button>
+{% endmacro %}
+
+{% macro cdash_status(status_class, label) %}
+<span class="cdash-status cdash-status-{{ status_class }}">{{ label }}</span>
+{% endmacro %}
+
+{% macro cdash_empty(icon, title, description, action_url='', action_label='') %}
+<div class="cdash-empty">
+    <div class="cdash-empty-icon">{{ icon }}</div>
+    <h4>{{ title }}</h4>
+    <p>{{ description }}</p>
+    {% if action_url and action_label %}
+    <a href="{{ action_url }}" class="btn btn-primary btn-sm">{{ action_label }}</a>
+    {% endif %}
+</div>
+{% endmacro %}

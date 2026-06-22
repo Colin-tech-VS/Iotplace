@@ -1415,6 +1415,121 @@ def format_engagement_label(status: str) -> str:
     return labels.get(status or "", status or "—")
 
 
+def _format_cents_eur(cents: int | None) -> str:
+    if not cents:
+        return "—"
+    value = cents / 100
+    if value == int(value):
+        return f"{int(value):,} €".replace(",", "\u202f")
+    return f"{value:,.2f} €".replace(",", "\u202f")
+
+
+def enrich_engagement_for_dashboard(engagement: dict, viewer_role: str) -> dict:
+    project = get_project(engagement.get("project_id", ""))
+    startup = get_startup(engagement.get("startup_id", ""))
+    enterprise = get_enterprise(engagement.get("enterprise_id", ""))
+    status = engagement.get("status", "")
+    return {
+        **engagement,
+        "project_title": (project or {}).get("title", "Projet IoT"),
+        "project_phase": (project or {}).get("engagement_phase", ""),
+        "project_status": (project or {}).get("status", ""),
+        "startup_name": (startup or {}).get("name", "—"),
+        "enterprise_name": (enterprise or {}).get("name", "—"),
+        "counterpart_name": (startup or {}).get("name", "—") if viewer_role == "enterprise" else (enterprise or {}).get("name", "—"),
+        "status_label": format_engagement_label(status),
+        "status_tone": {
+            "draft": "muted",
+            "pending_payment": "warn",
+            "escrowed": "info",
+            "released": "success",
+            "payment_error": "danger",
+            "cancelled": "muted",
+        }.get(status, "muted"),
+        "amount_label": _format_cents_eur(engagement.get("amount_cents")),
+        "payout_label": _format_cents_eur(engagement.get("startup_payout_cents")),
+        "message_id": engagement.get("application_message_id"),
+    }
+
+
+def _project_pipeline(projects: list) -> dict:
+    open_projects, active_projects, closed_projects = [], [], []
+    for project in projects:
+        status = project.get("status", "")
+        if status == "Ouvert":
+            open_projects.append(project)
+        elif status == "En cours":
+            active_projects.append(project)
+        else:
+            closed_projects.append(project)
+    return {
+        "open": open_projects,
+        "active": active_projects,
+        "closed": closed_projects,
+        "counts": {
+            "open": len(open_projects),
+            "active": len(active_projects),
+            "closed": len(closed_projects),
+            "total": len(projects),
+        },
+    }
+
+
+def _partnership_pipeline(engagements: list) -> dict:
+    billing, escrowed, completed, other = [], [], [], []
+    for engagement in engagements:
+        status = engagement.get("status", "")
+        if status in ("draft", "pending_payment", "payment_error"):
+            billing.append(engagement)
+        elif status == "escrowed":
+            escrowed.append(engagement)
+        elif status == "released":
+            completed.append(engagement)
+        else:
+            other.append(engagement)
+    return {
+        "billing": billing,
+        "escrowed": escrowed,
+        "completed": completed,
+        "other": other,
+        "counts": {
+            "billing": len(billing),
+            "escrowed": len(escrowed),
+            "completed": len(completed),
+            "active": len(billing) + len(escrowed),
+            "total": len(engagements),
+        },
+    }
+
+
+def _build_dashboard_activity(applications: list, engagements: list) -> list:
+    items = []
+    for app in applications:
+        items.append({
+            "type": "application",
+            "at": app.get("created_at", ""),
+            "title": app.get("project_title") or "Projet IoT",
+            "subtitle": app.get("counterpart_name", ""),
+            "status": app.get("status", ""),
+            "status_label": app.get("status_label", ""),
+            "message_id": app.get("id"),
+            "project_id": app.get("project_id"),
+        })
+    for eng in engagements:
+        items.append({
+            "type": "partnership",
+            "at": eng.get("created_at", ""),
+            "title": eng.get("project_title", "Partenariat"),
+            "subtitle": eng.get("counterpart_name", ""),
+            "status": eng.get("status", ""),
+            "status_label": eng.get("status_label", ""),
+            "message_id": eng.get("message_id"),
+            "engagement_id": eng.get("id"),
+        })
+    items.sort(key=lambda row: row.get("at") or "", reverse=True)
+    return items[:12]
+
+
 def get_contacts_for_user(user):
     email = (user.get("email") or "").strip().lower()
     role = user.get("role", "")
@@ -1582,26 +1697,49 @@ def get_dashboard_data_for_enterprise(user, profile):
     inbox = get_inbox_for_user(user["id"])
     sent = get_sent_for_user(user["id"])
     applications = get_applications_for_enterprise(profile["id"])
+    engagements_raw = get_engagements_for_enterprise(profile["id"])
     platform_contacts = get_contacts_for_user(user)
     projects_enriched = []
     for p in projects:
         apps = get_applications_for_project(p["id"])
+        engagement = next((e for e in engagements_raw if e.get("project_id") == p["id"]), None)
         projects_enriched.append({
             **p,
             "applications_count": len(apps),
             "applications_pending": sum(1 for a in apps if a.get("status") == "pending"),
+            "has_engagement": bool(engagement),
+            "engagement_status": engagement.get("status") if engagement else None,
         })
+    applications_view = [enrich_message_for_view(m, user["id"]) for m in applications]
+    engagements = [
+        enrich_engagement_for_dashboard(e, "enterprise") for e in engagements_raw
+    ]
+    engagements.sort(key=lambda e: e.get("created_at") or "", reverse=True)
+    pipeline = _project_pipeline(projects_enriched)
+    partnerships = _partnership_pipeline(engagements)
+    pending_apps = sum(1 for a in applications if a.get("status") == "pending")
+    accepted_apps = sum(1 for a in applications if a.get("status") == "accepted")
     return {
         "projects": projects_enriched,
+        "pipeline": pipeline,
+        "partnerships": partnerships,
+        "engagements": engagements,
+        "activity": _build_dashboard_activity(applications_view, engagements),
         "inbox": [enrich_message_for_view(m, user["id"]) for m in inbox],
         "sent": [enrich_message_for_view(m, user["id"]) for m in sent],
-        "applications": [enrich_message_for_view(m, user["id"]) for m in applications],
+        "applications": applications_view,
         "platform_contacts": platform_contacts,
         "unread_count": get_unread_count(user["id"]),
         "stats": {
             "projects": len(projects),
+            "projects_open": pipeline["counts"]["open"],
+            "projects_active": pipeline["counts"]["active"],
+            "partnerships": partnerships["counts"]["total"],
+            "partnerships_active": partnerships["counts"]["active"],
             "messages": len(inbox) + len(sent),
             "applications": len(applications),
+            "applications_pending": pending_apps,
+            "applications_accepted": accepted_apps,
             "unread": get_unread_count(user["id"]),
             "contacts": len(platform_contacts),
         },
@@ -1613,6 +1751,7 @@ def get_dashboard_data_for_startup(user, profile):
     inbox = get_inbox_for_user(user["id"])
     sent = get_sent_for_user(user["id"])
     applications = get_applications_for_startup(profile["id"])
+    engagements_raw = get_engagements_for_startup(profile["id"])
     applied_ids = {a.get("project_id") for a in applications}
     matching_enriched = []
     for p in matching:
@@ -1620,17 +1759,35 @@ def get_dashboard_data_for_startup(user, profile):
             **p,
             "already_applied": p["id"] in applied_ids,
         })
+    applications_view = [enrich_message_for_view(m, user["id"]) for m in applications]
+    engagements = [
+        enrich_engagement_for_dashboard(e, "startup") for e in engagements_raw
+    ]
+    engagements.sort(key=lambda e: e.get("created_at") or "", reverse=True)
+    partnerships = _partnership_pipeline(engagements)
+    pending_apps = sum(1 for a in applications if a.get("status") == "pending")
+    accepted_apps = sum(1 for a in applications if a.get("status") == "accepted")
+    open_matching = [p for p in matching_enriched if p.get("status") == "Ouvert" and not p.get("already_applied")]
     return {
         "matching_projects": matching_enriched,
+        "open_matching": open_matching,
+        "partnerships": partnerships,
+        "engagements": engagements,
+        "activity": _build_dashboard_activity(applications_view, engagements),
         "inbox": [enrich_message_for_view(m, user["id"]) for m in inbox],
         "sent": [enrich_message_for_view(m, user["id"]) for m in sent],
-        "applications": [enrich_message_for_view(m, user["id"]) for m in applications],
+        "applications": applications_view,
         "platform_contacts": get_contacts_for_user(user),
         "unread_count": get_unread_count(user["id"]),
         "stats": {
             "applications": len(applications),
+            "applications_pending": pending_apps,
+            "applications_accepted": accepted_apps,
             "messages": len(inbox) + len(sent),
-            "matching": len(matching),
+            "matching": len(matching_enriched),
+            "matching_open": len(open_matching),
+            "partnerships": partnerships["counts"]["total"],
+            "partnerships_active": partnerships["counts"]["active"],
             "unread": get_unread_count(user["id"]),
         },
     }
