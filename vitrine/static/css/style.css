@@ -414,20 +414,25 @@ a:hover { color: #33e0be; }
 
 /* ── Buttons ── */
 .btn {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     padding: 0.6rem 1.4rem;
     border-radius: 8px;
     font-weight: 600;
     font-size: 0.9rem;
-    border: none;
+    line-height: 1.25;
+    border: 1.5px solid transparent;
     cursor: pointer;
     transition: all 0.2s;
     text-align: center;
+    vertical-align: middle;
 }
 
 .btn-primary {
     background: var(--gradient);
     color: #0a0e17;
+    border-color: transparent;
 }
 
 .btn-primary:hover {
@@ -438,7 +443,7 @@ a:hover { color: #33e0be; }
 
 .btn-outline {
     background: transparent;
-    border: 1.5px solid var(--border);
+    border-color: var(--border);
     color: var(--text);
 }
 
@@ -507,6 +512,7 @@ a:hover { color: #33e0be; }
     display: flex;
     gap: 1rem;
     justify-content: center;
+    align-items: center;
     flex-wrap: wrap;
     margin-bottom: 3.5rem;
 }
@@ -777,9 +783,30 @@ a:hover { color: #33e0be; }
         var(--bg-alt);
 }
 
-.cta-inner { text-align: center; }
+.cta-box,
+.cta-inner {
+    text-align: center;
+}
+
+.cta-box h2,
 .cta-inner h2 { font-size: 2rem; margin-bottom: 0.75rem; }
-.cta-inner p { color: var(--text-muted); margin-bottom: 2rem; max-width: 500px; margin-left: auto; margin-right: auto; }
+
+.cta-box p,
+.cta-inner p {
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+}
 
 /* ── About ── */
 .about-content { max-width: 800px; }
@@ -1996,6 +2023,7 @@ a:hover { color: #33e0be; }
 .audience-path-cta {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
     gap: 0.5rem;
     margin-top: auto;
     padding-top: 0.5rem;
@@ -2489,6 +2517,10 @@ a:hover { color: #33e0be; }
     color: var(--text-muted);
     font-size: 0.88rem;
     line-height: 1.55;
+}
+
+.domain-iotplace-col .btn {
+    width: 100%;
 }
 
 @media (max-width: 900px) {
