@@ -238,6 +238,57 @@ def enterprise_new_project():
     return render_template("compte/project_form.html", profile=profile, user=user, form={})
 
 
+@compte_bp.route("/compte/entreprise/projet/<project_id>/modifier", methods=["GET", "POST"])
+@auth.login_required(role="enterprise")
+def enterprise_edit_project(project_id):
+    user = auth.get_current_user()
+    profile = store.get_enterprise_for_user(user["id"])
+    project = store.get_project(project_id)
+    if not profile or not project or project.get("enterprise_id") != profile["id"]:
+        flash("Projet introuvable.", "error")
+        return redirect(url_for("compte.enterprise_dashboard"))
+
+    if request.method == "POST":
+        title = request.form.get("title", "").strip()
+        if not title:
+            flash("Le titre du projet est requis.", "error")
+            return render_template(
+                "compte/project_form.html",
+                profile=profile,
+                user=user,
+                project=project,
+                form=dict(request.form),
+            )
+        store.update_project_for_enterprise(profile, project_id, {
+            "title": title,
+            "description": request.form.get("description", "").strip(),
+            "budget": request.form.get("budget", "").strip(),
+            "duration": request.form.get("duration", "").strip(),
+            "skills": store.parse_list_field(request.form.get("skills")),
+            "status": request.form.get("status", "").strip(),
+            "engagement_phase": request.form.get("engagement_phase", "").strip(),
+        })
+        flash("Projet mis à jour.", "success")
+        return redirect(url_for("compte.enterprise_project_detail", project_id=project_id))
+
+    form = {
+        "title": project.get("title", ""),
+        "description": project.get("description", ""),
+        "budget": project.get("budget", ""),
+        "duration": project.get("duration", ""),
+        "skills": ", ".join(project.get("skills") or []),
+        "status": project.get("status", "Ouvert"),
+        "engagement_phase": project.get("engagement_phase", ""),
+    }
+    return render_template(
+        "compte/project_form.html",
+        profile=profile,
+        user=user,
+        project=project,
+        form=form,
+    )
+
+
 @compte_bp.route("/compte/entreprise/projet/<project_id>")
 @auth.login_required(role="enterprise")
 def enterprise_project_detail(project_id):

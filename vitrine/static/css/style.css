@@ -948,6 +948,14 @@ a:hover { color: #33e0be; }
 
 /* ── Auth & inscription ── */
 .page-hero-sm { padding: 3rem 0 1.5rem; }
+
+.page-hero-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
 .auth-wrap { max-width: 420px; margin: 0 auto; }
 .auth-form, .register-form { max-width: 820px; margin: 0 auto; }
 .auth-links { text-align: center; margin-top: 2rem; display: flex; flex-direction: column; gap: 0.75rem; align-items: center; }

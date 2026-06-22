@@ -4,8 +4,15 @@
 <section class="page-hero page-hero-sm">
     <div class="container reveal">
         <a href="{{ url_for('compte.home') }}" class="back-link">← Retour</a>
-        <h1>{{ project.title }}</h1>
-        <p class="page-sub">{{ project.enterprise }} · {{ project.status }}</p>
+        <div class="page-hero-row">
+            <div>
+                <h1>{{ project.title }}</h1>
+                <p class="page-sub">{{ project.enterprise }} · {{ project.status }}</p>
+            </div>
+            {% if role == 'enterprise' %}
+            <a href="{{ url_for('compte.enterprise_edit_project', project_id=project.id) }}" class="btn btn-outline btn-sm">Modifier le projet</a>
+            {% endif %}
+        </div>
     </div>
 </section>
 

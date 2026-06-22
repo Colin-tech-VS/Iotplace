@@ -103,6 +103,7 @@
                             {% endif %}
                         </div>
                         <span class="status-pill status-{{ 'open' if project.status == 'Ouvert' else 'closed' }}">{{ project.status }}</span>
+                        <a href="{{ url_for('compte.enterprise_edit_project', project_id=project.id) }}" class="btn btn-outline btn-sm">Modifier</a>
                     </article>
                     {% endfor %}
                 </div>

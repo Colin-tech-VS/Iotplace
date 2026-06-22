@@ -862,6 +862,35 @@ def add_project_for_enterprise(enterprise, fields):
     })
 
 
+def update_project_for_enterprise(enterprise, project_id, fields):
+    from data.engagement_phases import normalize_phase, phase_defaults
+
+    project = get_project(project_id)
+    if not project or project.get("enterprise_id") != enterprise.get("id"):
+        return None
+
+    budget = fields.get("budget", "").strip()
+    phase = normalize_phase(fields.get("engagement_phase")) or project.get("engagement_phase")
+    defaults = phase_defaults(phase) if phase else {}
+    if not budget and defaults.get("budget"):
+        budget = defaults["budget"]
+    duration = fields.get("duration", "").strip() or defaults.get("duration", project.get("duration", ""))
+    budget_cents = fields.get("budget_cents") or resolve_budget_cents(budget or project.get("budget", ""))
+    status = fields.get("status", project.get("status", "Ouvert")).strip() or project.get("status", "Ouvert")
+
+    return update_project(project_id, {
+        "title": fields.get("title", "").strip(),
+        "enterprise": enterprise.get("name", project.get("enterprise", "")),
+        "description": fields.get("description", "").strip(),
+        "budget": budget,
+        "budget_cents": budget_cents,
+        "duration": duration,
+        "skills": fields.get("skills") or [],
+        "status": status,
+        "engagement_phase": phase,
+    })
+
+
 # ── Messages & candidatures ──
 
 def _profile_name_for_user(user):

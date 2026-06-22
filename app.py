@@ -44,6 +44,13 @@ def inject_i18n():
     return inject_i18n_context()
 
 
+from vitrine.i18n import t, translate_phase, translate_status
+
+app.jinja_env.globals["t"] = t
+app.jinja_env.globals["translate_phase"] = translate_phase
+app.jinja_env.globals["translate_status"] = translate_status
+
+
 if _is_prod:
     from crm import auth as crm_auth
 

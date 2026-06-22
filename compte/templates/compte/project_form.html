@@ -4,14 +4,15 @@
 {% block content %}
 <section class="page-hero page-hero-sm">
     <div class="container reveal">
-        <a href="{{ url_for('compte.enterprise_dashboard') }}" class="back-link">{{ t('common.back') }}</a>
-        <h1>{{ t('compte.project_new_title') }}</h1>
+        <a href="{{ url_for('compte.enterprise_dashboard') if not project else url_for('compte.enterprise_project_detail', project_id=project.id) }}" class="back-link">{{ t('common.back') }}</a>
+        <h1>{{ t('compte.project_edit_title') if project else t('compte.project_new_title') }}</h1>
     </div>
 </section>
 
 <section class="section">
     <div class="container">
-        <form class="register-form reveal" method="POST" id="projectForm">
+        <form class="register-form reveal" method="POST" id="projectForm"
+              action="{{ url_for('compte.enterprise_edit_project', project_id=project.id) if project else url_for('compte.enterprise_new_project') }}">
             <fieldset class="form-section-card">
                 <div class="form-group">
                     <label for="engagement_phase">{{ t('engagement.phase_label') }} <span class="req">*</span></label>
@@ -51,9 +52,21 @@
                         </select>
                     </div>
                 </div>
+                {% if project %}
+                <div class="form-group">
+                    <label for="status">{{ t('compte.project_status') }}</label>
+                    <select id="status" name="status">
+                        {% for s in ['Ouvert', 'En cours', 'Fermé'] %}
+                        <option value="{{ s }}" {% if field_value(form, 'status') == s %}selected{% endif %}>{{ translate_status(s) }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
                 {{ tag_input('skills', 'skills', field_value(form, 'skills'), t('compte.project_skills'), t('compte.project_skills_ph')) }}
             </fieldset>
-            <button type="submit" class="btn btn-primary">{{ t('enterprises.publish_btn') }}</button>
+            <button type="submit" class="btn btn-primary">
+                {{ t('compte.project_save_btn') if project else t('enterprises.publish_btn') }}
+            </button>
         </form>
     </div>
 </section>
