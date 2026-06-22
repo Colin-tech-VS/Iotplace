@@ -1,11 +1,15 @@
 (function (global) {
     const DEFAULT_DURATION = 4800;
-    const TITLES = {
-        success: 'Succès',
+    const DEFAULT_TITLES = {
+        success: 'Success',
         info: 'Info',
-        warning: 'Attention',
-        error: 'Erreur',
+        warning: 'Warning',
+        error: 'Error',
     };
+
+    function toastTitles() {
+        return { ...DEFAULT_TITLES, ...(global.IOT_I18N?.toast || {}) };
+    }
     const ICONS = {
         success: '✓',
         info: 'i',
@@ -46,7 +50,7 @@
     function show(message, options) {
         const opts = options || {};
         const type = normalizeType(opts.type || opts.category || 'info');
-        const title = opts.title || TITLES[type] || TITLES.info;
+        const title = opts.title || toastTitles()[type] || toastTitles().info;
         const duration = opts.duration == null ? DEFAULT_DURATION : opts.duration;
         const stack = ensureStack();
 

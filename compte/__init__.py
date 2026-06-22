@@ -15,7 +15,7 @@ def inject_compte_context():
     import auth
     from data import store
 
-    from vitrine.i18n import get_locale
+    from vitrine.i18n import compte_js_i18n, get_locale, inject_i18n_context
 
     endpoint = request.endpoint or ""
     site_url = store.get_site_url()
@@ -28,6 +28,8 @@ def inject_compte_context():
     elif endpoint == "compte.register_startup":
         slug = "startups"
     return {
+        **inject_i18n_context(),
+        "compte_i18n": compte_js_i18n(),
         "countries": store.get_startup_countries(),
         "seo": seo,
         "seo_canonical": canonical,

@@ -11,6 +11,8 @@
         status: root.dataset.statusUrl,
     };
     const userRole = root.dataset.userRole || '';
+    const i18n = () => (window.IOT_I18N && window.IOT_I18N.messenger) || {};
+    const uiLocale = () => ((window.IOT_I18N && window.IOT_I18N.locale) === 'en' ? 'en-US' : 'fr-FR');
 
     const els = {
         threads: document.getElementById('messengerThreads'),
@@ -43,8 +45,8 @@
         const now = new Date();
         const isToday = d.toDateString() === now.toDateString();
         return isToday
-            ? d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
-            : d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+            ? d.toLocaleTimeString(uiLocale(), { hour: '2-digit', minute: '2-digit' })
+            : d.toLocaleDateString(uiLocale(), { day: 'numeric', month: 'short' });
     }
 
     function escapeHtml(text) {
@@ -107,10 +109,10 @@
 
     function renderThreads() {
         if (!state.conversations.length) {
-            const hint = root.dataset.emptyHint || 'Les conversations apparaîtront ici.';
+            const hint = root.dataset.emptyHint || '';
             els.threads.innerHTML = `
                 <div class="ux-messenger-no-threads">
-                    <p>Aucune conversation</p>
+                    <p>${escapeHtml(i18n().no_threads || 'No conversations')}</p>
                     <span class="muted">${escapeHtml(hint)}</span>
                 </div>`;
             return;
@@ -120,7 +122,9 @@
             const active = state.activeThread &&
                 state.activeThread.counterpart_user_id === c.counterpart_user_id &&
                 (state.activeThread.project_id || '') === (c.project_id || '');
-            const roleLabel = c.counterpart_role === 'enterprise' ? 'Entreprise' : 'Startup';
+            const roleLabel = c.counterpart_role === 'enterprise'
+                ? (i18n().role_enterprise || 'Enterprise')
+                : (i18n().role_startup || 'Startup');
             return `
                 <button type="button" class="ux-thread-item ${active ? 'active' : ''} ${c.unread ? 'unread' : ''}"
                     data-counterpart="${c.counterpart_user_id}"
@@ -158,8 +162,8 @@
             const mine = m.is_mine;
             const appActions = (!mine && m.kind === 'application' && userRole === 'enterprise' && m.status === 'pending')
                 ? `<div class="ux-msg-actions" data-msg-id="${m.id}">
-                    <button type="button" class="btn btn-primary btn-sm" data-action="accepted">Accepter</button>
-                    <button type="button" class="btn btn-ghost btn-sm" data-action="declined">Refuser</button>
+                    <button type="button" class="btn btn-primary btn-sm" data-action="accepted">${escapeHtml(i18n().accept || 'Accept')}</button>
+                    <button type="button" class="btn btn-ghost btn-sm" data-action="declined">${escapeHtml(i18n().decline || 'Decline')}</button>
                    </div>`
                 : '';
             return `
@@ -189,7 +193,9 @@
         els.empty.hidden = true;
         els.active.hidden = false;
         els.peerName.textContent = thread.counterpart_name || '—';
-        const roleLabel = thread.counterpart_role === 'enterprise' ? 'Entreprise' : 'Startup';
+        const roleLabel = thread.counterpart_role === 'enterprise'
+            ? (i18n().role_enterprise || 'Enterprise')
+            : (i18n().role_startup || 'Startup');
         els.peerMeta.textContent = roleLabel;
         els.sidebar?.classList.remove('mobile-open');
         root.classList.add('thread-open');
@@ -239,26 +245,27 @@
         });
         const data = await res.json();
         if (!data.ok) {
-            if (window.IotToast) IotToast.show(data.error || 'Erreur', { type: 'error' });
-            else alert(data.error || 'Erreur');
+            if (window.IotToast) IotToast.show(data.error || i18n().generic_error || 'Error', { type: 'error' });
+            else alert(data.error || i18n().generic_error || 'Error');
             return;
         }
         if (status === 'accepted') {
             if (window.IotToast) {
-                IotToast.show('Candidature acceptée.', { type: 'success' });
+                IotToast.show(i18n().app_accepted || 'Application accepted.', { type: 'success' });
             }
         } else if (status === 'declined' && window.IotToast) {
-            IotToast.show('Candidature refusée.', { type: 'info' });
+            IotToast.show(i18n().app_declined || 'Application declined.', { type: 'info' });
         }
         if (status === 'accepted' && data.payment && data.payment.invoice_url) {
-            if (confirm('Candidature acceptée. Ouvrir la facture pour paiement (séquestre) ?')) {
+            if (confirm(i18n().invoice_confirm || 'Open invoice for escrow payment?')) {
                 window.open(data.payment.invoice_url, '_blank', 'noopener');
             }
         } else if (status === 'accepted' && data.payment && data.payment.error) {
             if (window.IotToast) {
-                IotToast.show('Acceptée, mais facture : ' + data.payment.error, { type: 'warning' });
+                const tpl = i18n().invoice_warning || 'Accepted, but invoice: {error}';
+                IotToast.show(tpl.replace('{error}', data.payment.error), { type: 'warning' });
             } else {
-                alert('Acceptée, mais facture : ' + data.payment.error);
+                alert((i18n().invoice_warning || 'Invoice: {error}').replace('{error}', data.payment.error));
             }
         }
         const idx = state.activeMessages.findIndex((m) => m.id === messageId);
@@ -281,7 +288,7 @@
             if (notifications.length) {
                 notifications.forEach((n) => {
                     if (!state.activeThread || n.from_user_id !== state.activeThread.counterpart_user_id) {
-                        showToast(n.counterpart_name || 'Nouveau message', (n.body || '').slice(0, 80));
+                        showToast(n.counterpart_name || i18n().new_message || 'New message', (n.body || '').slice(0, 80));
                     }
                 });
                 if (state.activeThread) {
@@ -307,7 +314,7 @@
         els.input.disabled = true;
         try {
             await sendMessage(body);
-            if (window.IotToast) IotToast.show('Message envoyé.', { type: 'success' });
+            if (window.IotToast) IotToast.show(i18n().message_sent || 'Message sent.', { type: 'success' });
         } catch (err) {
             if (window.IotToast) IotToast.show(err.message, { type: 'error' });
             else alert(err.message);

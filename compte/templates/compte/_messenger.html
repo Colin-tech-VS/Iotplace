@@ -6,29 +6,29 @@
      data-read-url="{{ url_for('compte.messaging_mark_read') }}"
      data-status-url="{{ url_for('compte.messaging_update_status', message_id='__ID__') }}"
      data-user-role="{{ user_role }}"
-     data-empty-hint="{% if user_role == 'enterprise' %}Les candidatures des startups apparaîtront ici.{% else %}Postulez à un projet pour démarrer un échange.{% endif %}">
+     data-empty-hint="{% if user_role == 'enterprise' %}{{ t('compte.dashboard.messenger.empty_hint_enterprise') }}{% else %}{{ t('compte.dashboard.messenger.empty_hint_startup') }}{% endif %}">
 
     <div class="ux-messenger-layout">
         <aside class="ux-messenger-sidebar" id="messengerSidebar">
             <div class="ux-messenger-sidebar-head">
-                <h3>Conversations</h3>
+                <h3>{{ t('compte.dashboard.messenger.conversations') }}</h3>
                 <span class="ux-messenger-unread-total" id="messengerUnreadTotal" hidden></span>
             </div>
             <div class="ux-messenger-threads" id="messengerThreads">
-                <div class="ux-messenger-loading">Chargement…</div>
+                <div class="ux-messenger-loading">{{ t('compte.dashboard.messenger.loading') }}</div>
             </div>
         </aside>
 
         <div class="ux-messenger-chat" id="messengerChat">
             <div class="ux-messenger-empty" id="messengerEmpty">
                 <span class="ux-messenger-empty-icon">💬</span>
-                <h4>Messagerie Iotplace</h4>
-                <p>Échangez directement avec {% if user_role == 'enterprise' %}les startups{% else %}les entreprises{% endif %} — candidatures et réponses en temps réel.</p>
+                <h4>{{ t('compte.dashboard.messenger.title') }}</h4>
+                <p>{% if user_role == 'enterprise' %}{{ t('compte.dashboard.messenger.subtitle_enterprise') }}{% else %}{{ t('compte.dashboard.messenger.subtitle_startup') }}{% endif %}</p>
             </div>
 
             <div class="ux-messenger-active" id="messengerActive" hidden>
                 <header class="ux-messenger-chat-head">
-                    <button type="button" class="ux-messenger-back" id="messengerBack" aria-label="Retour">←</button>
+                    <button type="button" class="ux-messenger-back" id="messengerBack" aria-label="{{ t('compte.dashboard.messenger.back') }}">←</button>
                     <div class="ux-messenger-chat-peer">
                         <strong id="messengerPeerName">—</strong>
                         <span id="messengerPeerMeta" class="muted"></span>
@@ -40,8 +40,8 @@
                 <div class="ux-messenger-compose">
                     <div class="ux-messenger-app-actions" id="messengerAppActions" hidden></div>
                     <form id="messengerForm" class="ux-messenger-form">
-                        <textarea id="messengerInput" rows="2" placeholder="Écrivez votre message…" required></textarea>
-                        <button type="submit" class="btn btn-primary btn-sm" id="messengerSendBtn">Envoyer</button>
+                        <textarea id="messengerInput" rows="2" placeholder="{{ t('compte.dashboard.messenger.placeholder') }}" required></textarea>
+                        <button type="submit" class="btn btn-primary btn-sm" id="messengerSendBtn">{{ t('compte.dashboard.messenger.send') }}</button>
                     </form>
                 </div>
             </div>

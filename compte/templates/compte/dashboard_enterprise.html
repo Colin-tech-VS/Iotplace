@@ -3,54 +3,56 @@
 {% from "compte/_messenger.html" import messenger_widget %}
 {% from "_phase_badge.html" import phase_badge %}
 
-{% block title %}{{ profile.name }} — Entreprise{% endblock %}
+{% block title %}{{ profile.name }} — {{ t('compte.dashboard.enterprise.title_suffix') }}{% endblock %}
 {% block compte_role %}enterprise{% endblock %}
-{% block space_label %}Espace entreprise{% endblock %}
+{% block space_label %}{{ t('compte.dashboard.enterprise.space') }}{% endblock %}
 
 {% set active_section = request.args.get('section', 'overview') %}
+{% set d = 'compte.dashboard' %}
+{% set de = d ~ '.enterprise' %}
 
 {% block sidebar_nav %}
-<span class="cdash-nav-label">Pilotage</span>
-{{ cdash_nav_item('overview', '◎', 'Vue d\'ensemble', active=active_section) }}
-{{ cdash_nav_item('projects', '📋', 'Projets', stats.projects, active=active_section) }}
-{{ cdash_nav_item('partnerships', '🤝', 'Partenariats', stats.partnerships_active, active=active_section) }}
-{{ cdash_nav_item('applications', '📨', 'Candidatures', stats.applications_pending, active=active_section) }}
-{{ cdash_nav_item('messages', '💬', 'Messagerie', unread_count, active=active_section) }}
-<span class="cdash-nav-label">Compte</span>
+<span class="cdash-nav-label">{{ t(d ~ '.nav_pilot') }}</span>
+{{ cdash_nav_item('overview', '◎', t(d ~ '.overview'), active=active_section) }}
+{{ cdash_nav_item('projects', '📋', t(d ~ '.projects'), stats.projects, active=active_section) }}
+{{ cdash_nav_item('partnerships', '🤝', t(d ~ '.partnerships'), stats.partnerships_active, active=active_section) }}
+{{ cdash_nav_item('applications', '📨', t(d ~ '.applications'), stats.applications_pending, active=active_section) }}
+{{ cdash_nav_item('messages', '💬', t(d ~ '.messages'), unread_count, active=active_section) }}
+<span class="cdash-nav-label">{{ t(d ~ '.nav_account') }}</span>
 <a href="{{ url_for('compte.enterprise_edit_profile') }}" class="cdash-nav-item">
     <span class="cdash-nav-icon" aria-hidden="true">⚙</span>
-    Mon profil
+    {{ t(d ~ '.my_profile') }}
 </a>
 <a href="{{ url_for('vitrine.pricing') }}" class="cdash-nav-item" target="_blank" rel="noopener">
     <span class="cdash-nav-icon" aria-hidden="true">€</span>
-    Offres & tarifs
+    {{ t(d ~ '.pricing') }}
 </a>
 {% endblock %}
 
 {% block main_header %}
 <header class="cdash-topbar">
     <div class="cdash-topbar-left">
-        <button type="button" class="cdash-menu-btn" id="cdashMenuBtn" aria-label="Menu">☰</button>
+        <button type="button" class="cdash-menu-btn" id="cdashMenuBtn" aria-label="{{ t(d ~ '.menu') }}">☰</button>
         <div>
             <div class="cdash-badges">
-                <span class="cdash-badge cdash-badge-accent">Entreprise</span>
+                <span class="cdash-badge cdash-badge-accent">{{ t(de ~ '.badge') }}</span>
                 {% if is_pro %}
-                <span class="cdash-badge cdash-badge-pro">Pro</span>
+                <span class="cdash-badge cdash-badge-pro">{{ t(de ~ '.badge_pro') }}</span>
                 {% else %}
-                <span class="cdash-badge cdash-badge-muted">Gratuit · {{ stats.projects_open }} projet ouvert max</span>
+                <span class="cdash-badge cdash-badge-muted">{{ t(de ~ '.badge_free', max=pricing.free_enterprise_max_projects) }}</span>
                 {% endif %}
             </div>
             <h1>{{ profile.name }}</h1>
-            <p class="cdash-topbar-sub">{{ profile.sector or 'Donneur d\'ordre IoT' }} · {{ profile.country or '—' }}</p>
+            <p class="cdash-topbar-sub">{{ profile.sector or t(d ~ '.default_iot_client') }} · {{ profile.country or '—' }}</p>
         </div>
     </div>
     <div class="cdash-topbar-actions">
-        <a href="{{ url_for('compte.enterprise_new_project') }}" class="btn btn-primary btn-sm">+ Nouveau projet</a>
+        <a href="{{ url_for('compte.enterprise_new_project') }}" class="btn btn-primary btn-sm">{{ t(de ~ '.new_project') }}</a>
         {% if stripe_configured %}
             {% if is_pro %}
-            <a href="{{ url_for('compte.enterprise_billing_portal') }}" class="btn btn-outline btn-sm">Abonnement</a>
+            <a href="{{ url_for('compte.enterprise_billing_portal') }}" class="btn btn-outline btn-sm">{{ t(de ~ '.subscription') }}</a>
             {% else %}
-            <a href="{{ url_for('compte.enterprise_subscribe_pro') }}" class="btn btn-outline btn-sm">Pro · {{ pricing.pro_price_eur }} €/mois</a>
+            <a href="{{ url_for('compte.enterprise_subscribe_pro') }}" class="btn btn-outline btn-sm">{{ t(de ~ '.pro_price', price=pricing.pro_price_eur) }}</a>
             {% endif %}
         {% endif %}
     </div>
@@ -60,71 +62,70 @@
 {% block content %}
 {% if stripe_configured and not is_pro %}
 <div class="cdash-alert cdash-alert-pro reveal">
-    <span><strong>Offre Pro</strong> — projets illimités, commission {{ pricing.pro_commission_percent|int }} % (au lieu de {{ pricing.commission_percent|int }} %).</span>
-    <a href="{{ url_for('compte.enterprise_subscribe_pro') }}" class="btn btn-primary btn-sm">S'abonner</a>
+    <span>{{ t(de ~ '.pro_alert', pro=pricing.pro_commission_percent|int, free=pricing.commission_percent|int) }}</span>
+    <a href="{{ url_for('compte.enterprise_subscribe_pro') }}" class="btn btn-primary btn-sm">{{ t(de ~ '.subscribe') }}</a>
 </div>
 {% endif %}
 
-{# ── Vue d'ensemble ── #}
 <section class="cdash-panel{% if active_section == 'overview' %} active{% endif %}" id="cdash-panel-overview" data-section="overview">
     <div class="cdash-kpis">
         <button type="button" class="cdash-kpi" data-cdash-section="projects">
             <strong>{{ stats.projects }}</strong>
-            <span>Projets publiés</span>
-            <small>{{ stats.projects_open }} ouvert(s) · {{ stats.projects_active }} en cours</small>
+            <span>{{ t(de ~ '.kpi_projects') }}</span>
+            <small>{{ t(de ~ '.kpi_projects_sub', open=stats.projects_open, active=stats.projects_active) }}</small>
         </button>
         <button type="button" class="cdash-kpi" data-cdash-section="partnerships">
             <strong>{{ stats.partnerships_active }}</strong>
-            <span>Partenariats actifs</span>
-            <small>{{ stats.partnerships }} mission(s) au total</small>
+            <span>{{ t(de ~ '.kpi_partnerships') }}</span>
+            <small>{{ t(de ~ '.kpi_partnerships_sub', total=stats.partnerships) }}</small>
         </button>
         <button type="button" class="cdash-kpi" data-cdash-section="applications">
             <strong>{{ stats.applications_pending }}</strong>
-            <span>Candidatures en attente</span>
-            <small>{{ stats.applications }} reçue(s)</small>
+            <span>{{ t(de ~ '.kpi_applications') }}</span>
+            <small>{{ t(de ~ '.kpi_applications_sub', total=stats.applications) }}</small>
         </button>
         <button type="button" class="cdash-kpi" data-cdash-section="messages">
             <strong>{{ stats.unread }}</strong>
-            <span>Messages non lus</span>
-            <small>{{ stats.messages }} conversation(s)</small>
+            <span>{{ t(de ~ '.kpi_messages') }}</span>
+            <small>{{ t(de ~ '.kpi_messages_sub', total=stats.messages) }}</small>
         </button>
     </div>
 
     <div class="cdash-grid-2">
         <div class="cdash-card">
             <div class="cdash-card-head">
-                <h2>Pipeline projets</h2>
-                <a href="{{ url_for('compte.enterprise_new_project') }}" class="btn btn-ghost btn-sm">+ Projet</a>
+                <h2>{{ t(de ~ '.pipeline_title') }}</h2>
+                <a href="{{ url_for('compte.enterprise_new_project') }}" class="btn btn-ghost btn-sm">{{ t(de ~ '.pipeline_add') }}</a>
             </div>
             <div class="cdash-pipeline">
                 <div class="cdash-pipeline-col">
-                    <h4>Ouverts <span class="cdash-pipeline-count">{{ pipeline.counts.open }}</span></h4>
+                    <h4>{{ t(de ~ '.pipeline_open') }} <span class="cdash-pipeline-count">{{ pipeline.counts.open }}</span></h4>
                     {% for project in pipeline.open[:4] %}
                     <a href="{{ url_for('compte.enterprise_project_detail', project_id=project.id) }}" class="cdash-pipeline-item">
                         <strong>{{ project.title }}</strong>
-                        <p>{{ project.applications_pending or 0 }} candidature(s) en attente</p>
+                        <p>{{ t(d ~ '.applications_pending_count', count=project.applications_pending or 0) }}</p>
                     </a>
                     {% else %}
-                    <p class="cdash-pipeline-empty">Aucun projet ouvert</p>
+                    <p class="cdash-pipeline-empty">{{ t(de ~ '.pipeline_no_open') }}</p>
                     {% endfor %}
                 </div>
                 <div class="cdash-pipeline-col">
-                    <h4>En cours <span class="cdash-pipeline-count">{{ pipeline.counts.active }}</span></h4>
+                    <h4>{{ t(de ~ '.pipeline_active') }} <span class="cdash-pipeline-count">{{ pipeline.counts.active }}</span></h4>
                     {% for project in pipeline.active[:4] %}
                     <a href="{{ url_for('compte.enterprise_project_detail', project_id=project.id) }}" class="cdash-pipeline-item">
                         <strong>{{ project.title }}</strong>
-                        <p>Partenariat en cours</p>
+                        <p>{{ t(d ~ '.partnership_active') }}</p>
                     </a>
                     {% else %}
-                    <p class="cdash-pipeline-empty">Aucune mission active</p>
+                    <p class="cdash-pipeline-empty">{{ t(de ~ '.pipeline_no_active') }}</p>
                     {% endfor %}
                 </div>
                 <div class="cdash-pipeline-col">
-                    <h4>Clôturés <span class="cdash-pipeline-count">{{ pipeline.counts.closed }}</span></h4>
+                    <h4>{{ t(de ~ '.pipeline_closed') }} <span class="cdash-pipeline-count">{{ pipeline.counts.closed }}</span></h4>
                     {% for project in pipeline.closed[:4] %}
                     <a href="{{ url_for('compte.enterprise_project_detail', project_id=project.id) }}" class="cdash-pipeline-item">
                         <strong>{{ project.title }}</strong>
-                        <p>{{ project.status }}</p>
+                        <p>{{ translate_status(project.status) }}</p>
                     </a>
                     {% else %}
                     <p class="cdash-pipeline-empty">—</p>
@@ -135,7 +136,7 @@
 
         <div class="cdash-card">
             <div class="cdash-card-head">
-                <h2>Activité récente</h2>
+                <h2>{{ t(de ~ '.activity_title') }}</h2>
             </div>
             {% if activity %}
             <ul class="cdash-activity">
@@ -151,29 +152,28 @@
                 {% endfor %}
             </ul>
             {% else %}
-            {{ cdash_empty('📋', 'Aucune activité', 'Publiez un projet pour recevoir des candidatures startups.') }}
+            {{ cdash_empty('📋', t(de ~ '.activity_empty_title'), t(de ~ '.activity_empty_desc')) }}
             {% endif %}
         </div>
     </div>
 </section>
 
-{# ── Projets ── #}
 <section class="cdash-panel{% if active_section == 'projects' %} active{% endif %}" id="cdash-panel-projects" data-section="projects">
     <div class="cdash-card">
         <div class="cdash-card-head">
-            <h2>Gestion des projets</h2>
-            <a href="{{ url_for('compte.enterprise_new_project') }}" class="btn btn-primary btn-sm">+ Nouveau projet</a>
+            <h2>{{ t(de ~ '.projects_title') }}</h2>
+            <a href="{{ url_for('compte.enterprise_new_project') }}" class="btn btn-primary btn-sm">{{ t(de ~ '.new_project') }}</a>
         </div>
         {% if projects %}
         <div class="cdash-table-wrap">
             <table class="cdash-table">
                 <thead>
                     <tr>
-                        <th>Projet</th>
-                        <th>Phase</th>
-                        <th>Statut</th>
-                        <th>Candidatures</th>
-                        <th>Partenariat</th>
+                        <th>{{ t(de ~ '.col_project') }}</th>
+                        <th>{{ t(de ~ '.col_phase') }}</th>
+                        <th>{{ t(de ~ '.col_status') }}</th>
+                        <th>{{ t(de ~ '.col_applications') }}</th>
+                        <th>{{ t(de ~ '.col_partnership') }}</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -182,34 +182,34 @@
                     <tr>
                         <td>
                             <a href="{{ url_for('compte.enterprise_project_detail', project_id=project.id) }}" class="cdash-table-title">{{ project.title }}</a>
-                            <div class="cdash-meta">{{ project.budget or 'Budget à définir' }} · {{ project.duration or '—' }}</div>
+                            <div class="cdash-meta">{{ project.budget or t(d ~ '.budget_tbd') }} · {{ project.duration or '—' }}</div>
                         </td>
                         <td>{{ phase_badge(project.engagement_phase) }}</td>
                         <td>
                             {% if project.status == 'Ouvert' %}
-                            {{ cdash_status('open', project.status) }}
+                            {{ cdash_status('open', translate_status(project.status)) }}
                             {% elif project.status == 'En cours' %}
-                            {{ cdash_status('active', project.status) }}
+                            {{ cdash_status('active', translate_status(project.status)) }}
                             {% else %}
-                            {{ cdash_status('muted', project.status) }}
+                            {{ cdash_status('muted', translate_status(project.status)) }}
                             {% endif %}
                         </td>
                         <td>
-                            <span class="cdash-meta">{{ project.applications_count or 0 }} total</span>
+                            <span class="cdash-meta">{{ project.applications_count or 0 }} {{ t(d ~ '.total') }}</span>
                             {% if project.applications_pending %}
-                            <br>{{ cdash_status('pending', project.applications_pending ~ ' en attente') }}
+                            <br>{{ cdash_status('pending', project.applications_pending ~ ' ' ~ t(d ~ '.pending_short')) }}
                             {% endif %}
                         </td>
                         <td>
                             {% if project.has_engagement %}
-                            {{ cdash_status('info', 'Mission liée') }}
+                            {{ cdash_status('info', t(d ~ '.linked_mission')) }}
                             {% else %}
                             <span class="cdash-meta">—</span>
                             {% endif %}
                         </td>
                         <td>
                             <div class="cdash-actions">
-                                <a href="{{ url_for('compte.enterprise_edit_project', project_id=project.id) }}" class="btn btn-ghost btn-sm">Modifier</a>
+                                <a href="{{ url_for('compte.enterprise_edit_project', project_id=project.id) }}" class="btn btn-ghost btn-sm">{{ t(d ~ '.edit') }}</a>
                             </div>
                         </td>
                     </tr>
@@ -218,27 +218,26 @@
             </table>
         </div>
         {% else %}
-        {{ cdash_empty('📋', 'Aucun projet', 'Publiez votre premier besoin IoT pour lancer la sous-traitance.', url_for('compte.enterprise_new_project'), 'Créer un projet') }}
+        {{ cdash_empty('📋', t(de ~ '.projects_empty_title'), t(de ~ '.projects_empty_desc'), url_for('compte.enterprise_new_project'), t(de ~ '.projects_empty_cta')) }}
         {% endif %}
     </div>
 </section>
 
-{# ── Partenariats ── #}
 <section class="cdash-panel{% if active_section == 'partnerships' %} active{% endif %}" id="cdash-panel-partnerships" data-section="partnerships">
     <div class="cdash-card">
         <div class="cdash-card-head">
-            <h2>Partenariats & paiements</h2>
+            <h2>{{ t(de ~ '.partnerships_title') }}</h2>
         </div>
         {% if engagements %}
         <div class="cdash-table-wrap">
             <table class="cdash-table">
                 <thead>
                     <tr>
-                        <th>Mission</th>
-                        <th>Startup</th>
-                        <th>Phase</th>
-                        <th>Montant</th>
-                        <th>Statut séquestre</th>
+                        <th>{{ t(de ~ '.col_mission') }}</th>
+                        <th>{{ t(de ~ '.col_startup') }}</th>
+                        <th>{{ t(de ~ '.col_phase') }}</th>
+                        <th>{{ t(de ~ '.col_amount') }}</th>
+                        <th>{{ t(de ~ '.col_escrow') }}</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -257,11 +256,11 @@
                             <div class="cdash-actions">
                                 {% if eng.message_id %}
                                 <a href="{{ url_for('compte.message_detail', message_id=eng.message_id) }}" class="btn btn-primary btn-sm">
-                                    {% if eng.status == 'escrowed' %}Libérer{% else %}Gérer{% endif %}
+                                    {% if eng.status == 'escrowed' %}{{ t(d ~ '.release') }}{% else %}{{ t(d ~ '.manage') }}{% endif %}
                                 </a>
                                 {% endif %}
                                 {% if eng.stripe_hosted_invoice_url and eng.status == 'pending_payment' %}
-                                <a href="{{ eng.stripe_hosted_invoice_url }}" class="btn btn-outline btn-sm" target="_blank" rel="noopener">Facture</a>
+                                <a href="{{ eng.stripe_hosted_invoice_url }}" class="btn btn-outline btn-sm" target="_blank" rel="noopener">{{ t(d ~ '.invoice') }}</a>
                                 {% endif %}
                             </div>
                         </td>
@@ -271,26 +270,25 @@
             </table>
         </div>
         {% else %}
-        {{ cdash_empty('🤝', 'Aucun partenariat', 'Acceptez une candidature startup pour créer une mission et lancer le séquestre Stripe.', '', '') }}
+        {{ cdash_empty('🤝', t(de ~ '.partnerships_empty_title'), t(de ~ '.partnerships_empty_desc'), '', '') }}
         {% endif %}
     </div>
 </section>
 
-{# ── Candidatures ── #}
 <section class="cdash-panel{% if active_section == 'applications' %} active{% endif %}" id="cdash-panel-applications" data-section="applications">
     <div class="cdash-card">
         <div class="cdash-card-head">
-            <h2>Candidatures reçues</h2>
+            <h2>{{ t(de ~ '.applications_title') }}</h2>
         </div>
         {% if applications %}
         <div class="cdash-table-wrap">
             <table class="cdash-table">
                 <thead>
                     <tr>
-                        <th>Startup</th>
-                        <th>Projet</th>
-                        <th>Message</th>
-                        <th>Statut</th>
+                        <th>{{ t(de ~ '.col_startup') }}</th>
+                        <th>{{ t(de ~ '.col_project') }}</th>
+                        <th>{{ t(de ~ '.col_message') }}</th>
+                        <th>{{ t(de ~ '.col_status') }}</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -303,12 +301,12 @@
                         <td>{{ cdash_status(msg.status, msg.status_label) }}</td>
                         <td>
                             <div class="cdash-actions">
-                                <a href="{{ url_for('compte.message_detail', message_id=msg.id) }}" class="btn btn-primary btn-sm">Traiter</a>
+                                <a href="{{ url_for('compte.message_detail', message_id=msg.id) }}" class="btn btn-primary btn-sm">{{ t(d ~ '.treat') }}</a>
                                 <button type="button" class="btn btn-ghost btn-sm cdash-open-chat"
                                     data-counterpart="{{ msg.from_user_id }}"
                                     data-project="{{ msg.project_id or '' }}"
                                     data-name="{{ msg.counterpart_name }}"
-                                    data-role="startup">Chat</button>
+                                    data-role="startup">{{ t(d ~ '.chat') }}</button>
                             </div>
                         </td>
                     </tr>
@@ -317,12 +315,11 @@
             </table>
         </div>
         {% else %}
-        {{ cdash_empty('📨', 'Aucune candidature', 'Les startups postuleront à vos projets ouverts.', url_for('compte.enterprise_new_project'), 'Publier un projet') }}
+        {{ cdash_empty('📨', t(de ~ '.applications_empty_title'), t(de ~ '.applications_empty_desc'), url_for('compte.enterprise_new_project'), t(de ~ '.applications_empty_cta')) }}
         {% endif %}
     </div>
 </section>
 
-{# ── Messagerie ── #}
 <section class="cdash-panel cdash-messenger-panel{% if active_section == 'messages' %} active{% endif %}" id="cdash-panel-messages" data-section="messages">
     <div class="cdash-card" style="padding:12px">
         {{ messenger_widget('enterprise') }}
@@ -332,5 +329,5 @@
 
 {% block scripts %}
 <script src="{{ url_for('vitrine.static', filename='js/compte-dashboard.js') }}?v=1"></script>
-<script src="{{ url_for('vitrine.static', filename='js/messaging.js') }}?v=2"></script>
+<script src="{{ url_for('vitrine.static', filename='js/messaging.js') }}?v=3"></script>
 {% endblock %}

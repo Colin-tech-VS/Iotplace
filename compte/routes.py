@@ -201,14 +201,14 @@ def enterprise_dashboard():
     user = auth.get_current_user()
     profile = store.get_enterprise_for_user(user["id"])
     if not profile:
-        flash("Profil entreprise introuvable.", "error")
+        flash(t("compte.flash_profile_ent_missing"), "error")
         return redirect(url_for("vitrine.index"))
     from payments import subscriptions
     from payments.pricing_plans import get_pricing_numbers, is_pro_enterprise
 
     profile = subscriptions.sync_enterprise_subscription(profile) or profile
     if request.args.get("billing") == "cancel":
-        flash("Abonnement Pro non finalisé.", "info")
+        flash(t("compte.flash_pro_incomplete"), "info")
     dash = store.get_dashboard_data_for_enterprise(user, profile)
     pricing = get_pricing_numbers()
     return render_template(
@@ -233,7 +233,7 @@ def enterprise_new_project():
     if request.method == "POST":
         title = request.form.get("title", "").strip()
         if not title:
-            flash("Le titre du projet est requis.", "error")
+            flash(t("compte.flash_project_title_required"), "error")
             return render_template("compte/project_form.html", profile=profile, user=user, form=dict(request.form))
         allowed, limit_msg = store.can_enterprise_add_open_project(profile)
         if not allowed:
@@ -252,7 +252,7 @@ def enterprise_new_project():
         except ValueError as exc:
             flash(str(exc), "warning")
             return render_template("compte/project_form.html", profile=profile, user=user, form=dict(request.form))
-        flash("Projet publié.", "success")
+        flash(t("compte.flash_project_published"), "success")
         return redirect(url_for("compte.enterprise_dashboard"))
 
     return render_template("compte/project_form.html", profile=profile, user=user, form={})
@@ -265,13 +265,13 @@ def enterprise_edit_project(project_id):
     profile = store.get_enterprise_for_user(user["id"])
     project = store.get_project(project_id)
     if not profile or not project or project.get("enterprise_id") != profile["id"]:
-        flash("Projet introuvable.", "error")
+        flash(t("compte.flash_project_not_found"), "error")
         return redirect(url_for("compte.enterprise_dashboard"))
 
     if request.method == "POST":
         title = request.form.get("title", "").strip()
         if not title:
-            flash("Le titre du projet est requis.", "error")
+            flash(t("compte.flash_project_title_required"), "error")
             return render_template(
                 "compte/project_form.html",
                 profile=profile,
@@ -300,7 +300,7 @@ def enterprise_edit_project(project_id):
             "status": new_status,
             "engagement_phase": request.form.get("engagement_phase", "").strip(),
         })
-        flash("Projet mis à jour.", "success")
+        flash(t("compte.flash_project_updated"), "success")
         return redirect(url_for("compte.enterprise_project_detail", project_id=project_id))
 
     form = {
@@ -328,7 +328,7 @@ def enterprise_project_detail(project_id):
     profile = store.get_enterprise_for_user(user["id"])
     project = store.get_project(project_id)
     if not profile or not project or project.get("enterprise_id") != profile["id"]:
-        flash("Projet introuvable.", "error")
+        flash(t("compte.flash_project_not_found"), "error")
         return redirect(url_for("compte.enterprise_dashboard"))
     applications = [
         store.enrich_message_for_view(a, user["id"])
@@ -350,7 +350,7 @@ def enterprise_edit_profile():
     user = auth.get_current_user()
     profile = store.get_enterprise_for_user(user["id"])
     if not profile:
-        flash("Profil entreprise introuvable.", "error")
+        flash(t("compte.flash_profile_ent_missing"), "error")
         return redirect(url_for("vitrine.index"))
 
     if request.method == "POST":
@@ -369,7 +369,7 @@ def enterprise_edit_profile():
             "besoin": request.form.get("besoin", "").strip(),
             "needs": store.parse_list_field(request.form.get("needs")),
         })
-        flash("Profil mis à jour.", "success")
+        flash(t("compte.flash_profile_updated"), "success")
         return redirect(url_for("compte.enterprise_dashboard"))
 
     return render_template(
@@ -390,7 +390,7 @@ def startup_dashboard():
     user = auth.get_current_user()
     profile = store.get_startup_for_user(user["id"])
     if not profile:
-        flash("Profil startup introuvable.", "error")
+        flash(t("compte.flash_profile_st_missing"), "error")
         return redirect(url_for("vitrine.index"))
     dash = store.get_dashboard_data_for_startup(user, profile)
     return render_template(
@@ -409,7 +409,7 @@ def startup_project_detail(project_id):
     profile = store.get_startup_for_user(user["id"])
     project = store.get_project(project_id)
     if not profile or not project:
-        flash("Projet introuvable.", "error")
+        flash(t("compte.flash_project_not_found"), "error")
         return redirect(url_for("compte.startup_dashboard"))
     application = next(
         (store.enrich_message_for_view(a, user["id"]) for a in store.get_applications_for_startup(profile["id"])
@@ -437,19 +437,16 @@ def startup_apply_project(project_id):
     profile = store.get_startup_for_user(user["id"])
     project = store.get_project(project_id)
     if not profile or not project:
-        flash("Projet introuvable.", "error")
+        flash(t("compte.flash_project_not_found"), "error")
         return redirect(url_for("compte.startup_dashboard"))
     body = request.form.get("message", "").strip()
     if not body:
-        flash("Ajoutez un message de présentation pour votre candidature.", "error")
+        flash(t("compte.flash_apply_message_required"), "error")
         return redirect(url_for("compte.startup_project_detail", project_id=project_id))
 
     if poc_application.project_requires_poc_fee(project):
         if not stripe_service.is_configured():
-            flash(
-                "Les candidatures PoC nécessitent un paiement en ligne — Stripe n'est pas configuré.",
-                "error",
-            )
+            flash(t("compte.flash_poc_stripe_missing"), "error")
             return redirect(url_for("compte.startup_project_detail", project_id=project_id))
         try:
             result = poc_application.start_poc_application(user, profile, project, body)
@@ -462,7 +459,7 @@ def startup_apply_project(project_id):
 
     try:
         store.apply_to_project(user, profile, project, body)
-        flash("Candidature envoyée à l'entreprise.", "success")
+        flash(t("compte.flash_apply_sent"), "success")
         return redirect(url_for("compte.startup_dashboard") + "#messages")
     except ValueError as exc:
         flash(str(exc), "error")
@@ -476,16 +473,16 @@ def startup_apply_poc_success(project_id):
     profile = store.get_startup_for_user(user["id"])
     project = store.get_project(project_id)
     if not profile or not project:
-        flash("Projet introuvable.", "error")
+        flash(t("compte.flash_project_not_found"), "error")
         return redirect(url_for("compte.startup_dashboard"))
 
     session_id = (request.args.get("session_id") or "").strip()
     result = poc_application.complete_from_session_id(session_id)
     if result.get("ok"):
-        flash("Candidature PoC envoyée — paiement confirmé.", "success")
+        flash(t("compte.flash_poc_apply_ok"), "success")
         return redirect(url_for("compte.startup_dashboard") + "#messages")
 
-    flash(result.get("error", "Paiement en cours de validation. Réessayez dans quelques instants."), "warning")
+    flash(result.get("error", t("compte.flash_payment_pending")), "warning")
     return redirect(url_for("compte.startup_project_detail", project_id=project_id))
 
 
@@ -495,7 +492,7 @@ def startup_edit_profile():
     user = auth.get_current_user()
     profile = store.get_startup_for_user(user["id"])
     if not profile:
-        flash("Profil startup introuvable.", "error")
+        flash(t("compte.flash_profile_st_missing"), "error")
         return redirect(url_for("vitrine.index"))
 
     if request.method == "POST":
@@ -517,7 +514,7 @@ def startup_edit_profile():
             "besoin": request.form.get("besoin", "").strip(),
             "skills": store.parse_list_field(request.form.get("skills")),
         })
-        flash("Profil mis à jour.", "success")
+        flash(t("compte.flash_profile_updated"), "success")
         return redirect(url_for("compte.startup_dashboard"))
 
     return render_template(
@@ -538,7 +535,7 @@ def message_detail(message_id):
     user = auth.get_current_user()
     msg = store.get_message(message_id)
     if not msg or user["id"] not in (msg.get("from_user_id"), msg.get("to_user_id")):
-        flash("Message introuvable.", "error")
+        flash(t("compte.flash_message_not_found"), "error")
         return redirect(url_for("compte.home"))
     if msg.get("to_user_id") == user["id"] and not msg.get("read"):
         store.mark_message_read(message_id, user["id"])
@@ -563,11 +560,11 @@ def message_reply(message_id):
     user = auth.get_current_user()
     original = store.get_message(message_id)
     if not original or user["id"] not in (original.get("from_user_id"), original.get("to_user_id")):
-        flash("Message introuvable.", "error")
+        flash(t("compte.flash_message_not_found"), "error")
         return redirect(url_for("compte.home"))
     body = request.form.get("body", "").strip()
     if not body:
-        flash("Le message ne peut pas être vide.", "error")
+        flash(t("compte.flash_message_empty"), "error")
         return redirect(url_for("compte.message_detail", message_id=message_id))
     recipient_id = (
         original["from_user_id"]
@@ -576,12 +573,12 @@ def message_reply(message_id):
     )
     recipient = store.get_user(recipient_id)
     if not recipient:
-        flash("Destinataire introuvable.", "error")
+        flash(t("compte.flash_recipient_not_found"), "error")
         return redirect(url_for("compte.message_detail", message_id=message_id))
     project = store.get_project(original["project_id"]) if original.get("project_id") else None
     subject = f"Re: {original.get('subject', 'Message')}"
     store.send_message(user, recipient, subject, body, kind="reply", project=project)
-    flash("Réponse envoyée.", "success")
+    flash(t("compte.flash_reply_sent"), "success")
     return redirect(url_for("compte.message_detail", message_id=message_id))
 
 
@@ -591,21 +588,18 @@ def message_update_status(message_id):
     user = auth.get_current_user()
     status = request.form.get("status", "")
     if status not in ("accepted", "declined", "pending"):
-        flash("Statut invalide.", "error")
+        flash(t("compte.flash_status_invalid"), "error")
         return redirect(url_for("compte.home"))
     updated, payment_result = _process_application_status(message_id, user, status)
     if not updated:
-        flash("Impossible de mettre à jour ce message.", "error")
+        flash(t("compte.flash_status_update_fail"), "error")
     else:
-        flash("Statut de la candidature mis à jour.", "success")
+        flash(t("compte.flash_status_updated"), "success")
         if payment_result and payment_result.get("invoice_url"):
-            flash(
-                "Facture envoyée automatiquement. Les fonds seront mis en séquestre après paiement.",
-                "success",
-            )
+            flash(t("compte.flash_invoice_sent"), "success")
             return redirect(payment_result["invoice_url"])
         if payment_result and payment_result.get("payment_error"):
-            flash(f"Paiement : {payment_result['payment_error']}", "warning")
+            flash(t("compte.flash_payment_error", error=payment_result['payment_error']), "warning")
     return redirect(url_for("compte.message_detail", message_id=message_id))
 
 
@@ -718,7 +712,7 @@ def startup_stripe_onboard():
     if not profile:
         return redirect(url_for("vitrine.index"))
     if not stripe_service.is_configured():
-        flash("Paiements Stripe non configurés sur la plateforme.", "error")
+        flash(t("compte.flash_stripe_not_configured"), "error")
         return redirect(url_for("compte.startup_dashboard"))
     try:
         url = stripe_service.create_connect_onboarding_link(profile, user)
@@ -735,14 +729,14 @@ def startup_stripe_return():
     profile = store.get_startup_for_user(user["id"])
     if profile:
         stripe_service.refresh_connect_status(profile)
-    flash("Compte Stripe mis à jour. Vous pouvez recevoir vos paiements après validation.", "success")
+    flash(t("compte.flash_stripe_updated"), "success")
     return redirect(url_for("compte.startup_dashboard"))
 
 
 @compte_bp.route("/compte/startup/stripe/refresh")
 @auth.login_required(role="startup")
 def startup_stripe_refresh():
-    flash("Reprise de la configuration Stripe. Complétez les informations demandées.", "info")
+    flash(t("compte.flash_stripe_resume"), "info")
     return redirect(url_for("compte.startup_stripe_onboard"))
 
 
@@ -752,10 +746,10 @@ def enterprise_subscribe_pro():
     user = auth.get_current_user()
     profile = store.get_enterprise_for_user(user["id"])
     if not profile:
-        flash("Profil entreprise introuvable.", "error")
+        flash(t("compte.flash_profile_ent_missing"), "error")
         return redirect(url_for("vitrine.index"))
     if not stripe_service.is_configured():
-        flash("Les paiements en ligne ne sont pas encore activés.", "warning")
+        flash(t("compte.flash_payments_disabled"), "warning")
         return redirect(url_for("compte.enterprise_dashboard"))
 
     from payments import subscriptions
@@ -763,7 +757,7 @@ def enterprise_subscribe_pro():
 
     profile = subscriptions.sync_enterprise_subscription(profile) or profile
     if is_pro_enterprise(profile):
-        flash("Votre offre Pro est déjà active.", "info")
+        flash(t("compte.flash_pro_already_active"), "info")
         return redirect(url_for("compte.enterprise_billing_portal"))
 
     try:
@@ -789,7 +783,7 @@ def enterprise_subscribe_success():
             checkout_session = stripe_service.retrieve_checkout_session(session_id)
             result = subscriptions.complete_checkout_subscription(checkout_session)
             if result.get("ok"):
-                flash("Offre Pro activée — projets illimités et commission réduite.", "success")
+                flash(t("compte.flash_pro_activated"), "success")
                 return redirect(url_for("compte.enterprise_dashboard"))
         except stripe_service.PaymentError:
             pass
@@ -799,9 +793,9 @@ def enterprise_subscribe_success():
 
         refreshed = subscriptions.sync_enterprise_subscription(profile)
         if refreshed and refreshed.get("plan") == "pro_enterprise":
-            flash("Offre Pro activée — projets illimités et commission réduite.", "success")
+            flash(t("compte.flash_pro_activated"), "success")
         else:
-            flash("Paiement en cours de confirmation. Votre offre sera activée sous peu.", "info")
+            flash(t("compte.flash_pro_confirming"), "info")
 
     return redirect(url_for("compte.enterprise_dashboard"))
 
@@ -812,10 +806,10 @@ def enterprise_billing_portal():
     user = auth.get_current_user()
     profile = store.get_enterprise_for_user(user["id"])
     if not profile:
-        flash("Profil entreprise introuvable.", "error")
+        flash(t("compte.flash_profile_ent_missing"), "error")
         return redirect(url_for("vitrine.index"))
     if not stripe_service.is_configured():
-        flash("Le portail de facturation n'est pas disponible.", "warning")
+        flash(t("compte.flash_billing_unavailable"), "warning")
         return redirect(url_for("compte.enterprise_dashboard"))
 
     from payments import subscriptions
@@ -835,9 +829,9 @@ def release_engagement_funds(engagement_id):
     user = auth.get_current_user()
     result = payment_handlers.release_engagement(engagement_id, user)
     if result.get("ok"):
-        flash("Fonds libérés et versés à la startup.", "success")
+        flash(t("compte.flash_funds_released"), "success")
     else:
-        flash(result.get("error", "Erreur lors de la libération."), "error")
+        flash(result.get("error", t("compte.flash_release_error")), "error")
     engagement = store.get_engagement(engagement_id)
     if engagement and engagement.get("application_message_id"):
         return redirect(url_for(

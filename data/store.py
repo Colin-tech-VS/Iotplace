@@ -432,13 +432,24 @@ def get_enterprises():
     return _load_raw()["enterprises"]
 
 
+def _is_vitrine_profile_public(profile: dict | None) -> bool:
+    """Profiles linked to a registered account appear in public directories."""
+    if not profile:
+        return False
+    if profile.get("published") is True:
+        return True
+    if profile.get("published") is False:
+        return bool(profile.get("user_id"))
+    return True
+
+
 def get_public_enterprises():
-    return [e for e in get_enterprises() if e.get("published", True)]
+    return [e for e in get_enterprises() if _is_vitrine_profile_public(e)]
 
 
 def get_public_startups(country=None):
     startups = get_startups(country)
-    return [s for s in startups if s.get("published", True)]
+    return [s for s in startups if _is_vitrine_profile_public(s)]
 
 
 def get_enterprise_sectors():
@@ -665,12 +676,15 @@ def canonical_query_without(search_query_string, *drop_keys: str):
 
 
 def get_public_startup(startup_id):
-    return get_startup(startup_id)
+    startup = get_startup(startup_id)
+    if not startup or not _is_vitrine_profile_public(startup):
+        return None
+    return startup
 
 
 def get_public_enterprise(enterprise_id):
     ent = get_enterprise(enterprise_id)
-    if not ent or not ent.get("published", True):
+    if not ent or not _is_vitrine_profile_public(ent):
         return None
     return ent
 
@@ -1061,7 +1075,7 @@ def register_enterprise_account(user_fields, enterprise_fields, project_fields=N
         "logo_initials": enterprise_fields.get("logo_initials") or _initials(name),
         "needs": enterprise_fields.get("needs") or [],
         "plan": enterprise_fields.get("plan") or "free_enterprise",
-        "published": False,
+        "published": True,
         "created_at": datetime.now(timezone.utc).isoformat(),
     })
 
@@ -1156,15 +1170,16 @@ def count_open_projects_for_enterprise(enterprise_id: str) -> int:
     )
 
 
-def can_enterprise_add_open_project(enterprise) -> tuple[bool, str | None]:
+def can_enterprise_add_open_project(enterprise, locale: str | None = None) -> tuple[bool, str | None]:
     from payments.pricing_plans import FREE_ENTERPRISE_MAX_OPEN_PROJECTS, is_pro_enterprise
+    from vitrine.i18n import get_locale, t
 
     if is_pro_enterprise(enterprise):
         return True, None
     if count_open_projects_for_enterprise(enterprise["id"]) >= FREE_ENTERPRISE_MAX_OPEN_PROJECTS:
-        return False, (
-            f"Limite atteinte : {FREE_ENTERPRISE_MAX_OPEN_PROJECTS} projet ouvert sur l'offre Gratuit. "
-            "Contactez-nous pour activer l'offre Pro (projets illimités, commission réduite)."
+        return False, t(
+            "compte.flash_project_limit",
+            max=FREE_ENTERPRISE_MAX_OPEN_PROJECTS,
         )
     return True, None
 
@@ -1631,16 +1646,9 @@ def get_enterprise_by_subscription_id(subscription_id: str):
     )
 
 
-def format_engagement_label(status: str) -> str:
-    labels = {
-        "draft": "Brouillon",
-        "pending_payment": "Facture envoyée — en attente de paiement",
-        "escrowed": "Fonds en séquestre",
-        "released": "Versement effectué à la startup",
-        "payment_error": "Erreur de paiement",
-        "cancelled": "Annulé",
-    }
-    return labels.get(status or "", status or "—")
+def format_engagement_label(status: str, locale: str | None = None) -> str:
+    from vitrine.i18n import translate_engagement_status
+    return translate_engagement_status(status or "", locale)
 
 
 def _format_cents_eur(cents: int | None) -> str:
@@ -1652,7 +1660,7 @@ def _format_cents_eur(cents: int | None) -> str:
     return f"{value:,.2f} €".replace(",", "\u202f")
 
 
-def enrich_engagement_for_dashboard(engagement: dict, viewer_role: str) -> dict:
+def enrich_engagement_for_dashboard(engagement: dict, viewer_role: str, locale: str | None = None) -> dict:
     project = get_project(engagement.get("project_id", ""))
     startup = get_startup(engagement.get("startup_id", ""))
     enterprise = get_enterprise(engagement.get("enterprise_id", ""))
@@ -1665,7 +1673,7 @@ def enrich_engagement_for_dashboard(engagement: dict, viewer_role: str) -> dict:
         "startup_name": (startup or {}).get("name", "—"),
         "enterprise_name": (enterprise or {}).get("name", "—"),
         "counterpart_name": (startup or {}).get("name", "—") if viewer_role == "enterprise" else (enterprise or {}).get("name", "—"),
-        "status_label": format_engagement_label(status),
+        "status_label": format_engagement_label(status, locale),
         "status_tone": {
             "draft": "muted",
             "pending_payment": "warn",
@@ -1730,13 +1738,17 @@ def _partnership_pipeline(engagements: list) -> dict:
     }
 
 
-def _build_dashboard_activity(applications: list, engagements: list) -> list:
+def _build_dashboard_activity(applications: list, engagements: list, locale: str | None = None) -> list:
+    from vitrine.i18n import get_locale, t
+    loc = locale or get_locale()
+    default_project = t("compte.dashboard.default_project_title", default="IoT project")
+    default_partnership = t("compte.dashboard.default_partnership_title", default="Partnership")
     items = []
     for app in applications:
         items.append({
             "type": "application",
             "at": app.get("created_at", ""),
-            "title": app.get("project_title") or "Projet IoT",
+            "title": app.get("project_title") or default_project,
             "subtitle": app.get("counterpart_name", ""),
             "status": app.get("status", ""),
             "status_label": app.get("status_label", ""),
@@ -1747,7 +1759,7 @@ def _build_dashboard_activity(applications: list, engagements: list) -> list:
         items.append({
             "type": "partnership",
             "at": eng.get("created_at", ""),
-            "title": eng.get("project_title", "Partenariat"),
+            "title": eng.get("project_title", default_partnership),
             "subtitle": eng.get("counterpart_name", ""),
             "status": eng.get("status", ""),
             "status_label": eng.get("status_label", ""),
@@ -1898,29 +1910,21 @@ def update_application_checkout(checkout_id: str, fields: dict) -> dict | None:
     return None
 
 
-def enrich_message_for_view(msg, current_user_id):
+def enrich_message_for_view(msg, current_user_id, locale: str | None = None):
+    from vitrine.i18n import translate_application_status, translate_message_kind
     direction = "in" if msg.get("to_user_id") == current_user_id else "out"
-    kind_labels = {
-        "application": "Candidature",
-        "contact": "Prise de contact",
-        "reply": "Réponse",
-    }
-    status_labels = {
-        "pending": "En attente",
-        "accepted": "Acceptée",
-        "declined": "Refusée",
-        "closed": "Clôturée",
-    }
     return {
         **msg,
         "direction": direction,
-        "kind_label": kind_labels.get(msg.get("kind"), msg.get("kind", "Message")),
-        "status_label": status_labels.get(msg.get("status"), msg.get("status", "")),
+        "kind_label": translate_message_kind(msg.get("kind"), locale),
+        "status_label": translate_application_status(msg.get("status"), locale),
         "counterpart_name": msg.get("from_name") if direction == "in" else msg.get("to_name"),
     }
 
 
-def get_dashboard_data_for_enterprise(user, profile):
+def get_dashboard_data_for_enterprise(user, profile, locale: str | None = None):
+    from vitrine.i18n import get_locale
+    loc = locale or get_locale()
     projects = get_projects_for_enterprise(profile["id"], profile.get("name", ""))
     inbox = get_inbox_for_user(user["id"])
     sent = get_sent_for_user(user["id"])
@@ -1938,9 +1942,9 @@ def get_dashboard_data_for_enterprise(user, profile):
             "has_engagement": bool(engagement),
             "engagement_status": engagement.get("status") if engagement else None,
         })
-    applications_view = [enrich_message_for_view(m, user["id"]) for m in applications]
+    applications_view = [enrich_message_for_view(m, user["id"], loc) for m in applications]
     engagements = [
-        enrich_engagement_for_dashboard(e, "enterprise") for e in engagements_raw
+        enrich_engagement_for_dashboard(e, "enterprise", loc) for e in engagements_raw
     ]
     engagements.sort(key=lambda e: e.get("created_at") or "", reverse=True)
     pipeline = _project_pipeline(projects_enriched)
@@ -1952,9 +1956,9 @@ def get_dashboard_data_for_enterprise(user, profile):
         "pipeline": pipeline,
         "partnerships": partnerships,
         "engagements": engagements,
-        "activity": _build_dashboard_activity(applications_view, engagements),
-        "inbox": [enrich_message_for_view(m, user["id"]) for m in inbox],
-        "sent": [enrich_message_for_view(m, user["id"]) for m in sent],
+        "activity": _build_dashboard_activity(applications_view, engagements, loc),
+        "inbox": [enrich_message_for_view(m, user["id"], loc) for m in inbox],
+        "sent": [enrich_message_for_view(m, user["id"], loc) for m in sent],
         "applications": applications_view,
         "platform_contacts": platform_contacts,
         "unread_count": get_unread_count(user["id"]),
@@ -1974,7 +1978,9 @@ def get_dashboard_data_for_enterprise(user, profile):
     }
 
 
-def get_dashboard_data_for_startup(user, profile):
+def get_dashboard_data_for_startup(user, profile, locale: str | None = None):
+    from vitrine.i18n import get_locale
+    loc = locale or get_locale()
     matching = get_matching_projects_for_startup(profile)
     inbox = get_inbox_for_user(user["id"])
     sent = get_sent_for_user(user["id"])
@@ -1987,9 +1993,9 @@ def get_dashboard_data_for_startup(user, profile):
             **p,
             "already_applied": p["id"] in applied_ids,
         })
-    applications_view = [enrich_message_for_view(m, user["id"]) for m in applications]
+    applications_view = [enrich_message_for_view(m, user["id"], loc) for m in applications]
     engagements = [
-        enrich_engagement_for_dashboard(e, "startup") for e in engagements_raw
+        enrich_engagement_for_dashboard(e, "startup", loc) for e in engagements_raw
     ]
     engagements.sort(key=lambda e: e.get("created_at") or "", reverse=True)
     partnerships = _partnership_pipeline(engagements)
@@ -2001,9 +2007,9 @@ def get_dashboard_data_for_startup(user, profile):
         "open_matching": open_matching,
         "partnerships": partnerships,
         "engagements": engagements,
-        "activity": _build_dashboard_activity(applications_view, engagements),
-        "inbox": [enrich_message_for_view(m, user["id"]) for m in inbox],
-        "sent": [enrich_message_for_view(m, user["id"]) for m in sent],
+        "activity": _build_dashboard_activity(applications_view, engagements, loc),
+        "inbox": [enrich_message_for_view(m, user["id"], loc) for m in inbox],
+        "sent": [enrich_message_for_view(m, user["id"], loc) for m in sent],
         "applications": applications_view,
         "platform_contacts": get_contacts_for_user(user),
         "unread_count": get_unread_count(user["id"]),

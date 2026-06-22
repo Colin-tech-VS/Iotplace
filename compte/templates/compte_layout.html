@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>{% block title %}Espace membre{% endblock %} — Iotplace</title>
+    <title>{% block title %}{{ t('compte.dashboard.member_space') }}{% endblock %} — Iotplace</title>
     {% include "_favicons.html" %}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,21 +27,26 @@
     <div class="cdash-app" id="cdashApp">
         <aside class="cdash-sidebar" id="cdashSidebar">
             <div class="cdash-sidebar-top">
-                <a href="{{ url_for('vitrine.index') }}" class="cdash-brand" title="Retour vitrine">
+                <a href="{{ url_for('vitrine.index') }}" class="cdash-brand" title="{{ t('compte.dashboard.back_vitrine') }}">
                     {{ brand_mark('sm') }}
-                    <span class="cdash-brand-text"><strong>Iotplace</strong><small>{% block space_label %}Espace membre{% endblock %}</small></span>
+                    <span class="cdash-brand-text"><strong>Iotplace</strong><small>{% block space_label %}{{ t('compte.dashboard.member_space') }}{% endblock %}</small></span>
                 </a>
             </div>
 
-            <nav class="cdash-nav" aria-label="Navigation tableau de bord">
+            <nav class="cdash-nav" aria-label="{{ t('compte.dashboard.nav_aria') }}">
                 {% block sidebar_nav %}{% endblock %}
             </nav>
 
             <div class="cdash-sidebar-bottom">
+                <div class="cdash-lang" aria-label="{{ t('nav.lang') }}">
+                    <a href="{{ locale_url_en }}" class="cdash-lang-link{% if locale == 'en' %} active{% endif %}" hreflang="en" lang="en">{{ t('nav.lang_en') }}</a>
+                    <span class="cdash-lang-sep" aria-hidden="true">/</span>
+                    <a href="{{ locale_url_fr }}" class="cdash-lang-link{% if locale == 'fr' %} active{% endif %}" hreflang="fr" lang="fr">{{ t('nav.lang_fr') }}</a>
+                </div>
                 {% block sidebar_footer %}{% endblock %}
                 <a href="{{ url_for('compte.logout') }}" class="cdash-nav-item cdash-nav-muted">
                     <span class="cdash-nav-icon" aria-hidden="true">⎋</span>
-                    Déconnexion
+                    {{ t('compte.dashboard.logout') }}
                 </a>
             </div>
         </aside>
@@ -51,12 +56,23 @@
         <main class="cdash-main">
             {% block main_header %}{% endblock %}
             <div class="cdash-content">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <div class="flash-container" hidden aria-hidden="true">
+                            {% for category, message in messages %}
+                                <div class="flash flash-{{ category }}" data-iot-flash="{{ category }}">{{ message }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
                 {% block content %}{% endblock %}
             </div>
         </main>
     </div>
 
-    <script src="{{ url_for('vitrine.static', filename='js/toast.js') }}?v=1"></script>
+    <div id="iot-toast-stack" class="iot-toast-stack" aria-live="polite"></div>
+    <script>window.IOT_I18N = {{ compte_i18n|tojson }};</script>
+    <script src="{{ url_for('vitrine.static', filename='js/toast.js') }}?v=2"></script>
     <script src="{{ url_for('vitrine.static', filename='js/page-loader.js') }}?v=2"></script>
     {% block scripts %}{% endblock %}
 </body>
