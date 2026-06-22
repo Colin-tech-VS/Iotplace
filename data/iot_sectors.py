@@ -41,10 +41,9 @@ def is_valid_sector_id(sector_id: str | None) -> bool:
     return bool(sector_id and sector_id in SECTOR_DEMAND)
 
 
-from data.domain_pages import domain_slug
-
-
 def list_domains_for_template(translate) -> list[dict]:
+    from data.domain_pages import domain_slug
+
     items = []
     for sector_id in IOT_SECTOR_IDS:
         demand = sector_demand(sector_id)
