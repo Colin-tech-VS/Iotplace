@@ -734,3 +734,43 @@
     border: none;
     background: transparent;
 }
+
+.msg-engagement {
+    margin-top: 0.65rem;
+    padding: 0.65rem 0.75rem;
+    border-radius: 10px;
+    border: 1px solid rgba(56, 189, 248, 0.18);
+    background: rgba(15, 23, 42, 0.35);
+}
+
+.msg-engagement-label {
+    display: block;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    margin-bottom: 0.35rem;
+}
+
+.msg-engagement-amount {
+    margin: 0.35rem 0 0;
+    font-size: 0.82rem;
+}
+
+.msg-engagement-hint {
+    margin: 0.4rem 0 0;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+.msg-engagement-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.55rem;
+}
+
+.msg-engagement-form {
+    display: inline;
+}

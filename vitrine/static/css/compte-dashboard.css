@@ -762,3 +762,79 @@ button.cdash-kpi {
     text-decoration: none;
     color: inherit;
 }
+
+.cdash-back-link {
+    display: inline-block;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    margin-bottom: 0.25rem;
+}
+
+.cdash-back-link:hover {
+    color: var(--accent);
+}
+
+.cdash-message-detail {
+    align-items: start;
+}
+
+.cdash-step-hint {
+    margin: 0.65rem 0;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.45;
+}
+
+.cdash-step-hint-warn {
+    color: #fbbf24;
+}
+
+.payment-engagement-card {
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    background: rgba(56, 189, 248, 0.05);
+}
+
+.payment-engagement-card h3 {
+    margin: 0 0 0.5rem;
+    font-size: 0.95rem;
+}
+
+.message-body-full {
+    white-space: pre-wrap;
+    line-height: 1.55;
+    margin-top: 0.75rem;
+}
+
+.message-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.message-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.reply-form {
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.reply-form h3 {
+    margin: 0 0 0.65rem;
+    font-size: 0.92rem;
+}

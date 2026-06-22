@@ -594,6 +594,9 @@
       "manage": "Manage",
       "release": "Release",
       "invoice": "Invoice",
+      "pay_invoice": "Pay invoice",
+      "retry_invoice": "Regenerate invoice",
+      "accept_decline": "Accept / Decline",
       "treat": "Review",
       "details": "Details",
       "see_all": "See all",
@@ -672,7 +675,11 @@
         "recommendations_empty_cta": "My profile",
         "col_match": "Match",
         "col_domain": "Domain",
-        "col_skills": "Skills"
+        "col_skills": "Skills",
+        "pending_invoice_alert": "{count} invoice(s) awaiting payment — funds go into escrow after payment.",
+        "pending_invoice_cta": "View partnerships",
+        "payment_error_alert": "{count} mission(s) with billing errors — regenerate the invoice.",
+        "payment_error_cta": "Fix"
       },
       "startup": {
         "space": "Startup workspace",
@@ -690,6 +697,7 @@
         "recommended_empty_cta": "Browse projects",
         "activity_empty_title": "No activity",
         "activity_empty_desc": "Apply to a mission to start a partnership.",
+        "activity_title": "Recent activity",
         "recommendations_title": "Recommended projects",
         "recommendations_catalog": "Project catalog",
         "recommendations_empty_title": "No matching projects",
@@ -713,7 +721,12 @@
         "col_date": "Date",
         "applications_empty_title": "No applications",
         "applications_empty_desc": "Browse open missions and apply.",
-        "applications_empty_cta": "Find a mission"
+        "applications_empty_cta": "Find a mission",
+        "waiting_payment_alert": "{count} accepted mission(s) — waiting for enterprise payment to start.",
+        "payout_stripe_alert": "Mission in progress: set up Stripe Connect to receive payout at completion.",
+        "step_wait_payment": "Awaiting payment",
+        "step_in_progress": "Mission in progress",
+        "step_paid": "Paid"
       },
       "match": {
         "reason_sector": "IoT domain",
@@ -742,6 +755,44 @@
         "released": "Paid out to startup",
         "payment_error": "Payment error",
         "cancelled": "Cancelled"
+      },
+      "engagement_hints": {
+        "enterprise": {
+          "pending_payment": "Pay the Stripe invoice to place funds in escrow and start the mission.",
+          "escrowed": "Mission in progress. Release funds once delivery is validated.",
+          "payment_error": "Invoice could not be generated. Click to retry.",
+          "startup_stripe_pending": "The startup must complete Stripe Connect before funds can be released."
+        },
+        "startup": {
+          "pending_payment": "The enterprise must pay the invoice to start the mission.",
+          "escrowed": "Mission in progress — the enterprise will release funds after validation.",
+          "released": "Payout sent to your Stripe Connect account.",
+          "stripe_required": "Set up Stripe Connect to receive payment when the mission completes."
+        }
+      },
+      "message_detail": {
+        "title_default": "Message",
+        "back_messages": "Back to messaging",
+        "from": "From",
+        "to": "To",
+        "unread": "Unread",
+        "payment_title": "Payment & escrow",
+        "status": "Status",
+        "mission_amount": "Mission amount",
+        "fee_line": "Platform fee: €{commission} — Startup payout: {payout}",
+        "pay_invoice": "Pay invoice",
+        "retry_invoice": "Regenerate invoice",
+        "release_funds": "Release funds (mission complete)",
+        "release_confirm": "Confirm release of funds to the startup?",
+        "accept_hint": "Accepting automatically generates a Stripe escrow invoice.",
+        "accept_invoice": "Accept & invoice",
+        "decline": "Decline",
+        "application_status": "Application {status}.",
+        "reply_title": "Reply",
+        "reply_placeholder": "Your reply…",
+        "reply_send": "Send reply",
+        "linked_project": "Linked project",
+        "view_project": "View project"
       },
       "messenger": {
         "loading": "Loading…",
@@ -777,6 +828,13 @@
         "app_declined": "Application declined.",
         "invoice_confirm": "Application accepted. Open the invoice for escrow payment?",
         "invoice_warning": "Accepted, but invoice: {error}",
+        "startup_stripe_hint": "The startup must set up Stripe Connect before funds can be released.",
+        "escrow_title": "Escrow",
+        "mission_amount": "Amount",
+        "pay_invoice": "Pay invoice",
+        "release_funds": "Release funds",
+        "retry_invoice": "Regenerate invoice",
+        "configure_stripe": "Set up Stripe",
         "message_sent": "Message sent.",
         "generic_error": "Error"
       },

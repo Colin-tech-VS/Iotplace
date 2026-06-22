@@ -593,6 +593,9 @@
       "manage": "Gérer",
       "release": "Libérer",
       "invoice": "Facture",
+      "pay_invoice": "Payer la facture",
+      "retry_invoice": "Régénérer la facture",
+      "accept_decline": "Accepter / Refuser",
       "treat": "Traiter",
       "details": "Détails",
       "see_all": "Tout voir",
@@ -671,7 +674,11 @@
         "recommendations_empty_cta": "Mon profil",
         "col_match": "Match",
         "col_domain": "Domaine",
-        "col_skills": "Compétences"
+        "col_skills": "Compétences",
+        "pending_invoice_alert": "{count} facture(s) en attente de paiement — les fonds seront mis en séquestre après règlement.",
+        "pending_invoice_cta": "Voir les partenariats",
+        "payment_error_alert": "{count} mission(s) avec erreur de facturation — régénérez la facture.",
+        "payment_error_cta": "Corriger"
       },
       "startup": {
         "space": "Espace startup",
@@ -689,6 +696,7 @@
         "recommended_empty_cta": "Voir les projets",
         "activity_empty_title": "Aucune activité",
         "activity_empty_desc": "Postulez à une mission pour démarrer un partenariat.",
+        "activity_title": "Activité récente",
         "recommendations_title": "Projets recommandés",
         "recommendations_catalog": "Catalogue projets",
         "recommendations_empty_title": "Aucun projet correspondant",
@@ -712,7 +720,12 @@
         "col_date": "Date",
         "applications_empty_title": "Aucune candidature",
         "applications_empty_desc": "Parcourez les missions ouvertes et postulez.",
-        "applications_empty_cta": "Trouver une mission"
+        "applications_empty_cta": "Trouver une mission",
+        "waiting_payment_alert": "{count} mission(s) acceptée(s) — en attente du paiement entreprise pour démarrer.",
+        "payout_stripe_alert": "Mission en cours : configurez Stripe Connect pour recevoir le versement à la fin.",
+        "step_wait_payment": "En attente paiement",
+        "step_in_progress": "Mission en cours",
+        "step_paid": "Payé"
       },
       "match": {
         "reason_sector": "Domaine IoT",
@@ -741,6 +754,44 @@
         "released": "Versement effectué à la startup",
         "payment_error": "Erreur de paiement",
         "cancelled": "Annulé"
+      },
+      "engagement_hints": {
+        "enterprise": {
+          "pending_payment": "Payez la facture Stripe pour mettre les fonds en séquestre et démarrer la mission.",
+          "escrowed": "Mission en cours. Libérez les fonds une fois la livraison validée.",
+          "payment_error": "La facture n'a pas pu être générée. Cliquez pour réessayer.",
+          "startup_stripe_pending": "La startup doit terminer Stripe Connect avant la libération des fonds."
+        },
+        "startup": {
+          "pending_payment": "L'entreprise doit payer la facture pour démarrer la mission.",
+          "escrowed": "Mission en cours — l'entreprise libérera les fonds après validation.",
+          "released": "Versement effectué sur votre compte Stripe Connect.",
+          "stripe_required": "Configurez Stripe Connect pour recevoir le paiement à la fin de mission."
+        }
+      },
+      "message_detail": {
+        "title_default": "Message",
+        "back_messages": "Retour messagerie",
+        "from": "De",
+        "to": "À",
+        "unread": "Non lu",
+        "payment_title": "Paiement & séquestre",
+        "status": "Statut",
+        "mission_amount": "Montant mission",
+        "fee_line": "Commission plateforme : {commission} € — Versement startup : {payout}",
+        "pay_invoice": "Payer la facture",
+        "retry_invoice": "Régénérer la facture",
+        "release_funds": "Libérer les fonds (fin de mission)",
+        "release_confirm": "Confirmer la libération des fonds vers la startup ?",
+        "accept_hint": "L'acceptation génère automatiquement une facture Stripe (séquestre).",
+        "accept_invoice": "Accepter & facturer",
+        "decline": "Refuser",
+        "application_status": "Candidature {status}.",
+        "reply_title": "Répondre",
+        "reply_placeholder": "Votre réponse…",
+        "reply_send": "Envoyer la réponse",
+        "linked_project": "Projet lié",
+        "view_project": "Voir le projet"
       },
       "messenger": {
         "loading": "Chargement…",
@@ -776,6 +827,13 @@
         "app_declined": "Candidature refusée.",
         "invoice_confirm": "Candidature acceptée. Ouvrir la facture pour paiement (séquestre) ?",
         "invoice_warning": "Acceptée, mais facture : {error}",
+        "startup_stripe_hint": "La startup doit configurer Stripe Connect avant la libération des fonds.",
+        "escrow_title": "Séquestre",
+        "mission_amount": "Montant",
+        "pay_invoice": "Payer la facture",
+        "release_funds": "Libérer les fonds",
+        "retry_invoice": "Régénérer la facture",
+        "configure_stripe": "Configurer Stripe",
         "message_sent": "Message envoyé.",
         "generic_error": "Erreur"
       },

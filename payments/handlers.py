@@ -100,6 +100,47 @@ def _decline_other_applications(project_id: str, accepted_message_id: str) -> No
             store.update_message_status_direct(app["id"], "declined")
 
 
+def retry_escrow_invoice(engagement_id: str, enterprise_user: dict) -> dict:
+    engagement = store.get_engagement(engagement_id)
+    if not engagement:
+        return {"ok": False, "error": "Engagement introuvable."}
+
+    profile = store.get_enterprise_for_user(enterprise_user["id"])
+    if not profile or engagement.get("enterprise_id") != profile["id"]:
+        return {"ok": False, "error": "Non autorisé."}
+
+    status = engagement.get("status", "")
+    if status == "pending_payment" and engagement.get("stripe_hosted_invoice_url"):
+        return {"ok": True, "invoice_url": engagement["stripe_hosted_invoice_url"]}
+    if status not in ("payment_error", "draft"):
+        return {"ok": False, "error": "Cette mission ne peut pas être refacturée."}
+
+    if not stripe_service.is_configured():
+        return {"ok": False, "error": "Stripe non configuré."}
+
+    project = store.get_project(engagement.get("project_id", ""))
+    startup = store.get_startup(engagement.get("startup_id"))
+    if not project or not startup:
+        return {"ok": False, "error": "Projet ou startup introuvable."}
+
+    try:
+        invoice_data = stripe_service.create_escrow_invoice(
+            engagement, profile, enterprise_user, project, startup
+        )
+        store.update_engagement(engagement_id, {"notes": ""})
+        return {
+            "ok": True,
+            "invoice_url": invoice_data.get("hosted_invoice_url"),
+            "engagement": store.get_engagement(engagement_id),
+        }
+    except stripe_service.PaymentError as exc:
+        store.update_engagement(engagement_id, {
+            "status": "payment_error",
+            "notes": str(exc),
+        })
+        return {"ok": False, "error": str(exc)}
+
+
 def release_engagement(engagement_id: str, enterprise_user: dict) -> dict:
     engagement = store.get_engagement(engagement_id)
     if not engagement:

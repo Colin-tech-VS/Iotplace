@@ -1566,6 +1566,8 @@ def users_can_message(from_user, to_user, project_id=None):
 def serialize_message_api(msg, current_user_id):
     enriched = enrich_message_for_view(msg, current_user_id)
     engagement = get_engagement_by_message(msg["id"]) if msg.get("kind") == "application" else None
+    viewer = get_user(current_user_id)
+    viewer_role = (viewer or {}).get("role", "")
     payload = {
         "id": msg["id"],
         "body": msg.get("body", ""),
@@ -1587,14 +1589,62 @@ def serialize_message_api(msg, current_user_id):
         "is_mine": msg.get("from_user_id") == current_user_id,
     }
     if engagement:
-        payload["engagement"] = {
+        status = engagement.get("status", "")
+        eng_payload = {
             "id": engagement["id"],
-            "status": engagement.get("status"),
-            "status_label": format_engagement_label(engagement.get("status")),
+            "status": status,
+            "status_label": format_engagement_label(status),
             "invoice_url": engagement.get("stripe_hosted_invoice_url"),
             "amount_cents": engagement.get("amount_cents"),
+            "payout_cents": engagement.get("startup_payout_cents"),
+            "detail_url": f"/compte/messages/{msg['id']}",
+            "show_pay_invoice": (
+                viewer_role == "enterprise"
+                and status == "pending_payment"
+                and bool(engagement.get("stripe_hosted_invoice_url"))
+            ),
+            "show_release": viewer_role == "enterprise" and status == "escrowed",
+            "show_retry": (
+                viewer_role == "enterprise"
+                and status == "payment_error"
+            ),
+            "retry_url": f"/compte/engagements/{engagement['id']}/retry-invoice",
         }
+        if viewer_role == "startup":
+            startup = get_startup_for_user(current_user_id)
+            if status == "pending_payment":
+                eng_payload["hint"] = _engagement_hint_startup("pending_payment")
+            elif status == "escrowed":
+                eng_payload["hint"] = _engagement_hint_startup("escrowed")
+            elif status == "released":
+                eng_payload["hint"] = _engagement_hint_startup("released")
+            if startup and not startup.get("stripe_onboarding_complete"):
+                eng_payload["show_stripe_connect"] = True
+                eng_payload["stripe_url"] = "/compte/startup/stripe/onboard"
+                eng_payload["hint"] = _engagement_hint_startup("stripe_required")
+        elif viewer_role == "enterprise":
+            if status == "pending_payment":
+                eng_payload["hint"] = _engagement_hint_enterprise("pending_payment")
+            elif status == "escrowed":
+                startup = get_startup(engagement.get("startup_id"))
+                if startup and not startup.get("stripe_onboarding_complete"):
+                    eng_payload["hint"] = _engagement_hint_enterprise("startup_stripe_pending")
+                else:
+                    eng_payload["hint"] = _engagement_hint_enterprise("escrowed")
+            elif status == "payment_error":
+                eng_payload["hint"] = _engagement_hint_enterprise("payment_error")
+        payload["engagement"] = eng_payload
     return payload
+
+
+def _engagement_hint_enterprise(key: str) -> str:
+    from vitrine.i18n import t
+    return t(f"compte.dashboard.engagement_hints.enterprise.{key}", default="")
+
+
+def _engagement_hint_startup(key: str) -> str:
+    from vitrine.i18n import t
+    return t(f"compte.dashboard.engagement_hints.startup.{key}", default="")
 
 
 def get_conversations(user_id):
@@ -2239,11 +2289,16 @@ def get_dashboard_data_for_startup(user, profile, locale: str | None = None):
     applications = get_applications_for_startup(profile["id"])
     engagements_raw = get_engagements_for_startup(profile["id"])
     applied_ids = {a.get("project_id") for a in applications}
+    app_by_project = {a.get("project_id"): a for a in applications}
     matching_enriched = []
     for p in matching:
+        app = app_by_project.get(p["id"])
+        app_view = enrich_message_for_view(app, user["id"], loc) if app else None
         matching_enriched.append({
             **p,
             "already_applied": p["id"] in applied_ids,
+            "application_status": app.get("status") if app else None,
+            "application_status_label": app_view["status_label"] if app_view else None,
         })
     applications_view = [enrich_message_for_view(m, user["id"], loc) for m in applications]
     engagements = [

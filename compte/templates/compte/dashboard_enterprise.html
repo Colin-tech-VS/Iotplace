@@ -58,6 +58,20 @@
     <a href="mailto:{{ contact_email }}" class="btn btn-outline btn-sm">{{ t(de ~ '.pro_support_cta') }}</a>
 </div>
 {% endif %}
+{% set pending_invoices = engagements|selectattr('status', 'equalto', 'pending_payment')|list %}
+{% set payment_errors = engagements|selectattr('status', 'equalto', 'payment_error')|list %}
+{% if pending_invoices %}
+<div class="cdash-alert cdash-alert-warn reveal">
+    <span>{{ t(de ~ '.pending_invoice_alert', count=pending_invoices|length) }}</span>
+    <a href="{{ url_for('compte.enterprise_dashboard', section='partnerships') }}" class="btn btn-primary btn-sm">{{ t(de ~ '.pending_invoice_cta') }}</a>
+</div>
+{% endif %}
+{% if payment_errors %}
+<div class="cdash-alert cdash-alert-warn reveal">
+    <span>{{ t(de ~ '.payment_error_alert', count=payment_errors|length) }}</span>
+    <a href="{{ url_for('compte.enterprise_dashboard', section='partnerships') }}" class="btn btn-outline btn-sm">{{ t(de ~ '.payment_error_cta') }}</a>
+</div>
+{% endif %}
 
 <section class="cdash-panel{% if active_section == 'overview' %} active{% endif %}" id="cdash-panel-overview" data-section="overview">
     <div class="cdash-kpis">
@@ -340,11 +354,18 @@
                             <div class="cdash-actions">
                                 {% if eng.message_id %}
                                 <a href="{{ url_for('compte.message_detail', message_id=eng.message_id) }}" class="btn btn-primary btn-sm">
-                                    {% if eng.status == 'escrowed' %}{{ t(d ~ '.release') }}{% else %}{{ t(d ~ '.manage') }}{% endif %}
+                                    {% if eng.status == 'escrowed' %}{{ t(d ~ '.release') }}
+                                    {% elif eng.status == 'pending_payment' %}{{ t(d ~ '.pay_invoice') }}
+                                    {% elif eng.status == 'payment_error' %}{{ t(d ~ '.retry_invoice') }}
+                                    {% else %}{{ t(d ~ '.manage') }}{% endif %}
                                 </a>
                                 {% endif %}
                                 {% if eng.stripe_hosted_invoice_url and eng.status == 'pending_payment' %}
-                                <a href="{{ eng.stripe_hosted_invoice_url }}" class="btn btn-outline btn-sm" target="_blank" rel="noopener">{{ t(d ~ '.invoice') }}</a>
+                                <a href="{{ eng.stripe_hosted_invoice_url }}" class="btn btn-outline btn-sm" target="_blank" rel="noopener">{{ t(d ~ '.pay_invoice') }}</a>
+                                {% elif eng.status == 'payment_error' %}
+                                <form method="POST" action="{{ url_for('compte.retry_engagement_invoice', engagement_id=eng.id) }}" class="inline-form">
+                                    <button type="submit" class="btn btn-primary btn-sm">{{ t(d ~ '.retry_invoice') }}</button>
+                                </form>
                                 {% endif %}
                             </div>
                         </td>
@@ -385,7 +406,15 @@
                         <td>{{ cdash_status(msg.status, msg.status_label) }}</td>
                         <td>
                             <div class="cdash-actions">
-                                <a href="{{ url_for('compte.message_detail', message_id=msg.id) }}" class="btn btn-primary btn-sm">{{ t(d ~ '.treat') }}</a>
+                                {% if msg.status == 'pending' %}
+                                <button type="button" class="btn btn-primary btn-sm cdash-open-chat"
+                                    data-counterpart="{{ msg.from_user_id }}"
+                                    data-project="{{ msg.project_id or '' }}"
+                                    data-name="{{ msg.counterpart_name }}"
+                                    data-role="startup">{{ t(d ~ '.accept_decline') }}</button>
+                                {% else %}
+                                <a href="{{ url_for('compte.message_detail', message_id=msg.id) }}" class="btn btn-ghost btn-sm">{{ t(d ~ '.details') }}</a>
+                                {% endif %}
                                 <button type="button" class="btn btn-ghost btn-sm cdash-open-chat"
                                     data-counterpart="{{ msg.from_user_id }}"
                                     data-project="{{ msg.project_id or '' }}"
@@ -411,5 +440,5 @@
 
 {% block scripts %}
 <script src="{{ url_for('vitrine.static', filename='js/compte-dashboard.js') }}?v=4"></script>
-<script src="{{ url_for('vitrine.static', filename='js/messaging.js') }}?v=5"></script>
+<script src="{{ url_for('vitrine.static', filename='js/messaging.js') }}?v=6"></script>
 {% endblock %}

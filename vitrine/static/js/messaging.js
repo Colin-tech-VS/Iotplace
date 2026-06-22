@@ -77,6 +77,49 @@
         return role === 'enterprise' ? 'enterprise' : 'startup';
     }
 
+    function roleLabel(role) {
+        const m = i18n();
+        if (role === 'enterprise') return m.role_enterprise || 'Enterprise';
+        if (role === 'startup') return m.role_startup || 'Startup';
+        return role || '';
+    }
+
+    function formatEuro(cents) {
+        if (!cents && cents !== 0) return '';
+        const value = cents / 100;
+        return value.toLocaleString(uiLocale(), { style: 'currency', currency: 'EUR' });
+    }
+
+    function renderEngagementBlock(eng) {
+        if (!eng || !eng.status) return '';
+        const m = i18n();
+        let actions = '';
+        if (eng.show_pay_invoice && eng.invoice_url) {
+            actions += `<a href="${escapeHtml(eng.invoice_url)}" class="btn btn-primary btn-sm" target="_blank" rel="noopener">${escapeHtml(m.pay_invoice || 'Pay invoice')}</a>`;
+        }
+        if (eng.show_release && eng.detail_url) {
+            actions += `<a href="${escapeHtml(eng.detail_url)}" class="btn btn-outline btn-sm">${escapeHtml(m.release_funds || 'Release funds')}</a>`;
+        }
+        if (eng.show_retry && eng.retry_url) {
+            actions += `<form method="POST" action="${escapeHtml(eng.retry_url)}" class="msg-engagement-form"><button type="submit" class="btn btn-primary btn-sm">${escapeHtml(m.retry_invoice || 'Retry invoice')}</button></form>`;
+        }
+        if (eng.show_stripe_connect && eng.stripe_url) {
+            actions += `<a href="${escapeHtml(eng.stripe_url)}" class="btn btn-primary btn-sm">${escapeHtml(m.configure_stripe || 'Configure Stripe')}</a>`;
+        }
+        const amountLine = eng.amount_cents
+            ? `<p class="msg-engagement-amount"><strong>${escapeHtml(m.mission_amount || 'Mission')}:</strong> ${formatEuro(eng.amount_cents)}</p>`
+            : '';
+        const hint = eng.hint ? `<p class="msg-engagement-hint">${escapeHtml(eng.hint)}</p>` : '';
+        return `
+            <div class="msg-engagement">
+                <span class="msg-engagement-label">${escapeHtml(m.escrow_title || 'Escrow')}</span>
+                <span class="status-pill status-${escapeHtml(eng.status)}">${escapeHtml(eng.status_label || eng.status)}</span>
+                ${amountLine}
+                ${hint}
+                ${actions ? `<div class="msg-engagement-actions">${actions}</div>` : ''}
+            </div>`;
+    }
+
     function isMobileMessenger() {
         return window.matchMedia('(max-width: 900px)').matches;
     }
@@ -211,12 +254,15 @@
                    </div>`
                 : '';
 
+            const engagementBlock = isApp && m.engagement ? renderEngagementBlock(m.engagement) : '';
+
             parts.push(`
                 <div class="msg-row ${mine ? 'mine' : 'theirs'} ${isApp ? 'application' : ''} ${!m.read && !mine ? 'unread' : ''}">
                     <div class="msg-bubble">
                         ${isApp ? `<span class="msg-kind">${escapeHtml(m.kind_label || i18n().application || 'Application')}</span>` : ''}
                         <p>${escapeHtml(m.body)}</p>
                         ${m.status && isApp ? `<span class="status-pill status-${m.status}">${escapeHtml(m.status_label)}</span>` : ''}
+                        ${engagementBlock}
                         ${appActions}
                     </div>
                     <time class="msg-time">${formatTime(m.created_at)}</time>
@@ -324,6 +370,9 @@
             if (confirm(i18n().invoice_confirm || 'Open invoice for escrow payment?')) {
                 window.open(data.payment.invoice_url, '_blank', 'noopener');
             }
+        } else if (status === 'accepted' && data.payment?.startup_onboarding_required) {
+            const tpl = i18n().startup_stripe_hint || 'Startup must complete Stripe Connect before fund release.';
+            if (window.IotToast) IotToast.show(tpl, { type: 'info' });
         } else if (status === 'accepted' && data.payment?.error) {
             const tpl = i18n().invoice_warning || 'Accepted, but invoice: {error}';
             if (window.IotToast) IotToast.show(tpl.replace('{error}', data.payment.error), { type: 'warning' });

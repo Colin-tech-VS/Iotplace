@@ -1,94 +1,145 @@
-{% extends "base.html" %}
+{% extends "compte_layout.html" %}
+{% from "compte/_dashboard_macros.html" import cdash_status %}
+
+{% set d = 'compte.dashboard' %}
+{% set md = d ~ '.message_detail' %}
+{% block title %}{{ message.subject or t(md ~ '.title_default') }}{% endblock %}
+{% block compte_role %}{{ user.role }}{% endblock %}
+{% block space_label %}{% if user.role == 'enterprise' %}{{ t(d ~ '.enterprise.space') }}{% else %}{{ t(d ~ '.startup.space') }}{% endif %}{% endblock %}
+
+{% block sidebar_nav %}
+{% if user.role == 'enterprise' %}
+{% include "compte/_sidebar_enterprise.html" %}
+{% else %}
+{% include "compte/_sidebar_startup.html" %}
+{% endif %}
+{% endblock %}
+
+{% block main_header %}
+<header class="cdash-topbar">
+    <div class="cdash-topbar-left">
+        <button type="button" class="cdash-menu-btn" id="cdashMenuBtn" aria-label="{{ t(d ~ '.menu') }}">☰</button>
+        <div>
+            <a href="{{ url_for('compte.enterprise_dashboard' if user.role == 'enterprise' else 'compte.startup_dashboard', section='messages') }}" class="cdash-back-link">← {{ t(md ~ '.back_messages') }}</a>
+            <h1>{{ message.subject or t(md ~ '.title_default') }}</h1>
+            <p class="cdash-topbar-sub">
+                {{ message.kind_label }}
+                · {% if message.direction == 'in' %}{{ t(md ~ '.from') }}{% else %}{{ t(md ~ '.to') }}{% endif %} {{ message.counterpart_name }}
+                {% if message.project_title %} · {{ message.project_title }}{% endif %}
+            </p>
+        </div>
+    </div>
+</header>
+{% endblock %}
 
 {% block content %}
-<section class="page-hero page-hero-sm">
-    <div class="container reveal">
-        <a href="{{ url_for('compte.home') }}" class="back-link">← Retour au tableau de bord</a>
-        <h1>{{ message.subject or 'Message' }}</h1>
-        <p class="page-sub">
-            {{ message.kind_label }}
-            · {% if message.direction == 'in' %}De{% else %}À{% endif %} {{ message.counterpart_name }}
-            {% if message.project_title %} · {{ message.project_title }}{% endif %}
-        </p>
-    </div>
-</section>
+<div class="cdash-grid-2 cdash-message-detail">
+    <div class="cdash-card">
+        <div class="message-meta">
+            <span>{{ message.created_at[:19].replace('T', ' ') if message.created_at else '' }}</span>
+            {% if message.kind == 'application' %}
+            {{ cdash_status(message.status, message.status_label) }}
+            {% endif %}
+            {% if not message.read and message.direction == 'in' %}
+            <span class="cdash-status cdash-status-pending">{{ t(md ~ '.unread') }}</span>
+            {% endif %}
+        </div>
+        <div class="message-body-full">{{ message.body }}</div>
 
-<section class="section">
-    <div class="container dashboard-grid">
-        <div class="dashboard-card reveal">
-            <div class="message-meta">
-                <span>{{ message.created_at[:19].replace('T', ' ') if message.created_at else '' }}</span>
-                {% if message.kind == 'application' %}
-                <span class="status-pill status-{{ message.status }}">{{ message.status_label }}</span>
-                {% endif %}
-                {% if not message.read and message.direction == 'in' %}
-                <span class="message-new">Non lu</span>
-                {% endif %}
-            </div>
-            <div class="message-body-full">{{ message.body }}</div>
-
-            {% if engagement %}
-            <div class="payment-engagement-card">
-                <h3>Paiement & séquestre</h3>
-                <p><strong>Statut :</strong> {{ engagement_label or engagement.status }}</p>
-                {% if engagement.amount_cents %}
-                <p><strong>Montant mission :</strong> {{ '%.2f'|format(engagement.amount_cents / 100) }} €</p>
-                <p class="muted">Commission plateforme : {{ '%.2f'|format((engagement.platform_fee_cents or 0) / 100) }} € — Versement startup : {{ '%.2f'|format((engagement.startup_payout_cents or 0) / 100) }} €</p>
-                {% endif %}
-                {% if engagement.stripe_hosted_invoice_url and user.role == 'enterprise' and engagement.status == 'pending_payment' %}
-                <a href="{{ engagement.stripe_hosted_invoice_url }}" class="btn btn-primary btn-sm" target="_blank" rel="noopener">Payer la facture</a>
-                {% endif %}
-                {% if engagement.status == 'escrowed' and user.role == 'enterprise' %}
-                <form method="POST" action="{{ url_for('compte.release_engagement_funds', engagement_id=engagement.id) }}" class="inline-form" style="margin-top:0.75rem">
-                    <button type="submit" class="btn btn-primary btn-sm" onclick="return confirm('Confirmer la libération des fonds vers la startup ?')">Libérer les fonds (fin de mission)</button>
-                </form>
-                {% endif %}
-                {% if engagement.notes %}
-                <p class="muted" style="margin-top:0.5rem">{{ engagement.notes }}</p>
-                {% endif %}
-            </div>
+        {% if engagement and engagement_view %}
+        <div class="payment-engagement-card">
+            <h3>{{ t(md ~ '.payment_title') }}</h3>
+            <p><strong>{{ t(md ~ '.status') }}:</strong> {{ cdash_status(engagement_view.status_tone, engagement_view.status_label) }}</p>
+            {% if engagement.amount_cents %}
+            <p><strong>{{ t(md ~ '.mission_amount') }}:</strong> {{ engagement_view.amount_label }}</p>
+            <p class="muted">{{ t(md ~ '.fee_line', commission='%.2f'|format((engagement.platform_fee_cents or 0) / 100), payout=engagement_view.payout_label) }}</p>
             {% endif %}
 
-            {% if message.kind == 'application' and message.direction == 'in' and user.role == 'enterprise' and message.status == 'pending' %}
-            <div class="message-actions">
-                <form method="POST" action="{{ url_for('compte.message_update_status', message_id=message.id) }}" class="inline-form">
-                    <input type="hidden" name="status" value="accepted">
-                    <button type="submit" class="btn btn-primary btn-sm">
-                        Accepter &amp; facturer{% if stripe_configured %} (séquestre){% endif %}
-                    </button>
-                </form>
-                <form method="POST" action="{{ url_for('compte.message_update_status', message_id=message.id) }}" class="inline-form">
-                    <input type="hidden" name="status" value="declined">
-                    <button type="submit" class="btn btn-ghost btn-sm">Refuser</button>
-                </form>
-            </div>
-            {% elif message.kind == 'application' and message.direction == 'in' and user.role == 'enterprise' and message.status != 'pending' %}
-            <p class="muted" style="margin-top:0.75rem">Candidature {{ message.status_label|lower }}.</p>
+            {% if user.role == 'enterprise' and engagement.status == 'pending_payment' and engagement.stripe_hosted_invoice_url %}
+            <p class="cdash-step-hint">{{ t('compte.dashboard.engagement_hints.enterprise.pending_payment') }}</p>
+            <a href="{{ engagement.stripe_hosted_invoice_url }}" class="btn btn-primary btn-sm" target="_blank" rel="noopener">{{ t(md ~ '.pay_invoice') }}</a>
             {% endif %}
 
-            <form class="reply-form" method="POST" action="{{ url_for('compte.message_reply', message_id=message.id) }}">
-                <h3>Répondre</h3>
-                <div class="form-group">
-                    <textarea name="body" rows="4" required placeholder="Votre réponse…"></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary">Envoyer la réponse</button>
+            {% if user.role == 'enterprise' and engagement.status == 'payment_error' %}
+            <p class="cdash-step-hint cdash-step-hint-warn">{{ t('compte.dashboard.engagement_hints.enterprise.payment_error') }}</p>
+            <form method="POST" action="{{ url_for('compte.retry_engagement_invoice', engagement_id=engagement.id) }}" class="inline-form">
+                <button type="submit" class="btn btn-primary btn-sm">{{ t(md ~ '.retry_invoice') }}</button>
+            </form>
+            {% endif %}
+
+            {% if engagement.status == 'escrowed' and user.role == 'enterprise' %}
+            <p class="cdash-step-hint">{{ t('compte.dashboard.engagement_hints.enterprise.escrowed') }}</p>
+            <form method="POST" action="{{ url_for('compte.release_engagement_funds', engagement_id=engagement.id) }}" class="inline-form" style="margin-top:0.75rem">
+                <button type="submit" class="btn btn-primary btn-sm" onclick="return confirm('{{ t(md ~ '.release_confirm') }}')">{{ t(md ~ '.release_funds') }}</button>
+            </form>
+            {% endif %}
+
+            {% if user.role == 'startup' %}
+            {% if engagement.status == 'pending_payment' %}
+            <p class="cdash-step-hint">{{ t('compte.dashboard.engagement_hints.startup.pending_payment') }}</p>
+            {% elif engagement.status == 'escrowed' %}
+            <p class="cdash-step-hint">{{ t('compte.dashboard.engagement_hints.startup.escrowed') }}</p>
+            {% elif engagement.status == 'released' %}
+            <p class="cdash-step-hint">{{ t('compte.dashboard.engagement_hints.startup.released') }}</p>
+            {% endif %}
+            {% if stripe_configured and not profile.stripe_onboarding_complete %}
+            <p class="cdash-step-hint cdash-step-hint-warn">{{ t('compte.dashboard.engagement_hints.startup.stripe_required') }}</p>
+            <a href="{{ url_for('compte.startup_stripe_onboard') }}" class="btn btn-primary btn-sm">{{ t(d ~ '.startup.configure') }}</a>
+            {% endif %}
+            {% endif %}
+
+            {% if engagement.notes %}
+            <p class="muted" style="margin-top:0.5rem">{{ engagement.notes }}</p>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {% if message.kind == 'application' and message.direction == 'in' and user.role == 'enterprise' and message.status == 'pending' %}
+        <div class="message-actions">
+            {% if stripe_configured %}
+            <p class="cdash-step-hint">{{ t(md ~ '.accept_hint') }}</p>
+            <form method="POST" action="{{ url_for('compte.message_update_status', message_id=message.id) }}" class="inline-form">
+                <input type="hidden" name="status" value="accepted">
+                <button type="submit" class="btn btn-primary btn-sm">{{ t(md ~ '.accept_invoice') }}</button>
+            </form>
+            {% else %}
+            <p class="cdash-step-hint cdash-step-hint-warn">{{ t('compte.flash_accept_stripe_required') }}</p>
+            {% endif %}
+            <form method="POST" action="{{ url_for('compte.message_update_status', message_id=message.id) }}" class="inline-form">
+                <input type="hidden" name="status" value="declined">
+                <button type="submit" class="btn btn-ghost btn-sm">{{ t(md ~ '.decline') }}</button>
             </form>
         </div>
-
-        {% if project %}
-        <aside class="dashboard-card reveal">
-            <h3>Projet lié</h3>
-            <p><strong>{{ project.title }}</strong></p>
-            <p class="muted">{{ project.enterprise }}</p>
-            <p class="muted">{{ project.budget or '—' }} · {{ project.duration or '—' }}</p>
-            {% if project.description %}<p>{{ project.description }}</p>{% endif %}
-            {% if user.role == 'enterprise' %}
-            <a href="{{ url_for('compte.enterprise_project_detail', project_id=project.id) }}" class="link-arrow">Voir le projet →</a>
-            {% else %}
-            <a href="{{ url_for('compte.startup_project_detail', project_id=project.id) }}" class="link-arrow">Voir le projet →</a>
-            {% endif %}
-        </aside>
+        {% elif message.kind == 'application' and message.status != 'pending' %}
+        <p class="muted" style="margin-top:0.75rem">{{ t(md ~ '.application_status', status=message.status_label) }}</p>
         {% endif %}
+
+        <form class="reply-form" method="POST" action="{{ url_for('compte.message_reply', message_id=message.id) }}">
+            <h3>{{ t(md ~ '.reply_title') }}</h3>
+            <div class="form-group">
+                <textarea name="body" rows="4" required placeholder="{{ t(md ~ '.reply_placeholder') }}"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">{{ t(md ~ '.reply_send') }}</button>
+        </form>
     </div>
-</section>
+
+    {% if project %}
+    <aside class="cdash-card">
+        <h3>{{ t(md ~ '.linked_project') }}</h3>
+        <p><strong>{{ project.title }}</strong></p>
+        <p class="muted">{{ project.enterprise }}</p>
+        <p class="muted">{{ project.budget or t(d ~ '.budget_tbd') }} · {{ project.duration or '—' }}</p>
+        {% if project.description %}<p>{{ project.description }}</p>{% endif %}
+        {% if user.role == 'enterprise' %}
+        <a href="{{ url_for('compte.enterprise_project_detail', project_id=project.id) }}" class="link-arrow">{{ t(md ~ '.view_project') }} →</a>
+        {% else %}
+        <a href="{{ url_for('compte.startup_project_detail', project_id=project.id) }}" class="link-arrow">{{ t(md ~ '.view_project') }} →</a>
+        {% endif %}
+    </aside>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('vitrine.static', filename='js/compte-dashboard.js') }}?v=4"></script>
 {% endblock %}

@@ -44,6 +44,19 @@
     <a href="{{ url_for('compte.startup_stripe_onboard') }}" class="btn btn-primary btn-sm">{{ t(ds ~ '.configure') }}</a>
 </div>
 {% endif %}
+{% set waiting_enterprise = engagements|selectattr('status', 'equalto', 'pending_payment')|list %}
+{% set ready_payout = engagements|selectattr('status', 'equalto', 'escrowed')|list %}
+{% if waiting_enterprise %}
+<div class="cdash-alert cdash-alert-warn reveal">
+    <span>{{ t(ds ~ '.waiting_payment_alert', count=waiting_enterprise|length) }}</span>
+</div>
+{% endif %}
+{% if ready_payout and stripe_configured and not profile.stripe_onboarding_complete %}
+<div class="cdash-alert cdash-alert-warn reveal">
+    <span>{{ t(ds ~ '.payout_stripe_alert') }}</span>
+    <a href="{{ url_for('compte.startup_stripe_onboard') }}" class="btn btn-primary btn-sm">{{ t(ds ~ '.configure') }}</a>
+</div>
+{% endif %}
 
 <section class="cdash-panel{% if active_section == 'overview' %} active{% endif %}" id="cdash-panel-overview" data-section="overview">
     <div class="cdash-kpis">
@@ -95,7 +108,7 @@
 
         <div class="cdash-card">
             <div class="cdash-card-head">
-                <h2>{{ t('compte.dashboard.enterprise.activity_title') }}</h2>
+                <h2>{{ t(ds ~ '.activity_title') }}</h2>
             </div>
             {% if activity %}
             <ul class="cdash-activity">
@@ -153,7 +166,7 @@
                         <td>{{ project.budget or '—' }}</td>
                         <td>
                             {% if project.already_applied %}
-                            {{ cdash_status('accepted', t(d ~ '.applied')) }}
+                            {{ cdash_status(project.application_status or 'pending', project.application_status_label or t(d ~ '.applied')) }}
                             {% else %}
                             {{ cdash_status('open', translate_status(project.status)) }}
                             {% endif %}
@@ -205,7 +218,16 @@
                         <td>{{ cdash_status(eng.status_tone, eng.status_label) }}</td>
                         <td>
                             {% if eng.message_id %}
-                            <a href="{{ url_for('compte.message_detail', message_id=eng.message_id) }}" class="btn btn-ghost btn-sm">{{ t(d ~ '.details') }}</a>
+                            <div class="cdash-actions">
+                                <a href="{{ url_for('compte.message_detail', message_id=eng.message_id) }}" class="btn btn-ghost btn-sm">{{ t(d ~ '.details') }}</a>
+                                {% if eng.status == 'pending_payment' %}
+                                <span class="cdash-meta">{{ t(ds ~ '.step_wait_payment') }}</span>
+                                {% elif eng.status == 'escrowed' %}
+                                <span class="cdash-meta">{{ t(ds ~ '.step_in_progress') }}</span>
+                                {% elif eng.status == 'released' %}
+                                <span class="cdash-meta">{{ t(ds ~ '.step_paid') }}</span>
+                                {% endif %}
+                            </div>
                             {% endif %}
                         </td>
                     </tr>
@@ -271,5 +293,5 @@
 
 {% block scripts %}
 <script src="{{ url_for('vitrine.static', filename='js/compte-dashboard.js') }}?v=4"></script>
-<script src="{{ url_for('vitrine.static', filename='js/messaging.js') }}?v=5"></script>
+<script src="{{ url_for('vitrine.static', filename='js/messaging.js') }}?v=6"></script>
 {% endblock %}

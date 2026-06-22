@@ -710,15 +710,29 @@ def message_detail(message_id):
     enriched = store.enrich_message_for_view(msg, user["id"])
     project = store.get_project(msg["project_id"]) if msg.get("project_id") else None
     engagement = store.get_engagement_by_message(message_id) if msg.get("kind") == "application" else None
-    engagement_label = store.format_engagement_label(engagement["status"]) if engagement else None
+    engagement_view = None
+    if engagement:
+        engagement_view = store.enrich_engagement_for_dashboard(
+            engagement, user["role"], None
+        )
+    if user["role"] == "enterprise":
+        profile = store.get_enterprise_for_user(user["id"])
+        if not profile:
+            return redirect(url_for("vitrine.index"))
+        ctx = _enterprise_account_context(user, profile, active_page="message")
+    else:
+        profile = store.get_startup_for_user(user["id"])
+        if not profile:
+            return redirect(url_for("vitrine.index"))
+        ctx = _startup_account_context(user, profile, active_page="message")
     return render_template(
         "compte/message_detail.html",
-        user=user,
         message=enriched,
         project=project,
         engagement=engagement,
-        engagement_label=engagement_label,
-        stripe_configured=stripe_service.is_checkout_ready(),
+        engagement_view=engagement_view,
+        active_section="messages",
+        **ctx,
     )
 
 
@@ -876,8 +890,30 @@ def messaging_update_status(user, message_id):
             "invoice_url": payment_result.get("invoice_url"),
             "engagement_id": (payment_result.get("engagement") or {}).get("id"),
             "error": payment_result.get("payment_error"),
+            "startup_onboarding_required": payment_result.get("startup_onboarding_required"),
         }
     return jsonify(response)
+
+
+@compte_bp.route("/compte/engagements/<engagement_id>/retry-invoice", methods=["POST"])
+@auth.login_required(role="enterprise")
+def retry_engagement_invoice(engagement_id):
+    user = auth.get_current_user()
+    result = payment_handlers.retry_escrow_invoice(engagement_id, user)
+    if result.get("ok") and result.get("invoice_url"):
+        flash(t("compte.flash_invoice_sent"), "success")
+        return redirect(result["invoice_url"])
+    if result.get("ok"):
+        flash(t("compte.flash_invoice_sent"), "success")
+    else:
+        flash(result.get("error", t("compte.flash_payment_error", error="")), "error")
+    engagement = store.get_engagement(engagement_id)
+    if engagement and engagement.get("application_message_id"):
+        return redirect(url_for(
+            "compte.message_detail",
+            message_id=engagement["application_message_id"],
+        ))
+    return redirect(url_for("compte.enterprise_dashboard", section="partnerships"))
 
 
 @compte_bp.route("/compte/startup/stripe/onboard")
