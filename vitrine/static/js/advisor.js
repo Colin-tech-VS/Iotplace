@@ -11,12 +11,14 @@
     const suggestionsEl = document.getElementById('advisor-suggestions');
     const form = document.getElementById('advisor-form');
     const input = document.getElementById('advisor-input');
+    const sendBtn = document.getElementById('advisor-send');
     const profileBtns = root.querySelectorAll('.advisor-profile-btn');
 
     let userType = 'enterprise';
     let history = [];
     let busy = false;
     let typewriterToken = 0;
+    let pendingRequest = null;
 
     const CHARS_PER_MS = 0.14;
     const PAUSE_SENTENCE_MS = 22;
@@ -32,6 +34,7 @@
         document.body.style.overflow = 'hidden';
         if (!messagesEl.children.length) showWelcome();
         renderSuggestions();
+        autoResizeInput();
         input.focus();
     }
 
@@ -45,6 +48,12 @@
                 overlay.hidden = true;
             }
         }, 350);
+    }
+
+    function autoResizeInput() {
+        input.style.height = 'auto';
+        const next = Math.min(input.scrollHeight, 132);
+        input.style.height = `${Math.max(46, next)}px`;
     }
 
     function escapeHtml(str) {
@@ -228,6 +237,10 @@
     function setProfile(type) {
         userType = type;
         typewriterToken += 1;
+        if (pendingRequest) {
+            pendingRequest.abort();
+            pendingRequest = null;
+        }
         profileBtns.forEach(btn => {
             const active = btn.dataset.profile === type;
             btn.classList.toggle('active', active);
@@ -239,10 +252,19 @@
         renderSuggestions();
     }
 
+    function setBusyState(isBusy) {
+        busy = isBusy;
+        input.disabled = isBusy;
+        sendBtn.disabled = isBusy;
+        sendBtn.classList.toggle('is-loading', isBusy);
+        if (!isBusy) {
+            input.focus();
+        }
+    }
+
     async function sendMessage(text) {
         if (busy || !text.trim()) return;
-        busy = true;
-        input.disabled = true;
+        setBusyState(true);
 
         appendMessage('user', text.trim());
         history.push({ role: 'user', content: text.trim() });
@@ -250,13 +272,15 @@
         thinking.innerHTML = `<span class="advisor-thinking-dots">${escapeHtml(cfg.i18n.thinking)}<span class="advisor-dot">.</span><span class="advisor-dot">.</span><span class="advisor-dot">.</span></span>`;
 
         try {
+            pendingRequest = new AbortController();
             const res = await fetch(cfg.chatUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                signal: pendingRequest.signal,
                 body: JSON.stringify({
                     user_type: userType,
                     message: text.trim(),
-                    history: history.slice(0, -1),
+                    history: history.slice(0, -1).slice(-10),
                 }),
             });
             const data = await res.json();
@@ -283,15 +307,34 @@
                     suggestionsEl.appendChild(btn);
                 });
             }
-        } catch (_) {
+        } catch (err) {
             thinking.remove();
+            if (err && err.name === 'AbortError') return;
             await appendBotMessage(cfg.i18n.errorGeneric, '', true);
         } finally {
-            busy = false;
-            input.disabled = false;
+            pendingRequest = null;
+            setBusyState(false);
             input.value = '';
-            input.focus();
+            autoResizeInput();
+            updateSendEnabled();
         }
+    }
+
+    function updateSendEnabled() {
+        if (busy) return;
+        sendBtn.disabled = !input.value.trim();
+    }
+
+    function warmStarter() {
+        if (messagesEl.children.length) return;
+        showWelcome();
+        renderSuggestions();
+    }
+
+    if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(warmStarter, { timeout: 1200 });
+    } else {
+        setTimeout(warmStarter, 800);
     }
 
     fab.addEventListener('click', openPanel);
@@ -314,7 +357,15 @@
         }
     });
 
+    input.addEventListener('input', () => {
+        autoResizeInput();
+        updateSendEnabled();
+    });
+
     document.addEventListener('keydown', e => {
         if (e.key === 'Escape' && root.classList.contains('open')) closePanel();
     });
+
+    autoResizeInput();
+    updateSendEnabled();
 })();
