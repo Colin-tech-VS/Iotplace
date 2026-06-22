@@ -191,12 +191,12 @@
 
     {% include "_cookie_banner.html" %}
 
-    <script src="{{ url_for('vitrine.static', filename='js/cookie-consent.js') }}?v=1"></script>
-    <script src="{{ url_for('vitrine.static', filename='js/page-loader.js') }}?v=2"></script>
-    <script src="{{ url_for('vitrine.static', filename='js/main.js') }}?v=3"></script>
-    <script src="{{ url_for('vitrine.static', filename='js/toast.js') }}?v=1"></script>
+    <script defer src="{{ url_for('vitrine.static', filename='js/cookie-consent.js') }}?v=1"></script>
+    <script defer src="{{ url_for('vitrine.static', filename='js/page-loader.js') }}?v=3"></script>
+    <script defer src="{{ url_for('vitrine.static', filename='js/main.js') }}?v=3"></script>
+    <script defer src="{{ url_for('vitrine.static', filename='js/toast.js') }}?v=1"></script>
     {% if analytics_enabled %}
-    <script src="{{ url_for('vitrine.static', filename='js/analytics.js') }}"></script>
+    <script defer src="{{ url_for('vitrine.static', filename='js/analytics.js') }}"></script>
     {% endif %}
     {% if current_user %}
     <meta name="messaging-poll-url" content="{{ url_for('compte.messaging_poll') }}">
@@ -218,7 +218,10 @@
             } catch(_) {}
         }
         navPoll();
-        setInterval(navPoll, 8000);
+        setInterval(navPoll, 20000);
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) navPoll();
+        });
     })();
     </script>
     {% endif %}

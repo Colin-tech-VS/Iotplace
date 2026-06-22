@@ -16,6 +16,15 @@ REASON_PRIORITY = "priority"
 PRO_ENTERPRISE_MATCH_BOOST = 10
 PRO_ENTERPRISE_THRESHOLD_REDUCTION = 4
 
+SKILL_ALIASES: dict[str, set[str]] = {
+    "firmware": {"firmware", "embedded", "embed", "mcu", "microcontroller", "microcontrôleur", "esp32", "stm32"},
+    "lorawan": {"lorawan", "lora", "lpwan", "sigfox", "nb-iot"},
+    "mqtt": {"mqtt", "mosquitto", "pubsub"},
+    "cloud": {"cloud", "aws", "azure", "gcp", "iot core", "thingsboard"},
+    "ai": {"ai", "ml", "machine learning", "edge ai", "ia", "intelligence artificielle"},
+    "hardware": {"hardware", "pcb", "capteur", "sensor", "iot device"},
+}
+
 
 def _pro_enterprise_boost(enterprise: dict | None) -> int:
     if not enterprise:
@@ -51,7 +60,15 @@ def _token_set(*sources) -> set[str]:
                 token = _normalize_token(part)
                 if len(token) >= 2:
                     tokens.add(token)
-    return {t for t in tokens if t}
+    tokens = {t for t in tokens if t}
+    expanded = set(tokens)
+    for token in tokens:
+        for aliases in SKILL_ALIASES.values():
+            if token in aliases:
+                expanded |= aliases
+            elif any(token in alias or alias in token for alias in aliases if len(alias) >= 3):
+                expanded |= aliases
+    return expanded
 
 
 def _overlap(a: set[str], b: set[str]) -> set[str]:
@@ -220,15 +237,21 @@ def match_startups_for_enterprise(
     startups: list[dict],
     *,
     exclude_startup_ids: set[str] | None = None,
+    limit: int = 50,
 ) -> list[dict]:
     """Best startup match per startup across open enterprise projects."""
     exclude = exclude_startup_ids or set()
     pro_enterprise = _pro_enterprise_boost(enterprise) > 0
+    ent_sector = enterprise.get("sector_id")
     open_projects = [
         p for p in projects
         if p.get("enterprise_id") == enterprise.get("id") and p.get("status") == "Ouvert"
     ]
     candidates = _public_startups(startups)
+    if ent_sector:
+        sector_matched = [s for s in candidates if s.get("sector_id") == ent_sector]
+        if sector_matched:
+            candidates = sector_matched
     best: dict[str, dict] = {}
 
     if open_projects:
@@ -269,7 +292,7 @@ def match_startups_for_enterprise(
 
     results = list(best.values())
     results.sort(key=lambda item: (-item["match_score"], item.get("name") or ""))
-    return results
+    return results[: max(1, limit)]
 
 
 def match_label_tier(score: int) -> str:

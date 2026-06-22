@@ -74,8 +74,8 @@
 
     <div id="iot-toast-stack" class="iot-toast-stack" aria-live="polite"></div>
     <script>window.IOT_I18N = {{ compte_i18n|tojson }};</script>
-    <script src="{{ url_for('vitrine.static', filename='js/toast.js') }}?v=2"></script>
-    <script src="{{ url_for('vitrine.static', filename='js/page-loader.js') }}?v=3"></script>
+    <script defer src="{{ url_for('vitrine.static', filename='js/toast.js') }}?v=2"></script>
+    <script defer src="{{ url_for('vitrine.static', filename='js/page-loader.js') }}?v=3"></script>
     {% block scripts %}{% endblock %}
 </body>
 </html>

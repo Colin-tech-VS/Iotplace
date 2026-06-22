@@ -397,15 +397,27 @@ def build_enterprise_profile_json_ld(enterprise: dict, canonical: str, site_url:
 def build_project_job_json_ld(project: dict, canonical: str, site_url: str) -> dict[str, Any] | None:
     if project.get("status") not in ("Ouvert", "Open"):
         return None
+    from datetime import date, timedelta
+
+    posted = (project.get("created_at") or "")[:10] or date.today().isoformat()
+    valid_through = (date.today() + timedelta(days=90)).isoformat()
     return {
         "@context": "https://schema.org",
         "@type": "JobPosting",
         "title": project.get("title", "IoT subcontracting mission"),
         "description": (project.get("description") or "")[:2000],
         "url": canonical,
+        "datePosted": posted,
+        "validThrough": valid_through,
+        "identifier": {
+            "@type": "PropertyValue",
+            "name": "Iotplace project id",
+            "value": project.get("id", ""),
+        },
         "hiringOrganization": {
             "@type": "Organization",
             "name": project.get("enterprise", "Enterprise on Iotplace"),
+            "sameAs": site_url,
         },
         "jobLocationType": "TELECOMMUTE",
         "employmentType": "CONTRACTOR",

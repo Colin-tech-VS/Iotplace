@@ -84,6 +84,13 @@ def track_visit():
     slug = _resolve_page_slug()
     if not slug:
         return
+    from time import time
+
+    now = time()
+    last = session.get("_analytics_ts")
+    if last and now - float(last) < 45:
+        return
+    session["_analytics_ts"] = now
     sid = _get_or_create_session_id()
     store.track_page_view(
         slug,
@@ -222,6 +229,8 @@ def sitemap_xml():
     for entry in entries:
         lines.append("  <url>")
         lines.append(f"    <loc>{entry['loc']}</loc>")
+        if entry.get("lastmod"):
+            lines.append(f"    <lastmod>{entry['lastmod']}</lastmod>")
         lines.append(f"    <changefreq>{entry['changefreq']}</changefreq>")
         lines.append(f"    <priority>{entry['priority']}</priority>")
         lines.append("  </url>")
@@ -351,7 +360,7 @@ def enterprise_detail(enterprise_id):
     site_url = store.get_site_url()
     path = f"/enterprises/{enterprise_id}"
     canonical = store.build_canonical_url(site_url, path)
-    seo_overrides = store.get_enterprise_detail_seo(enterprise)
+    seo_overrides = store.get_enterprise_detail_seo(enterprise, get_locale())
     locale = get_locale()
     breadcrumbs_extra = {"name": enterprise.get("name", "Enterprise"), "url": canonical}
     breadcrumbs = store.build_breadcrumbs("enterprises", site_url, breadcrumbs_extra, locale)
@@ -393,7 +402,7 @@ def startup_detail(startup_id):
     site_url = store.get_site_url()
     path = f"/startups/{startup_id}"
     canonical = store.build_canonical_url(site_url, path)
-    seo_overrides = store.get_startup_detail_seo(startup)
+    seo_overrides = store.get_startup_detail_seo(startup, get_locale())
     locale = get_locale()
     breadcrumbs_extra = {"name": startup.get("name", "Startup"), "url": canonical}
     breadcrumbs = store.build_breadcrumbs("startups", site_url, breadcrumbs_extra, locale)
@@ -435,8 +444,9 @@ def project_detail(project_id):
     site_url = store.get_site_url()
     path = f"/projects/{project_id}"
     canonical = store.build_canonical_url(site_url, path)
-    seo_overrides = store.get_project_detail_seo(project)
     locale = get_locale()
+    seo_overrides = store.get_project_detail_seo(project, locale)
+    robots = "index, follow" if project.get("status") in ("Ouvert", "Open") else "noindex, follow"
     breadcrumbs_extra = {"name": project.get("title", "Project"), "url": canonical}
     breadcrumbs = store.build_breadcrumbs("projects", site_url, breadcrumbs_extra, locale)
     from data.geo import build_project_job_json_ld
@@ -449,7 +459,7 @@ def project_detail(project_id):
         "project_detail.html",
         project=project,
         enterprise=enterprise,
-        seo=store.get_seo_for_vitrine("projects", overrides=seo_overrides, locale=locale),
+        seo=store.get_seo_for_vitrine("projects", overrides=seo_overrides, robots=robots, locale=locale),
         seo_canonical=canonical,
         seo_breadcrumbs=breadcrumbs,
         seo_json_ld=json_ld,
@@ -587,8 +597,12 @@ def _domain_seo(item: dict, locale: str):
     }
 
 
-@vitrine_bp.route("/domaines")
 @vitrine_bp.route("/domains")
+def domains_redirect():
+    return redirect(url_for("vitrine.domains_index"), code=301)
+
+
+@vitrine_bp.route("/domaines")
 def domains_index():
     locale = get_locale()
     site_url = store.get_site_url()
@@ -660,12 +674,47 @@ def domain_detail(slug):
         domain=item,
         stars_label=stars_label,
         other_domains=other_domains,
-        domain_projects=[],
+        domain_projects=store.get_open_projects_for_sector(domain_id, limit=8),
         seo=seo,
         seo_canonical=canonical,
         seo_breadcrumbs=breadcrumbs,
         seo_json_ld=json_ld,
     )
+
+
+@vitrine_bp.route("/api/directory/search")
+def directory_search_api():
+    """Lightweight JSON search for advisor and live filters."""
+    kind = (request.args.get("type") or "startups").strip().lower()
+    q = (request.args.get("q") or "").strip() or None
+    try:
+        limit = min(20, max(1, int(request.args.get("limit") or 8)))
+    except (TypeError, ValueError):
+        limit = 8
+    if kind == "enterprises":
+        items = store.filter_enterprises_directory(q)[:limit]
+    elif kind == "projects":
+        items = store.filter_projects_directory(q)[:limit]
+    else:
+        items = store.filter_startups_directory(q)[:limit]
+    site_url = store.get_site_url().rstrip("/")
+    results = []
+    for row in items:
+        if kind == "projects":
+            results.append({
+                "name": row.get("title"),
+                "url": f"{site_url}/projects/{row.get('id')}",
+                "score": row.get("_match_score"),
+                "meta": row.get("enterprise"),
+            })
+        else:
+            results.append({
+                "name": row.get("name"),
+                "url": f"{site_url}/{kind}/{row.get('id')}",
+                "score": row.get("_match_score"),
+                "meta": row.get("specialty") or row.get("sector"),
+            })
+    return jsonify({"ok": True, "type": kind, "results": results})
 
 
 @vitrine_bp.route("/api/advisor/chat", methods=["POST"])
@@ -674,6 +723,9 @@ def advisor_chat():
 
     if not advisor_ai.is_configured():
         return jsonify({"ok": False, "error": t("advisor.not_configured")}), 503
+
+    if not advisor_ai.rate_limit_ok():
+        return jsonify({"ok": False, "error": t("advisor.rate_limited")}), 429
 
     payload = request.get_json(silent=True) or {}
     try:

@@ -42,7 +42,7 @@ def _summarize_project(p: dict) -> dict:
     }
 
 
-def build_site_knowledge(site_url: str = "") -> dict:
+def build_site_knowledge(site_url: str = "", locale: str = "en") -> dict:
     site_url = (site_url or store.get_site_url()).rstrip("/")
     pages = []
     for meta in store.get_page_catalog():
@@ -105,11 +105,12 @@ def build_site_knowledge(site_url: str = "") -> dict:
         },
         "startup_countries": store.get_startup_countries(),
         "featured_startups": [_summarize_startup(s) for s in store.get_featured_startups(6)],
-        "sample_startups": [_summarize_startup(s) for s in store.get_startups()[:10]],
+        "sample_startups": [_summarize_startup(s) for s in store.get_public_startups()[:12]],
         "partner_enterprises": [_summarize_enterprise(e) for e in store.get_public_enterprises()[:8]],
         "open_projects": [_summarize_project(p) for p in (open_projects or store.get_projects())[:12]],
+        "matching_api": f"{site_url}/api/directory/search",
         "faq_by_page": {
-            slug: store.get_page_faq(slug)[:3]
+            slug: store.get_page_faq(slug, locale)[:5]
             for slug in ("home", "about", "enterprises", "startups", "projects", "pricing")
         },
     }

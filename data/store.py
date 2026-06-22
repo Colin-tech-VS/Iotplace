@@ -563,9 +563,15 @@ def get_enterprise_sectors():
 
 
 def _directory_match_q(item: dict, q: str, fields: tuple[str, ...]) -> bool:
+    return _directory_match_score(item, q, fields) > 0
+
+
+def _directory_match_score(item: dict, q: str, fields: tuple[str, ...]) -> int:
+    from data.matching import _overlap, _token_set
+
     needle = q.strip().lower()
     if not needle:
-        return True
+        return 0
     parts: list[str] = []
     for field in fields:
         value = item.get(field)
@@ -573,11 +579,47 @@ def _directory_match_q(item: dict, q: str, fields: tuple[str, ...]) -> bool:
             parts.extend(str(v) for v in value if v)
         elif value:
             parts.append(str(value))
-    return needle in " ".join(parts).lower()
+    blob = " ".join(parts).lower()
+    if needle in blob:
+        base = 55
+    else:
+        base = 0
+    query_tokens = _token_set(q)
+    haystack = _token_set(blob, item.get("search_text"))
+    shared = _overlap(query_tokens, haystack)
+    if shared:
+        ratio = len(shared) / max(len(query_tokens), 1)
+        return min(100, base + int(35 * ratio) + min(12, len(shared) * 3))
+    return base
+
+
+def _projects_index_by_enterprise():
+    from flask import g
+
+    if hasattr(g, "_projects_by_enterprise"):
+        return g._projects_by_enterprise
+    by_id: dict[str, list] = {}
+    by_name: dict[str, list] = {}
+    for project in get_projects():
+        enterprise_id = project.get("enterprise_id") or ""
+        enterprise_name = (project.get("enterprise") or "").strip()
+        if enterprise_id:
+            by_id.setdefault(enterprise_id, []).append(project)
+        if enterprise_name:
+            by_name.setdefault(enterprise_name.lower(), []).append(project)
+    g._projects_by_enterprise = {"id": by_id, "name": by_name}
+    return g._projects_by_enterprise
 
 
 def enrich_enterprise_directory_item(enterprise: dict) -> dict:
-    projects = get_projects_for_enterprise(enterprise["id"], enterprise.get("name", ""))
+    idx = _projects_index_by_enterprise()
+    projects = list(idx["id"].get(enterprise["id"], []))
+    name_key = (enterprise.get("name") or "").strip().lower()
+    if name_key:
+        seen = {p["id"] for p in projects}
+        for project in idx["name"].get(name_key, []):
+            if project["id"] not in seen:
+                projects.append(project)
     open_projects = [p for p in projects if p.get("status") == "Ouvert"]
     needs = enterprise.get("needs") or []
     search_blob = " ".join([
@@ -632,14 +674,29 @@ def filter_enterprises_directory(q: str | None = None, sector: str | None = None
         sector_l = sector.strip().lower()
         items = [e for e in items if (e.get("sector") or "").strip().lower() == sector_l]
     if q:
-        items = [e for e in items if _directory_match_q(e, q, ("name", "sector", "description", "country", "city", "needs"))]
+        fields = ("name", "sector", "description", "country", "city", "needs")
+        items = [
+            {**e, "_match_score": _directory_match_score(e, q, fields)}
+            for e in items
+            if _directory_match_q(e, q, fields)
+        ]
+        items.sort(key=lambda e: (-e.get("_match_score", 0), -(e.get("open_projects_count") or 0), e.get("name", "").lower()))
+        return items
     return sorted(items, key=lambda e: (-(e.get("open_projects_count") or 0), e.get("name", "").lower()))
 
 
-def filter_startups_directory(q: str | None = None, country: str | None = None) -> list:
+def filter_startups_directory(q: str | None = None, country: str | None = None, sector_id: str | None = None) -> list:
     items = [enrich_startup_directory_item(s) for s in get_public_startups(country)]
+    if sector_id:
+        items = [s for s in items if s.get("sector_id") == sector_id]
     if q:
-        items = [s for s in items if _directory_match_q(s, q, ("name", "sector", "specialty", "description", "country", "city", "skills"))]
+        fields = ("name", "sector", "specialty", "description", "country", "city", "skills")
+        items = [
+            {**s, "_match_score": _directory_match_score(s, q, fields)}
+            for s in items
+            if _directory_match_q(s, q, fields)
+        ]
+        return sorted(items, key=lambda s: (-s.get("_match_score", 0), s.get("name", "").lower()))
     return sorted(items, key=lambda s: s.get("name", "").lower())
 
 
@@ -649,12 +706,39 @@ def filter_projects_directory(q: str | None = None, phase: str | None = None) ->
     norm = normalize_phase(phase) if phase else None
     items = [enrich_project_directory_item(p) for p in get_projects(phase=norm)]
     if q:
-        items = [p for p in items if _directory_match_q(p, q, ("title", "enterprise", "description", "budget", "duration", "engagement_phase", "status", "skills"))]
+        fields = ("title", "enterprise", "description", "budget", "duration", "engagement_phase", "status", "skills")
+        items = [
+            {**p, "_match_score": _directory_match_score(p, q, fields)}
+            for p in items
+            if _directory_match_q(p, q, fields)
+        ]
+        status_order = {"Ouvert": 0, "En cours": 1}
+        return sorted(
+            items,
+            key=lambda p: (-p.get("_match_score", 0), status_order.get(p.get("status", ""), 9), p.get("title", "").lower()),
+        )
     status_order = {"Ouvert": 0, "En cours": 1}
     return sorted(
         items,
         key=lambda p: (status_order.get(p.get("status", ""), 9), p.get("title", "").lower()),
     )
+
+
+def get_open_projects_for_sector(sector_id: str, limit: int = 8) -> list:
+    """Open projects whose enterprise belongs to a domain/sector."""
+    results = []
+    for project in get_projects():
+        if project.get("status") not in ("Ouvert", "Open"):
+            continue
+        enterprise = get_enterprise(project.get("enterprise_id") or "")
+        if not enterprise or enterprise.get("sector_id") != sector_id:
+            continue
+        if not _is_vitrine_profile_public(enterprise):
+            continue
+        results.append(enrich_project_directory_item(project))
+        if len(results) >= limit:
+            break
+    return results
 
 
 def get_directory_seo_overrides(slug: str, locale: str = "fr", q: str = "", filters: dict | None = None, count: int = 0) -> dict:
@@ -744,7 +828,7 @@ def build_directory_json_ld(
             "@context": "https://schema.org",
             "@type": "ItemList",
             "name": list_name,
-            "numberOfItems": len(items),
+            "numberOfItems": min(len(items), 50),
             "itemListElement": item_elements,
         })
         graphs.append({
@@ -1286,12 +1370,15 @@ def delete_all_crm_accounts() -> int:
 
 
 def get_projects_for_enterprise(enterprise_id, enterprise_name=""):
-    projects = get_projects()
-    return [
-        p for p in projects
-        if p.get("enterprise_id") == enterprise_id
-        or (enterprise_name and p.get("enterprise") == enterprise_name)
-    ]
+    idx = _projects_index_by_enterprise()
+    projects = list(idx["id"].get(enterprise_id, []))
+    name_key = (enterprise_name or "").strip().lower()
+    if name_key:
+        seen = {p["id"] for p in projects}
+        for project in idx["name"].get(name_key, []):
+            if project["id"] not in seen:
+                projects.append(project)
+    return projects
 
 
 def register_enterprise_account(user_fields, enterprise_fields, project_fields=None):
@@ -1795,7 +1882,18 @@ def get_sent_for_user(user_id):
 
 
 def get_unread_count(user_id):
-    return sum(1 for m in get_inbox_for_user(user_id) if not m.get("read"))
+    from flask import g
+
+    cache_attr = f"_unread_count_{user_id}"
+    if hasattr(g, cache_attr):
+        return getattr(g, cache_attr)
+    count = sum(
+        1
+        for message in _load_raw().get("messages", [])
+        if message.get("to_user_id") == user_id and not message.get("read")
+    )
+    setattr(g, cache_attr, count)
+    return count
 
 
 def mark_message_read(message_id, user_id):
@@ -2646,7 +2744,7 @@ def get_seo_for_vitrine(slug, page_title="", overrides=None, robots="index, foll
     full_title = title if suffix and suffix.strip() in title else f"{title}{suffix}" if suffix else title
     description = kwargs.get("description") or page_seo.get("description") or global_seo.get("meta_description", "")
     keywords = kwargs.get("keywords") or page_seo.get("keywords") or global_seo.get("keywords", "")
-    og_image = global_seo.get("og_image", "") or BRAND_OG_IMAGE
+    og_image = page_seo.get("og_image") or global_seo.get("og_image", "") or BRAND_OG_IMAGE
     site_url = get_site_url()
     return {
         "title": full_title,
@@ -2797,6 +2895,11 @@ def build_json_ld(slug, canonical_url, site_url, faq=None, breadcrumbs=None, loc
     return graphs
 
 
+def _sitemap_lastmod(record: dict) -> str | None:
+    ts = record.get("updated_at") or record.get("created_at")
+    return ts[:10] if ts else None
+
+
 def get_sitemap_entries():
     site_url = get_site_url()
     entries = []
@@ -2807,11 +2910,15 @@ def get_sitemap_entries():
         if page.get("kind") not in ("cms", "locale", "domain"):
             continue
         priority = "1.0" if page["slug"] == "home" else "0.85" if page.get("group") == "domaines" else "0.8"
-        entries.append({
+        entry = {
             "loc": f"{site_url}{page['path']}",
             "changefreq": "weekly" if page["slug"] == "home" else "monthly",
             "priority": priority,
-        })
+        }
+        lastmod = _sitemap_lastmod(content)
+        if lastmod:
+            entry["lastmod"] = lastmod
+        entries.append(entry)
     entries.append({
         "loc": f"{site_url}/inscription/entreprise",
         "changefreq": "monthly",
@@ -2835,65 +2942,96 @@ def get_sitemap_entries():
             "changefreq": "weekly",
             "priority": "0.75",
         })
-    for startup in get_public_startups():
+    for sector in get_enterprise_sectors():
         entries.append({
+            "loc": f"{site_url}/enterprises?sector={quote(sector)}",
+            "changefreq": "weekly",
+            "priority": "0.72",
+        })
+    for startup in get_public_startups():
+        entry = {
             "loc": f"{site_url}/startups/{startup['id']}",
             "changefreq": "monthly",
             "priority": "0.6",
-        })
+        }
+        lastmod = _sitemap_lastmod(startup)
+        if lastmod:
+            entry["lastmod"] = lastmod
+        entries.append(entry)
     for enterprise in get_public_enterprises():
-        entries.append({
+        entry = {
             "loc": f"{site_url}/enterprises/{enterprise['id']}",
             "changefreq": "monthly",
             "priority": "0.6",
-        })
+        }
+        lastmod = _sitemap_lastmod(enterprise)
+        if lastmod:
+            entry["lastmod"] = lastmod
+        entries.append(entry)
     for project in get_projects():
-        entries.append({
+        if project.get("status") not in ("Ouvert", "Open"):
+            continue
+        entry = {
             "loc": f"{site_url}/projects/{project['id']}",
             "changefreq": "weekly",
             "priority": "0.7",
-        })
+        }
+        lastmod = _sitemap_lastmod(project)
+        if lastmod:
+            entry["lastmod"] = lastmod
+        entries.append(entry)
     for geo_path in ("/llms.txt", "/llms-full.txt", "/knowledge", "/knowledge.json", "/ai.txt"):
         entries.append({
             "loc": f"{site_url}{geo_path}",
             "changefreq": "weekly",
             "priority": "0.5",
         })
-    for page in build_page_catalog():
-        if page.get("kind") not in ("cms", "locale", "domain"):
-            continue
-        for lang in ("fr", "en"):
-            base = page["path"]
-            sep = "&" if "?" in base else "?"
-            entries.append({
-                "loc": f"{site_url}{base}{sep}lang={lang}",
-                "changefreq": "monthly",
-                "priority": "0.75" if page["slug"] == "home" else "0.65",
-            })
     return entries
 
 
-def get_startup_detail_seo(startup):
+def get_startup_detail_seo(startup, locale: str = "en"):
     name = startup.get("name", "Startup")
     country = startup.get("country", "")
+    if locale == "fr":
+        return {
+            "title": f"{name} — Profil startup IoT",
+            "description": (startup.get("description") or f"Profil startup IoT {name} sur Iotplace.")[:300],
+            "keywords": f"startup IoT {name}, {country}, sous-traitance, {', '.join(startup.get('skills', [])[:5])}",
+            "og_image": startup.get("logo_url") or "",
+        }
     return {
         "title": f"{name} — IoT Startup Profile",
         "description": (startup.get("description") or f"IoT startup {name} profile on Iotplace.")[:300],
         "keywords": f"IoT startup {name}, {country} IoT, subcontracting, {', '.join(startup.get('skills', [])[:5])}",
+        "og_image": startup.get("logo_url") or "",
     }
 
 
-def get_enterprise_detail_seo(enterprise):
+def get_enterprise_detail_seo(enterprise, locale: str = "en"):
     name = enterprise.get("name", "Enterprise")
+    if locale == "fr":
+        return {
+            "title": f"{name} — Profil entreprise IoT",
+            "description": (enterprise.get("description") or f"Profil entreprise {name} sur Iotplace.")[:300],
+            "keywords": f"entreprise IoT {name}, {enterprise.get('sector', '')}, donneur d'ordre B2B",
+            "og_image": enterprise.get("logo_url") or "",
+        }
     return {
         "title": f"{name} — Enterprise Profile",
         "description": (enterprise.get("description") or f"{name} enterprise profile on Iotplace.")[:300],
         "keywords": f"IoT enterprise {name}, {enterprise.get('sector', '')}, subcontracting client",
+        "og_image": enterprise.get("logo_url") or "",
     }
 
 
-def get_project_detail_seo(project):
+def get_project_detail_seo(project, locale: str = "en"):
     title = project.get("title", "Project")
+    if locale == "fr":
+        return {
+            "title": f"{title} — Projet IoT ouvert",
+            "description": (project.get("description") or f"Projet de sous-traitance IoT : {title}.")[:300],
+            "keywords": f"projet IoT {title}, sous-traitance, {', '.join(project.get('skills', [])[:5])}",
+        }
     return {
         "title": f"{title} — Open IoT Project",
         "description": (project.get("description") or f"IoT subcontracting project: {title}.")[:300],

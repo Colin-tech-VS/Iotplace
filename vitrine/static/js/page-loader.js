@@ -1,8 +1,9 @@
 (function (global) {
     const LOADER_ID = 'iot-page-loader';
-    const MIN_VISIBLE_MS = 280;
+    const MIN_VISIBLE_MS = 60;
     let shownAt = 0;
     let hideTimer = null;
+    let initialLoad = document.readyState === 'loading';
 
     function getLoader() {
         return document.getElementById(LOADER_ID);
@@ -69,7 +70,7 @@
             loader.classList.remove('is-active');
             loader.setAttribute('aria-busy', 'false');
             document.documentElement.classList.remove('iot-loading');
-            setTimeout(() => loader.classList.remove('is-leaving'), 280);
+            setTimeout(() => loader.classList.remove('is-leaving'), 200);
         }, delay);
     }
 
@@ -91,16 +92,10 @@
         } catch (_) {
             return false;
         }
-        return true;
+        return false;
     }
 
     function bindNavigation() {
-        document.addEventListener('click', (event) => {
-            const anchor = event.target.closest('a[href]');
-            if (!shouldHandleLink(anchor, event)) return;
-            show();
-        }, true);
-
         document.addEventListener('submit', (event) => {
             const form = event.target;
             if (!(form instanceof HTMLFormElement)) return;
@@ -119,15 +114,14 @@
 
     global.IotPageLoader = { show, hide };
 
-    if (document.readyState === 'loading') {
+    if (initialLoad) {
         document.documentElement.classList.add('iot-loading');
         show();
-        document.addEventListener('DOMContentLoaded', onReady);
+        document.addEventListener('DOMContentLoaded', onReady, { once: true });
     } else {
         onReady();
     }
 
-    window.addEventListener('load', hide);
     window.addEventListener('pageshow', (event) => {
         if (event.persisted) hide();
     });

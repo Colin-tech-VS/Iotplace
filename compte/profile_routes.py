@@ -23,7 +23,10 @@ def serve_profile_logo(relative):
     target = (root / relative.replace("/", os.sep)).resolve()
     if not str(target).startswith(str(root.resolve())) or not target.is_file():
         abort(404)
-    return send_from_directory(root, relative.replace("\\", "/"))
+    response = send_from_directory(root, relative.replace("\\", "/"))
+    response.cache_control.max_age = 86400
+    response.cache_control.public = True
+    return response
 
 
 @compte_bp.route("/compte/api/profile/logo", methods=["POST"])

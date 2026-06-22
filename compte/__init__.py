@@ -28,6 +28,7 @@ def inject_compte_context():
         slug = "enterprises"
     elif endpoint == "compte.register_startup":
         slug = "startups"
+    user = auth.get_current_user()
     return {
         **inject_i18n_context(),
         "compte_i18n": compte_js_i18n(),
@@ -43,6 +44,6 @@ def inject_compte_context():
         "analytics_enabled": False,
         "analytics_page_slug": "",
         "analytics_session": "",
-        "current_user": auth.get_current_user(),
-        "unread_count": store.get_unread_count(auth.get_current_user()["id"]) if auth.get_current_user() else 0,
+        "current_user": user,
+        "unread_count": store.get_unread_count(user["id"]) if user else 0,
     }

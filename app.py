@@ -29,6 +29,7 @@ app.config.update(
     SESSION_COOKIE_SAMESITE="Lax",
     SESSION_COOKIE_SECURE=_is_prod or os.environ.get("SESSION_COOKIE_SECURE") == "1",
     PERMANENT_SESSION_LIFETIME=timedelta(hours=8),
+    SEND_FILE_MAX_AGE_DEFAULT=31536000,
 )
 
 app.register_blueprint(crm_bp)
@@ -62,6 +63,19 @@ def enforce_canonical_host():
     if host in ALIASES_TO_CANONICAL or is_scalingo_host(host):
         return redirect(f"https://{canonical}{request.full_path}", code=301)
     return None
+
+
+@app.after_request
+def optimize_response_headers(response):
+    """Long-cache versioned static assets; short-cache uploaded logos."""
+    if response.status_code != 200:
+        return response
+    path = request.path or ""
+    if path.startswith(("/vitrine/static/", "/crm/static/")):
+        response.headers.setdefault("Cache-Control", "public, max-age=31536000, immutable")
+    elif path.startswith("/media/logos/"):
+        response.headers.setdefault("Cache-Control", "public, max-age=86400")
+    return response
 
 
 @app.context_processor

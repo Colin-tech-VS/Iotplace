@@ -374,6 +374,7 @@
     "thinking": "Analyse en cours",
     "not_configured": "Le conseiller IA est temporairement indisponible.",
     "error_generic": "Une erreur est survenue. Veuillez réessayer.",
+    "rate_limited": "Trop de requêtes — réessayez dans quelques minutes.",
     "powered": "Intelligence propulsée par Mistral AI"
   },
   "compte": {

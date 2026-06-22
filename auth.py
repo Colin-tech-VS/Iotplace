@@ -1,6 +1,6 @@
 from functools import wraps
 
-from flask import flash, redirect, request, session, url_for
+from flask import flash, g, redirect, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from data import store
@@ -25,10 +25,14 @@ def logout_user():
 
 
 def get_current_user():
+    if hasattr(g, "current_user"):
+        return g.current_user
     user_id = session.get("user_id")
     if not user_id:
+        g.current_user = None
         return None
-    return store.get_user(user_id)
+    g.current_user = store.get_user(user_id)
+    return g.current_user
 
 
 def login_required(role=None):

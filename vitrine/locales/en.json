@@ -374,6 +374,7 @@
     "thinking": "Analyzing",
     "not_configured": "AI advisor is temporarily unavailable.",
     "error_generic": "Something went wrong. Please try again.",
+    "rate_limited": "Too many requests — please try again in a few minutes.",
     "powered": "Intelligence powered by Mistral AI"
   },
   "compte": {
