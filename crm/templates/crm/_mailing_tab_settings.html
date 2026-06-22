@@ -1,67 +1,105 @@
-<div class="dashboard-grid">
-    <section class="card">
-        <div class="card-header"><h2>SMTP — envoi</h2></div>
-        <dl class="detail-list">
-            <div><dt>Statut</dt><dd>{% if smtp_configured %}<span class="badge badge-success">Connecté (env)</span>{% else %}<span class="badge badge-danger">Non configuré</span>{% endif %}</dd></div>
+<div class="mail-settings-grid">
+    <section class="mail-config-card mail-config-card--identity">
+        <div class="mail-config-card-head">
+            <span class="mail-config-icon" aria-hidden="true">✉</span>
+            <div>
+                <h2>Identité email</h2>
+                <p>Adresse visible sur le site, les mentions légales et les emails sortants.</p>
+            </div>
+        </div>
+        <dl class="mail-config-dl">
+            <div><dt>Contact public</dt><dd><a href="mailto:{{ contact_email }}" class="mail-mono-link">{{ contact_email }}</a></dd></div>
+            <div><dt>Expéditeur SMTP</dt><dd>{{ smtp_config.from_name }} &lt;<span class="mono">{{ platform_from }}</span>&gt;</dd></div>
+            <div><dt>Reply-To CRM</dt><dd><span class="mono">{{ settings.reply_to or contact_email }}</span></dd></div>
+        </dl>
+        <p class="mail-config-note">Sur LWS : créez la boîte <strong>{{ contact_email }}</strong>, puis renseignez SMTP/IMAP ci-dessous avec les mêmes identifiants.</p>
+    </section>
+
+    <section class="mail-config-card {% if smtp_configured %}is-ready{% else %}is-pending{% endif %}">
+        <div class="mail-config-card-head">
+            <span class="mail-config-status-ring" aria-hidden="true"></span>
+            <div>
+                <h2>SMTP — envoi</h2>
+                <p>{% if smtp_configured %}Connexion active pour campagnes et réponses contact.{% else %}Variables d'environnement requises.{% endif %}</p>
+            </div>
+        </div>
+        <dl class="mail-config-dl mail-config-dl--compact">
             <div><dt>Hôte</dt><dd class="mono">{{ smtp_config.host or '—' }}</dd></div>
             <div><dt>Port</dt><dd class="mono">{{ smtp_config.port }}</dd></div>
             <div><dt>Utilisateur</dt><dd class="mono">{{ smtp_config.user or '—' }}</dd></div>
-            <div><dt>Expéditeur</dt><dd>{{ smtp_config.from_name }} &lt;{{ smtp_config.from_email or '—' }}&gt;</dd></div>
             <div><dt>TLS</dt><dd>{{ 'Oui' if smtp_config.use_tls else 'Non' }}</dd></div>
         </dl>
-        <div class="mail-test-actions">
-            <button type="button" class="btn btn-outline btn-sm" id="testSmtpBtn">Tester la connexion</button>
-            <div class="field" style="margin-top:10px">
-                <label for="testEmailLocale">Langue du test</label>
-                <select id="mail-locale">
-                    <option value="fr" selected>Français</option>
-                    <option value="en">English</option>
+        <div class="mail-test-panel">
+            <button type="button" class="btn btn-outline btn-sm" id="testSmtpBtn">Tester SMTP</button>
+            <div class="mail-test-row">
+                <select id="mail-locale" class="mail-test-select" aria-label="Langue du test">
+                    <option value="fr" selected>FR</option>
+                    <option value="en">EN</option>
                 </select>
+                <input type="email" id="testEmailTo" placeholder="destinataire@test.com" class="mail-test-input">
+                <button type="button" class="btn btn-primary btn-sm" id="sendTestEmailBtn">Envoyer test</button>
             </div>
-            <div class="field" style="margin-top:10px">
-                <label for="testEmailTo">Email de test</label>
-                <div class="mail-inline-field">
-                    <input type="email" id="testEmailTo" placeholder="vous@domaine.com">
-                    <button type="button" class="btn btn-primary btn-sm" id="sendTestEmailBtn">Envoyer test</button>
-                </div>
-            </div>
-            <p id="smtpTestStatus" class="field-hint" hidden></p>
+            <p id="smtpTestStatus" class="mail-test-feedback" hidden></p>
         </div>
-        <pre class="mail-env-hint">Variables d'environnement :
-SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD
-SMTP_FROM_EMAIL, SMTP_FROM_NAME, SMTP_USE_TLS</pre>
+        <details class="mail-env-details">
+            <summary>Variables Scalingo / .env</summary>
+            <pre class="mail-env-hint">SMTP_HOST=mail.lws.fr (ou serveur LWS)
+SMTP_PORT=587
+SMTP_USER={{ contact_email }}
+SMTP_PASSWORD=••••••••
+SMTP_FROM_EMAIL={{ contact_email }}
+SMTP_FROM_NAME=Iotplace
+SMTP_USE_TLS=true</pre>
+        </details>
     </section>
 
-    <section class="card">
-        <div class="card-header"><h2>IMAP — réception</h2></div>
-        <dl class="detail-list">
+    <section class="mail-config-card {% if imap_configured %}is-ready{% else %}is-pending{% endif %}">
+        <div class="mail-config-card-head">
+            <span class="mail-config-status-ring" aria-hidden="true"></span>
+            <div>
+                <h2>IMAP — réception</h2>
+                <p>Synchronisez la boîte {{ contact_email }} dans l'onglet Boîte mail.</p>
+            </div>
+        </div>
+        <dl class="mail-config-dl mail-config-dl--compact">
             <div><dt>Statut</dt><dd>{% if imap_configured %}<span class="badge badge-success">Configuré</span>{% else %}<span class="badge badge-danger">Non configuré</span>{% endif %}</dd></div>
             <div><dt>Hôte</dt><dd class="mono">{{ imap_config.host or '—' }}</dd></div>
             <div><dt>Port</dt><dd class="mono">{{ imap_config.port }}</dd></div>
             <div><dt>Boîte</dt><dd class="mono">{{ imap_config.mailbox }}</dd></div>
-            <div><dt>Utilisateur</dt><dd class="mono">{{ imap_config.user or '—' }}</dd></div>
         </dl>
-        <div class="mail-test-actions">
+        <div class="mail-test-panel">
             <button type="button" class="btn btn-outline btn-sm" id="testImapBtn">Tester IMAP</button>
-            <a href="{{ url_for('crm.mailing', tab='inbox') }}" class="btn btn-primary btn-sm">Ouvrir la boîte mail</a>
-            <p id="imapTestStatus" class="field-hint" hidden></p>
+            <a href="{{ url_for('crm.mailing', tab='inbox') }}" class="btn btn-primary btn-sm">Ouvrir la boîte</a>
+            <p id="imapTestStatus" class="mail-test-feedback" hidden></p>
         </div>
-        <pre class="mail-env-hint">Variables d'environnement :
-IMAP_HOST (ou SMTP_HOST), IMAP_PORT, IMAP_USER, IMAP_PASSWORD
-IMAP_MAILBOX=INBOX, IMAP_USE_SSL=true</pre>
+        <details class="mail-env-details">
+            <summary>Variables IMAP</summary>
+            <pre class="mail-env-hint">IMAP_HOST=mail.lws.fr
+IMAP_PORT=993
+IMAP_USER={{ contact_email }}
+IMAP_PASSWORD=••••••••
+IMAP_MAILBOX=INBOX
+IMAP_USE_SSL=true</pre>
+        </details>
     </section>
 </div>
 
-<section class="card" style="margin-top:12px">
-    <div class="card-header"><h2>Signature & réponse</h2></div>
-    <form method="POST" action="{{ url_for('crm.mailing_settings') }}" class="form-layout" style="max-width:640px">
+<section class="mail-signature-card">
+    <div class="mail-config-card-head">
+        <span class="mail-config-icon" aria-hidden="true">✍</span>
+        <div>
+            <h2>Signature & réponses</h2>
+            <p>Ajoutée aux campagnes et utilisée comme adresse de réponse par défaut.</p>
+        </div>
+    </div>
+    <form method="POST" action="{{ url_for('crm.mailing_settings') }}" class="mail-signature-form">
         <div class="field">
-            <label for="reply_to">Reply-To (optionnel)</label>
-            <input type="email" id="reply_to" name="reply_to" value="{{ settings.reply_to or '' }}" placeholder="hello@iotplace.fr">
+            <label for="reply_to">Reply-To</label>
+            <input type="email" id="reply_to" name="reply_to" value="{{ settings.reply_to or contact_email }}" placeholder="{{ contact_email }}">
         </div>
         <div class="field">
-            <label for="signature">Signature HTML (ajoutée aux campagnes)</label>
-            <textarea id="signature" name="signature" rows="4" placeholder="<p>— L'équipe Iotplace</p>">{{ settings.signature or '' }}</textarea>
+            <label for="signature">Signature HTML</label>
+            <textarea id="signature" name="signature" rows="4" placeholder="<p>— L'équipe Iotplace<br><a href=&quot;mailto:{{ contact_email }}&quot;>{{ contact_email }}</a></p>">{{ settings.signature or '' }}</textarea>
         </div>
         <button type="submit" class="btn btn-primary btn-sm">Enregistrer</button>
     </form>

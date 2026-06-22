@@ -1,66 +1,59 @@
 {% from "crm_macros.html" import empty_state, delete_form %}
 
 {% if not smtp_configured %}
-<div class="card mail-alert reveal">
-    <strong>SMTP non configuré</strong>
-    <p class="muted">Ajoutez <code>SMTP_HOST</code>, <code>SMTP_USER</code>, <code>SMTP_PASSWORD</code> et <code>SMTP_FROM_EMAIL</code> dans vos variables d'environnement.</p>
-    <a href="{{ url_for('crm.mailing', tab='settings') }}" class="btn btn-outline btn-sm">Configurer SMTP / IMAP</a>
+<div class="mail-alert-card reveal">
+    <div class="mail-alert-card-icon" aria-hidden="true">⚠</div>
+    <div>
+        <strong>SMTP non configuré</strong>
+        <p>Connectez la boîte <code>{{ contact_email }}</code> via SMTP pour envoyer campagnes et réponses automatiques.</p>
+        <a href="{{ url_for('crm.mailing', tab='settings') }}" class="btn btn-outline btn-sm">Configurer SMTP / IMAP</a>
+    </div>
 </div>
 {% endif %}
 
-<div class="kpi-grid mail-kpi-grid">
-    <div class="kpi-card">
-        <div class="kpi-body">
-            <span class="kpi-value">{{ analytics.totals.campaigns }}</span>
-            <span class="kpi-label">Campagnes</span>
-        </div>
-    </div>
-    <div class="kpi-card">
-        <div class="kpi-body">
-            <span class="kpi-value">{{ analytics.totals.sent }}</span>
-            <span class="kpi-label">Emails envoyés</span>
-        </div>
-    </div>
-    <div class="kpi-card">
-        <div class="kpi-body">
-            <span class="kpi-value">{{ analytics.totals.opened }}</span>
-            <span class="kpi-label">Ouvertures</span>
-        </div>
-    </div>
-    <div class="kpi-card">
-        <div class="kpi-body">
-            <span class="kpi-value">{% if analytics.totals.sent %}{{ ((analytics.totals.opened / analytics.totals.sent) * 100)|round(1) }}%{% else %}—{% endif %}</span>
-            <span class="kpi-label">Taux d'ouverture</span>
-        </div>
-    </div>
-    <div class="kpi-card">
-        <div class="kpi-body">
-            <span class="kpi-value">{{ analytics.totals.failed }}</span>
-            <span class="kpi-label">Échecs</span>
-        </div>
-    </div>
-    <div class="kpi-card">
-        <div class="kpi-body">
-            <span class="kpi-value">{{ analytics.totals.drafts }}</span>
-            <span class="kpi-label">Brouillons</span>
-        </div>
-    </div>
+<div class="mail-kpi-strip">
+    <article class="mail-kpi">
+        <span class="mail-kpi-value">{{ analytics.totals.campaigns }}</span>
+        <span class="mail-kpi-label">Campagnes</span>
+    </article>
+    <article class="mail-kpi">
+        <span class="mail-kpi-value">{{ analytics.totals.sent }}</span>
+        <span class="mail-kpi-label">Envoyés</span>
+    </article>
+    <article class="mail-kpi">
+        <span class="mail-kpi-value">{{ analytics.totals.opened }}</span>
+        <span class="mail-kpi-label">Ouvertures</span>
+    </article>
+    <article class="mail-kpi mail-kpi--accent">
+        <span class="mail-kpi-value">{% if analytics.totals.sent %}{{ ((analytics.totals.opened / analytics.totals.sent) * 100)|round(1) }}%{% else %}—{% endif %}</span>
+        <span class="mail-kpi-label">Taux d'ouverture</span>
+    </article>
+    <article class="mail-kpi">
+        <span class="mail-kpi-value">{{ analytics.totals.failed }}</span>
+        <span class="mail-kpi-label">Échecs</span>
+    </article>
+    <article class="mail-kpi">
+        <span class="mail-kpi-value">{{ analytics.totals.drafts }}</span>
+        <span class="mail-kpi-label">Brouillons</span>
+    </article>
 </div>
 
-<div class="dashboard-grid" style="margin-top:12px">
-    <section class="card table-card">
-        <div class="card-header"><h2>Campagnes</h2></div>
+<div class="mail-split-grid">
+    <section class="mail-panel-card mail-panel-card--wide">
+        <div class="mail-panel-head">
+            <h2>Campagnes</h2>
+            <a href="{{ url_for('crm.new_mailing') }}" class="btn btn-ghost btn-sm">+ Nouvelle</a>
+        </div>
         {% if campaigns %}
         <div class="table-responsive">
-            <table class="data-table">
+            <table class="data-table mail-campaign-table">
                 <thead>
                     <tr>
                         <th>Nom</th>
                         <th>Objet</th>
                         <th>Audience</th>
                         <th>Statut</th>
-                        <th>Envoyés</th>
-                        <th>Ouverts</th>
+                        <th>Perf.</th>
                         <th>Date</th>
                         <th class="col-actions">Actions</th>
                     </tr>
@@ -68,8 +61,11 @@
                 <tbody>
                     {% for camp in campaigns %}
                     <tr>
-                        <td><strong>{{ camp.name or '—' }}</strong>{% if camp.source == 'ai' %} <span class="badge badge-info">IA</span>{% endif %}</td>
-                        <td class="truncate-cell">{{ camp.subject[:60] }}{% if camp.subject|length > 60 %}…{% endif %}</td>
+                        <td>
+                            <strong>{{ camp.name or '—' }}</strong>
+                            {% if camp.source == 'ai' %}<span class="badge badge-info">IA</span>{% endif %}
+                        </td>
+                        <td class="truncate-cell muted">{{ camp.subject[:50] }}{% if camp.subject|length > 50 %}…{% endif %}</td>
                         <td><span class="badge badge-neutral">{{ camp.audience }}</span></td>
                         <td>
                             {% if camp.status == 'sent' %}<span class="badge badge-success">Envoyée</span>
@@ -77,8 +73,7 @@
                             {% elif camp.status == 'failed' %}<span class="badge badge-danger">Échec</span>
                             {% else %}<span class="badge badge-muted">Brouillon</span>{% endif %}
                         </td>
-                        <td class="mono">{{ camp.stats.sent if camp.stats else 0 }}/{{ camp.stats.recipients if camp.stats else 0 }}</td>
-                        <td class="mono">{{ camp.stats.opened if camp.stats else 0 }}</td>
+                        <td class="mono">{{ camp.stats.sent if camp.stats else 0 }}/{{ camp.stats.recipients if camp.stats else 0 }} · {{ camp.stats.opened if camp.stats else 0 }} ouv.</td>
                         <td class="mono muted">{{ (camp.sent_at or camp.updated_at or camp.created_at or '')[:10] }}</td>
                         <td class="col-actions">
                             <div class="row-actions">
@@ -97,26 +92,29 @@
             </table>
         </div>
         {% else %}
-        {{ empty_state('✉', 'Aucune campagne', 'Créez votre première campagne email manuelle ou via IA.', url_for('crm.new_mailing'), '+ Créer') }}
+        {{ empty_state('✉', 'Aucune campagne', 'Créez votre première campagne depuis ' ~ contact_email ~ '.', url_for('crm.new_mailing'), '+ Créer') }}
         {% endif %}
     </section>
 
-    <section class="card">
-        <div class="card-header"><h2>Activité récente</h2></div>
+    <section class="mail-panel-card">
+        <div class="mail-panel-head">
+            <h2>Activité récente</h2>
+        </div>
         {% if analytics.recent_events %}
-        <ul class="mail-event-list">
+        <ul class="mail-activity-feed">
             {% for ev in analytics.recent_events %}
-            <li>
-                <span class="mail-event-type mail-event-{{ ev.type }}">{{ ev.type }}</span>
-                <div>
+            <li class="mail-activity-item mail-activity-{{ ev.type }}">
+                <span class="mail-activity-dot"></span>
+                <div class="mail-activity-body">
+                    <span class="mail-activity-type">{{ ev.type }}</span>
                     <strong>{{ ev.email or '—' }}</strong>
-                    <span class="muted mono">{{ ev.at[11:16] if ev.at else '' }} · {{ ev.campaign_id }}</span>
+                    <span class="muted mono">{{ ev.at[11:16] if ev.at else '' }}</span>
                 </div>
             </li>
             {% endfor %}
         </ul>
         {% else %}
-        <p class="card-hint">Les événements d'envoi et d'ouverture apparaîtront ici.</p>
+        <p class="mail-panel-empty">Les événements d'envoi et d'ouverture apparaîtront ici.</p>
         {% endif %}
     </section>
 </div>

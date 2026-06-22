@@ -4,7 +4,7 @@ from __future__ import annotations
 
 PRODUCTION_SITE_URL = "https://iotplace.fr"
 PRODUCTION_SITE_HOST = "iotplace.fr"
-CONTACT_EMAIL = "hello@iotplace.fr"
+CONTACT_EMAIL = "contact@iotplace.fr"
 
 # Hosts that should 301 to PRODUCTION_SITE_HOST (GET only, production).
 ALIASES_TO_CANONICAL = frozenset({

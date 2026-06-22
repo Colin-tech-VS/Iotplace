@@ -1,41 +1,56 @@
 {% from "crm_macros.html" import empty_state %}
 
 {% if not imap_configured %}
-<div class="card mail-alert">
-    <strong>IMAP non configuré</strong>
-    <p class="muted">Configurez IMAP_HOST, IMAP_USER et IMAP_PASSWORD pour lire votre boîte depuis le CRM.</p>
-    <a href="{{ url_for('crm.mailing', tab='settings') }}" class="btn btn-outline btn-sm">Configurer IMAP</a>
+<div class="mail-alert-card">
+    <div class="mail-alert-card-icon" aria-hidden="true">📥</div>
+    <div>
+        <strong>IMAP non configuré</strong>
+        <p>Connectez <code>{{ contact_email }}</code> en IMAP pour lire les messages reçus sur cette adresse.</p>
+        <a href="{{ url_for('crm.mailing', tab='settings') }}" class="btn btn-outline btn-sm">Configurer IMAP</a>
+    </div>
 </div>
 {% endif %}
 
-<div class="mail-inbox-toolbar">
-    <p class="field-hint" id="inboxSyncMeta">
-        {% if last_sync %}Dernière synchro : {{ last_sync[:19].replace('T', ' ') }} UTC{% else %}Aucune synchronisation pour le moment.{% endif %}
-    </p>
+<div class="mail-inbox-header">
+    <div>
+        <h2 class="mail-inbox-title">Boîte {{ contact_email }}</h2>
+        <p class="mail-inbox-meta" id="inboxSyncMeta">
+            {% if last_sync %}Dernière synchro : {{ last_sync[:19].replace('T', ' ') }} UTC{% else %}Aucune synchronisation — cliquez sur Synchroniser.{% endif %}
+        </p>
+    </div>
     <button type="button" class="btn btn-primary btn-sm" id="syncInboxBtn" {% if not imap_configured %}disabled{% endif %}>Synchroniser</button>
 </div>
 
-<div class="card mail-inbox-card">
+<div class="mail-inbox-shell">
     {% if messages %}
     <div class="mail-inbox-list">
         {% for msg in messages %}
-        <article class="mail-inbox-item">
-            <header>
-                <strong>{{ msg.subject }}</strong>
-                <time class="mono muted">{{ msg.date[:25] if msg.date else '' }}</time>
-            </header>
-            <p class="mail-inbox-from">{{ msg.from }}</p>
-            <p class="mail-inbox-preview">{{ msg.preview }}</p>
-            {% if msg.body and msg.body|length > 280 %}
-            <details class="mail-inbox-details">
-                <summary>Voir le message complet</summary>
-                <pre class="mail-inbox-body">{{ msg.body }}</pre>
-            </details>
-            {% endif %}
+        <article class="mail-inbox-row">
+            <div class="mail-inbox-avatar" aria-hidden="true">{{ (msg.from or '?')[0]|upper }}</div>
+            <div class="mail-inbox-content">
+                <header class="mail-inbox-row-head">
+                    <div class="mail-inbox-subject-wrap">
+                        <strong class="mail-inbox-subject">{{ msg.subject or '(sans objet)' }}</strong>
+                        <span class="mail-inbox-from">{{ msg.from }}</span>
+                    </div>
+                    <time class="mail-inbox-date mono">{{ msg.date[:16] if msg.date else '' }}</time>
+                </header>
+                <p class="mail-inbox-preview">{{ msg.preview }}</p>
+                {% if msg.body and msg.body|length > 200 %}
+                <details class="mail-inbox-expand">
+                    <summary>Lire le message</summary>
+                    <pre class="mail-inbox-body">{{ msg.body }}</pre>
+                </details>
+                {% elif msg.body %}
+                <pre class="mail-inbox-body mail-inbox-body--short">{{ msg.body }}</pre>
+                {% endif %}
+            </div>
         </article>
         {% endfor %}
     </div>
     {% else %}
-    {{ empty_state('📥', 'Boîte vide', 'Synchronisez votre boîte IMAP pour afficher les messages reçus.', '', '') }}
+    <div class="mail-inbox-empty">
+        {{ empty_state('📥', 'Boîte vide', 'Synchronisez IMAP pour afficher les messages reçus sur ' ~ contact_email ~ '.', '', '') }}
+    </div>
     {% endif %}
 </div>

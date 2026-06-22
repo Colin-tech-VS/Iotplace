@@ -2951,9 +2951,12 @@ def delete_social_post(entry_id):
 
 def get_mail_settings():
     data = _load_raw()
-    defaults = DEFAULT_DATA["mail_settings"]
+    defaults = {**DEFAULT_DATA["mail_settings"], "reply_to": CONTACT_EMAIL}
     saved = data.get("mail_settings") or {}
-    return {**defaults, **saved}
+    merged = {**defaults, **saved}
+    if not (merged.get("reply_to") or "").strip():
+        merged["reply_to"] = CONTACT_EMAIL
+    return merged
 
 
 def update_mail_settings(fields: dict) -> dict:
@@ -3143,7 +3146,7 @@ def send_mail_campaign(campaign_id: str) -> dict:
             f"{signature}</p>"
         )
 
-    reply_to = (settings.get("reply_to") or "").strip() or get_smtp_config().get("from_email")
+    reply_to = (settings.get("reply_to") or "").strip() or get_platform_email()
     sends = []
     sent = 0
     failed = 0

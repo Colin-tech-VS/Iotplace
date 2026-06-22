@@ -348,8 +348,10 @@ def _mailing_active_tab():
 
 def _mailing_hub_context():
     from crm import email_service
+    from data.site_config import CONTACT_EMAIL
 
     settings = store.get_mail_settings()
+    smtp = email_service.get_smtp_config()
     return {
         "active_tab": _mailing_active_tab(),
         "campaigns": store.get_mail_campaigns(),
@@ -357,9 +359,11 @@ def _mailing_hub_context():
         "messages": store.get_mail_inbox_cache(),
         "last_sync": settings.get("last_inbox_sync", ""),
         "settings": settings,
+        "contact_email": CONTACT_EMAIL,
+        "platform_from": smtp.get("from_email") or CONTACT_EMAIL,
         "smtp_configured": email_service.is_smtp_configured(),
         "imap_configured": email_service.is_imap_configured(),
-        "smtp_config": email_service.get_smtp_config(),
+        "smtp_config": smtp,
         "imap_config": email_service.get_imap_config(),
     }
 
@@ -847,7 +851,7 @@ def contact_reply(entry_id):
                 entry["email"],
                 subject,
                 html,
-                reply_to=(settings.get("reply_to") or "").strip() or None,
+                reply_to=(settings.get("reply_to") or "").strip() or email_service.get_platform_email() or None,
                 site_url=store.get_site_url(),
                 locale="fr",
             )

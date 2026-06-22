@@ -4,7 +4,7 @@
 {% block title %}Email{% endblock %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="{{ url_for('crm.static', filename='css/mailing.css') }}?v=3">
+<link rel="stylesheet" href="{{ url_for('crm.static', filename='css/mailing.css') }}?v=4">
 {% endblock %}
 
 {% block content %}
@@ -17,12 +17,40 @@
 {% endcall %}
 
 <div class="mail-hub">
+    <header class="mail-identity-card reveal">
+        <div class="mail-identity-main">
+            <span class="mail-identity-label">Boîte officielle Iotplace</span>
+            <div class="mail-identity-row">
+                <a href="mailto:{{ contact_email }}" class="mail-identity-email">{{ contact_email }}</a>
+                <button type="button" class="mail-copy-btn" id="copyContactEmail" data-email="{{ contact_email }}" title="Copier l'adresse">Copier</button>
+            </div>
+            <p class="mail-identity-hint">Expéditeur par défaut des campagnes CRM, réponses contact et notifications. Configurez SMTP/IMAP LWS avec ce compte.</p>
+        </div>
+        <div class="mail-identity-stats">
+            <div class="mail-identity-stat">
+                <span class="mail-identity-stat-value">{{ analytics.totals.sent }}</span>
+                <span class="mail-identity-stat-label">Envoyés</span>
+            </div>
+            <div class="mail-identity-stat">
+                <span class="mail-identity-stat-value">{{ messages|length }}</span>
+                <span class="mail-identity-stat-label">Boîte cache</span>
+            </div>
+            <div class="mail-identity-stat">
+                <span class="mail-identity-stat-value">{% if analytics.totals.sent %}{{ ((analytics.totals.opened / analytics.totals.sent) * 100)|round(0)|int }}%{% else %}—{% endif %}</span>
+                <span class="mail-identity-stat-label">Ouverture</span>
+            </div>
+        </div>
+    </header>
+
     <div class="mail-hub-status">
         <span class="mail-hub-pill {% if smtp_configured %}is-ok{% else %}is-warn{% endif %}">
-            <span class="mail-hub-pill-dot"></span> SMTP {% if smtp_configured %}prêt{% else %}non configuré{% endif %}
+            <span class="mail-hub-pill-dot"></span> SMTP {% if smtp_configured %}prêt{% else %}à configurer{% endif %}
         </span>
         <span class="mail-hub-pill {% if imap_configured %}is-ok{% else %}is-muted{% endif %}">
             <span class="mail-hub-pill-dot"></span> IMAP {% if imap_configured %}connecté{% else %}inactif{% endif %}
+        </span>
+        <span class="mail-hub-pill is-muted">
+            <span class="mail-hub-pill-dot"></span> Expéditeur : <strong>{{ platform_from }}</strong>
         </span>
     </div>
 
@@ -41,5 +69,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{{ url_for('crm.static', filename='js/mailing.js') }}?v=3"></script>
+<script src="{{ url_for('crm.static', filename='js/mailing.js') }}?v=4"></script>
 {% endblock %}

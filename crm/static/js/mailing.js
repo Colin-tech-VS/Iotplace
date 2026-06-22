@@ -14,8 +14,24 @@
         if (!el) return;
         el.hidden = !message;
         el.textContent = message || '';
-        el.classList.toggle('ai-status-error', Boolean(isError));
+        el.classList.toggle('is-error', Boolean(isError));
+        el.classList.toggle('is-ok', Boolean(message) && !isError);
     }
+
+    document.getElementById('copyContactEmail')?.addEventListener('click', async () => {
+        const btn = document.getElementById('copyContactEmail');
+        const email = btn?.dataset.email || '';
+        if (!email) return;
+        try {
+            await navigator.clipboard.writeText(email);
+            const prev = btn.textContent;
+            btn.textContent = 'Copié ✓';
+            setTimeout(() => { btn.textContent = prev; }, 1600);
+            if (window.IotToast) IotToast.show(email, { title: 'Adresse copiée', type: 'success' });
+        } catch (_) {
+            if (window.IotToast) IotToast.show(email, { title: 'Copier manuellement', type: 'info' });
+        }
+    });
 
     async function postJson(url, body) {
         const res = await fetch(url, {

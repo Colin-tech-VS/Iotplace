@@ -35,13 +35,19 @@ def _env_bool(name: str, default: bool = True) -> bool:
     return raw.lower() in ("1", "true", "yes", "on")
 
 
+def get_platform_email() -> str:
+    from data.site_config import CONTACT_EMAIL
+
+    return _env("SMTP_FROM_EMAIL") or _env("SMTP_USER") or CONTACT_EMAIL
+
+
 def get_smtp_config() -> dict:
     return {
         "host": _env("SMTP_HOST"),
         "port": int(_env("SMTP_PORT", "587") or "587"),
         "user": _env("SMTP_USER"),
         "password": _env("SMTP_PASSWORD"),
-        "from_email": _env("SMTP_FROM_EMAIL") or _env("SMTP_USER"),
+        "from_email": get_platform_email(),
         "from_name": _env("SMTP_FROM_NAME", "Iotplace"),
         "use_tls": _env_bool("SMTP_USE_TLS", True),
     }
@@ -111,14 +117,19 @@ def wrap_email_html(
     text_muted = "#8b95a8"
     border = "rgba(0, 232, 200, 0.22)"
     site = (site_url or store.get_site_url() or "https://iotplace.fr").rstrip("/")
+    from data.site_config import CONTACT_EMAIL
+
+    contact = CONTACT_EMAIL
     if locale == "en":
         tagline = "B2B IoT subcontracting marketplace"
         cta_label = "Visit Iotplace"
         footer_line = "You receive this email from Iotplace."
+        contact_label = "Contact us"
     else:
         tagline = "Marketplace B2B de sous-traitance IoT"
         cta_label = "Visiter Iotplace"
         footer_line = "Vous recevez cet email de la part d'Iotplace."
+        contact_label = "Nous contacter"
 
     pixel = ""
     if tracking_url:
@@ -161,7 +172,7 @@ def wrap_email_html(
 </td></tr>
 <tr><td style="padding:20px 32px 28px;border-top:1px solid {border};text-align:center;">
   <p style="margin:0;font-size:12px;color:{text_muted};">{footer_line}</p>
-  <p style="margin:8px 0 0;font-size:12px;"><a href="{site}" style="color:{accent};text-decoration:none;">{site.replace('https://', '')}</a></p>
+  <p style="margin:8px 0 0;font-size:12px;"><a href="mailto:{contact}" style="color:{accent};text-decoration:none;">{contact}</a> · <a href="{site}" style="color:{accent};text-decoration:none;">{site.replace('https://', '')}</a></p>
   {extra_footer}
   {pixel}
 </td></tr>
