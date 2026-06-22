@@ -40,7 +40,7 @@
         </div>
         <p class="profile-completion-label">{{ t('compte.profile.completion_label', percent=completion.percent) }}</p>
         <ul class="profile-checklist">
-            {% for item in completion.items %}
+            {% for item in completion.checklist %}
             <li class="profile-check-item{% if item.done %} done{% endif %}" data-check-key="{{ item.key }}">
                 <span class="profile-check-icon" aria-hidden="true">{% if item.done %}✓{% else %}○{% endif %}</span>
                 <span>{{ t('compte.profile.check_' ~ item.key) }}</span>

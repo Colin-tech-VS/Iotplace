@@ -135,5 +135,5 @@ def compute_profile_completion(profile: dict, role: str) -> dict:
         "percent": percent,
         "done": done,
         "total": total,
-        "items": [{"key": key, "done": ok} for key, ok in checks],
+        "checklist": [{"key": key, "done": ok} for key, ok in checks],
     }
