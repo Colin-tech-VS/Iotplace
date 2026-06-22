@@ -175,3 +175,48 @@ def generate_page_content(
         "faq": _normalize_faq(parsed.get("faq") or []) if include_faq else [],
     }
     return result
+
+
+def generate_email_content(
+    *,
+    audience: str = "contacts",
+    user_prompt: str = "",
+    subject_hint: str = "",
+    tone: str = "professional",
+    locale: str = "fr",
+) -> dict:
+    extra = (user_prompt or "").strip()
+    lang = "French" if locale == "fr" else "English"
+    system = (
+        "You are a B2B email copywriter for Iotplace, an IoT subcontracting marketplace. "
+        f"Write exclusively in {lang}. "
+        "Return a single valid JSON object with subject, body_html (HTML fragments only: p, strong, a, ul, li — "
+        "no full document, no outer wrapper), and body_text (plain text). "
+        "Use professional B2B tone. Links should point to iotplace.io paths when relevant. "
+        "Do NOT include the Iotplace logo or header — the platform adds branded layout automatically."
+    )
+    user = {
+        "task": "Generate a marketing or transactional email for CRM sending.",
+        "language": lang,
+        "audience": audience,
+        "tone": tone,
+        "subject_hint": subject_hint or "",
+        "editor_instructions": extra or f"Write a compelling Iotplace email in {lang}.",
+        "output_schema": {
+            "subject": "string (max 120 chars)",
+            "body_html": "string (HTML paragraphs, links allowed)",
+            "body_text": "string (plain text)",
+        },
+    }
+    raw_text = _chat(
+        [
+            {"role": "system", "content": system},
+            {"role": "user", "content": json.dumps(user, ensure_ascii=False)},
+        ]
+    )
+    parsed = _extract_json(raw_text)
+    return {
+        "subject": str(parsed.get("subject", "")).strip()[:120],
+        "body_html": str(parsed.get("body_html", "")).strip(),
+        "body_text": str(parsed.get("body_text", "")).strip(),
+    }

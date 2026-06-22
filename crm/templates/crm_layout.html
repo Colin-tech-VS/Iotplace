@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/brand-mark.css') }}?v=1">
     <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/page-loader.css') }}?v=2">
     <script>document.documentElement.classList.add('iot-loading');</script>
+    {% block extra_head %}{% endblock %}
 </head>
 <body class="crm">
     {% from "_brand_mark.html" import brand_mark %}
@@ -76,6 +77,19 @@
                         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
                         Réseaux sociaux
                         {% if nav_stats.social_drafts %}<span class="nav-badge">{{ nav_stats.social_drafts }}</span>{% endif %}
+                    </a>
+                    <a href="{{ url_for('crm.mailing') }}" class="nav-item {% if 'mailing' in request.endpoint %}active{% endif %}">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M22 6l-10 7L2 6"/></svg>
+                        Emailing
+                        {% if nav_stats.mail_drafts %}<span class="nav-badge">{{ nav_stats.mail_drafts }}</span>{% endif %}
+                    </a>
+                    <a href="{{ url_for('crm.mailing_inbox') }}" class="nav-item {% if request.endpoint == 'crm.mailing_inbox' %}active{% endif %}">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+                        Boîte mail
+                    </a>
+                    <a href="{{ url_for('crm.mailing_settings') }}" class="nav-item {% if request.endpoint == 'crm.mailing_settings' %}active{% endif %}">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                        SMTP / IMAP
                     </a>
                 </div>
 

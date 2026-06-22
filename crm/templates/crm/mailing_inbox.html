@@ -1,0 +1,55 @@
+{% extends "crm_layout.html" %}
+{% from "crm_macros.html" import page_header, empty_state %}
+{% block title %}Boîte mail{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('crm.static', filename='css/mailing.css') }}?v=1">
+{% endblock %}
+
+{% block content %}
+{% call page_header("Boîte mail", "Messages reçus via IMAP") %}
+    <a href="{{ url_for('crm.mailing') }}" class="btn btn-ghost btn-sm">Campagnes</a>
+    <button type="button" class="btn btn-primary btn-sm" id="syncInboxBtn" {% if not imap_configured %}disabled{% endif %}>Synchroniser</button>
+{% endcall %}
+
+{% if not imap_configured %}
+<div class="card mail-alert">
+    <strong>IMAP non configuré</strong>
+    <p class="muted">Configurez IMAP_HOST, IMAP_USER et IMAP_PASSWORD pour lire votre boîte depuis le CRM.</p>
+    <a href="{{ url_for('crm.mailing_settings') }}" class="btn btn-outline btn-sm">Paramètres</a>
+</div>
+{% endif %}
+
+<p class="field-hint" id="inboxSyncMeta">
+    {% if last_sync %}Dernière synchro : {{ last_sync[:19].replace('T', ' ') }} UTC{% else %}Aucune synchronisation pour le moment.{% endif %}
+</p>
+
+<div class="card mail-inbox-card">
+    {% if messages %}
+    <div class="mail-inbox-list">
+        {% for msg in messages %}
+        <article class="mail-inbox-item">
+            <header>
+                <strong>{{ msg.subject }}</strong>
+                <time class="mono muted">{{ msg.date[:25] if msg.date else '' }}</time>
+            </header>
+            <p class="mail-inbox-from">{{ msg.from }}</p>
+            <p class="mail-inbox-preview">{{ msg.preview }}</p>
+            {% if msg.body and msg.body|length > 280 %}
+            <details class="mail-inbox-details">
+                <summary>Voir le message complet</summary>
+                <pre class="mail-inbox-body">{{ msg.body }}</pre>
+            </details>
+            {% endif %}
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    {{ empty_state('📥', 'Boîte vide', 'Synchronisez votre boîte IMAP pour afficher les messages reçus.', '', '') }}
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('crm.static', filename='js/mailing.js') }}?v=1"></script>
+{% endblock %}

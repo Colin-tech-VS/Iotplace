@@ -366,6 +366,13 @@ DEFAULT_DATA = {
         "unique_visitors": {},
     },
     "social_posts": [],
+    "mail_campaigns": [],
+    "mail_events": [],
+    "mail_settings": {
+        "signature": "",
+        "reply_to": "",
+        "last_inbox_sync": "",
+    },
     "users": [],
     "messages": [],
     "engagements": [],
@@ -2741,3 +2748,288 @@ def delete_social_post(entry_id):
     data = _load_raw()
     data["social_posts"] = [p for p in data.get("social_posts", []) if p["id"] != entry_id]
     _save_raw(data)
+
+
+# ── CRM Mailing ──
+
+def get_mail_settings():
+    data = _load_raw()
+    defaults = DEFAULT_DATA["mail_settings"]
+    saved = data.get("mail_settings") or {}
+    return {**defaults, **saved}
+
+
+def update_mail_settings(fields: dict) -> dict:
+    data = _load_raw()
+    current = get_mail_settings()
+    data["mail_settings"] = {**current, **fields}
+    _save_raw(data)
+    return data["mail_settings"]
+
+
+def get_mail_campaigns():
+    return sorted(
+        _load_raw().get("mail_campaigns", []),
+        key=lambda c: c.get("updated_at") or c.get("created_at", ""),
+        reverse=True,
+    )
+
+
+def get_mail_campaign(campaign_id: str):
+    return next((c for c in get_mail_campaigns() if c["id"] == campaign_id), None)
+
+
+def _empty_mail_stats():
+    return {"recipients": 0, "sent": 0, "failed": 0, "opened": 0, "clicked": 0}
+
+
+def add_mail_campaign(fields):
+    data = _load_raw()
+    now = datetime.now(timezone.utc).isoformat()
+    entry = {
+        "id": _new_id(),
+        "created_at": now,
+        "updated_at": now,
+        "status": "draft",
+        "source": fields.get("source", "manual"),
+        "stats": _empty_mail_stats(),
+        "sends": [],
+        **fields,
+    }
+    data.setdefault("mail_campaigns", []).append(entry)
+    _save_raw(data)
+    return entry
+
+
+def update_mail_campaign(campaign_id: str, fields: dict):
+    data = _load_raw()
+    for i, camp in enumerate(data.get("mail_campaigns", [])):
+        if camp["id"] == campaign_id:
+            updated = {
+                **camp,
+                **fields,
+                "id": campaign_id,
+                "updated_at": datetime.now(timezone.utc).isoformat(),
+            }
+            data["mail_campaigns"][i] = updated
+            _save_raw(data)
+            return updated
+    return None
+
+
+def delete_mail_campaign(campaign_id: str):
+    data = _load_raw()
+    data["mail_campaigns"] = [c for c in data.get("mail_campaigns", []) if c["id"] != campaign_id]
+    data["mail_events"] = [e for e in data.get("mail_events", []) if e.get("campaign_id") != campaign_id]
+    _save_raw(data)
+
+
+def log_mail_event(campaign_id: str, event_type: str, email: str = "", meta: dict | None = None):
+    data = _load_raw()
+    entry = {
+        "id": _new_id(),
+        "campaign_id": campaign_id,
+        "type": event_type,
+        "email": (email or "").strip().lower(),
+        "at": datetime.now(timezone.utc).isoformat(),
+        "meta": meta or {},
+    }
+    data.setdefault("mail_events", []).append(entry)
+    _save_raw(data)
+    return entry
+
+
+def record_mail_open(campaign_id: str, token: str) -> bool:
+    camp = get_mail_campaign(campaign_id)
+    if not camp:
+        return False
+    email_addr = ""
+    already = False
+    sends = list(camp.get("sends") or [])
+    for send in sends:
+        if send.get("token") == token:
+            email_addr = send.get("email", "")
+            if send.get("opened_at"):
+                already = True
+            else:
+                send["opened_at"] = datetime.now(timezone.utc).isoformat()
+            break
+    if already:
+        return True
+    stats = {**_empty_mail_stats(), **(camp.get("stats") or {})}
+    stats["opened"] = int(stats.get("opened") or 0) + 1
+    update_mail_campaign(campaign_id, {"sends": sends, "stats": stats})
+    log_mail_event(campaign_id, "open", email_addr, {"token": token})
+    return True
+
+
+def resolve_mail_recipients(audience: str, custom_recipients: list | None = None) -> list[dict]:
+    custom_recipients = custom_recipients or []
+    seen: set[str] = set()
+    out: list[dict] = []
+
+    def add(email: str, name: str = "", source: str = ""):
+        email_l = (email or "").strip().lower()
+        if not email_l or "@" not in email_l or email_l in seen:
+            return
+        seen.add(email_l)
+        out.append({"email": email_l, "name": name or email_l, "source": source})
+
+    if audience == "custom":
+        for raw in custom_recipients:
+            if isinstance(raw, dict):
+                add(raw.get("email", ""), raw.get("name", ""), "custom")
+            else:
+                add(str(raw), "", "custom")
+        return out
+
+    if audience == "contacts":
+        for c in get_contacts():
+            add(c.get("email", ""), c.get("name", ""), "contact")
+    elif audience == "enterprises":
+        for u in get_all_users():
+            if u.get("role") != "enterprise":
+                continue
+            ent = get_enterprise(u.get("profile_id"))
+            add(u.get("email", ""), (ent or {}).get("name", ""), "enterprise")
+    elif audience == "startups":
+        for u in get_all_users():
+            if u.get("role") != "startup":
+                continue
+            st = get_startup(u.get("profile_id"))
+            add(u.get("email", ""), (st or {}).get("name", ""), "startup")
+    elif audience == "all_users":
+        for u in get_all_users():
+            profile_name = ""
+            if u.get("role") == "enterprise":
+                ent = get_enterprise(u.get("profile_id"))
+                profile_name = (ent or {}).get("name", "")
+            elif u.get("role") == "startup":
+                st = get_startup(u.get("profile_id"))
+                profile_name = (st or {}).get("name", "")
+            add(u.get("email", ""), profile_name, u.get("role", "user"))
+    return out
+
+
+def send_mail_campaign(campaign_id: str) -> dict:
+    from crm.email_service import EmailError, get_smtp_config, is_smtp_configured, recipient_token, send_email
+
+    if not is_smtp_configured():
+        raise ValueError("SMTP non configuré — vérifiez les variables d'environnement.")
+
+    camp = get_mail_campaign(campaign_id)
+    if not camp:
+        raise ValueError("Campagne introuvable.")
+    if camp.get("status") == "sent":
+        raise ValueError("Cette campagne a déjà été envoyée.")
+
+    recipients = resolve_mail_recipients(camp.get("audience", "contacts"), camp.get("custom_recipients"))
+    if not recipients:
+        raise ValueError("Aucun destinataire pour cette audience.")
+
+    settings = get_mail_settings()
+    site_url = get_site_url().rstrip("/")
+    subject = (camp.get("subject") or "").strip()
+    body_html = (camp.get("body_html") or "").strip()
+    if not subject or not body_html:
+        raise ValueError("Objet et contenu HTML requis.")
+
+    locale = (camp.get("locale") or "fr").strip().lower()
+    if locale not in ("fr", "en"):
+        locale = "fr"
+
+    signature = (settings.get("signature") or "").strip()
+    if signature and signature not in body_html:
+        body_html = (
+            f"{body_html}"
+            f"<p style='margin-top:24px;padding-top:16px;border-top:1px solid rgba(0,232,200,0.15);color:#8b95a8;font-size:13px;'>"
+            f"{signature}</p>"
+        )
+
+    reply_to = (settings.get("reply_to") or "").strip() or get_smtp_config().get("from_email")
+    sends = []
+    sent = 0
+    failed = 0
+
+    update_mail_campaign(campaign_id, {"status": "sending", "stats": {**_empty_mail_stats(), "recipients": len(recipients)}})
+
+    for rec in recipients:
+        token = recipient_token(campaign_id, rec["email"])
+        tracking_url = f"{site_url}/mail/o/{campaign_id}/{token}.gif"
+        send_row = {
+            "email": rec["email"],
+            "name": rec.get("name", ""),
+            "source": rec.get("source", ""),
+            "token": token,
+            "status": "pending",
+        }
+        try:
+            send_email(
+                rec["email"],
+                subject,
+                body_html,
+                body_text=camp.get("body_text") or "",
+                reply_to=reply_to,
+                tracking_url=tracking_url,
+                site_url=site_url,
+                locale=locale,
+            )
+            send_row["status"] = "sent"
+            send_row["sent_at"] = datetime.now(timezone.utc).isoformat()
+            sent += 1
+            log_mail_event(campaign_id, "sent", rec["email"])
+        except EmailError as exc:
+            send_row["status"] = "failed"
+            send_row["error"] = str(exc)
+            failed += 1
+            log_mail_event(campaign_id, "failed", rec["email"], {"error": str(exc)})
+        sends.append(send_row)
+
+    stats = {
+        "recipients": len(recipients),
+        "sent": sent,
+        "failed": failed,
+        "opened": (camp.get("stats") or {}).get("opened", 0),
+        "clicked": (camp.get("stats") or {}).get("clicked", 0),
+    }
+    update_mail_campaign(campaign_id, {
+        "status": "sent" if sent else "failed",
+        "sent_at": datetime.now(timezone.utc).isoformat(),
+        "sends": sends,
+        "stats": stats,
+    })
+    return {"sent": sent, "failed": failed, "recipients": len(recipients)}
+
+
+def get_mail_analytics():
+    campaigns = get_mail_campaigns()
+    events = _load_raw().get("mail_events", [])
+    totals = _empty_mail_stats()
+    totals["campaigns"] = len(campaigns)
+    totals["drafts"] = sum(1 for c in campaigns if c.get("status") == "draft")
+    for camp in campaigns:
+        stats = camp.get("stats") or {}
+        for key in ("recipients", "sent", "failed", "opened", "clicked"):
+            totals[key] = totals.get(key, 0) + int(stats.get(key) or 0)
+    recent_events = sorted(events, key=lambda e: e.get("at", ""), reverse=True)[:30]
+    return {
+        "totals": totals,
+        "campaigns": campaigns[:12],
+        "recent_events": recent_events,
+    }
+
+
+def sync_mail_inbox(limit: int = 40) -> list[dict]:
+    from crm.email_service import fetch_inbox
+
+    messages = fetch_inbox(limit=limit)
+    update_mail_settings({
+        "last_inbox_sync": datetime.now(timezone.utc).isoformat(),
+        "inbox_cache": messages,
+    })
+    return messages
+
+
+def get_mail_inbox_cache():
+    settings = get_mail_settings()
+    return settings.get("inbox_cache") or []

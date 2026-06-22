@@ -1,0 +1,141 @@
+{% extends "crm_layout.html" %}
+{% from "crm_macros.html" import page_header %}
+{% block title %}{% if is_new %}Nouvelle campagne{% else %}Modifier campagne{% endif %}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('crm.static', filename='css/mailing.css') }}?v=2">
+{% endblock %}
+
+{% block content %}
+{% set bc = [('Emailing', url_for('crm.mailing')), (is_new and 'Nouvelle campagne' or entry.name, none)] %}
+{% call page_header(is_new and 'Nouvelle campagne email' or 'Modifier la campagne', 'Rédaction manuelle ou génération IA Mistral', breadcrumb=bc) %}
+    <a href="{{ url_for('crm.mailing') }}" class="btn btn-ghost btn-sm">Annuler</a>
+    <button type="submit" form="mail-form" name="action" value="save" class="btn btn-outline btn-sm">Enregistrer</button>
+    {% if smtp_configured and (is_new or entry.status != 'sent') %}
+    <button type="submit" form="mail-form" name="action" value="send" class="btn btn-primary btn-sm" data-confirm="Envoyer cette campagne maintenant ?">Envoyer</button>
+    {% endif %}
+{% endcall %}
+
+<div class="mail-compose-grid">
+    <form id="mail-form" method="POST" class="form-layout mail-form">
+        <section class="card form-section">
+            <div class="section-title"><h2>Campagne</h2></div>
+            <div class="field">
+                <label for="name">Nom interne</label>
+                <input type="text" id="name" name="name" value="{{ entry.name if entry else '' }}" placeholder="Newsletter mars — startups IoT">
+            </div>
+            <div class="field-row">
+                <div class="field">
+                    <label for="audience">Audience</label>
+                    <select id="audience" name="audience">
+                        {% for aud, label, count in [
+                            ('contacts', 'Contacts vitrine', audience_counts.contacts),
+                            ('enterprises', 'Comptes entreprise', audience_counts.enterprises),
+                            ('startups', 'Comptes startup', audience_counts.startups),
+                            ('all_users', 'Tous les comptes', audience_counts.all_users),
+                            ('custom', 'Liste personnalisée', 0)
+                        ] %}
+                        <option value="{{ aud }}" {% if entry and entry.audience == aud %}selected{% elif not entry and aud == 'contacts' %}selected{% endif %}>{{ label }} ({{ count }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="status">Statut</label>
+                    <select id="status" name="status" {% if entry and entry.status == 'sent' %}disabled{% endif %}>
+                        <option value="draft" {% if not entry or entry.status == 'draft' %}selected{% endif %}>Brouillon</option>
+                        <option value="scheduled" {% if entry and entry.status == 'scheduled' %}selected{% endif %}>Planifiée</option>
+                        {% if entry and entry.status == 'sent' %}<option value="sent" selected>Envoyée</option>{% endif %}
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="mail-locale">Langue</label>
+                    <select id="mail-locale" name="locale">
+                        <option value="fr" {% if not entry or (entry.locale or 'fr') == 'fr' %}selected{% endif %}>Français</option>
+                        <option value="en" {% if entry and entry.locale == 'en' %}selected{% endif %}>English</option>
+                    </select>
+                </div>
+            </div>
+            <div class="field" id="customRecipientsField" {% if not entry or entry.audience != 'custom' %}hidden{% endif %}>
+                <label for="custom_recipients">Emails (séparés par virgule)</label>
+                <textarea id="custom_recipients" name="custom_recipients" rows="2" placeholder="a@corp.com, b@startup.io">{% if entry and entry.custom_recipients %}{{ entry.custom_recipients|join(', ') }}{% endif %}</textarea>
+            </div>
+            <div class="field">
+                <label for="scheduled_at">Envoi planifié (info)</label>
+                <input type="datetime-local" id="scheduled_at" name="scheduled_at" value="{{ entry.scheduled_at[:16] if entry and entry.scheduled_at else '' }}">
+                <span class="field-hint">L'envoi automatique planifié sera ajouté ultérieurement — utilisez « Envoyer » pour l'instant.</span>
+            </div>
+            <input type="hidden" name="source" id="mailSource" value="{{ entry.source if entry else 'manual' }}">
+            <input type="hidden" name="ai_prompt" id="aiPromptHidden" value="{{ entry.ai_prompt if entry else '' }}">
+        </section>
+
+        <section class="card form-section">
+            <div class="section-title">
+                <h2>Contenu</h2>
+                <button type="button" class="btn btn-outline btn-sm" id="mailPreviewBtn">Aperçu Iotplace</button>
+            </div>
+            <div class="field">
+                <label for="subject">Objet <span class="req">*</span></label>
+                <input type="text" id="subject" name="subject" required value="{{ entry.subject if entry else '' }}" placeholder="Votre prochain projet IoT sur Iotplace">
+            </div>
+            <div class="field">
+                <label for="body_html">Corps HTML <span class="req">*</span></label>
+                <textarea id="body_html" name="body_html" rows="12" required placeholder="<p>Bonjour,</p><p>...</p>">{{ entry.body_html if entry else '' }}</textarea>
+            </div>
+            <div class="field">
+                <label for="body_text">Version texte (optionnel)</label>
+                <textarea id="body_text" name="body_text" rows="5">{{ entry.body_text if entry else '' }}</textarea>
+            </div>
+        </section>
+
+        {% if entry and entry.stats and entry.status == 'sent' %}
+        <section class="card form-section">
+            <div class="section-title"><h2>Statistiques</h2></div>
+            <div class="mail-stats-inline">
+                <span><strong>{{ entry.stats.recipients }}</strong> destinataires</span>
+                <span><strong>{{ entry.stats.sent }}</strong> envoyés</span>
+                <span><strong>{{ entry.stats.opened }}</strong> ouverts</span>
+                <span><strong>{{ entry.stats.failed }}</strong> échecs</span>
+            </div>
+        </section>
+        {% endif %}
+    </form>
+
+    <aside class="card mail-ai-panel" id="mail-ai-panel"
+        data-generate-url="{{ url_for('crm.api_mailing_generate') }}"
+        data-preview-url="{{ url_for('crm.api_mailing_preview') }}">
+        <div class="section-title">
+            <h2>Génération IA</h2>
+            <p>Rédigez avec Mistral ou manuellement</p>
+        </div>
+        {% if not mistral_configured %}
+        <p class="field-hint ai-status-error">MISTRAL_API_KEY non configurée — rédaction manuelle uniquement.</p>
+        {% endif %}
+        <div class="field">
+            <label for="ai-prompt">Instructions</label>
+            <textarea id="ai-prompt" rows="4" placeholder="Ex. Email de relance pour startups IoT au Vietnam, ton B2B, CTA vers /projects" {% if not mistral_configured %}disabled{% endif %}>{{ entry.ai_prompt if entry else '' }}</textarea>
+        </div>
+        <div class="field">
+            <label for="ai-tone">Ton</label>
+            <select id="ai-tone" {% if not mistral_configured %}disabled{% endif %}>
+                <option value="professional">Professionnel</option>
+                <option value="friendly">Convivial</option>
+                <option value="urgent">Urgent / promo</option>
+            </select>
+        </div>
+        <div class="mail-ai-actions">
+            <button type="button" class="btn btn-primary btn-sm" id="aiGenerateBtn" {% if not mistral_configured %}disabled data-disabled="1"{% endif %}>Générer avec Mistral</button>
+            <button type="button" class="btn btn-outline btn-sm" id="aiApplyBtn" hidden>Appliquer au formulaire</button>
+        </div>
+        <p id="ai-status" class="field-hint" hidden></p>
+        <div id="mail-preview-wrap" class="mail-preview-wrap" hidden>
+            <p class="field-hint">Aperçu avec le design Iotplace (tel que reçu par les destinataires)</p>
+            <iframe id="mail-preview-frame" class="mail-preview-frame" title="Aperçu email"></iframe>
+        </div>
+    </aside>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('crm.static', filename='js/mailing-ai.js') }}?v=2"></script>
+<script src="{{ url_for('crm.static', filename='js/mailing.js') }}?v=2"></script>
+{% endblock %}

@@ -10,6 +10,7 @@ def _nav_stats():
     stats = store.get_stats()
     stats["contacts"] = len(data["contacts"])
     stats["social_drafts"] = len([p for p in data.get("social_posts", []) if p.get("status") == "draft"])
+    stats["mail_drafts"] = len([c for c in data.get("mail_campaigns", []) if c.get("status") == "draft"])
     stats["users"] = len(data.get("users", []))
     return stats
 
@@ -332,6 +333,273 @@ def delete_social(entry_id):
     store.delete_social_post(entry_id)
     flash("Publication supprimée.", "success")
     return redirect(url_for("crm.social"))
+
+
+# ── Mailing (SMTP / IMAP) ──
+
+@crm_bp.route("/mailing")
+def mailing():
+    from crm import email_service
+
+    analytics = store.get_mail_analytics()
+    return render_template(
+        "crm/mailing.html",
+        campaigns=store.get_mail_campaigns(),
+        analytics=analytics,
+        smtp_configured=email_service.is_smtp_configured(),
+        imap_configured=email_service.is_imap_configured(),
+        smtp_config=email_service.get_smtp_config(),
+        imap_config=email_service.get_imap_config(),
+    )
+
+
+@crm_bp.route("/mailing/parametres", methods=["GET", "POST"])
+def mailing_settings():
+    from crm import email_service
+
+    settings = store.get_mail_settings()
+    if request.method == "POST":
+        store.update_mail_settings({
+            "signature": request.form.get("signature", "").strip(),
+            "reply_to": request.form.get("reply_to", "").strip(),
+        })
+        flash("Paramètres email enregistrés.", "success")
+        return redirect(url_for("crm.mailing_settings"))
+    return render_template(
+        "crm/mailing_settings.html",
+        settings=settings,
+        smtp_configured=email_service.is_smtp_configured(),
+        imap_configured=email_service.is_imap_configured(),
+        smtp_config=email_service.get_smtp_config(),
+        imap_config=email_service.get_imap_config(),
+    )
+
+
+@crm_bp.route("/mailing/boite")
+def mailing_inbox():
+    from crm import email_service
+
+    settings = store.get_mail_settings()
+    return render_template(
+        "crm/mailing_inbox.html",
+        messages=store.get_mail_inbox_cache(),
+        last_sync=settings.get("last_inbox_sync", ""),
+        imap_configured=email_service.is_imap_configured(),
+    )
+
+
+@crm_bp.route("/mailing/nouveau", methods=["GET", "POST"])
+def new_mailing():
+    from crm import email_service
+    from crm import mistral_ai
+
+    if request.method == "POST":
+        custom_raw = request.form.get("custom_recipients", "")
+        custom = [e.strip() for e in custom_raw.replace(";", ",").split(",") if e.strip()]
+        camp = store.add_mail_campaign({
+            "name": request.form.get("name", "").strip() or request.form.get("subject", "").strip()[:80],
+            "subject": request.form.get("subject", "").strip(),
+            "body_html": request.form.get("body_html", "").strip(),
+            "body_text": request.form.get("body_text", "").strip(),
+            "audience": request.form.get("audience", "contacts"),
+            "custom_recipients": custom,
+            "status": request.form.get("status", "draft"),
+            "scheduled_at": request.form.get("scheduled_at", ""),
+            "source": request.form.get("source", "manual"),
+            "ai_prompt": request.form.get("ai_prompt", ""),
+            "locale": request.form.get("locale", "fr"),
+        })
+        if request.form.get("action") == "send":
+            if not email_service.is_smtp_configured():
+                flash("SMTP non configuré — configurez les variables d'environnement.", "error")
+                return redirect(url_for("crm.edit_mailing", entry_id=camp["id"]))
+            try:
+                result = store.send_mail_campaign(camp["id"])
+                flash(f"Campagne envoyée : {result['sent']} succès, {result['failed']} échec(s).", "success")
+            except ValueError as exc:
+                flash(str(exc), "error")
+                return redirect(url_for("crm.edit_mailing", entry_id=camp["id"]))
+        else:
+            flash("Campagne enregistrée.", "success")
+        return redirect(url_for("crm.mailing"))
+    return render_template(
+        "crm/mailing_form.html",
+        entry=None,
+        is_new=True,
+        mistral_configured=mistral_ai.is_configured(),
+        smtp_configured=email_service.is_smtp_configured(),
+        audience_counts=_mail_audience_counts(),
+    )
+
+
+@crm_bp.route("/mailing/<entry_id>/edit", methods=["GET", "POST"])
+def edit_mailing(entry_id):
+    from crm import email_service
+    from crm import mistral_ai
+
+    entry = store.get_mail_campaign(entry_id)
+    if not entry:
+        flash("Campagne introuvable.", "error")
+        return redirect(url_for("crm.mailing"))
+    if request.method == "POST":
+        custom_raw = request.form.get("custom_recipients", "")
+        custom = [e.strip() for e in custom_raw.replace(";", ",").split(",") if e.strip()]
+        store.update_mail_campaign(entry_id, {
+            "name": request.form.get("name", "").strip(),
+            "subject": request.form.get("subject", "").strip(),
+            "body_html": request.form.get("body_html", "").strip(),
+            "body_text": request.form.get("body_text", "").strip(),
+            "audience": request.form.get("audience", "contacts"),
+            "custom_recipients": custom,
+            "status": request.form.get("status", entry.get("status", "draft")),
+            "scheduled_at": request.form.get("scheduled_at", ""),
+            "source": request.form.get("source", entry.get("source", "manual")),
+            "ai_prompt": request.form.get("ai_prompt", ""),
+            "locale": request.form.get("locale", entry.get("locale", "fr")),
+        })
+        if request.form.get("action") == "send":
+            if not email_service.is_smtp_configured():
+                flash("SMTP non configuré.", "error")
+                return redirect(url_for("crm.edit_mailing", entry_id=entry_id))
+            try:
+                result = store.send_mail_campaign(entry_id)
+                flash(f"Campagne envoyée : {result['sent']} succès, {result['failed']} échec(s).", "success")
+            except ValueError as exc:
+                flash(str(exc), "error")
+                return redirect(url_for("crm.edit_mailing", entry_id=entry_id))
+        else:
+            flash("Campagne mise à jour.", "success")
+        return redirect(url_for("crm.mailing"))
+    return render_template(
+        "crm/mailing_form.html",
+        entry=entry,
+        is_new=False,
+        mistral_configured=mistral_ai.is_configured(),
+        smtp_configured=email_service.is_smtp_configured(),
+        audience_counts=_mail_audience_counts(),
+    )
+
+
+@crm_bp.route("/mailing/<entry_id>/envoyer", methods=["POST"])
+def send_mailing(entry_id):
+    from crm import email_service
+
+    if not email_service.is_smtp_configured():
+        flash("SMTP non configuré.", "error")
+        return redirect(url_for("crm.edit_mailing", entry_id=entry_id))
+    try:
+        result = store.send_mail_campaign(entry_id)
+        flash(f"Campagne envoyée : {result['sent']} succès, {result['failed']} échec(s).", "success")
+    except ValueError as exc:
+        flash(str(exc), "error")
+        return redirect(url_for("crm.edit_mailing", entry_id=entry_id))
+    return redirect(url_for("crm.mailing"))
+
+
+@crm_bp.route("/mailing/<entry_id>/delete", methods=["POST"])
+def delete_mailing(entry_id):
+    store.delete_mail_campaign(entry_id)
+    flash("Campagne supprimée.", "success")
+    return redirect(url_for("crm.mailing"))
+
+
+def _mail_audience_counts():
+    return {
+        "contacts": len(store.resolve_mail_recipients("contacts")),
+        "enterprises": len(store.resolve_mail_recipients("enterprises")),
+        "startups": len(store.resolve_mail_recipients("startups")),
+        "all_users": len(store.resolve_mail_recipients("all_users")),
+    }
+
+
+@crm_bp.route("/api/mailing/generate", methods=["POST"])
+def api_mailing_generate():
+    from crm import email_service
+    from crm import mistral_ai
+
+    if not mistral_ai.is_configured():
+        return jsonify({"ok": False, "error": "MISTRAL_API_KEY non configurée."}), 503
+    payload = request.get_json(silent=True) or {}
+    locale = (payload.get("locale") or "fr").strip().lower()
+    if locale not in ("fr", "en"):
+        locale = "fr"
+    try:
+        result = mistral_ai.generate_email_content(
+            audience=payload.get("audience", "contacts"),
+            user_prompt=payload.get("prompt", ""),
+            subject_hint=payload.get("subject_hint", ""),
+            tone=payload.get("tone", "professional"),
+            locale=locale,
+        )
+        preview_html = email_service.build_branded_preview(
+            result["body_html"],
+            subject=result["subject"],
+            locale=locale,
+            site_url=store.get_site_url(),
+        )
+        return jsonify({"ok": True, **result, "locale": locale, "preview_html": preview_html})
+    except mistral_ai.MistralError as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 502
+
+
+@crm_bp.route("/api/mailing/preview", methods=["POST"])
+def api_mailing_preview():
+    from crm import email_service
+
+    payload = request.get_json(silent=True) or {}
+    locale = (payload.get("locale") or "fr").strip().lower()
+    if locale not in ("fr", "en"):
+        locale = "fr"
+    body_html = (payload.get("body_html") or "").strip()
+    subject = (payload.get("subject") or "").strip()
+    if not body_html:
+        return jsonify({"ok": False, "error": "Contenu HTML requis pour l'aperçu."}), 400
+    preview_html = email_service.build_branded_preview(
+        body_html,
+        subject=subject,
+        locale=locale,
+        site_url=store.get_site_url(),
+    )
+    return jsonify({"ok": True, "preview_html": preview_html, "locale": locale})
+
+
+@crm_bp.route("/api/mailing/test-smtp", methods=["POST"])
+def api_mailing_test_smtp():
+    from crm import email_service
+
+    payload = request.get_json(silent=True) or {}
+    to = (payload.get("to") or "").strip()
+    locale = (payload.get("locale") or "fr").strip().lower()
+    if locale not in ("fr", "en"):
+        locale = "fr"
+    try:
+        if to:
+            email_service.send_test_email(to, locale=locale, site_url=store.get_site_url())
+            return jsonify({"ok": True, "message": f"Email de test envoyé à {to}."})
+        info = email_service.test_smtp_connection()
+        return jsonify({"ok": True, "message": "Connexion SMTP OK.", **info})
+    except email_service.EmailError as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 400
+
+
+@crm_bp.route("/api/mailing/test-imap", methods=["POST"])
+def api_mailing_test_imap():
+    from crm import email_service
+
+    try:
+        info = email_service.test_imap_connection()
+        return jsonify({"ok": True, "message": "Connexion IMAP OK.", **info})
+    except email_service.EmailError as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 400
+
+
+@crm_bp.route("/api/mailing/sync-inbox", methods=["POST"])
+def api_mailing_sync_inbox():
+    try:
+        messages = store.sync_mail_inbox(limit=40)
+        return jsonify({"ok": True, "count": len(messages), "messages": messages})
+    except Exception as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 400
 
 
 # ── Entreprises ──

@@ -199,6 +199,14 @@ def sitemap_xml():
     return Response("\n".join(lines), mimetype="application/xml")
 
 
+@vitrine_bp.route("/mail/o/<campaign_id>/<token>")
+def mail_track_open(campaign_id, token):
+    from crm.email_service import TRACKING_GIF
+
+    store.record_mail_open(campaign_id, token.replace(".gif", ""))
+    return Response(TRACKING_GIF, mimetype="image/gif")
+
+
 @vitrine_bp.route("/")
 def index():
     if not _check_published("home"):
