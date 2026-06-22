@@ -1,28 +1,19 @@
-{% extends "crm_layout.html" %}
-{% from "crm_macros.html" import page_header, empty_state %}
-{% block title %}Boîte mail{% endblock %}
-
-{% block extra_head %}
-<link rel="stylesheet" href="{{ url_for('crm.static', filename='css/mailing.css') }}?v=1">
-{% endblock %}
-
-{% block content %}
-{% call page_header("Boîte mail", "Messages reçus via IMAP") %}
-    <a href="{{ url_for('crm.mailing') }}" class="btn btn-ghost btn-sm">Campagnes</a>
-    <button type="button" class="btn btn-primary btn-sm" id="syncInboxBtn" {% if not imap_configured %}disabled{% endif %}>Synchroniser</button>
-{% endcall %}
+{% from "crm_macros.html" import empty_state %}
 
 {% if not imap_configured %}
 <div class="card mail-alert">
     <strong>IMAP non configuré</strong>
     <p class="muted">Configurez IMAP_HOST, IMAP_USER et IMAP_PASSWORD pour lire votre boîte depuis le CRM.</p>
-    <a href="{{ url_for('crm.mailing_settings') }}" class="btn btn-outline btn-sm">Paramètres</a>
+    <a href="{{ url_for('crm.mailing', tab='settings') }}" class="btn btn-outline btn-sm">Configurer IMAP</a>
 </div>
 {% endif %}
 
-<p class="field-hint" id="inboxSyncMeta">
-    {% if last_sync %}Dernière synchro : {{ last_sync[:19].replace('T', ' ') }} UTC{% else %}Aucune synchronisation pour le moment.{% endif %}
-</p>
+<div class="mail-inbox-toolbar">
+    <p class="field-hint" id="inboxSyncMeta">
+        {% if last_sync %}Dernière synchro : {{ last_sync[:19].replace('T', ' ') }} UTC{% else %}Aucune synchronisation pour le moment.{% endif %}
+    </p>
+    <button type="button" class="btn btn-primary btn-sm" id="syncInboxBtn" {% if not imap_configured %}disabled{% endif %}>Synchroniser</button>
+</div>
 
 <div class="card mail-inbox-card">
     {% if messages %}
@@ -48,8 +39,3 @@
     {{ empty_state('📥', 'Boîte vide', 'Synchronisez votre boîte IMAP pour afficher les messages reçus.', '', '') }}
     {% endif %}
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script src="{{ url_for('crm.static', filename='js/mailing.js') }}?v=1"></script>
-{% endblock %}

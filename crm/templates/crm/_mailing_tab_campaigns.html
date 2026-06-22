@@ -1,0 +1,122 @@
+{% from "crm_macros.html" import empty_state, delete_form %}
+
+{% if not smtp_configured %}
+<div class="card mail-alert reveal">
+    <strong>SMTP non configuré</strong>
+    <p class="muted">Ajoutez <code>SMTP_HOST</code>, <code>SMTP_USER</code>, <code>SMTP_PASSWORD</code> et <code>SMTP_FROM_EMAIL</code> dans vos variables d'environnement.</p>
+    <a href="{{ url_for('crm.mailing', tab='settings') }}" class="btn btn-outline btn-sm">Configurer SMTP / IMAP</a>
+</div>
+{% endif %}
+
+<div class="kpi-grid mail-kpi-grid">
+    <div class="kpi-card">
+        <div class="kpi-body">
+            <span class="kpi-value">{{ analytics.totals.campaigns }}</span>
+            <span class="kpi-label">Campagnes</span>
+        </div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-body">
+            <span class="kpi-value">{{ analytics.totals.sent }}</span>
+            <span class="kpi-label">Emails envoyés</span>
+        </div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-body">
+            <span class="kpi-value">{{ analytics.totals.opened }}</span>
+            <span class="kpi-label">Ouvertures</span>
+        </div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-body">
+            <span class="kpi-value">{% if analytics.totals.sent %}{{ ((analytics.totals.opened / analytics.totals.sent) * 100)|round(1) }}%{% else %}—{% endif %}</span>
+            <span class="kpi-label">Taux d'ouverture</span>
+        </div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-body">
+            <span class="kpi-value">{{ analytics.totals.failed }}</span>
+            <span class="kpi-label">Échecs</span>
+        </div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-body">
+            <span class="kpi-value">{{ analytics.totals.drafts }}</span>
+            <span class="kpi-label">Brouillons</span>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-grid" style="margin-top:12px">
+    <section class="card table-card">
+        <div class="card-header"><h2>Campagnes</h2></div>
+        {% if campaigns %}
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Objet</th>
+                        <th>Audience</th>
+                        <th>Statut</th>
+                        <th>Envoyés</th>
+                        <th>Ouverts</th>
+                        <th>Date</th>
+                        <th class="col-actions">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for camp in campaigns %}
+                    <tr>
+                        <td><strong>{{ camp.name or '—' }}</strong>{% if camp.source == 'ai' %} <span class="badge badge-info">IA</span>{% endif %}</td>
+                        <td class="truncate-cell">{{ camp.subject[:60] }}{% if camp.subject|length > 60 %}…{% endif %}</td>
+                        <td><span class="badge badge-neutral">{{ camp.audience }}</span></td>
+                        <td>
+                            {% if camp.status == 'sent' %}<span class="badge badge-success">Envoyée</span>
+                            {% elif camp.status == 'sending' %}<span class="badge badge-info">Envoi…</span>
+                            {% elif camp.status == 'failed' %}<span class="badge badge-danger">Échec</span>
+                            {% else %}<span class="badge badge-muted">Brouillon</span>{% endif %}
+                        </td>
+                        <td class="mono">{{ camp.stats.sent if camp.stats else 0 }}/{{ camp.stats.recipients if camp.stats else 0 }}</td>
+                        <td class="mono">{{ camp.stats.opened if camp.stats else 0 }}</td>
+                        <td class="mono muted">{{ (camp.sent_at or camp.updated_at or camp.created_at or '')[:10] }}</td>
+                        <td class="col-actions">
+                            <div class="row-actions">
+                                <a href="{{ url_for('crm.edit_mailing', entry_id=camp.id) }}" class="btn-icon" title="Modifier">✎</a>
+                                {% if camp.status != 'sent' and smtp_configured %}
+                                <form method="POST" action="{{ url_for('crm.send_mailing', entry_id=camp.id) }}" class="inline-form" data-confirm="Envoyer cette campagne maintenant ?">
+                                    <button type="submit" class="btn-icon" title="Envoyer">➤</button>
+                                </form>
+                                {% endif %}
+                                {{ delete_form(url_for('crm.delete_mailing', entry_id=camp.id)) }}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        {{ empty_state('✉', 'Aucune campagne', 'Créez votre première campagne email manuelle ou via IA.', url_for('crm.new_mailing'), '+ Créer') }}
+        {% endif %}
+    </section>
+
+    <section class="card">
+        <div class="card-header"><h2>Activité récente</h2></div>
+        {% if analytics.recent_events %}
+        <ul class="mail-event-list">
+            {% for ev in analytics.recent_events %}
+            <li>
+                <span class="mail-event-type mail-event-{{ ev.type }}">{{ ev.type }}</span>
+                <div>
+                    <strong>{{ ev.email or '—' }}</strong>
+                    <span class="muted mono">{{ ev.at[11:16] if ev.at else '' }} · {{ ev.campaign_id }}</span>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="card-hint">Les événements d'envoi et d'ouverture apparaîtront ici.</p>
+        {% endif %}
+    </section>
+</div>

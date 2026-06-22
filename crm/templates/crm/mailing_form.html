@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block content %}
-{% set bc = [('Emailing', url_for('crm.mailing')), (is_new and 'Nouvelle campagne' or entry.name, none)] %}
+{% set bc = [('Email', url_for('crm.mailing')), (is_new and 'Nouvelle campagne' or entry.name, none)] %}
 {% call page_header(is_new and 'Nouvelle campagne email' or 'Modifier la campagne', 'Rédaction manuelle ou génération IA Mistral', breadcrumb=bc) %}
     <a href="{{ url_for('crm.mailing') }}" class="btn btn-ghost btn-sm">Annuler</a>
     <button type="submit" form="mail-form" name="action" value="save" class="btn btn-outline btn-sm">Enregistrer</button>

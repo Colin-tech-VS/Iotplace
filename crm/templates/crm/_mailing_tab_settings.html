@@ -1,16 +1,3 @@
-{% extends "crm_layout.html" %}
-{% from "crm_macros.html" import page_header %}
-{% block title %}SMTP / IMAP{% endblock %}
-
-{% block extra_head %}
-<link rel="stylesheet" href="{{ url_for('crm.static', filename='css/mailing.css') }}?v=1">
-{% endblock %}
-
-{% block content %}
-{% call page_header("Configuration email", "Connexion SMTP (envoi) et IMAP (boîte de réception)") %}
-    <a href="{{ url_for('crm.mailing') }}" class="btn btn-ghost btn-sm">← Campagnes</a>
-{% endcall %}
-
 <div class="dashboard-grid">
     <section class="card">
         <div class="card-header"><h2>SMTP — envoi</h2></div>
@@ -56,7 +43,7 @@ SMTP_FROM_EMAIL, SMTP_FROM_NAME, SMTP_USE_TLS</pre>
         </dl>
         <div class="mail-test-actions">
             <button type="button" class="btn btn-outline btn-sm" id="testImapBtn">Tester IMAP</button>
-            <a href="{{ url_for('crm.mailing_inbox') }}" class="btn btn-primary btn-sm">Ouvrir la boîte mail</a>
+            <a href="{{ url_for('crm.mailing', tab='inbox') }}" class="btn btn-primary btn-sm">Ouvrir la boîte mail</a>
             <p id="imapTestStatus" class="field-hint" hidden></p>
         </div>
         <pre class="mail-env-hint">Variables d'environnement :
@@ -67,7 +54,7 @@ IMAP_MAILBOX=INBOX, IMAP_USE_SSL=true</pre>
 
 <section class="card" style="margin-top:12px">
     <div class="card-header"><h2>Signature & réponse</h2></div>
-    <form method="POST" class="form-layout" style="max-width:640px">
+    <form method="POST" action="{{ url_for('crm.mailing_settings') }}" class="form-layout" style="max-width:640px">
         <div class="field">
             <label for="reply_to">Reply-To (optionnel)</label>
             <input type="email" id="reply_to" name="reply_to" value="{{ settings.reply_to or '' }}" placeholder="contact@iotplace.io">
@@ -79,8 +66,3 @@ IMAP_MAILBOX=INBOX, IMAP_USE_SSL=true</pre>
         <button type="submit" class="btn btn-primary btn-sm">Enregistrer</button>
     </form>
 </section>
-{% endblock %}
-
-{% block extra_js %}
-<script src="{{ url_for('crm.static', filename='js/mailing.js') }}?v=1"></script>
-{% endblock %}

@@ -83,20 +83,26 @@
         }
     });
 
-    syncInboxBtn?.addEventListener('click', async () => {
-        syncInboxBtn.disabled = true;
-        syncInboxBtn.textContent = 'Synchronisation…';
+    async function syncInbox(btn) {
+        if (!btn || btn.disabled) return;
+        btn.disabled = true;
+        const label = btn.textContent;
+        btn.textContent = 'Synchronisation…';
         try {
             const data = await postJson('/crm/api/mailing/sync-inbox', {});
             if (window.IotToast) IotToast.show(`${data.count} message(s) synchronisé(s).`, { type: 'success' });
-            window.location.reload();
+            window.location.href = '/crm/mailing?tab=inbox';
         } catch (err) {
             if (window.IotToast) IotToast.show(err.message, { type: 'error' });
             else alert(err.message);
-        } finally {
-            syncInboxBtn.disabled = false;
-            syncInboxBtn.textContent = 'Synchroniser';
+            btn.disabled = false;
+            btn.textContent = label;
         }
+    }
+
+    syncInboxBtn?.addEventListener('click', () => syncInbox(syncInboxBtn));
+    document.getElementById('syncInboxBtnTop')?.addEventListener('click', (e) => {
+        syncInbox(e.currentTarget);
     });
 
     mailPreviewBtn?.addEventListener('click', async () => {

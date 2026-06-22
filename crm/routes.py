@@ -337,55 +337,52 @@ def delete_social(entry_id):
 
 # ── Mailing (SMTP / IMAP) ──
 
-@crm_bp.route("/mailing")
-def mailing():
+_MAILING_TABS = frozenset({"campaigns", "inbox", "settings"})
+
+
+def _mailing_active_tab():
+    tab = (request.args.get("tab") or "campaigns").strip().lower()
+    return tab if tab in _MAILING_TABS else "campaigns"
+
+
+def _mailing_hub_context():
     from crm import email_service
 
-    analytics = store.get_mail_analytics()
-    return render_template(
-        "crm/mailing.html",
-        campaigns=store.get_mail_campaigns(),
-        analytics=analytics,
-        smtp_configured=email_service.is_smtp_configured(),
-        imap_configured=email_service.is_imap_configured(),
-        smtp_config=email_service.get_smtp_config(),
-        imap_config=email_service.get_imap_config(),
-    )
+    settings = store.get_mail_settings()
+    return {
+        "active_tab": _mailing_active_tab(),
+        "campaigns": store.get_mail_campaigns(),
+        "analytics": store.get_mail_analytics(),
+        "messages": store.get_mail_inbox_cache(),
+        "last_sync": settings.get("last_inbox_sync", ""),
+        "settings": settings,
+        "smtp_configured": email_service.is_smtp_configured(),
+        "imap_configured": email_service.is_imap_configured(),
+        "smtp_config": email_service.get_smtp_config(),
+        "imap_config": email_service.get_imap_config(),
+    }
+
+
+@crm_bp.route("/mailing")
+def mailing():
+    return render_template("crm/mailing.html", **_mailing_hub_context())
 
 
 @crm_bp.route("/mailing/parametres", methods=["GET", "POST"])
 def mailing_settings():
-    from crm import email_service
-
-    settings = store.get_mail_settings()
-    if request.method == "POST":
-        store.update_mail_settings({
-            "signature": request.form.get("signature", "").strip(),
-            "reply_to": request.form.get("reply_to", "").strip(),
-        })
-        flash("Paramètres email enregistrés.", "success")
-        return redirect(url_for("crm.mailing_settings"))
-    return render_template(
-        "crm/mailing_settings.html",
-        settings=settings,
-        smtp_configured=email_service.is_smtp_configured(),
-        imap_configured=email_service.is_imap_configured(),
-        smtp_config=email_service.get_smtp_config(),
-        imap_config=email_service.get_imap_config(),
-    )
+    if request.method == "GET":
+        return redirect(url_for("crm.mailing", tab="settings"))
+    store.update_mail_settings({
+        "signature": request.form.get("signature", "").strip(),
+        "reply_to": request.form.get("reply_to", "").strip(),
+    })
+    flash("Paramètres email enregistrés.", "success")
+    return redirect(url_for("crm.mailing", tab="settings"))
 
 
 @crm_bp.route("/mailing/boite")
 def mailing_inbox():
-    from crm import email_service
-
-    settings = store.get_mail_settings()
-    return render_template(
-        "crm/mailing_inbox.html",
-        messages=store.get_mail_inbox_cache(),
-        last_sync=settings.get("last_inbox_sync", ""),
-        imap_configured=email_service.is_imap_configured(),
-    )
+    return redirect(url_for("crm.mailing", tab="inbox"))
 
 
 @crm_bp.route("/mailing/nouveau", methods=["GET", "POST"])
