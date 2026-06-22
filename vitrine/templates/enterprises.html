@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% from "_seo_macros.html" import faq_section, breadcrumbs_nav %}
 {% from "_directory_toolbar.html" import directory_toolbar %}
+{% from "_profile_logo.html" import profile_logo %}
 
 {% block seo_title %}{{ seo.title }}{% endblock %}
 {% block seo_description %}{{ seo.description }}{% endblock %}
@@ -31,7 +32,7 @@
             {% for ent in enterprises %}
             <a href="{{ url_for('vitrine.enterprise_detail', enterprise_id=ent.id) }}" class="directory-card card-clickable reveal" data-directory-item data-search-text="{{ ent.search_text }}">
                 <div class="directory-card-head">
-                    <div class="directory-card-logo">{{ ent.logo_initials or ent.name[:2]|upper }}</div>
+                    <div class="profile-logo-wrap">{{ profile_logo(ent, 'md') }}</div>
                     <div>
                         <h3>{{ ent.name }}</h3>
                         {% if ent.sector %}<span class="meta">{{ ent.sector }}</span>{% endif %}

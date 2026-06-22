@@ -1,0 +1,59 @@
+{% macro profile_verification(profile) %}
+<section class="cdash-form-section profile-verify-section" id="profileVerification"
+         data-verify-url="{{ url_for('compte.verify_profile') }}">
+    <h3>{{ t('compte.profile.verify_title') }}</h3>
+    <p class="muted">{{ t('compte.profile.verify_sub') }}</p>
+
+    <div class="form-row">
+        <div class="form-group">
+            <label for="siren">{{ t('compte.profile.siren') }}</label>
+            <input type="text" id="siren" name="siren" inputmode="numeric" maxlength="11"
+                   placeholder="123 456 789" value="{{ profile.siren or '' }}">
+        </div>
+        <div class="form-group">
+            <label for="siret">{{ t('compte.profile.siret') }}</label>
+            <input type="text" id="siret" name="siret" inputmode="numeric" maxlength="17"
+                   placeholder="123 456 789 00012" value="{{ profile.siret or '' }}">
+        </div>
+        <div class="form-group">
+            <label for="legal_name">{{ t('compte.profile.legal_name') }}</label>
+            <input type="text" id="legal_name" name="legal_name" value="{{ profile.legal_name or profile.name or '' }}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="vat_number">{{ t('compte.profile.vat_number') }}</label>
+        <input type="text" id="vat_number" name="vat_number" placeholder="FR12 345678901" value="{{ profile.vat_number or '' }}">
+    </div>
+
+    <div class="profile-verify-status profile-verify-{{ profile.verification_status or 'none' }}" id="profileVerifyStatus">
+        {% if profile.verification_status == 'verified' %}
+        <span class="cdash-status cdash-status-success">✓ {{ t('compte.profile.verified') }}</span>
+        {% if profile.verification_checked_at %}<small>{{ t('compte.profile.verified_at', date=profile.verification_checked_at[:10]) }}</small>{% endif %}
+        {% elif profile.verification_status == 'failed' %}
+        <span class="cdash-status cdash-status-danger">{{ t('compte.profile.verify_failed') }}</span>
+        {% else %}
+        <span class="cdash-status cdash-status-muted">{{ t('compte.profile.not_verified') }}</span>
+        {% endif %}
+    </div>
+
+    {% if profile.verification_message %}
+    <p class="profile-verify-message" id="profileVerifyMessage">{{ profile.verification_message }}</p>
+    {% else %}
+    <p class="profile-verify-message" id="profileVerifyMessage" hidden></p>
+    {% endif %}
+    {% if profile.verification_ai_summary %}
+    <p class="profile-verify-ai muted" id="profileVerifyAi">{{ profile.verification_ai_summary }}</p>
+    {% else %}
+    <p class="profile-verify-ai muted" id="profileVerifyAi" hidden></p>
+    {% endif %}
+    {% if profile.verification_details and profile.verification_details.official_name %}
+    <dl class="profile-verify-official">
+        <dt>{{ t('compte.profile.official_name') }}</dt><dd>{{ profile.verification_details.official_name }}</dd>
+        {% if profile.verification_details.address %}<dt>{{ t('compte.profile.official_address') }}</dt><dd>{{ profile.verification_details.address }}</dd>{% endif %}
+        {% if profile.verification_details.naf_code %}<dt>NAF</dt><dd>{{ profile.verification_details.naf_code }}</dd>{% endif %}
+    </dl>
+    {% endif %}
+
+    <button type="button" class="btn btn-primary btn-sm" id="profileVerifyBtn">{{ t('compte.profile.verify_btn') }}</button>
+</section>
+{% endmacro %}

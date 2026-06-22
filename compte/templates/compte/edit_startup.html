@@ -1,11 +1,17 @@
 {% extends "compte_layout.html" %}
 {% from "compte/_macros.html" import tag_input %}
+{% from "compte/_profile_logo_upload.html" import profile_logo_upload %}
+{% from "compte/_profile_verification.html" import profile_verification %}
 {% set d = 'compte.dashboard' %}
 {% set active_page = 'profile' %}
 
 {% block title %}{{ t('compte.edit_profile_st_title') }} — {{ profile.name }}{% endblock %}
 {% block compte_role %}startup{% endblock %}
 {% block space_label %}{{ t(d ~ '.startup.space') }}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/profile-form.css') }}?v=1">
+{% endblock %}
 
 {% block sidebar_nav %}
 {% include "compte/_sidebar_startup.html" %}
@@ -21,13 +27,19 @@
         </div>
     </div>
     <div class="cdash-topbar-actions">
+        <a href="{{ url_for('vitrine.startup_detail', startup_id=profile.id) }}" class="btn btn-ghost btn-sm" target="_blank" rel="noopener">{{ t('compte.profile.view_public') }}</a>
         <a href="{{ url_for('compte.startup_dashboard') }}" class="btn btn-ghost btn-sm">{{ t(d ~ '.back_dashboard') }}</a>
     </div>
 </header>
 {% endblock %}
 
 {% block content %}
-<form class="cdash-form reveal" method="POST">
+<form class="cdash-form reveal" method="POST" id="profileForm">
+    <fieldset class="cdash-form-section">
+        <legend>{{ t('compte.profile.logo_section') }}</legend>
+        {{ profile_logo_upload(profile, 'startup') }}
+    </fieldset>
+
     <fieldset class="cdash-form-section">
         <legend>{{ t('compte.section_startup') }}</legend>
         <div class="form-row">
@@ -45,13 +57,29 @@
         <div class="form-row">
             <div class="form-group"><label for="team_size">{{ t('compte.team_size') }}</label><input type="number" id="team_size" name="team_size" min="1" value="{{ profile.team_size or '' }}"></div>
             <div class="form-group"><label for="projects_done">{{ t('compte.projects_done') }}</label><input type="number" id="projects_done" name="projects_done" min="0" value="{{ profile.projects_done or 0 }}"></div>
+            <div class="form-group"><label for="founded_year">{{ t('compte.profile.founded_year') }}</label><input type="number" id="founded_year" name="founded_year" min="1990" max="2030" value="{{ profile.founded_year or '' }}"></div>
+        </div>
+        <div class="form-row">
+            <div class="form-group"><label for="availability">{{ t('compte.availability') }}</label><input type="text" id="availability" name="availability" value="{{ profile.availability or '' }}" placeholder="{{ t('compte.profile.availability_ph') }}"></div>
+            <div class="form-group"><label for="rate_range">{{ t('compte.rate_range') }}</label><input type="text" id="rate_range" name="rate_range" value="{{ profile.rate_range or '' }}" placeholder="{{ t('compte.profile.rate_ph') }}"></div>
             <div class="form-group"><label for="phone">{{ t('compte.phone') }}</label><input type="tel" id="phone" name="phone" value="{{ profile.phone or '' }}"></div>
         </div>
         <div class="form-row">
-            <div class="form-group"><label for="availability">{{ t('compte.availability') }}</label><input type="text" id="availability" name="availability" value="{{ profile.availability or '' }}"></div>
-            <div class="form-group"><label for="rate_range">{{ t('compte.rate_range') }}</label><input type="text" id="rate_range" name="rate_range" value="{{ profile.rate_range or '' }}"></div>
+            <div class="form-group"><label for="website">{{ t('compte.website') }}</label><input type="url" id="website" name="website" value="{{ profile.website or '' }}"></div>
+            <div class="form-group"><label for="linkedin_url">{{ t('compte.profile.linkedin') }}</label><input type="url" id="linkedin_url" name="linkedin_url" value="{{ profile.linkedin_url or '' }}"></div>
+            <div class="form-group"><label for="github_url">{{ t('compte.profile.github') }}</label><input type="url" id="github_url" name="github_url" value="{{ profile.github_url or '' }}"></div>
         </div>
         <div class="form-group"><label for="description">{{ t('compte.description_st') }}</label><textarea id="description" name="description" rows="4">{{ profile.description or '' }}</textarea></div>
+    </fieldset>
+
+    {{ profile_verification(profile) }}
+
+    <fieldset class="cdash-form-section">
+        <legend>{{ t('compte.profile.iot_section_st') }}</legend>
+        {{ tag_input('tech_stack', 'tech_stack', profile.tech_stack|join(', ') if profile.tech_stack else (profile.skills|join(', ') if profile.skills else ''), t('compte.profile.tech_stack'), t('compte.profile.tech_stack_ph'), t('compte.tag_hint')) }}
+        {{ tag_input('hardware_platforms', 'hardware_platforms', profile.hardware_platforms|join(', ') if profile.hardware_platforms else '', t('compte.profile.hardware'), t('compte.profile.hardware_ph'), t('compte.tag_hint')) }}
+        {{ tag_input('cloud_platforms', 'cloud_platforms', profile.cloud_platforms|join(', ') if profile.cloud_platforms else '', t('compte.profile.cloud'), t('compte.profile.cloud_ph'), t('compte.tag_hint')) }}
+        {{ tag_input('certifications', 'certifications', profile.certifications|join(', ') if profile.certifications else '', t('compte.profile.certifications'), t('compte.profile.certifications_ph'), t('compte.tag_hint')) }}
     </fieldset>
 
     <fieldset class="cdash-form-section">
@@ -71,7 +99,8 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ url_for('vitrine.static', filename='js/compte-dashboard.js') }}?v=2"></script>
+<script src="{{ url_for('vitrine.static', filename='js/compte-dashboard.js') }}?v=4"></script>
 <script src="{{ url_for('vitrine.static', filename='js/tag-input.js') }}"></script>
 <script src="{{ url_for('vitrine.static', filename='js/sector-select.js') }}?v=2"></script>
+<script src="{{ url_for('vitrine.static', filename='js/profile-upload.js') }}?v=1"></script>
 {% endblock %}

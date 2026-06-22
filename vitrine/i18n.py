@@ -184,6 +184,16 @@ def compte_js_i18n() -> dict:
             "warning": t("compte.dashboard.toast.warning"),
             "error": t("compte.dashboard.toast.error"),
         },
+        "profile": {
+            "logo_uploading": t("compte.profile.logo_uploading"),
+            "logo_ok": t("compte.profile.logo_ok"),
+            "logo_removed": t("compte.profile.logo_removed"),
+            "logo_remove": t("compte.profile.logo_remove"),
+            "verify_btn": t("compte.profile.verify_btn"),
+            "verify_running": t("compte.profile.verify_running"),
+            "verified": t("compte.profile.verified"),
+            "verify_failed": t("compte.profile.verify_failed"),
+        },
         "messenger": {
             "loading": t("compte.dashboard.messenger.loading"),
             "no_threads": t("compte.dashboard.messenger.no_threads"),

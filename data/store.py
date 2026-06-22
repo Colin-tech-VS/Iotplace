@@ -592,6 +592,7 @@ def enrich_enterprise_directory_item(enterprise: dict) -> dict:
         "projects_count": len(projects),
         "open_projects_count": len(open_projects),
         "search_text": search_blob.lower(),
+        "verified": bool(enterprise.get("verified")),
     }
 
 
@@ -606,7 +607,7 @@ def enrich_startup_directory_item(startup: dict) -> dict:
         startup.get("city", ""),
         " ".join(skills),
     ]).strip()
-    return {**startup, "search_text": search_blob.lower()}
+    return {**startup, "search_text": search_blob.lower(), "verified": bool(startup.get("verified"))}
 
 
 def enrich_project_directory_item(project: dict) -> dict:

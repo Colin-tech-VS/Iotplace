@@ -1,0 +1,24 @@
+{% macro profile_logo_upload(profile, role) %}
+<div class="profile-logo-upload" id="profileLogoUpload"
+     data-upload-url="{{ url_for('compte.upload_profile_logo') }}"
+     data-delete-url="{{ url_for('compte.delete_profile_logo') }}"
+     data-role="{{ role }}">
+    <div class="profile-logo-preview" id="profileLogoPreview">
+        {% if profile.logo_url %}
+        <img src="{{ profile.logo_url }}" alt="" id="profileLogoImg">
+        {% else %}
+        <span class="profile-logo-fallback lg" id="profileLogoFallback">{{ profile.logo_initials or profile.name[:2]|upper }}</span>
+        {% endif %}
+    </div>
+    <div class="profile-logo-drop" id="profileLogoDrop" tabindex="0" role="button" aria-label="{{ t('compte.profile.logo_drop') }}">
+        <p class="profile-logo-drop-title">{{ t('compte.profile.logo_drop') }}</p>
+        <p class="profile-logo-drop-hint">{{ t('compte.profile.logo_hint') }}</p>
+        <input type="file" id="profileLogoInput" accept="image/png,image/jpeg,image/webp" hidden>
+        <button type="button" class="btn btn-outline btn-sm" id="profileLogoBrowse">{{ t('compte.profile.logo_browse') }}</button>
+        {% if profile.logo_url %}
+        <button type="button" class="btn btn-ghost btn-sm" id="profileLogoRemove">{{ t('compte.profile.logo_remove') }}</button>
+        {% endif %}
+    </div>
+    <p class="profile-logo-status muted" id="profileLogoStatus" hidden></p>
+</div>
+{% endmacro %}

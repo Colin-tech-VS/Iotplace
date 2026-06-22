@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% from "_seo_macros.html" import faq_section, breadcrumbs_nav %}
 {% from "_directory_toolbar.html" import directory_toolbar %}
+{% from "_profile_logo.html" import profile_logo %}
 
 {% block seo_title %}{{ seo.title }}{% endblock %}
 {% block seo_description %}{{ seo.description }}{% endblock %}
@@ -47,8 +48,9 @@
             {% for startup in startups %}
             <a href="{{ url_for('vitrine.startup_detail', startup_id=startup.id) }}" class="directory-card card-clickable reveal" data-directory-item data-search-text="{{ startup.search_text }}">
                 <div class="directory-card-head">
-                    {% if startup.flag %}<span class="flag">{{ startup.flag }}</span>{% endif %}
+                    <div class="profile-logo-wrap">{{ profile_logo(startup, 'md') }}</div>
                     <div>
+                        {% if startup.flag and not startup.logo_url %}<span class="flag">{{ startup.flag }}</span>{% endif %}
                         <h3>{{ startup.name }}</h3>
                         <span class="meta">{{ startup.city }}{% if startup.city and startup.country %}, {% endif %}{{ startup.country }}</span>
                     </div>

@@ -1,0 +1,12 @@
+{% macro profile_logo(entity, size='md', class_name='') %}
+<div class="profile-logo-wrap {{ class_name }}">
+{% if entity.logo_url %}
+<img src="{{ entity.logo_url }}" alt="" class="profile-logo profile-logo-{{ size }}" loading="lazy" width="64" height="64">
+{% else %}
+<span class="profile-logo-fallback profile-logo-{{ size }}" aria-hidden="true">{{ entity.logo_initials or entity.name[:2]|upper }}</span>
+{% endif %}
+{% if entity.verified %}
+<span class="profile-verified-badge" title="{{ t('compte.profile.verified_badge') }}">✓</span>
+{% endif %}
+</div>
+{% endmacro %}

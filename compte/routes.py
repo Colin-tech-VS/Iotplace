@@ -444,21 +444,10 @@ def enterprise_edit_profile():
         return redirect(url_for("vitrine.index"))
 
     if request.method == "POST":
-        sector_fields = parse_sector_fields(request.form, t)
-        store.update_enterprise_profile(profile["id"], {
-            "name": request.form.get("company_name", "").strip(),
-            **sector_fields,
-            "country": request.form.get("country", "").strip(),
-            "city": request.form.get("city", "").strip(),
-            "company_size": request.form.get("company_size", "").strip(),
-            "contact_name": request.form.get("contact_name", "").strip(),
-            "contact_role": request.form.get("contact_role", "").strip(),
-            "phone": request.form.get("phone", "").strip(),
-            "website": request.form.get("website", "").strip(),
-            "description": request.form.get("description", "").strip(),
-            "besoin": request.form.get("besoin", "").strip(),
-            "needs": store.parse_list_field(request.form.get("needs")),
-        })
+        from compte.profile_helpers import enterprise_profile_fields, maybe_reset_verification
+
+        fields = maybe_reset_verification(profile, enterprise_profile_fields(request.form))
+        store.update_enterprise_profile(profile["id"], fields)
         flash(t("compte.flash_profile_updated"), "success")
         return redirect(url_for("compte.enterprise_edit_profile"))
 
@@ -651,24 +640,10 @@ def startup_edit_profile():
         return redirect(url_for("vitrine.index"))
 
     if request.method == "POST":
-        sector_fields = parse_sector_fields(request.form, t)
-        store.update_startup_profile(profile["id"], {
-            "name": request.form.get("startup_name", "").strip(),
-            **sector_fields,
-            "country": request.form.get("country", "").strip(),
-            "flag": request.form.get("flag", "").strip(),
-            "city": request.form.get("city", "").strip(),
-            "contact_name": request.form.get("contact_name", "").strip(),
-            "phone": request.form.get("phone", "").strip(),
-            "specialty": request.form.get("specialty", "").strip(),
-            "team_size": int(request.form.get("team_size") or 0),
-            "projects_done": int(request.form.get("projects_done") or 0),
-            "availability": request.form.get("availability", "").strip(),
-            "rate_range": request.form.get("rate_range", "").strip(),
-            "description": request.form.get("description", "").strip(),
-            "besoin": request.form.get("besoin", "").strip(),
-            "skills": store.parse_list_field(request.form.get("skills")),
-        })
+        from compte.profile_helpers import maybe_reset_verification, startup_profile_fields
+
+        fields = maybe_reset_verification(profile, startup_profile_fields(request.form))
+        store.update_startup_profile(profile["id"], fields)
         flash(t("compte.flash_profile_updated"), "success")
         return redirect(url_for("compte.startup_edit_profile"))
 

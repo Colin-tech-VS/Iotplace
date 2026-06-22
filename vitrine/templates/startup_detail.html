@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% from "_seo_macros.html" import breadcrumbs_nav %}
+{% from "_profile_logo.html" import profile_logo %}
 {% block seo_title %}{{ seo.title }}{% endblock %}
 {% block seo_canonical %}{{ seo_canonical }}{% endblock %}
 
@@ -9,9 +10,9 @@
     <div class="container reveal">
         <a href="{{ url_for('vitrine.startups') }}" class="back-link">{{ t('common.back') }}</a>
         <div class="detail-hero-header">
-            {% if startup.flag %}<span class="flag flag-lg">{{ startup.flag }}</span>{% endif %}
+            <div class="profile-logo-wrap">{{ profile_logo(startup, 'lg') }}</div>
             <div>
-                <h1>{{ startup.name }}</h1>
+                <h1>{{ startup.name }}{% if startup.verified %} <span class="verified-inline" title="{{ t('compte.profile.verified_badge') }}">✓ {{ t('compte.profile.verified') }}</span>{% endif %}</h1>
                 <p class="page-sub">
                     {% if startup.specialty %}{{ startup.specialty }} · {% endif %}
                     {{ startup.city }}{% if startup.city and startup.country %}, {% endif %}{{ startup.country }}

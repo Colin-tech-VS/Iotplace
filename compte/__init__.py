@@ -8,6 +8,7 @@ compte_bp = Blueprint(
 )
 
 from compte import routes  # noqa: E402, F401
+from compte import profile_routes  # noqa: E402, F401
 
 
 @compte_bp.context_processor
