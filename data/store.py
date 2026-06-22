@@ -9,15 +9,7 @@ from pathlib import Path
 # Legacy path — runtime storage via data.persistence (JSON or PostgreSQL)
 DATA_FILE = Path(__file__).parent / "content.json"
 
-PAGE_CATALOG = [
-    {"slug": "home", "name": "Home", "path": "/", "vitrine_endpoint": "vitrine.index"},
-    {"slug": "enterprises", "name": "Enterprises", "path": "/enterprises", "vitrine_endpoint": "vitrine.enterprises"},
-    {"slug": "startups", "name": "Startups", "path": "/startups", "vitrine_endpoint": "vitrine.startups"},
-    {"slug": "projects", "name": "Projects", "path": "/projects", "vitrine_endpoint": "vitrine.projects"},
-    {"slug": "about", "name": "About", "path": "/about", "vitrine_endpoint": "vitrine.about"},
-    {"slug": "contact", "name": "Contact", "path": "/contact", "vitrine_endpoint": "vitrine.contact"},
-    {"slug": "pricing", "name": "Pricing", "path": "/pricing", "vitrine_endpoint": "vitrine.pricing"},
-]
+from data.site_pages import STATIC_PAGE_CATALOG as PAGE_CATALOG, build_page_catalog, get_domain_seo_defaults, get_page_entry, parse_domain_page_slug
 
 DEFAULT_PAGE_CONTENT = {
     "home": {
@@ -1476,14 +1468,16 @@ def get_dashboard_data_for_startup(user, profile):
 
 
 def get_page_catalog():
-    return PAGE_CATALOG
+    return build_page_catalog()
 
 
 def get_page_meta(slug):
-    return next((p for p in PAGE_CATALOG if p["slug"] == slug), None)
+    return get_page_entry(slug)
 
 
 def get_page_content(slug, locale="en"):
+    if slug in ("domains",) or parse_domain_page_slug(slug):
+        return {"published": True}
     data = _load_raw()
     saved = data.get("pages", {}).get(slug, {})
     defaults = (DEFAULT_PAGE_CONTENT_FR if locale == "fr" else DEFAULT_PAGE_CONTENT).get(slug, {})
@@ -1495,7 +1489,19 @@ def get_page_content(slug, locale="en"):
 
 
 def get_all_pages():
-    return [{"slug": p["slug"], "name": p["name"], "path": p["path"], **get_page_content(p["slug"])} for p in PAGE_CATALOG]
+    rows = []
+    for page in build_page_catalog():
+        row = {
+            "slug": page["slug"],
+            "name": page["name"],
+            "path": page["path"],
+            "kind": page.get("kind", "cms"),
+            "group": page.get("group", "vitrine"),
+            "editable": page.get("editable", page.get("kind") == "cms"),
+            **get_page_content(page["slug"]),
+        }
+        rows.append(row)
+    return rows
 
 
 def update_page(slug, fields):
@@ -1551,6 +1557,9 @@ def get_seo_page(slug, locale="en"):
     else:
         defaults_map = DEFAULT_SEO_PAGES
     defaults = defaults_map.get(slug, {})
+    if slug == "domains" or parse_domain_page_slug(slug):
+        locale_defaults = get_domain_seo_defaults(slug, locale)
+        defaults = {**locale_defaults, **defaults}
     meta = get_page_meta(slug) or {}
     base = {
         "title": defaults.get("title") or meta.get("name", slug),
@@ -1751,14 +1760,17 @@ def build_json_ld(slug, canonical_url, site_url, faq=None, breadcrumbs=None, loc
 def get_sitemap_entries():
     site_url = get_site_url()
     entries = []
-    for page in PAGE_CATALOG:
+    for page in build_page_catalog():
         content = get_page_content(page["slug"])
         if not content.get("published", True):
             continue
+        if page.get("kind") not in ("cms", "locale", "domain"):
+            continue
+        priority = "1.0" if page["slug"] == "home" else "0.85" if page.get("group") == "domaines" else "0.8"
         entries.append({
             "loc": f"{site_url}{page['path']}",
             "changefreq": "weekly" if page["slug"] == "home" else "monthly",
-            "priority": "1.0" if page["slug"] == "home" else "0.8",
+            "priority": priority,
         })
     entries.append({
         "loc": f"{site_url}/inscription/entreprise",
@@ -1794,22 +1806,6 @@ def get_sitemap_entries():
             "changefreq": "weekly",
             "priority": "0.7",
         })
-    try:
-        from data.domain_pages import all_domain_slugs
-
-        for _domain_id, url_slug in all_domain_slugs():
-            entries.append({
-                "loc": f"{site_url}/domaines/{url_slug}",
-                "changefreq": "monthly",
-                "priority": "0.85",
-            })
-    except ImportError:
-        pass
-    entries.append({
-        "loc": f"{site_url}/domaines",
-        "changefreq": "monthly",
-        "priority": "0.9",
-    })
     return entries
 
 

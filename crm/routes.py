@@ -126,7 +126,13 @@ def dashboard():
 
 @crm_bp.route("/pages")
 def pages():
-    return render_template("crm/pages.html", pages=store.get_all_pages())
+    from data.site_pages import get_pages_by_group
+
+    return render_template(
+        "crm/pages.html",
+        pages=store.get_all_pages(),
+        page_groups=get_pages_by_group(),
+    )
 
 
 @crm_bp.route("/pages/<slug>", methods=["GET", "POST"])
@@ -134,6 +140,9 @@ def edit_page(slug):
     meta = store.get_page_meta(slug)
     if not meta:
         flash("Page introuvable.", "error")
+        return redirect(url_for("crm.pages"))
+    if not meta.get("editable", meta.get("kind") == "cms"):
+        flash("Cette page est gérée via les fichiers i18n (domaines) — utilisez le dépôt ou le SEO CRM.", "error")
         return redirect(url_for("crm.pages"))
 
     content = store.get_page_content(slug)
@@ -163,6 +172,8 @@ def api_page_generate(slug):
     meta = store.get_page_meta(slug)
     if not meta:
         return jsonify({"ok": False, "error": "Page not found."}), 404
+    if not meta.get("editable", meta.get("kind") == "cms"):
+        return jsonify({"ok": False, "error": "Page content is managed via locale files."}), 400
 
     payload = request.get_json(silent=True) or {}
     try:
