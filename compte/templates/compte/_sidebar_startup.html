@@ -7,9 +7,9 @@
     <span class="cdash-nav-icon" aria-hidden="true">◎</span>
     {{ t(d ~ '.overview') }}
 </a>
-<a href="{{ url_for('compte.startup_dashboard', section='missions') }}" class="cdash-nav-item{% if active_page == 'dashboard' and active_section == 'missions' %} active{% endif %}" data-cdash-section="missions">
+<a href="{{ url_for('compte.startup_dashboard', section='recommendations') }}" class="cdash-nav-item{% if active_page == 'dashboard' and active_section == 'recommendations' %} active{% endif %}" data-cdash-section="recommendations">
     <span class="cdash-nav-icon" aria-hidden="true">🎯</span>
-    {{ t(d ~ '.missions') }}
+    {{ t(d ~ '.recommendations') }}
     {% if stats is defined and stats.matching_open %}<span class="cdash-nav-badge">{{ stats.matching_open }}</span>{% endif %}
 </a>
 <a href="{{ url_for('compte.startup_dashboard', section='partnerships') }}" class="cdash-nav-item{% if active_page == 'dashboard' and active_section == 'partnerships' %} active{% endif %}" data-cdash-section="partnerships">

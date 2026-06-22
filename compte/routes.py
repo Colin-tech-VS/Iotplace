@@ -488,6 +488,8 @@ def startup_dashboard():
     if not profile:
         flash(t("compte.flash_profile_st_missing"), "error")
         return redirect(url_for("vitrine.index"))
+    if request.args.get("section") == "missions":
+        return redirect(url_for("compte.startup_dashboard", section="recommendations"))
     dash = store.get_dashboard_data_for_startup(user, profile)
     return render_template(
         "compte/dashboard_startup.html",

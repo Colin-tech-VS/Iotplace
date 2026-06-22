@@ -47,10 +47,10 @@
 
 <section class="cdash-panel{% if active_section == 'overview' %} active{% endif %}" id="cdash-panel-overview" data-section="overview">
     <div class="cdash-kpis">
-        <button type="button" class="cdash-kpi" data-cdash-section="missions">
+        <button type="button" class="cdash-kpi" data-cdash-section="recommendations">
             <strong>{{ stats.matching_open }}</strong>
-            <span>{{ t(ds ~ '.kpi_missions') }}</span>
-            <small>{{ t(ds ~ '.kpi_missions_sub', total=stats.matching) }}</small>
+            <span>{{ t(ds ~ '.kpi_recommendations') }}</span>
+            <small>{{ t(ds ~ '.kpi_recommendations_sub', total=stats.matching) }}</small>
         </button>
         <button type="button" class="cdash-kpi" data-cdash-section="applications">
             <strong>{{ stats.applications }}</strong>
@@ -73,7 +73,7 @@
         <div class="cdash-card">
             <div class="cdash-card-head">
                 <h2>{{ t(ds ~ '.recommended_title') }}</h2>
-                <a href="{{ url_for('compte.startup_dashboard', section='missions') }}" class="btn btn-ghost btn-sm">{{ t(d ~ '.see_all') }}</a>
+                <a href="{{ url_for('compte.startup_dashboard', section='recommendations') }}" class="btn btn-ghost btn-sm">{{ t(d ~ '.see_all') }}</a>
             </div>
             {% if open_matching[:5] %}
             <div class="cdash-pipeline" style="grid-template-columns:1fr">
@@ -117,11 +117,11 @@
     </div>
 </section>
 
-<section class="cdash-panel{% if active_section == 'missions' %} active{% endif %}" id="cdash-panel-missions" data-section="missions">
+<section class="cdash-panel{% if active_section == 'recommendations' %} active{% endif %}" id="cdash-panel-recommendations" data-section="recommendations">
     <div class="cdash-card">
         <div class="cdash-card-head">
-            <h2>{{ t(ds ~ '.missions_title') }}</h2>
-            <a href="{{ url_for('vitrine.projects') }}" class="btn btn-outline btn-sm">{{ t(ds ~ '.missions_catalog') }}</a>
+            <h2>{{ t(ds ~ '.recommendations_title') }}</h2>
+            <a href="{{ url_for('vitrine.projects') }}" class="btn btn-outline btn-sm">{{ t(ds ~ '.recommendations_catalog') }}</a>
         </div>
         {% if matching_projects %}
         <div class="cdash-table-wrap">
@@ -169,7 +169,7 @@
             </table>
         </div>
         {% else %}
-        {{ cdash_empty('🎯', t(ds ~ '.missions_empty_title'), t(ds ~ '.missions_empty_desc'), url_for('compte.startup_edit_profile'), t(ds ~ '.missions_empty_cta')) }}
+        {{ cdash_empty('🎯', t(ds ~ '.recommendations_empty_title'), t(ds ~ '.recommendations_empty_desc'), url_for('compte.startup_edit_profile'), t(ds ~ '.recommendations_empty_cta')) }}
         {% endif %}
     </div>
 </section>
@@ -272,6 +272,6 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ url_for('vitrine.static', filename='js/compte-dashboard.js') }}?v=1"></script>
+<script src="{{ url_for('vitrine.static', filename='js/compte-dashboard.js') }}?v=2"></script>
 <script src="{{ url_for('vitrine.static', filename='js/messaging.js') }}?v=3"></script>
 {% endblock %}

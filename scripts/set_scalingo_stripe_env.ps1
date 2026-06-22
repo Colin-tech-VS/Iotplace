@@ -1,4 +1,5 @@
-# Sync Stripe variables from .env to Scalingo (requires Scalingo CLI + login).
+# Sync all app variables from .env to Scalingo (requires Scalingo CLI + login).
+# Prefer: python scripts/push_scalingo_env.py  (uses SCALINGO_API_TOKEN from .env or CLI auth)
 # Usage: .\scripts\set_scalingo_stripe_env.ps1 [-App iotplace]
 
 param(
