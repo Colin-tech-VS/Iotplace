@@ -36,6 +36,10 @@
     "about": "À propos",
     "contact": "Contact",
     "sitemap": "Plan du site",
+    "privacy": "Confidentialité",
+    "legal": "Mentions légales",
+    "cookies": "Cookies",
+    "platform": "Plateforme",
     "copyright": "© 2026 Iotplace — Sous-traitance IoT B2B. Tous droits réservés.",
     "admin": "Administration"
   },
@@ -311,7 +315,27 @@
     "startup_card_text": "Accédez aux missions de sous-traitance des grandes entreprises.",
     "startup_card_btn": "Créer un compte startup",
     "flash_success": "Merci ! Votre message a bien été envoyé. Nous vous répondrons sous 48 heures.",
-    "flash_error_required": "Veuillez renseigner votre nom, email et message."
+    "flash_error_required": "Veuillez renseigner votre nom, email et message.",
+    "flash_error_privacy": "Veuillez accepter la politique de confidentialité pour envoyer votre message.",
+    "privacy_consent": "J'accepte que mes données soient traitées conformément à la <a href=\"/politique-de-confidentialite\">politique de confidentialité</a>."
+  },
+  "cookies": {
+    "banner_title": "Nous utilisons des cookies",
+    "banner_text": "Les cookies essentiels assurent le fonctionnement du site. Les cookies analytiques nous aident à améliorer Iotplace — uniquement avec votre accord.",
+    "learn_more": "En savoir plus",
+    "reject": "Refuser",
+    "customize": "Personnaliser",
+    "accept_all": "Tout accepter",
+    "modal_title": "Préférences cookies",
+    "modal_desc": "Choisissez les cookies que vous autorisez. Vous pouvez modifier vos choix à tout moment.",
+    "essential_title": "Cookies essentiels",
+    "essential_desc": "Session, langue et mémorisation de vos choix.",
+    "always_on": "Toujours actifs",
+    "analytics_title": "Cookies analytiques",
+    "analytics_desc": "Mesure d'audience interne et Google Analytics (si activé).",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "manage": "Gérer les cookies"
   },
   "detail": {
     "startup_profile": "Profil startup",

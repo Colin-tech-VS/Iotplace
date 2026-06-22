@@ -1,0 +1,47 @@
+<div id="cookie-banner" class="cookie-banner" hidden role="dialog" aria-labelledby="cookie-banner-title" aria-modal="true">
+    <div class="cookie-banner-inner">
+        <div class="cookie-banner-text">
+            <h2 id="cookie-banner-title">{{ t('cookies.banner_title') }}</h2>
+            <p>{{ t('cookies.banner_text') }} <a href="{{ url_for('vitrine.cookies') }}">{{ t('cookies.learn_more') }}</a></p>
+        </div>
+        <div class="cookie-banner-actions">
+            <button type="button" class="btn btn-sm btn-outline" id="cookie-reject">{{ t('cookies.reject') }}</button>
+            <button type="button" class="btn btn-sm btn-outline" id="cookie-customize">{{ t('cookies.customize') }}</button>
+            <button type="button" class="btn btn-sm btn-primary btn-glow" id="cookie-accept">{{ t('cookies.accept_all') }}</button>
+        </div>
+    </div>
+</div>
+
+<div id="cookie-modal" class="cookie-modal" hidden role="dialog" aria-labelledby="cookie-modal-title" aria-modal="true">
+    <div class="cookie-modal-backdrop" id="cookie-modal-backdrop"></div>
+    <div class="cookie-modal-panel">
+        <h2 id="cookie-modal-title">{{ t('cookies.modal_title') }}</h2>
+        <p class="cookie-modal-desc">{{ t('cookies.modal_desc') }}</p>
+
+        <div class="cookie-pref">
+            <div class="cookie-pref-info">
+                <strong>{{ t('cookies.essential_title') }}</strong>
+                <span>{{ t('cookies.essential_desc') }}</span>
+            </div>
+            <span class="cookie-pref-badge">{{ t('cookies.always_on') }}</span>
+        </div>
+
+        <div class="cookie-pref">
+            <div class="cookie-pref-info">
+                <strong>{{ t('cookies.analytics_title') }}</strong>
+                <span>{{ t('cookies.analytics_desc') }}</span>
+            </div>
+            <label class="toggle compact">
+                <input type="checkbox" id="cookie-analytics-toggle">
+                <span class="toggle-track"></span>
+            </label>
+        </div>
+
+        <div class="cookie-modal-actions">
+            <button type="button" class="btn btn-sm btn-outline" id="cookie-modal-cancel">{{ t('cookies.cancel') }}</button>
+            <button type="button" class="btn btn-sm btn-primary" id="cookie-save">{{ t('cookies.save') }}</button>
+        </div>
+    </div>
+</div>
+
+<button type="button" id="cookie-manage-btn" class="cookie-manage-btn" hidden>{{ t('cookies.manage') }}</button>

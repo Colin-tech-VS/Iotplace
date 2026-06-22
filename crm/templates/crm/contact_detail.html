@@ -7,23 +7,69 @@
     ('Contacts', url_for('crm.contacts')),
     (contact.name, none)
 ] %}
+{% set status = contact.status or 'new' %}
 {% call page_header(contact.name, 'Demande reçue via la vitrine', breadcrumb=bc) %}
-    <a href="mailto:{{ contact.email }}" class="btn btn-ghost btn-sm">Répondre</a>
+    <a href="mailto:{{ contact.email }}" class="btn btn-ghost btn-sm">Ouvrir mailto</a>
     {{ delete_form(url_for('crm.delete_contact', entry_id=contact.id), 'Supprimer le contact') }}
 {% endcall %}
 
 <div class="detail-grid">
     <section class="card detail-main">
         <div class="detail-message">
-            <h2>Message</h2>
+            <h2>Message initial</h2>
             <div class="message-body">{{ contact.message }}</div>
         </div>
+
+        {% if contact.replies %}
+        <div class="detail-message" style="margin-top:1.5rem">
+            <h2>Réponses ({{ contact.replies|length }})</h2>
+            {% for reply in contact.replies %}
+            <div class="reply-thread-item">
+                <div class="reply-meta">
+                    <span class="mono muted">{{ reply.created_at[:19].replace('T', ' ') if reply.created_at else '—' }}</span>
+                    {% if reply.email_sent %}
+                    <span class="badge badge-success">Email envoyé</span>
+                    {% else %}
+                    <span class="badge badge-muted">Enregistré CRM</span>
+                    {% endif %}
+                </div>
+                <div class="message-body">{{ reply.body }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="POST" action="{{ url_for('crm.contact_reply', entry_id=contact.id) }}" class="reply-form" style="margin-top:1.5rem">
+            <h2>Répondre</h2>
+            {% if smtp_configured %}
+            <p class="muted" style="font-size:0.88rem;margin-bottom:0.75rem">La réponse sera envoyée par email à <strong>{{ contact.email }}</strong> via SMTP.</p>
+            {% else %}
+            <p class="muted" style="font-size:0.88rem;margin-bottom:0.75rem">SMTP non configuré — la réponse sera enregistrée ici. Configurez SMTP dans <a href="{{ url_for('crm.mailing', tab='settings') }}">Mailing → Paramètres</a>.</p>
+            {% endif %}
+            <div class="field">
+                <textarea name="reply_body" rows="6" required placeholder="Votre réponse…"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm">{% if smtp_configured %}Envoyer la réponse{% else %}Enregistrer la réponse{% endif %}</button>
+        </form>
     </section>
 
     <aside class="detail-side">
         <section class="card detail-panel">
             <h3>Informations</h3>
             <dl class="detail-list">
+                <div>
+                    <dt>Statut</dt>
+                    <dd>
+                        <form method="POST" action="{{ url_for('crm.contact_status', entry_id=contact.id) }}" class="inline-form">
+                            <select name="status" onchange="this.form.submit()">
+                                <option value="new" {% if status == 'new' %}selected{% endif %}>Nouveau</option>
+                                <option value="read" {% if status == 'read' %}selected{% endif %}>Lu</option>
+                                <option value="replied" {% if status == 'replied' %}selected{% endif %}>Répondu</option>
+                                <option value="archived" {% if status == 'archived' %}selected{% endif %}>Archivé</option>
+                            </select>
+                        </form>
+                    </dd>
+                </div>
                 <div>
                     <dt>Type</dt>
                     <dd>{{ type_badge(contact.type) }}</dd>
@@ -40,6 +86,12 @@
                     <dt>Reçu le</dt>
                     <dd class="mono">{{ contact.created_at[:19].replace('T', ' ') if contact.created_at else '—' }}</dd>
                 </div>
+                {% if contact.replied_at %}
+                <div>
+                    <dt>Dernière réponse</dt>
+                    <dd class="mono">{{ contact.replied_at[:19].replace('T', ' ') }}</dd>
+                </div>
+                {% endif %}
                 <div>
                     <dt>ID</dt>
                     <dd class="mono muted">#{{ contact.id }}</dd>

@@ -12,10 +12,16 @@
         {% if selected_type %}<input type="hidden" name="type" value="{{ selected_type }}">{% endif %}
     </form>
     <div class="filter-chips">
-        <a href="{{ url_for('crm.contacts', q=search) }}" class="chip {% if not selected_type %}active{% endif %}">Tous</a>
-        <a href="{{ url_for('crm.contacts', type='enterprise', q=search) }}" class="chip {% if selected_type == 'enterprise' %}active{% endif %}">Entreprises</a>
-        <a href="{{ url_for('crm.contacts', type='startup', q=search) }}" class="chip {% if selected_type == 'startup' %}active{% endif %}">Startups</a>
-        <a href="{{ url_for('crm.contacts', type='other', q=search) }}" class="chip {% if selected_type == 'other' %}active{% endif %}">Autres</a>
+        <a href="{{ url_for('crm.contacts', q=search, type=selected_type) }}" class="chip {% if not selected_status %}active{% endif %}">Tous statuts</a>
+        <a href="{{ url_for('crm.contacts', status='new', q=search, type=selected_type) }}" class="chip {% if selected_status == 'new' %}active{% endif %}">Nouveaux</a>
+        <a href="{{ url_for('crm.contacts', status='replied', q=search, type=selected_type) }}" class="chip {% if selected_status == 'replied' %}active{% endif %}">Répondus</a>
+        <a href="{{ url_for('crm.contacts', status='archived', q=search, type=selected_type) }}" class="chip {% if selected_status == 'archived' %}active{% endif %}">Archivés</a>
+    </div>
+    <div class="filter-chips">
+        <a href="{{ url_for('crm.contacts', q=search, status=selected_status) }}" class="chip {% if not selected_type %}active{% endif %}">Tous</a>
+        <a href="{{ url_for('crm.contacts', type='enterprise', q=search, status=selected_status) }}" class="chip {% if selected_type == 'enterprise' %}active{% endif %}">Entreprises</a>
+        <a href="{{ url_for('crm.contacts', type='startup', q=search, status=selected_status) }}" class="chip {% if selected_type == 'startup' %}active{% endif %}">Startups</a>
+        <a href="{{ url_for('crm.contacts', type='other', q=search, status=selected_status) }}" class="chip {% if selected_type == 'other' %}active{% endif %}">Autres</a>
     </div>
 </div>
 
@@ -26,6 +32,7 @@
             <thead>
                 <tr>
                     <th>Contact</th>
+                    <th>Statut</th>
                     <th>Type</th>
                     <th>Pays</th>
                     <th>Message</th>
@@ -44,6 +51,13 @@
                                 <span class="cell-sub">{{ c.email }}</span>
                             </div>
                         </div>
+                    </td>
+                    <td>
+                        {% set st = c.status or 'new' %}
+                        {% if st == 'new' %}<span class="badge badge-warning">Nouveau</span>
+                        {% elif st == 'replied' %}<span class="badge badge-success">Répondu</span>
+                        {% elif st == 'archived' %}<span class="badge badge-muted">Archivé</span>
+                        {% else %}<span class="badge">Lu</span>{% endif %}
                     </td>
                     <td>{{ type_badge(c.type) }}</td>
                     <td class="muted">{{ c.country or '—' }}</td>

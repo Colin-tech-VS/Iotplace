@@ -22,6 +22,9 @@ PAGE_FIELDS = {
     ],
     "about": ["title", "subtitle", "mission_1", "mission_2"],
     "contact": ["title", "subtitle", "email"],
+    "privacy": ["title", "subtitle", "body_html"],
+    "legal": ["title", "subtitle", "body_html"],
+    "cookies": ["title", "subtitle", "body_html"],
 }
 
 DEFAULT_FIELDS = ["title", "subtitle"]

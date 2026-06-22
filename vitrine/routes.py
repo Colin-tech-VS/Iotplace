@@ -1,5 +1,6 @@
 from flask import render_template, request, redirect, url_for, flash, session, jsonify, Response, abort
 
+import json
 import uuid
 
 import auth
@@ -15,7 +16,20 @@ ENDPOINT_PAGE_SLUG = {
     "vitrine.about": "about",
     "vitrine.contact": "contact",
     "vitrine.pricing": "pricing",
+    "vitrine.privacy": "privacy",
+    "vitrine.legal": "legal",
+    "vitrine.cookies": "cookies",
 }
+
+
+def _has_analytics_consent():
+    raw = request.cookies.get("iot_consent", "")
+    if not raw:
+        return False
+    try:
+        return bool(json.loads(raw).get("analytics"))
+    except (json.JSONDecodeError, TypeError):
+        return False
 
 
 @vitrine_bp.route("/projets")
@@ -26,6 +40,16 @@ def legacy_projects():
 @vitrine_bp.route("/a-propos")
 def legacy_about():
     return redirect(url_for("vitrine.about", **request.args), code=301)
+
+
+@vitrine_bp.route("/politique-de-confidentialite")
+def legacy_privacy():
+    return redirect(url_for("vitrine.privacy", **request.args), code=301)
+
+
+@vitrine_bp.route("/mentions-legales")
+def legacy_legal():
+    return redirect(url_for("vitrine.legal", **request.args), code=301)
 
 
 def _resolve_page_slug():
@@ -55,6 +79,8 @@ def track_visit():
         return
     if not _analytics_enabled():
         return
+    if not _has_analytics_consent():
+        return
     slug = _resolve_page_slug()
     if not slug:
         return
@@ -71,7 +97,8 @@ def track_visit():
 def inject_vitrine_context():
     slug = ENDPOINT_PAGE_SLUG.get(request.endpoint, "home")
     sid = session.get("analytics_sid", "")
-    enabled = _analytics_enabled()
+    analytics_consent = _has_analytics_consent()
+    enabled = _analytics_enabled() and analytics_consent
     site_url = store.get_site_url()
     seo_overrides = {}
     breadcrumbs_extra = None
@@ -104,6 +131,7 @@ def inject_vitrine_context():
         "analytics_page_slug": slug if enabled else "",
         "analytics_session": sid if enabled else "",
         "analytics_enabled": enabled,
+        "analytics_consent": analytics_consent,
         "current_user": user,
         "unread_count": store.get_unread_count(user["id"]) if user else 0,
     }
@@ -111,6 +139,8 @@ def inject_vitrine_context():
 
 @vitrine_bp.route("/api/analytics/ping", methods=["POST"])
 def analytics_ping():
+    if not _has_analytics_consent():
+        return jsonify({"ok": True, "skipped": True, "reason": "no_consent"})
     payload = request.get_json(silent=True) or {}
     path = payload.get("path") or ""
     if store._is_excluded_analytics(path=path):
@@ -366,11 +396,22 @@ def contact():
     if not _check_published("contact"):
         return render_template("unpublished.html"), 404
     if request.method == "POST":
+        if request.form.get("website"):
+            flash(t("contact.flash_success"), "success")
+            return redirect(url_for("vitrine.contact"))
         name = request.form.get("name", "").strip()
         email = request.form.get("email", "").strip()
         message = request.form.get("message", "").strip()
+        privacy_ok = request.form.get("privacy_consent")
         if not name or not email or not message:
             flash(t("contact.flash_error_required"), "error")
+            return render_template(
+                "contact.html",
+                page=store.get_page_content("contact", get_locale()),
+                form=dict(request.form),
+            )
+        if not privacy_ok:
+            flash(t("contact.flash_error_privacy"), "error")
             return render_template(
                 "contact.html",
                 page=store.get_page_content("contact", get_locale()),
@@ -390,6 +431,32 @@ def contact():
         page=store.get_page_content("contact", get_locale()),
         form={},
     )
+
+
+def _render_legal_page(slug):
+    if not _check_published(slug):
+        return render_template("unpublished.html"), 404
+    locale = get_locale()
+    return render_template(
+        "legal_page.html",
+        page=store.get_page_content(slug, locale),
+        page_slug=slug,
+    )
+
+
+@vitrine_bp.route("/privacy")
+def privacy():
+    return _render_legal_page("privacy")
+
+
+@vitrine_bp.route("/legal")
+def legal():
+    return _render_legal_page("legal")
+
+
+@vitrine_bp.route("/cookies")
+def cookies():
+    return _render_legal_page("cookies")
 
 
 def _domain_breadcrumbs(domain_name: str, canonical: str, locale: str):

@@ -36,6 +36,10 @@
     "about": "About",
     "contact": "Contact",
     "sitemap": "Sitemap",
+    "privacy": "Privacy",
+    "legal": "Legal notice",
+    "cookies": "Cookies",
+    "platform": "Platform",
     "copyright": "© 2026 Iotplace — B2B IoT subcontracting. All rights reserved.",
     "admin": "Administration"
   },
@@ -311,7 +315,27 @@
     "startup_card_text": "Access subcontracting missions from large enterprises.",
     "startup_card_btn": "Create startup account",
     "flash_success": "Thank you! Your message has been sent. We will get back to you within 48 hours.",
-    "flash_error_required": "Please fill in your name, email and message."
+    "flash_error_required": "Please fill in your name, email and message.",
+    "flash_error_privacy": "Please accept the privacy policy to send your message.",
+    "privacy_consent": "I agree that my data will be processed in accordance with the <a href=\"/privacy\">privacy policy</a>."
+  },
+  "cookies": {
+    "banner_title": "We use cookies",
+    "banner_text": "Essential cookies keep the site working. Analytics cookies help us improve Iotplace — only with your consent.",
+    "learn_more": "Learn more",
+    "reject": "Reject",
+    "customize": "Customize",
+    "accept_all": "Accept all",
+    "modal_title": "Cookie preferences",
+    "modal_desc": "Choose which cookies you allow. You can change your choices anytime.",
+    "essential_title": "Essential cookies",
+    "essential_desc": "Session, language and storing your choices.",
+    "always_on": "Always on",
+    "analytics_title": "Analytics cookies",
+    "analytics_desc": "First-party audience metrics and Google Analytics (if enabled).",
+    "cancel": "Cancel",
+    "save": "Save",
+    "manage": "Manage cookies"
   },
   "detail": {
     "startup_profile": "Startup profile",

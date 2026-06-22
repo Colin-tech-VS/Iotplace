@@ -24,6 +24,9 @@ STATIC_PAGE_CATALOG = [
     {"slug": "pricing", "name": "Tarifs", "path": "/pricing", "vitrine_endpoint": "vitrine.pricing", "kind": "cms", "group": "vitrine", "sort": 50},
     {"slug": "about", "name": "À propos", "path": "/about", "vitrine_endpoint": "vitrine.about", "kind": "cms", "group": "vitrine", "sort": 60},
     {"slug": "contact", "name": "Contact", "path": "/contact", "vitrine_endpoint": "vitrine.contact", "kind": "cms", "group": "vitrine", "sort": 70},
+    {"slug": "privacy", "name": "Politique de confidentialité", "path": "/privacy", "vitrine_endpoint": "vitrine.privacy", "kind": "cms", "group": "vitrine", "sort": 80},
+    {"slug": "legal", "name": "Mentions légales", "path": "/legal", "vitrine_endpoint": "vitrine.legal", "kind": "cms", "group": "vitrine", "sort": 90},
+    {"slug": "cookies", "name": "Politique cookies", "path": "/cookies", "vitrine_endpoint": "vitrine.cookies", "kind": "cms", "group": "vitrine", "sort": 100},
 ]
 
 GROUP_LABELS = {

@@ -49,6 +49,18 @@ DEFAULT_PAGE_CONTENT = {
         "title": "Pricing & offers",
         "subtitle": "Free to join. Pay only on success — commission on signed IoT missions, optional Pro for high volume.",
     },
+    "privacy": {
+        "title": "Privacy policy",
+        "subtitle": "How Iotplace collects and protects your personal data.",
+    },
+    "legal": {
+        "title": "Legal notice",
+        "subtitle": "Publisher, hosting and terms of use for iotplace.io.",
+    },
+    "cookies": {
+        "title": "Cookie policy",
+        "subtitle": "Cookies used on Iotplace and how to manage your preferences.",
+    },
 }
 
 DEFAULT_PAGE_CONTENT_FR = {
@@ -86,6 +98,18 @@ DEFAULT_PAGE_CONTENT_FR = {
     "pricing": {
         "title": "Tarifs & offres",
         "subtitle": "Inscription gratuite. Payez uniquement au succès — commission sur les missions IoT signées, option Pro pour les gros volumes.",
+    },
+    "privacy": {
+        "title": "Politique de confidentialité",
+        "subtitle": "Comment Iotplace collecte et protège vos données personnelles.",
+    },
+    "legal": {
+        "title": "Mentions légales",
+        "subtitle": "Éditeur, hébergement et conditions d'utilisation du site iotplace.io.",
+    },
+    "cookies": {
+        "title": "Politique cookies",
+        "subtitle": "Cookies utilisés sur Iotplace et gestion de vos préférences.",
     },
 }
 
@@ -167,6 +191,21 @@ DEFAULT_SEO_PAGES = {
             "IoT marketplace pricing, subcontracting commission, B2B IoT fees, "
             "escrow IoT payment, enterprise Pro outsourcing"
         ),
+    },
+    "privacy": {
+        "title": "Privacy policy — Iotplace",
+        "description": "How Iotplace processes personal data: contact form, accounts, analytics and your GDPR rights.",
+        "keywords": "Iotplace privacy, GDPR, personal data, IoT marketplace",
+    },
+    "legal": {
+        "title": "Legal notice — Iotplace",
+        "description": "Legal publisher information, hosting and intellectual property for iotplace.io.",
+        "keywords": "Iotplace legal notice, SARL, RCS Nanterre, terms",
+    },
+    "cookies": {
+        "title": "Cookie policy — Iotplace",
+        "description": "Cookies and trackers used on Iotplace and how to manage your consent preferences.",
+        "keywords": "Iotplace cookies, consent, analytics, GDPR",
     },
 }
 
@@ -284,6 +323,9 @@ BREADCRUMB_LABELS = {
     "about": "About",
     "contact": "Contact",
     "pricing": "Pricing",
+    "privacy": "Privacy",
+    "legal": "Legal notice",
+    "cookies": "Cookies",
 }
 
 BREADCRUMB_LABELS_FR = {
@@ -294,6 +336,9 @@ BREADCRUMB_LABELS_FR = {
     "about": "À propos",
     "contact": "Contact",
     "pricing": "Tarifs",
+    "privacy": "Confidentialité",
+    "legal": "Mentions légales",
+    "cookies": "Cookies",
 }
 
 PAGE_FAQ_FR = {
@@ -823,11 +868,47 @@ def add_contact(fields):
     entry = {
         "id": _new_id(),
         "created_at": datetime.now(timezone.utc).isoformat(),
+        "status": "new",
+        "replies": [],
         **fields,
     }
     data["contacts"].append(entry)
     _save_raw(data)
     return entry
+
+
+def get_contact(entry_id):
+    return next((c for c in get_contacts() if c["id"] == entry_id), None)
+
+
+def update_contact(entry_id, fields):
+    data = _load_raw()
+    for i, contact in enumerate(data["contacts"]):
+        if contact["id"] == entry_id:
+            data["contacts"][i] = {**contact, **fields}
+            _save_raw(data)
+            return data["contacts"][i]
+    return None
+
+
+def add_contact_reply(entry_id, body, *, email_sent=False, sent_via="crm"):
+    contact = get_contact(entry_id)
+    if not contact:
+        return None
+    reply = {
+        "id": _new_id(),
+        "body": body.strip(),
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "email_sent": bool(email_sent),
+        "sent_via": sent_via,
+    }
+    replies = list(contact.get("replies") or [])
+    replies.append(reply)
+    return update_contact(entry_id, {"replies": replies, "status": "replied", "replied_at": reply["created_at"]})
+
+
+def count_new_contacts():
+    return len([c for c in get_contacts() if c.get("status", "new") == "new"])
 
 
 def delete_contact(entry_id):
@@ -2130,6 +2211,10 @@ def get_page_content(slug, locale="en"):
     data = _load_raw()
     saved = data.get("pages", {}).get(slug, {})
     defaults = (DEFAULT_PAGE_CONTENT_FR if locale == "fr" else DEFAULT_PAGE_CONTENT).get(slug, {})
+    if slug in ("privacy", "legal", "cookies") and "body_html" not in defaults:
+        from data.legal_content import get_legal_body
+
+        defaults = {**defaults, "body_html": get_legal_body(slug, locale)}
     meta_keys = {"published", "updated_at", "en", "fr"}
     if isinstance(saved.get(locale), dict):
         return {**defaults, **saved[locale], "published": saved.get("published", True)}
@@ -2206,6 +2291,9 @@ def get_seo_page(slug, locale="en"):
             "projects": {"title": "Projets IoT ouverts — Missions de sous-traitance", "description": "Liste des projets IoT ouverts à la sous-traitance sur Iotplace.", "keywords": "projets IoT ouverts, mission sous-traitance IoT"},
             "about": {"title": "À propos — Marketplace sous-traitance IoT B2B", "description": "Iotplace structure la sous-traitance IoT entre entreprises et startups d'Asie.", "keywords": "marketplace IoT, sous-traitance IoT Asie"},
             "contact": {"title": "Contact — Démarrer une sous-traitance IoT", "description": "Contactez Iotplace pour sous-traiter ou trouver des missions IoT.", "keywords": "contact sous-traitance IoT"},
+            "privacy": {"title": "Politique de confidentialité — Iotplace", "description": "Traitement des données personnelles sur Iotplace : formulaire, comptes, analytics et vos droits RGPD.", "keywords": "confidentialité Iotplace, RGPD, données personnelles"},
+            "legal": {"title": "Mentions légales — Iotplace", "description": "Éditeur, hébergement et propriété intellectuelle du site iotplace.io.", "keywords": "mentions légales Iotplace, SARL, RCS Nanterre"},
+            "cookies": {"title": "Politique cookies — Iotplace", "description": "Cookies utilisés sur Iotplace et gestion de vos préférences de consentement.", "keywords": "cookies Iotplace, consentement, analytics"},
         }
     else:
         defaults_map = DEFAULT_SEO_PAGES

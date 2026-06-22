@@ -8,7 +8,8 @@ from data import store
 def _nav_stats():
     data = store.get_all()
     stats = store.get_stats()
-    stats["contacts"] = len(data["contacts"])
+    stats["contacts"] = store.count_new_contacts() or len(data["contacts"])
+    stats["contacts_total"] = len(data["contacts"])
     stats["social_drafts"] = len([p for p in data.get("social_posts", []) if p.get("status") == "draft"])
     stats["mail_drafts"] = len([c for c in data.get("mail_campaigns", []) if c.get("status") == "draft"])
     stats["users"] = len(data.get("users", []))
@@ -775,21 +776,103 @@ def delete_project(entry_id):
 def contacts():
     q = request.args.get("q", "").strip().lower()
     type_filter = request.args.get("type", "")
+    status_filter = request.args.get("status", "")
     items = store.get_contacts()
     if type_filter:
         items = [c for c in items if c.get("type") == type_filter]
+    if status_filter:
+        items = [c for c in items if c.get("status", "new") == status_filter]
     if q:
-        items = [c for c in items if q in c.get("name", "").lower() or q in c.get("email", "").lower()]
-    return render_template("crm/contacts.html", contacts=items, search=q, selected_type=type_filter)
+        items = [
+            c for c in items
+            if q in c.get("name", "").lower()
+            or q in c.get("email", "").lower()
+            or q in c.get("message", "").lower()
+        ]
+    return render_template(
+        "crm/contacts.html",
+        contacts=items,
+        search=q,
+        selected_type=type_filter,
+        selected_status=status_filter,
+    )
 
 
 @crm_bp.route("/contacts/<entry_id>")
 def contact_detail(entry_id):
-    entry = next((c for c in store.get_contacts() if c["id"] == entry_id), None)
+    from crm import email_service
+
+    entry = store.get_contact(entry_id)
     if not entry:
         flash("Contact introuvable.", "error")
         return redirect(url_for("crm.contacts"))
-    return render_template("crm/contact_detail.html", contact=entry)
+    if entry.get("status") == "new":
+        store.update_contact(entry_id, {"status": "read"})
+        entry = store.get_contact(entry_id)
+    return render_template(
+        "crm/contact_detail.html",
+        contact=entry,
+        smtp_configured=email_service.is_smtp_configured(),
+    )
+
+
+@crm_bp.route("/contacts/<entry_id>/reply", methods=["POST"])
+def contact_reply(entry_id):
+    from crm import email_service
+
+    entry = store.get_contact(entry_id)
+    if not entry:
+        flash("Contact introuvable.", "error")
+        return redirect(url_for("crm.contacts"))
+
+    body = request.form.get("reply_body", "").strip()
+    if not body:
+        flash("Le message de réponse est vide.", "error")
+        return redirect(url_for("crm.contact_detail", entry_id=entry_id))
+
+    email_sent = False
+    if email_service.is_smtp_configured():
+        subject = f"Re: Votre message — Iotplace"
+        original = (entry.get("message") or "")[:200]
+        html = (
+            f"<p>Bonjour {entry.get('name', '')},</p>"
+            f"<p>{body.replace(chr(10), '<br>')}</p>"
+            f"<hr style='border:none;border-top:1px solid #e5e7eb;margin:1.5rem 0'>"
+            f"<p style='color:#6b7280;font-size:0.9em'>Votre message initial :<br>"
+            f"{original.replace(chr(10), '<br>')}</p>"
+        )
+        try:
+            settings = store.get_mail_settings()
+            email_service.send_email(
+                entry["email"],
+                subject,
+                html,
+                reply_to=(settings.get("reply_to") or "").strip() or None,
+                site_url=store.get_site_url(),
+                locale="fr",
+            )
+            email_sent = True
+        except email_service.EmailError as exc:
+            flash(f"Réponse enregistrée mais email non envoyé : {exc}", "warning")
+    else:
+        flash("Réponse enregistrée. Configurez SMTP dans Mailing pour envoyer par email.", "info")
+
+    store.add_contact_reply(entry_id, body, email_sent=email_sent, sent_via="smtp" if email_sent else "crm")
+    flash("Réponse envoyée." if email_sent else "Réponse enregistrée.", "success")
+    return redirect(url_for("crm.contact_detail", entry_id=entry_id))
+
+
+@crm_bp.route("/contacts/<entry_id>/status", methods=["POST"])
+def contact_status(entry_id):
+    status = request.form.get("status", "").strip()
+    if status not in ("new", "read", "replied", "archived"):
+        flash("Statut invalide.", "error")
+        return redirect(url_for("crm.contact_detail", entry_id=entry_id))
+    if not store.update_contact(entry_id, {"status": status}):
+        flash("Contact introuvable.", "error")
+        return redirect(url_for("crm.contacts"))
+    flash("Statut mis à jour.", "success")
+    return redirect(url_for("crm.contact_detail", entry_id=entry_id))
 
 
 @crm_bp.route("/contacts/<entry_id>/delete", methods=["POST"])

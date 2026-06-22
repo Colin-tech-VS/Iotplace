@@ -64,6 +64,10 @@
         <div class="field"><label>Titre</label><input name="title" value="{{ content.title or '' }}"></div>
         <div class="field"><label>Sous-titre</label><input name="subtitle" value="{{ content.subtitle or '' }}"></div>
         <div class="field"><label>Email affiché</label><input name="email" value="{{ content.email or '' }}"></div>
+        {% elif meta.slug in ('privacy', 'legal', 'cookies') %}
+        <div class="field"><label>Titre</label><input name="title" value="{{ content.title or '' }}"></div>
+        <div class="field"><label>Sous-titre</label><input name="subtitle" value="{{ content.subtitle or '' }}"></div>
+        <div class="field"><label>Contenu HTML</label><textarea name="body_html" rows="18">{{ content.body_html or '' }}</textarea></div>
         {% else %}
         <div class="field"><label>Titre de page</label><input name="title" value="{{ content.title or '' }}"></div>
         <div class="field"><label>Sous-titre</label><textarea name="subtitle" rows="2">{{ content.subtitle or '' }}</textarea></div>
