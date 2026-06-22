@@ -1,63 +1,78 @@
-{% extends "base.html" %}
+{% extends "compte_layout.html" %}
 {% from "compte/_macros.html" import tag_input %}
+{% set d = 'compte.dashboard' %}
+{% set active_page = 'profile' %}
 
-{% block content %}
-<section class="page-hero page-hero-sm">
-    <div class="container reveal">
-        <h1>Modifier le profil entreprise</h1>
-    </div>
-</section>
+{% block title %}{{ t('compte.edit_profile_ent_title') }} — {{ profile.name }}{% endblock %}
+{% block compte_role %}enterprise{% endblock %}
+{% block space_label %}{{ t(d ~ '.enterprise.space') }}{% endblock %}
 
-<section class="section">
-    <div class="container">
-        <form class="register-form reveal" method="POST">
-            <fieldset class="form-section-card">
-                <legend>Entreprise</legend>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="company_name">Raison sociale</label>
-                        <input type="text" id="company_name" name="company_name" required value="{{ profile.name }}">
-                    </div>
-                </div>
-                {% set sector_required = true %}
-                {% include "compte/_sector_select.html" %}
-                <div class="form-row">
-                    <div class="form-group"><label for="country">Pays</label><input type="text" id="country" name="country" value="{{ profile.country or '' }}"></div>
-                    <div class="form-group"><label for="city">Ville</label><input type="text" id="city" name="city" value="{{ profile.city or '' }}"></div>
-                    <div class="form-group">
-                        <label for="company_size">Taille</label>
-                        <input type="text" id="company_size" name="company_size" value="{{ profile.company_size or '' }}">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group"><label for="contact_name">Contact</label><input type="text" id="contact_name" name="contact_name" value="{{ profile.contact_name or '' }}"></div>
-                    <div class="form-group"><label for="contact_role">Fonction</label><input type="text" id="contact_role" name="contact_role" value="{{ profile.contact_role or '' }}"></div>
-                    <div class="form-group"><label for="phone">Téléphone</label><input type="tel" id="phone" name="phone" value="{{ profile.phone or '' }}"></div>
-                </div>
-                <div class="form-group"><label for="website">Site web</label><input type="url" id="website" name="website" value="{{ profile.website or '' }}"></div>
-                <div class="form-group"><label for="description">Description</label><textarea id="description" name="description" rows="3">{{ profile.description or '' }}</textarea></div>
-            </fieldset>
-
-            <fieldset class="form-section-card">
-                <legend>Recherche & compétences</legend>
-                <div class="form-group">
-                    <label for="besoin">Votre besoin — que recherchez-vous et pourquoi ?</label>
-                    <textarea id="besoin" name="besoin" rows="4" placeholder="Ex. Nous externalisons le développement firmware de capteurs LoRaWAN pour accélérer notre time-to-market en Asie…">{{ profile.besoin or '' }}</textarea>
-                    <span class="field-hint">Décrivez ce que vous cherchez, le contexte du projet et pourquoi vous avez besoin d'une startup.</span>
-                </div>
-                {{ tag_input('needs', 'needs', profile.needs|join(', ') if profile.needs else '', 'Compétences recherchées', 'Firmware, LoRaWAN, Edge AI, Cloud IoT', 'Chaque compétence séparée par une virgule apparaît en badge.') }}
-            </fieldset>
-
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Enregistrer</button>
-                <a href="{{ url_for('compte.enterprise_dashboard') }}" class="btn btn-ghost">Annuler</a>
-            </div>
-        </form>
-    </div>
-</section>
+{% block sidebar_nav %}
+{% include "compte/_sidebar_enterprise.html" %}
 {% endblock %}
 
-{% block extra_js %}
+{% block main_header %}
+<header class="cdash-topbar">
+    <div class="cdash-topbar-left">
+        <button type="button" class="cdash-menu-btn" id="cdashMenuBtn" aria-label="{{ t(d ~ '.menu') }}">☰</button>
+        <div>
+            <h1>{{ t('compte.edit_profile_ent_title') }}</h1>
+            <p class="cdash-topbar-sub">{{ t('compte.edit_profile_sub') }}</p>
+        </div>
+    </div>
+    <div class="cdash-topbar-actions">
+        <a href="{{ url_for('compte.enterprise_dashboard') }}" class="btn btn-ghost btn-sm">{{ t(d ~ '.back_dashboard') }}</a>
+    </div>
+</header>
+{% endblock %}
+
+{% block content %}
+<form class="cdash-form reveal" method="POST">
+    <fieldset class="cdash-form-section">
+        <legend>{{ t('compte.section_enterprise') }}</legend>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="company_name">{{ t('compte.company_name') }}</label>
+                <input type="text" id="company_name" name="company_name" required value="{{ profile.name }}">
+            </div>
+        </div>
+        {% set sector_required = true %}
+        {% include "compte/_sector_select.html" %}
+        <div class="form-row">
+            <div class="form-group"><label for="country">{{ t('compte.country') }}</label><input type="text" id="country" name="country" value="{{ profile.country or '' }}"></div>
+            <div class="form-group"><label for="city">{{ t('compte.city') }}</label><input type="text" id="city" name="city" value="{{ profile.city or '' }}"></div>
+            <div class="form-group">
+                <label for="company_size">{{ t('compte.company_size') }}</label>
+                <input type="text" id="company_size" name="company_size" value="{{ profile.company_size or '' }}">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group"><label for="contact_name">{{ t('compte.contact_name') }}</label><input type="text" id="contact_name" name="contact_name" value="{{ profile.contact_name or '' }}"></div>
+            <div class="form-group"><label for="contact_role">{{ t('compte.contact_role') }}</label><input type="text" id="contact_role" name="contact_role" value="{{ profile.contact_role or '' }}"></div>
+            <div class="form-group"><label for="phone">{{ t('compte.phone') }}</label><input type="tel" id="phone" name="phone" value="{{ profile.phone or '' }}"></div>
+        </div>
+        <div class="form-group"><label for="website">{{ t('compte.website') }}</label><input type="url" id="website" name="website" value="{{ profile.website or '' }}"></div>
+        <div class="form-group"><label for="description">{{ t('compte.description_ent') }}</label><textarea id="description" name="description" rows="3">{{ profile.description or '' }}</textarea></div>
+    </fieldset>
+
+    <fieldset class="cdash-form-section">
+        <legend>{{ t('compte.section_search') }}</legend>
+        <div class="form-group">
+            <label for="besoin">{{ t('compte.besoin_ent') }}</label>
+            <textarea id="besoin" name="besoin" rows="4" placeholder="{{ t('compte.besoin_ent_ph') }}">{{ profile.besoin or '' }}</textarea>
+        </div>
+        {{ tag_input('needs', 'needs', profile.needs|join(', ') if profile.needs else '', t('compte.needs'), t('compte.needs_ph'), t('compte.tag_hint')) }}
+    </fieldset>
+
+    <div class="cdash-form-actions">
+        <button type="submit" class="btn btn-primary">{{ t('compte.save_profile') }}</button>
+        <a href="{{ url_for('compte.enterprise_dashboard') }}" class="btn btn-ghost">{{ t('compte.cancel') }}</a>
+    </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('vitrine.static', filename='js/compte-dashboard.js') }}?v=2"></script>
 <script src="{{ url_for('vitrine.static', filename='js/tag-input.js') }}"></script>
-<script src="{{ url_for('vitrine.static', filename='js/sector-select.js') }}"></script>
+<script src="{{ url_for('vitrine.static', filename='js/sector-select.js') }}?v=2"></script>
 {% endblock %}

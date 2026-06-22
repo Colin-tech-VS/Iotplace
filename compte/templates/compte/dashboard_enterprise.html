@@ -11,22 +11,9 @@
 {% set d = 'compte.dashboard' %}
 {% set de = d ~ '.enterprise' %}
 
+{% set active_page = 'dashboard' %}
 {% block sidebar_nav %}
-<span class="cdash-nav-label">{{ t(d ~ '.nav_pilot') }}</span>
-{{ cdash_nav_item('overview', '◎', t(d ~ '.overview'), active=active_section) }}
-{{ cdash_nav_item('projects', '📋', t(d ~ '.projects'), stats.projects, active=active_section) }}
-{{ cdash_nav_item('partnerships', '🤝', t(d ~ '.partnerships'), stats.partnerships_active, active=active_section) }}
-{{ cdash_nav_item('applications', '📨', t(d ~ '.applications'), stats.applications_pending, active=active_section) }}
-{{ cdash_nav_item('messages', '💬', t(d ~ '.messages'), unread_count, active=active_section) }}
-<span class="cdash-nav-label">{{ t(d ~ '.nav_account') }}</span>
-<a href="{{ url_for('compte.enterprise_edit_profile') }}" class="cdash-nav-item">
-    <span class="cdash-nav-icon" aria-hidden="true">⚙</span>
-    {{ t(d ~ '.my_profile') }}
-</a>
-<a href="{{ url_for('vitrine.pricing') }}" class="cdash-nav-item" target="_blank" rel="noopener">
-    <span class="cdash-nav-icon" aria-hidden="true">€</span>
-    {{ t(d ~ '.pricing') }}
-</a>
+{% include "compte/_sidebar_enterprise.html" %}
 {% endblock %}
 
 {% block main_header %}

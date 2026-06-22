@@ -1,0 +1,42 @@
+{% extends "compte_layout.html" %}
+{% set d = 'compte.dashboard' %}
+{% set active_page = 'pricing' %}
+
+{% block title %}{{ t(d ~ '.pricing') }} — {{ profile.name }}{% endblock %}
+{% block compte_role %}enterprise{% endblock %}
+{% block space_label %}{{ t(d ~ '.enterprise.space') }}{% endblock %}
+
+{% block sidebar_nav %}
+{% include "compte/_sidebar_enterprise.html" %}
+{% endblock %}
+
+{% block main_header %}
+<header class="cdash-topbar">
+    <div class="cdash-topbar-left">
+        <button type="button" class="cdash-menu-btn" id="cdashMenuBtn" aria-label="{{ t(d ~ '.menu') }}">☰</button>
+        <div>
+            <h1>{{ t(d ~ '.pricing') }}</h1>
+            <p class="cdash-topbar-sub">{{ t('pricing.enterprise_section_sub') }}</p>
+        </div>
+    </div>
+    <div class="cdash-topbar-actions">
+        {% if stripe_configured %}
+            {% if is_pro %}
+            <a href="{{ url_for('compte.enterprise_billing_portal') }}" class="btn btn-outline btn-sm">{{ t(d ~ '.enterprise.subscription') }}</a>
+            {% else %}
+            <a href="{{ url_for('compte.enterprise_subscribe_pro') }}" class="btn btn-primary btn-sm">{{ t(d ~ '.enterprise.subscribe') }}</a>
+            {% endif %}
+        {% endif %}
+    </div>
+</header>
+{% endblock %}
+
+{% block content %}
+<div class="cdash-pricing-page reveal">
+    {% include "compte/_pricing_enterprise.html" %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('vitrine.static', filename='js/compte-dashboard.js') }}?v=2"></script>
+{% endblock %}

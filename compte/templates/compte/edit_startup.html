@@ -1,62 +1,77 @@
-{% extends "base.html" %}
+{% extends "compte_layout.html" %}
 {% from "compte/_macros.html" import tag_input %}
+{% set d = 'compte.dashboard' %}
+{% set active_page = 'profile' %}
 
-{% block content %}
-<section class="page-hero page-hero-sm">
-    <div class="container reveal">
-        <h1>Modifier le profil startup</h1>
-    </div>
-</section>
+{% block title %}{{ t('compte.edit_profile_st_title') }} — {{ profile.name }}{% endblock %}
+{% block compte_role %}startup{% endblock %}
+{% block space_label %}{{ t(d ~ '.startup.space') }}{% endblock %}
 
-<section class="section">
-    <div class="container">
-        <form class="register-form reveal" method="POST">
-            <fieldset class="form-section-card">
-                <legend>Startup</legend>
-                <div class="form-row">
-                    <div class="form-group"><label for="startup_name">Nom</label><input type="text" id="startup_name" name="startup_name" required value="{{ profile.name }}"></div>
-                    <div class="form-group"><label for="contact_name">Contact</label><input type="text" id="contact_name" name="contact_name" value="{{ profile.contact_name or '' }}"></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group"><label for="country">Pays</label><input type="text" id="country" name="country" required value="{{ profile.country or '' }}"></div>
-                    <div class="form-group"><label for="flag">Drapeau</label><input type="text" id="flag" name="flag" value="{{ profile.flag or '' }}"></div>
-                    <div class="form-group"><label for="city">Ville</label><input type="text" id="city" name="city" value="{{ profile.city or '' }}"></div>
-                </div>
-                {% set sector_required = true %}
-                {% include "compte/_sector_select.html" %}
-                <div class="form-group"><label for="specialty">Spécialité</label><input type="text" id="specialty" name="specialty" required value="{{ profile.specialty or '' }}"></div>
-                <div class="form-row">
-                    <div class="form-group"><label for="team_size">Équipe</label><input type="number" id="team_size" name="team_size" min="1" value="{{ profile.team_size or '' }}"></div>
-                    <div class="form-group"><label for="projects_done">Projets réalisés</label><input type="number" id="projects_done" name="projects_done" min="0" value="{{ profile.projects_done or 0 }}"></div>
-                    <div class="form-group"><label for="phone">Téléphone</label><input type="tel" id="phone" name="phone" value="{{ profile.phone or '' }}"></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group"><label for="availability">Disponibilité</label><input type="text" id="availability" name="availability" value="{{ profile.availability or '' }}"></div>
-                    <div class="form-group"><label for="rate_range">Tarifs</label><input type="text" id="rate_range" name="rate_range" value="{{ profile.rate_range or '' }}"></div>
-                </div>
-                <div class="form-group"><label for="description">Description & références</label><textarea id="description" name="description" rows="4">{{ profile.description or '' }}</textarea></div>
-            </fieldset>
-
-            <fieldset class="form-section-card">
-                <legend>Recherche & compétences</legend>
-                <div class="form-group">
-                    <label for="besoin">Votre recherche — quelles missions visez-vous et pourquoi ?</label>
-                    <textarea id="besoin" name="besoin" rows="4" placeholder="Ex. Nous cherchons des missions de sous-traitance firmware/hardware pour grands comptes industriels, avec des projets long terme…">{{ profile.besoin or '' }}</textarea>
-                    <span class="field-hint">Expliquez le type de missions recherchées, vos objectifs et ce que vous pouvez apporter.</span>
-                </div>
-                {{ tag_input('skills', 'skills', profile.skills|join(', ') if profile.skills else '', 'Compétences techniques', 'Firmware C/C++, PCB, MQTT, AWS IoT, BLE', 'Chaque compétence séparée par une virgule apparaît en badge.') }}
-            </fieldset>
-
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Enregistrer</button>
-                <a href="{{ url_for('compte.startup_dashboard') }}" class="btn btn-ghost">Annuler</a>
-            </div>
-        </form>
-    </div>
-</section>
+{% block sidebar_nav %}
+{% include "compte/_sidebar_startup.html" %}
 {% endblock %}
 
-{% block extra_js %}
+{% block main_header %}
+<header class="cdash-topbar">
+    <div class="cdash-topbar-left">
+        <button type="button" class="cdash-menu-btn" id="cdashMenuBtn" aria-label="{{ t(d ~ '.menu') }}">☰</button>
+        <div>
+            <h1>{{ t('compte.edit_profile_st_title') }}</h1>
+            <p class="cdash-topbar-sub">{{ t('compte.edit_profile_sub') }}</p>
+        </div>
+    </div>
+    <div class="cdash-topbar-actions">
+        <a href="{{ url_for('compte.startup_dashboard') }}" class="btn btn-ghost btn-sm">{{ t(d ~ '.back_dashboard') }}</a>
+    </div>
+</header>
+{% endblock %}
+
+{% block content %}
+<form class="cdash-form reveal" method="POST">
+    <fieldset class="cdash-form-section">
+        <legend>{{ t('compte.section_startup') }}</legend>
+        <div class="form-row">
+            <div class="form-group"><label for="startup_name">{{ t('compte.startup_name') }}</label><input type="text" id="startup_name" name="startup_name" required value="{{ profile.name }}"></div>
+            <div class="form-group"><label for="contact_name">{{ t('compte.founder_contact') }}</label><input type="text" id="contact_name" name="contact_name" value="{{ profile.contact_name or '' }}"></div>
+        </div>
+        <div class="form-row">
+            <div class="form-group"><label for="country">{{ t('compte.country') }}</label><input type="text" id="country" name="country" required value="{{ profile.country or '' }}"></div>
+            <div class="form-group"><label for="flag">{{ t('compte.flag') }}</label><input type="text" id="flag" name="flag" value="{{ profile.flag or '' }}" placeholder="{{ t('compte.flag_ph') }}"></div>
+            <div class="form-group"><label for="city">{{ t('compte.city') }}</label><input type="text" id="city" name="city" value="{{ profile.city or '' }}"></div>
+        </div>
+        {% set sector_required = true %}
+        {% include "compte/_sector_select.html" %}
+        <div class="form-group"><label for="specialty">{{ t('compte.specialty') }}</label><input type="text" id="specialty" name="specialty" required value="{{ profile.specialty or '' }}"></div>
+        <div class="form-row">
+            <div class="form-group"><label for="team_size">{{ t('compte.team_size') }}</label><input type="number" id="team_size" name="team_size" min="1" value="{{ profile.team_size or '' }}"></div>
+            <div class="form-group"><label for="projects_done">{{ t('compte.projects_done') }}</label><input type="number" id="projects_done" name="projects_done" min="0" value="{{ profile.projects_done or 0 }}"></div>
+            <div class="form-group"><label for="phone">{{ t('compte.phone') }}</label><input type="tel" id="phone" name="phone" value="{{ profile.phone or '' }}"></div>
+        </div>
+        <div class="form-row">
+            <div class="form-group"><label for="availability">{{ t('compte.availability') }}</label><input type="text" id="availability" name="availability" value="{{ profile.availability or '' }}"></div>
+            <div class="form-group"><label for="rate_range">{{ t('compte.rate_range') }}</label><input type="text" id="rate_range" name="rate_range" value="{{ profile.rate_range or '' }}"></div>
+        </div>
+        <div class="form-group"><label for="description">{{ t('compte.description_st') }}</label><textarea id="description" name="description" rows="4">{{ profile.description or '' }}</textarea></div>
+    </fieldset>
+
+    <fieldset class="cdash-form-section">
+        <legend>{{ t('compte.section_search') }}</legend>
+        <div class="form-group">
+            <label for="besoin">{{ t('compte.besoin_st') }}</label>
+            <textarea id="besoin" name="besoin" rows="4" placeholder="{{ t('compte.besoin_st_ph') }}">{{ profile.besoin or '' }}</textarea>
+        </div>
+        {{ tag_input('skills', 'skills', profile.skills|join(', ') if profile.skills else '', t('compte.skills'), t('compte.skills_ph'), t('compte.tag_hint')) }}
+    </fieldset>
+
+    <div class="cdash-form-actions">
+        <button type="submit" class="btn btn-primary">{{ t('compte.save_profile') }}</button>
+        <a href="{{ url_for('compte.startup_dashboard') }}" class="btn btn-ghost">{{ t('compte.cancel') }}</a>
+    </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('vitrine.static', filename='js/compte-dashboard.js') }}?v=2"></script>
 <script src="{{ url_for('vitrine.static', filename='js/tag-input.js') }}"></script>
-<script src="{{ url_for('vitrine.static', filename='js/sector-select.js') }}"></script>
+<script src="{{ url_for('vitrine.static', filename='js/sector-select.js') }}?v=2"></script>
 {% endblock %}

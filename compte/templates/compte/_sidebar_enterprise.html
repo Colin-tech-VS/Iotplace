@@ -1,0 +1,32 @@
+{% from "compte/_dashboard_macros.html" import cdash_nav_link %}
+{% set d = 'compte.dashboard' %}
+{% set active_section = active_section|default(request.args.get('section', 'overview')) %}
+{% set active_page = active_page|default('') %}
+<span class="cdash-nav-label">{{ t(d ~ '.nav_pilot') }}</span>
+<a href="{{ url_for('compte.enterprise_dashboard') }}" class="cdash-nav-item{% if active_page in ('', 'dashboard') and active_section == 'overview' %} active{% endif %}" data-cdash-section="overview">
+    <span class="cdash-nav-icon" aria-hidden="true">◎</span>
+    {{ t(d ~ '.overview') }}
+</a>
+<a href="{{ url_for('compte.enterprise_dashboard', section='projects') }}" class="cdash-nav-item{% if active_page == 'dashboard' and active_section == 'projects' %} active{% endif %}" data-cdash-section="projects">
+    <span class="cdash-nav-icon" aria-hidden="true">📋</span>
+    {{ t(d ~ '.projects') }}
+    {% if stats is defined and stats.projects %}<span class="cdash-nav-badge">{{ stats.projects }}</span>{% endif %}
+</a>
+<a href="{{ url_for('compte.enterprise_dashboard', section='partnerships') }}" class="cdash-nav-item{% if active_page == 'dashboard' and active_section == 'partnerships' %} active{% endif %}" data-cdash-section="partnerships">
+    <span class="cdash-nav-icon" aria-hidden="true">🤝</span>
+    {{ t(d ~ '.partnerships') }}
+    {% if stats is defined and stats.partnerships_active %}<span class="cdash-nav-badge">{{ stats.partnerships_active }}</span>{% endif %}
+</a>
+<a href="{{ url_for('compte.enterprise_dashboard', section='applications') }}" class="cdash-nav-item{% if active_page == 'dashboard' and active_section == 'applications' %} active{% endif %}" data-cdash-section="applications">
+    <span class="cdash-nav-icon" aria-hidden="true">📨</span>
+    {{ t(d ~ '.applications') }}
+    {% if stats is defined and stats.applications_pending %}<span class="cdash-nav-badge">{{ stats.applications_pending }}</span>{% endif %}
+</a>
+<a href="{{ url_for('compte.enterprise_dashboard', section='messages') }}" class="cdash-nav-item{% if active_page == 'dashboard' and active_section == 'messages' %} active{% endif %}" data-cdash-section="messages">
+    <span class="cdash-nav-icon" aria-hidden="true">💬</span>
+    {{ t(d ~ '.messages') }}
+    {% if unread_count|default(0) %}<span class="cdash-nav-badge">{{ unread_count }}</span>{% endif %}
+</a>
+<span class="cdash-nav-label">{{ t(d ~ '.nav_account') }}</span>
+{{ cdash_nav_link(url_for('compte.enterprise_edit_profile'), '⚙', t(d ~ '.my_profile'), active_page, 'profile') }}
+{{ cdash_nav_link(url_for('compte.enterprise_pricing'), '€', t(d ~ '.pricing'), active_page, 'pricing') }}

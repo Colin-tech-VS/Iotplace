@@ -1707,13 +1707,6 @@ a:hover { color: #33e0be; }
     padding: 1.25rem;
 }
 
-.engagement-phase-poc { border-top: 3px solid #3b82f6; }
-.engagement-phase-scale { border-top: 3px solid #8b5cf6; }
-.engagement-phase-partnership { border-top: 3px solid var(--accent); }
-.engagement-phase-pilot { border-top: 3px solid #22c55e; }
-.engagement-phase-framework { border-top: 3px solid #f59e0b; }
-.engagement-phase-strategic { border-top: 3px solid #ec4899; }
-
 .engagement-phase-header {
     display: flex;
     align-items: center;
@@ -1948,9 +1941,6 @@ a:hover { color: #33e0be; }
     gap: 0.85rem;
 }
 
-.audience-path-enterprise { border-top: 3px solid #3b82f6; }
-.audience-path-startup { border-top: 3px solid var(--accent); }
-
 .audience-path-card h3 {
     font-size: 1.15rem;
     margin: 0;
@@ -2101,9 +2091,6 @@ a:hover { color: #33e0be; }
     padding: 1.25rem 1.35rem;
 }
 
-.audience-flow-enterprise { border-top: 3px solid #3b82f6; }
-.audience-flow-startup { border-top: 3px solid var(--accent); }
-
 .audience-flow-col h3 {
     font-size: 1rem;
     margin: 0 0 0.85rem;
@@ -2163,9 +2150,6 @@ a:hover { color: #33e0be; }
     position: sticky;
     top: 5.5rem;
 }
-
-.journey-banner-enterprise { border-top: 3px solid #3b82f6; }
-.journey-banner-startup { border-top: 3px solid var(--accent); }
 
 .journey-banner-head h2 {
     font-size: 1.05rem;
@@ -2322,11 +2306,6 @@ a:hover { color: #33e0be; }
     padding: 1.35rem 1.5rem;
 }
 
-.audience-landing-enterprise.audience-landing-who,
-.audience-landing-enterprise.audience-landing-what { border-top: 3px solid #3b82f6; }
-.audience-landing-startup.audience-landing-who,
-.audience-landing-startup.audience-landing-what { border-top: 3px solid var(--accent); }
-
 .audience-landing-block h2 {
     font-size: 1.15rem;
     margin: 0.5rem 0 0.5rem;
@@ -2416,9 +2395,10 @@ a:hover { color: #33e0be; }
 }
 
 .domain-showcase-link:hover {
-    transform: translateY(-3px);
-    border-color: rgba(0, 212, 170, 0.45);
-    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+    background: rgba(255, 255, 255, 0.02);
 }
 
 .domain-card-more,
@@ -2426,8 +2406,12 @@ a:hover { color: #33e0be; }
     display: inline-block;
     margin-top: 0.5rem;
     font-size: 0.78rem;
-    color: var(--accent);
-    font-weight: 600;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.domain-showcase-link:hover .domain-card-more {
+    color: var(--text);
 }
 
 .domain-card-title {
@@ -2512,9 +2496,6 @@ a:hover { color: #33e0be; }
     padding: 1.25rem 1.35rem;
 }
 
-.domain-iotplace-ent { border-top: 3px solid #3b82f6; }
-.domain-iotplace-st { border-top: 3px solid var(--accent); }
-
 .domain-iotplace-col h3 {
     font-size: 1rem;
     margin: 0 0 0.75rem;
@@ -2548,16 +2529,17 @@ a:hover { color: #33e0be; }
 .domain-showcase-card {
     background: var(--bg-panel);
     border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-md);
     padding: 1.15rem;
-    border-top: 3px solid var(--accent);
 }
 
 .domain-showcase-stars {
-    font-size: 0.75rem;
-    letter-spacing: 0.05em;
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
     display: block;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.45rem;
+    color: var(--text-muted);
+    opacity: 0.85;
 }
 
 .domain-showcase-card h3 {
@@ -2581,12 +2563,9 @@ a:hover { color: #33e0be; }
 .simple-flow-card {
     background: var(--bg-panel);
     border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-md);
     padding: 1.35rem;
 }
-
-.simple-flow-enterprise { border-top: 3px solid #3b82f6; }
-.simple-flow-startup { border-top: 3px solid var(--accent); }
 
 .simple-flow-card h3 {
     margin: 0.5rem 0 0.75rem;
@@ -2673,13 +2652,14 @@ a:hover { color: #33e0be; }
 }
 
 .domain-card:hover {
-    border-color: rgba(0, 212, 170, 0.4);
+    border-color: rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.04);
 }
 
 .domain-card-selected {
-    border-color: var(--accent);
-    background: rgba(0, 212, 170, 0.08);
-    box-shadow: 0 0 0 1px rgba(0, 212, 170, 0.2);
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.06);
+    box-shadow: none;
 }
 
 .domain-card-stars {

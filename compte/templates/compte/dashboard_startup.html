@@ -11,22 +11,9 @@
 {% set d = 'compte.dashboard' %}
 {% set ds = d ~ '.startup' %}
 
+{% set active_page = 'dashboard' %}
 {% block sidebar_nav %}
-<span class="cdash-nav-label">{{ t(d ~ '.nav_pilot') }}</span>
-{{ cdash_nav_item('overview', '◎', t(d ~ '.overview'), active=active_section) }}
-{{ cdash_nav_item('missions', '🎯', t(d ~ '.missions'), stats.matching_open, active=active_section) }}
-{{ cdash_nav_item('partnerships', '🤝', t(d ~ '.partnerships'), stats.partnerships_active, active=active_section) }}
-{{ cdash_nav_item('applications', '📨', t(d ~ '.applications'), stats.applications, active=active_section) }}
-{{ cdash_nav_item('messages', '💬', t(d ~ '.messages'), unread_count, active=active_section) }}
-<span class="cdash-nav-label">{{ t(d ~ '.nav_account') }}</span>
-<a href="{{ url_for('compte.startup_edit_profile') }}" class="cdash-nav-item">
-    <span class="cdash-nav-icon" aria-hidden="true">⚙</span>
-    {{ t(d ~ '.my_profile') }}
-</a>
-<a href="{{ url_for('vitrine.projects') }}" class="cdash-nav-item" target="_blank" rel="noopener">
-    <span class="cdash-nav-icon" aria-hidden="true">↗</span>
-    {{ t(d ~ '.projects_vitrine') }}
-</a>
+{% include "compte/_sidebar_startup.html" %}
 {% endblock %}
 
 {% block main_header %}

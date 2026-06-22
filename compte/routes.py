@@ -22,7 +22,7 @@ def _process_application_status(message_id, user, status):
     return updated, payment_result
 
 
-def _validate_credentials(email, password, password_confirm=None):
+def _validate_credentials(email, password, password_confirm=None, check_exists=True):
     errors = []
     email = (email or "").strip().lower()
     if not email or "@" not in email:
@@ -31,9 +31,44 @@ def _validate_credentials(email, password, password_confirm=None):
         errors.append(t("compte.error_password_short", default="Password must be at least 8 characters."))
     if password_confirm is not None and password != password_confirm:
         errors.append(t("compte.error_password_mismatch", default="Passwords do not match."))
-    if email and store.email_exists(email):
+    if check_exists and email and store.email_exists(email):
         errors.append(t("compte.error_email_exists", default="An account already exists with this email."))
     return errors
+
+
+def _enterprise_account_context(user, profile, active_page="dashboard"):
+    from payments import subscriptions
+    from payments.pricing_plans import build_pricing_page_context, is_pro_enterprise
+    from vitrine.i18n import get_locale
+
+    profile = subscriptions.sync_enterprise_subscription(profile) or profile
+    dash = store.get_dashboard_data_for_enterprise(user, profile)
+    pricing = build_pricing_page_context(get_locale())
+    return {
+        "user": user,
+        "profile": profile,
+        "active_page": active_page,
+        "stripe_configured": stripe_service.is_configured(),
+        "is_pro": is_pro_enterprise(profile),
+        "pricing": pricing,
+        **dash,
+    }
+
+
+def _startup_account_context(user, profile, active_page="dashboard"):
+    from payments.pricing_plans import build_pricing_page_context
+    from vitrine.i18n import get_locale
+
+    dash = store.get_dashboard_data_for_startup(user, profile)
+    pricing = build_pricing_page_context(get_locale())
+    return {
+        "user": user,
+        "profile": profile,
+        "active_page": active_page,
+        "stripe_configured": stripe_service.is_configured(),
+        "pricing": pricing,
+        **dash,
+    }
 
 
 @compte_bp.route("/connexion", methods=["GET", "POST"])
@@ -53,6 +88,53 @@ def login():
         flash(t("compte.flash_login_fail"), "error")
 
     return render_template("compte/login.html")
+
+
+@compte_bp.route("/connexion/mot-de-passe-oublie", methods=["GET", "POST"])
+def forgot_password():
+    from compte import mailer
+    from vitrine.i18n import get_locale
+
+    if auth.get_current_user():
+        return redirect(url_for("compte.home"))
+
+    if request.method == "POST":
+        email = request.form.get("email", "").strip().lower()
+        locale = get_locale()
+        token, user = store.issue_password_reset_token(email)
+        if token and user:
+            reset_url = store.get_site_url().rstrip("/") + url_for("compte.reset_password", token=token)
+            try:
+                mailer.send_password_reset_email(user["email"], reset_url, locale=locale)
+            except mailer.MailDeliveryError:
+                flash(t("compte.flash_reset_email_error"), "error")
+                return render_template("compte/forgot_password.html", form={"email": email})
+        flash(t("compte.flash_reset_email_sent"), "success")
+        return redirect(url_for("compte.login"))
+
+    return render_template("compte/forgot_password.html", form={})
+
+
+@compte_bp.route("/connexion/reinitialiser/<token>", methods=["GET", "POST"])
+def reset_password(token):
+    user = store.get_user_by_password_reset_token(token)
+    if not user:
+        flash(t("compte.flash_reset_link_invalid"), "error")
+        return redirect(url_for("compte.forgot_password"))
+
+    if request.method == "POST":
+        password = request.form.get("password", "")
+        password_confirm = request.form.get("password_confirm", "")
+        errors = _validate_credentials(user["email"], password, password_confirm, check_exists=False)
+        if errors:
+            for err in errors:
+                flash(err, "error")
+            return render_template("compte/reset_password.html", token=token)
+        store.update_user_password(user["id"], auth.hash_password(password))
+        flash(t("compte.flash_reset_ok"), "success")
+        return redirect(url_for("compte.login"))
+
+    return render_template("compte/reset_password.html", token=token)
 
 
 @compte_bp.route("/deconnexion")
@@ -370,17 +452,30 @@ def enterprise_edit_profile():
             "needs": store.parse_list_field(request.form.get("needs")),
         })
         flash(t("compte.flash_profile_updated"), "success")
-        return redirect(url_for("compte.enterprise_dashboard"))
+        return redirect(url_for("compte.enterprise_edit_profile"))
 
     return render_template(
         "compte/edit_enterprise.html",
-        user=user,
-        profile=profile,
+        **_enterprise_account_context(user, profile, active_page="profile"),
         form={
             "sector_id": profile.get("sector_id", ""),
             "sector_other": profile.get("sector_other", ""),
             "sector": profile.get("sector", ""),
         },
+    )
+
+
+@compte_bp.route("/compte/entreprise/offres")
+@auth.login_required(role="enterprise")
+def enterprise_pricing():
+    user = auth.get_current_user()
+    profile = store.get_enterprise_for_user(user["id"])
+    if not profile:
+        flash(t("compte.flash_profile_ent_missing"), "error")
+        return redirect(url_for("vitrine.index"))
+    return render_template(
+        "compte/pricing_enterprise.html",
+        **_enterprise_account_context(user, profile, active_page="pricing"),
     )
 
 
@@ -515,17 +610,30 @@ def startup_edit_profile():
             "skills": store.parse_list_field(request.form.get("skills")),
         })
         flash(t("compte.flash_profile_updated"), "success")
-        return redirect(url_for("compte.startup_dashboard"))
+        return redirect(url_for("compte.startup_edit_profile"))
 
     return render_template(
         "compte/edit_startup.html",
-        user=user,
-        profile=profile,
+        **_startup_account_context(user, profile, active_page="profile"),
         form={
             "sector_id": profile.get("sector_id", ""),
             "sector_other": profile.get("sector_other", ""),
             "sector": profile.get("sector", ""),
         },
+    )
+
+
+@compte_bp.route("/compte/startup/offres")
+@auth.login_required(role="startup")
+def startup_pricing():
+    user = auth.get_current_user()
+    profile = store.get_startup_for_user(user["id"])
+    if not profile:
+        flash(t("compte.flash_profile_st_missing"), "error")
+        return redirect(url_for("vitrine.index"))
+    return render_template(
+        "compte/pricing_startup.html",
+        **_startup_account_context(user, profile, active_page="pricing"),
     )
 
 

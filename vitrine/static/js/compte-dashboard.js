@@ -46,9 +46,13 @@
     }
 
     navItems.forEach((el) => {
-        el.addEventListener('click', () => {
+        el.addEventListener('click', (e) => {
             const section = el.dataset.cdashSection;
-            if (section) activate(section);
+            if (!section) return;
+            if (panels.length) {
+                e.preventDefault();
+                activate(section);
+            }
         });
     });
 

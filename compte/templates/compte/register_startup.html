@@ -1,23 +1,28 @@
-{% extends "base.html" %}
+{% extends "register_layout.html" %}
 {% from "compte/_macros.html" import field_value %}
 
-{% block content %}
-<section class="page-hero page-hero-sm">
-    <div class="container reveal">
-        <h1>{{ t('compte.register_st_title') }}</h1>
-        <p class="page-sub">{{ t('compte.register_st_sub') }}</p>
-        <ol class="simple-steps-hint reveal">
-            {% for step in t('compte.register_st_steps') %}
-            <li>{{ step }}</li>
-            {% endfor %}
-        </ol>
-    </div>
-</section>
+{% block title %}{{ t('compte.register_st_title') }}{% endblock %}
 
-<section class="section">
-    <div class="container register-simple-wrap">
-        <form class="register-form register-form-simple reveal" method="POST">
-            <div class="form-row">
+{% block wizard %}
+<div class="reg-wizard-layout">
+    <div class="reg-wizard-main">
+        <div class="reg-wizard-progress" aria-hidden="true">
+            {% for step in t('compte.register_st_steps') %}
+            <div class="reg-wizard-progress-step" data-wizard-progress></div>
+            {% endfor %}
+        </div>
+        <p class="reg-wizard-step-label" data-wizard-step-label data-template="{{ t('compte.wizard_step_of') }}"></p>
+        <div class="reg-wizard-steps-pills">
+            {% for step in t('compte.register_st_steps') %}
+            <span data-wizard-pill>{{ step }}</span>
+            {% endfor %}
+        </div>
+        <h1 class="reg-wizard-title">{{ t('compte.register_st_title') }}</h1>
+        <p class="reg-wizard-sub">{{ t('compte.register_st_sub') }}</p>
+
+        <form method="POST" data-reg-wizard novalidate>
+            <div class="reg-wizard-panel is-active" data-wizard-step>
+                <h2 class="sr-only">{{ t('compte.register_st_steps')[0] }}</h2>
                 <div class="form-group">
                     <label for="email">{{ t('compte.email_pro') }} <span class="req">*</span></label>
                     <input type="email" id="email" name="email" required value="{{ field_value(form, 'email') }}" placeholder="{{ t('compte.email_pro_ph_st') }}">
@@ -26,34 +31,52 @@
                     <label for="startup_name">{{ t('compte.startup_name') }} <span class="req">*</span></label>
                     <input type="text" id="startup_name" name="startup_name" required value="{{ field_value(form, 'startup_name') }}">
                 </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="password">{{ t('compte.password') }} <span class="req">*</span></label>
-                    <input type="password" id="password" name="password" required minlength="8" placeholder="{{ t('compte.password_ph') }}">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="password">{{ t('compte.password') }} <span class="req">*</span></label>
+                        <input type="password" id="password" name="password" required minlength="8" placeholder="{{ t('compte.password_ph') }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="password_confirm">{{ t('compte.password_confirm') }} <span class="req">*</span></label>
+                        <input type="password" id="password_confirm" name="password_confirm" required minlength="8" data-mismatch="{{ t('compte.error_password_mismatch') }}">
+                    </div>
                 </div>
                 <div class="form-group">
-                    <label for="password_confirm">{{ t('compte.password_confirm') }} <span class="req">*</span></label>
-                    <input type="password" id="password_confirm" name="password_confirm" required minlength="8">
+                    <label for="country">{{ t('compte.country') }} <span class="req">*</span></label>
+                    <input type="text" id="country" name="country" required value="{{ field_value(form, 'country') }}" placeholder="{{ t('compte.country_ph_st') }}">
                 </div>
             </div>
-            <div class="form-group">
-                <label for="country">{{ t('compte.country') }} <span class="req">*</span></label>
-                <input type="text" id="country" name="country" required value="{{ field_value(form, 'country') }}" placeholder="{{ t('compte.country_ph_st') }}">
+
+            <div class="reg-wizard-panel" data-wizard-step hidden>
+                <h2 class="sr-only">{{ t('compte.register_st_steps')[1] }}</h2>
+                {% set sector_required = true %}
+                {% include "compte/_sector_select.html" %}
             </div>
 
-            {% set sector_required = true %}
-            {% include "compte/_sector_select.html" %}
+            <div class="reg-wizard-panel" data-wizard-step hidden>
+                <h2 class="sr-only">{{ t('compte.register_st_steps')[2] }}</h2>
+                <p class="reg-wizard-sub" style="margin-bottom:0">{{ t('compte.register_st_finish_hint') }}</p>
+            </div>
 
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary btn-lg btn-glow btn-block">{{ t('compte.submit_register_st') }}</button>
-                <p class="form-footer-link">{{ t('compte.already_registered') }} <a href="{{ url_for('compte.login') }}">{{ t('compte.login_link') }}</a></p>
+            <div class="reg-wizard-actions">
+                <button type="button" class="btn btn-ghost" data-wizard-back hidden>{{ t('compte.wizard_back') }}</button>
+                <button type="button" class="btn btn-primary" data-wizard-next>{{ t('compte.wizard_next') }}</button>
+                <button type="submit" class="btn btn-primary btn-glow" data-wizard-submit hidden>{{ t('compte.wizard_submit_st') }}</button>
             </div>
         </form>
     </div>
-</section>
+    <aside class="reg-wizard-aside">
+        <h2>{{ t('compte.wizard_reassurance_title') }}</h2>
+        <ul class="reg-wizard-reassurance">
+            {% for item in t('compte.wizard_reassurance_st') %}
+            <li>{{ item }}</li>
+            {% endfor %}
+        </ul>
+    </aside>
+</div>
 {% endblock %}
 
-{% block extra_js %}
+{% block scripts %}
+<script src="{{ url_for('vitrine.static', filename='js/register-wizard.js') }}?v=1"></script>
 <script src="{{ url_for('vitrine.static', filename='js/sector-select.js') }}?v=2"></script>
 {% endblock %}

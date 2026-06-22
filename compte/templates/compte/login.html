@@ -20,6 +20,7 @@
                 <label for="password">{{ t('compte.password') }}</label>
                 <input type="password" id="password" name="password" required placeholder="••••••••" minlength="8">
             </div>
+            <p class="auth-forgot"><a href="{{ url_for('compte.forgot_password') }}">{{ t('compte.forgot_password') }}</a></p>
             <button type="submit" class="btn btn-primary btn-lg btn-glow">{{ t('compte.login_btn') }}</button>
         </form>
 

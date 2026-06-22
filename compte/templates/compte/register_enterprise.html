@@ -1,68 +1,92 @@
-{% extends "base.html" %}
+{% extends "register_layout.html" %}
 {% from "compte/_macros.html" import field_value %}
 
-{% block content %}
-<section class="page-hero page-hero-sm">
-    <div class="container reveal">
-        <h1>{{ t('compte.register_ent_title') }}</h1>
-        <p class="page-sub">{{ t('compte.register_ent_sub') }}</p>
-        <ol class="simple-steps-hint reveal">
-            {% for step in t('compte.register_ent_steps') %}
-            <li>{{ step }}</li>
-            {% endfor %}
-        </ol>
-    </div>
-</section>
+{% block title %}{{ t('compte.register_ent_title') }}{% endblock %}
 
-<section class="section">
-    <div class="container register-simple-wrap">
-        <form class="register-form register-form-simple reveal" method="POST">
+{% block wizard %}
+<div class="reg-wizard-layout">
+    <div class="reg-wizard-main">
+        <div class="reg-wizard-progress" aria-hidden="true">
+            {% for step in t('compte.register_ent_steps') %}
+            <div class="reg-wizard-progress-step" data-wizard-progress></div>
+            {% endfor %}
+        </div>
+        <p class="reg-wizard-step-label" data-wizard-step-label data-template="{{ t('compte.wizard_step_of') }}"></p>
+        <div class="reg-wizard-steps-pills">
+            {% for step in t('compte.register_ent_steps') %}
+            <span data-wizard-pill>{{ step }}</span>
+            {% endfor %}
+        </div>
+        <h1 class="reg-wizard-title">{{ t('compte.register_ent_title') }}</h1>
+        <p class="reg-wizard-sub">{{ t('compte.register_ent_sub') }}</p>
+
+        <form method="POST" data-reg-wizard novalidate>
             {% if request.args.get('plan') == 'pro' %}
             <input type="hidden" name="plan" value="pro">
-            <p class="form-hint" style="margin-bottom:1rem">Inscription entreprise — vous serez redirigé vers l'abonnement Pro après création du compte.</p>
             {% endif %}
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="email">{{ t('compte.email_pro') }} <span class="req">*</span></label>
-                    <input type="email" id="email" name="email" required value="{{ field_value(form, 'email') }}" placeholder="{{ t('compte.email_pro_ph_ent') }}">
+
+            <div class="reg-wizard-panel is-active" data-wizard-step>
+                <h2 class="sr-only">{{ t('compte.register_ent_steps')[0] }}</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="email">{{ t('compte.email_pro') }} <span class="req">*</span></label>
+                        <input type="email" id="email" name="email" required value="{{ field_value(form, 'email') }}" placeholder="{{ t('compte.email_pro_ph_ent') }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="company_name">{{ t('compte.company_name') }} <span class="req">*</span></label>
+                        <input type="text" id="company_name" name="company_name" required value="{{ field_value(form, 'company_name') }}">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="password">{{ t('compte.password') }} <span class="req">*</span></label>
+                        <input type="password" id="password" name="password" required minlength="8" placeholder="{{ t('compte.password_ph') }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="password_confirm">{{ t('compte.password_confirm') }} <span class="req">*</span></label>
+                        <input type="password" id="password_confirm" name="password_confirm" required minlength="8" data-mismatch="{{ t('compte.error_password_mismatch') }}">
+                    </div>
                 </div>
                 <div class="form-group">
-                    <label for="company_name">{{ t('compte.company_name') }} <span class="req">*</span></label>
-                    <input type="text" id="company_name" name="company_name" required value="{{ field_value(form, 'company_name') }}">
+                    <label for="contact_name">{{ t('compte.contact_name') }} <span class="req">*</span></label>
+                    <input type="text" id="contact_name" name="contact_name" required value="{{ field_value(form, 'contact_name') }}">
                 </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="password">{{ t('compte.password') }} <span class="req">*</span></label>
-                    <input type="password" id="password" name="password" required minlength="8" placeholder="{{ t('compte.password_ph') }}">
-                </div>
-                <div class="form-group">
-                    <label for="password_confirm">{{ t('compte.password_confirm') }} <span class="req">*</span></label>
-                    <input type="password" id="password_confirm" name="password_confirm" required minlength="8">
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="contact_name">{{ t('compte.contact_name') }} <span class="req">*</span></label>
-                <input type="text" id="contact_name" name="contact_name" required value="{{ field_value(form, 'contact_name') }}">
             </div>
 
-            {% set sector_required = true %}
-            {% include "compte/_sector_select.html" %}
-
-            <div class="form-group">
-                <label for="project_need">{{ t('compte.project_need_optional') }}</label>
-                <textarea id="project_need" name="project_need" rows="3" placeholder="{{ t('compte.project_need_ph') }}">{{ field_value(form, 'project_need') }}</textarea>
+            <div class="reg-wizard-panel" data-wizard-step hidden>
+                <h2 class="sr-only">{{ t('compte.register_ent_steps')[1] }}</h2>
+                {% set sector_required = true %}
+                {% include "compte/_sector_select.html" %}
             </div>
 
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary btn-lg btn-glow btn-block">{{ t('compte.submit_register_ent') }}</button>
-                <p class="form-footer-link">{{ t('compte.already_registered') }} <a href="{{ url_for('compte.login') }}">{{ t('compte.login_link') }}</a></p>
+            <div class="reg-wizard-panel" data-wizard-step hidden>
+                <h2 class="sr-only">{{ t('compte.register_ent_steps')[2] }}</h2>
+                <div class="form-group">
+                    <label for="project_need">{{ t('compte.project_need_optional') }}</label>
+                    <textarea id="project_need" name="project_need" rows="4" placeholder="{{ t('compte.project_need_ph') }}">{{ field_value(form, 'project_need') }}</textarea>
+                    <span class="field-hint">{{ t('compte.project_need_hint') }}</span>
+                </div>
+            </div>
+
+            <div class="reg-wizard-actions">
+                <button type="button" class="btn btn-ghost" data-wizard-back hidden>{{ t('compte.wizard_back') }}</button>
+                <button type="button" class="btn btn-primary" data-wizard-next>{{ t('compte.wizard_next') }}</button>
+                <button type="submit" class="btn btn-primary btn-glow" data-wizard-submit hidden>{{ t('compte.wizard_submit_ent') }}</button>
             </div>
         </form>
     </div>
-</section>
+    <aside class="reg-wizard-aside">
+        <h2>{{ t('compte.wizard_reassurance_title') }}</h2>
+        <ul class="reg-wizard-reassurance">
+            {% for item in t('compte.wizard_reassurance_ent') %}
+            <li>{{ item }}</li>
+            {% endfor %}
+        </ul>
+    </aside>
+</div>
 {% endblock %}
 
-{% block extra_js %}
+{% block scripts %}
+<script src="{{ url_for('vitrine.static', filename='js/register-wizard.js') }}?v=1"></script>
 <script src="{{ url_for('vitrine.static', filename='js/sector-select.js') }}?v=2"></script>
 {% endblock %}

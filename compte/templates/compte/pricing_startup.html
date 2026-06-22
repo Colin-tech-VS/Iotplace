@@ -1,0 +1,38 @@
+{% extends "compte_layout.html" %}
+{% set d = 'compte.dashboard' %}
+{% set active_page = 'pricing' %}
+
+{% block title %}{{ t(d ~ '.pricing') }} — {{ profile.name }}{% endblock %}
+{% block compte_role %}startup{% endblock %}
+{% block space_label %}{{ t(d ~ '.startup.space') }}{% endblock %}
+
+{% block sidebar_nav %}
+{% include "compte/_sidebar_startup.html" %}
+{% endblock %}
+
+{% block main_header %}
+<header class="cdash-topbar">
+    <div class="cdash-topbar-left">
+        <button type="button" class="cdash-menu-btn" id="cdashMenuBtn" aria-label="{{ t(d ~ '.menu') }}">☰</button>
+        <div>
+            <h1>{{ t(d ~ '.pricing') }}</h1>
+            <p class="cdash-topbar-sub">{{ t('pricing.startup_section_sub') }}</p>
+        </div>
+    </div>
+    <div class="cdash-topbar-actions">
+        {% if stripe_configured and not profile.stripe_onboarding_complete %}
+        <a href="{{ url_for('compte.startup_stripe_onboard') }}" class="btn btn-outline btn-sm">{{ t(d ~ '.startup.stripe_connect') }}</a>
+        {% endif %}
+    </div>
+</header>
+{% endblock %}
+
+{% block content %}
+<div class="cdash-pricing-page reveal">
+    {% include "compte/_pricing_startup.html" %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('vitrine.static', filename='js/compte-dashboard.js') }}?v=2"></script>
+{% endblock %}

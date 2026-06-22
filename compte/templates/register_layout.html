@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="{{ locale|default('fr') }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>{% block title %}{{ t('compte.register_enterprise') }}{% endblock %} — Iotplace</title>
+    {% include "_favicons.html" %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/style.css') }}?v=11">
+    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/iot-theme.css') }}?v=3">
+    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/register-wizard.css') }}?v=1">
+    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/toast.css') }}?v=1">
+    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/brand-mark.css') }}?v=1">
+</head>
+<body class="reg-wizard-body">
+    {% from "_brand_mark.html" import brand_mark %}
+    <div class="reg-wizard-shell">
+        <header class="reg-wizard-header">
+            <a href="{{ url_for('vitrine.index') }}" class="reg-wizard-brand">
+                {{ brand_mark('sm') }}
+                <span>Iotplace</span>
+            </a>
+            <a href="{{ url_for('compte.login') }}" class="reg-wizard-login">{{ t('compte.already_registered') }} {{ t('compte.login_link') }}</a>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="reg-wizard-flashes">
+                {% for category, message in messages %}
+                <div class="flash flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block wizard %}{% endblock %}
+    </div>
+    <div id="iot-toast-stack" class="iot-toast-stack" aria-live="polite"></div>
+    <script src="{{ url_for('vitrine.static', filename='js/toast.js') }}?v=2"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

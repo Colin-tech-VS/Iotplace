@@ -1,0 +1,63 @@
+{% set in_dashboard = true %}
+<h3 class="cdash-section-title">{{ t('pricing.enterprise_offers_title') }}</h3>
+<div class="pricing-grid cdash-pricing-grid reveal">
+    {% for plan_id in pricing.enterprise_plan_ids %}
+    {% set featured = plan_id == 'commission' %}
+    <article class="pricing-card{% if featured %} pricing-card-featured{% endif %}{% if plan_id == 'pro_enterprise' %} pricing-card-pro{% endif %}">
+        {% if t('pricing.plans.' ~ plan_id ~ '.badge') %}
+        <span class="pricing-badge">{{ t('pricing.plans.' ~ plan_id ~ '.badge') }}</span>
+        {% endif %}
+        <p class="pricing-audience">{{ t('pricing.plans.' ~ plan_id ~ '.audience') }}</p>
+        <h2 class="pricing-name">{{ t('pricing.plans.' ~ plan_id ~ '.name') }}</h2>
+        <div class="pricing-price-wrap">
+            {% if plan_id == 'commission' %}
+            <span class="pricing-price">{{ pricing.commission_percent|int }}%</span>
+            <span class="pricing-period">{{ t('pricing.per_mission') }}</span>
+            {% elif plan_id == 'pro_enterprise' %}
+            <span class="pricing-price">{{ pricing.pro_price_eur }} €</span>
+            <span class="pricing-period">{{ t('pricing.per_month') }}</span>
+            {% else %}
+            <span class="pricing-price">{{ t('pricing.free') }}</span>
+            <span class="pricing-period">{{ t('pricing.forever') }}</span>
+            {% endif %}
+        </div>
+        <p class="pricing-summary">{{ t('pricing.plans.' ~ plan_id ~ '.summary')|replace('10 %', (pricing.commission_percent|int) ~ ' %')|replace('10%', (pricing.commission_percent|int) ~ '%')|replace('7 %', (pricing.pro_commission_percent|int) ~ ' %')|replace('7%', (pricing.pro_commission_percent|int) ~ '%') }}</p>
+        <ul class="pricing-features">
+            {% for feat in t('pricing.plans.' ~ plan_id ~ '.features') %}
+            <li>{{ feat|replace('10 %', (pricing.commission_percent|int) ~ ' %')|replace('10%', (pricing.commission_percent|int) ~ '%')|replace('7 %', (pricing.pro_commission_percent|int) ~ ' %')|replace('7%', (pricing.pro_commission_percent|int) ~ '%')|replace('399 €', (pricing.pro_price_eur) ~ ' €')|replace('€399', '€' ~ (pricing.pro_price_eur)) }}</li>
+            {% endfor %}
+        </ul>
+        {% if plan_id == 'pro_enterprise' and stripe_configured %}
+        <a href="{% if is_pro %}{{ url_for('compte.enterprise_billing_portal') }}{% else %}{{ url_for('compte.enterprise_subscribe_pro') }}{% endif %}" class="btn {% if featured %}btn-primary{% else %}btn-outline{% endif %} pricing-cta">
+            {% if is_pro %}{{ t('compte.dashboard.enterprise.subscription') }}{% else %}{{ t('pricing.plans.pro_enterprise.cta') }}{% endif %}
+        </a>
+        {% elif plan_id != 'pro_enterprise' %}
+        <span class="cdash-pricing-note">{{ t('pricing.plans.' ~ plan_id ~ '.name') }}</span>
+        {% endif %}
+    </article>
+    {% endfor %}
+</div>
+
+<h3 class="cdash-section-title" style="margin-top:2rem">{{ t('pricing.compare_title') }}</h3>
+<div class="table-wrap reveal">
+    <table class="pricing-table">
+        <thead>
+            <tr>
+                <th>{{ t('pricing.compare_feature') }}</th>
+                <th>{{ t('pricing.plans.free_enterprise.name') }}</th>
+                <th>{{ t('pricing.plans.commission.name') }}</th>
+                <th>{{ t('pricing.plans.pro_enterprise.name') }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in pricing.compare_rows %}
+            <tr>
+                <td>{{ row.feature }}</td>
+                <td>{{ row.free }}</td>
+                <td>{{ row.commission }}</td>
+                <td>{{ row.pro }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

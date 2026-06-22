@@ -1,5 +1,7 @@
+import hashlib
 import json
 import os
+import secrets
 import uuid
 from urllib.parse import quote
 from collections import Counter
@@ -877,6 +879,86 @@ def create_user(email, password_hash, role, profile_id):
     data.setdefault("users", []).append(entry)
     _save_raw(data)
     return entry
+
+
+PASSWORD_RESET_HOURS = 24
+
+
+def _hash_password_reset_token(token: str) -> str:
+    return hashlib.sha256((token or "").encode()).hexdigest()
+
+
+def _parse_iso_datetime(value: str):
+    if not value:
+        return None
+    try:
+        return datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+
+
+def issue_password_reset_token(email: str) -> tuple[str, dict] | tuple[None, None]:
+    user = get_user_by_email(email)
+    if not user:
+        return None, None
+    token = secrets.token_urlsafe(32)
+    expires = datetime.now(timezone.utc) + timedelta(hours=PASSWORD_RESET_HOURS)
+    data = _load_raw()
+    for i, u in enumerate(data.get("users", [])):
+        if u["id"] == user["id"]:
+            updated = {
+                **u,
+                "password_reset_token_hash": _hash_password_reset_token(token),
+                "password_reset_expires_at": expires.isoformat(),
+            }
+            data["users"][i] = updated
+            _save_raw(data)
+            return token, updated
+    return None, None
+
+
+def get_user_by_password_reset_token(token: str):
+    if not token:
+        return None
+    token_hash = _hash_password_reset_token(token)
+    now = datetime.now(timezone.utc)
+    for user in _load_raw().get("users", []):
+        if user.get("password_reset_token_hash") != token_hash:
+            continue
+        expires = _parse_iso_datetime(user.get("password_reset_expires_at", ""))
+        if not expires or expires < now:
+            return None
+        return user
+    return None
+
+
+def clear_password_reset_token(user_id: str):
+    data = _load_raw()
+    for i, user in enumerate(data.get("users", [])):
+        if user["id"] == user_id:
+            updated = dict(user)
+            updated.pop("password_reset_token_hash", None)
+            updated.pop("password_reset_expires_at", None)
+            data["users"][i] = updated
+            _save_raw(data)
+            return updated
+    return None
+
+
+def update_user_password(user_id: str, password_hash: str):
+    data = _load_raw()
+    for i, user in enumerate(data.get("users", [])):
+        if user["id"] == user_id:
+            updated = {
+                **user,
+                "password_hash": password_hash,
+            }
+            updated.pop("password_reset_token_hash", None)
+            updated.pop("password_reset_expires_at", None)
+            data["users"][i] = updated
+            _save_raw(data)
+            return updated
+    return None
 
 
 def get_enterprise(entry_id):

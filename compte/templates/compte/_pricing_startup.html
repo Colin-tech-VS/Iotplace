@@ -1,0 +1,43 @@
+<h3 class="cdash-section-title">{{ t('pricing.startup_offers_title') }}</h3>
+<div class="pricing-grid pricing-grid-startup cdash-pricing-grid reveal">
+    {% for plan_id in pricing.startup_plan_ids %}
+    <article class="pricing-card pricing-card-startup">
+        <span class="pricing-badge">{{ t('pricing.plans.' ~ plan_id ~ '.badge') }}</span>
+        <p class="pricing-audience">{{ t('pricing.plans.' ~ plan_id ~ '.audience') }}</p>
+        <h2 class="pricing-name">{{ t('pricing.plans.' ~ plan_id ~ '.name') }}</h2>
+        <div class="pricing-price-wrap">
+            <span class="pricing-price">{{ t('pricing.free') }}</span>
+            <span class="pricing-period">{{ t('pricing.forever') }}</span>
+        </div>
+        <p class="pricing-summary">{{ t('pricing.plans.' ~ plan_id ~ '.summary') }}</p>
+        <ul class="pricing-features">
+            {% for feat in t('pricing.plans.' ~ plan_id ~ '.features') %}
+            <li>{{ feat|replace('49 €', pricing.poc_application_fee_label)|replace('€49', pricing.poc_application_fee_label) }}</li>
+            {% endfor %}
+        </ul>
+    </article>
+    {% endfor %}
+</div>
+
+<h3 class="cdash-section-title" style="margin-top:2rem">{{ t('pricing.startup_fees_title') }}</h3>
+<div class="table-wrap reveal">
+    <table class="pricing-table">
+        <thead>
+            <tr>
+                <th>{{ t('pricing.startup_fees_phase') }}</th>
+                <th>{{ t('pricing.startup_fees_apply') }}</th>
+                <th>{{ t('pricing.startup_fees_mission') }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in pricing.startup_fee_rows %}
+            <tr>
+                <td>{{ row.phase }}</td>
+                <td>{{ row.apply }}</td>
+                <td>{{ row.mission }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<p class="cdash-pricing-footnote">{{ t('pricing.startup_note')|replace('49 €', pricing.poc_application_fee_label)|replace('€49', pricing.poc_application_fee_label) }}</p>

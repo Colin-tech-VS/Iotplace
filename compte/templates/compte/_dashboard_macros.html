@@ -6,6 +6,14 @@
 </button>
 {% endmacro %}
 
+{% macro cdash_nav_link(href, icon, label, active_page='', page_id='', badge=0) %}
+<a href="{{ href }}" class="cdash-nav-item{% if active_page == page_id %} active{% endif %}">
+    <span class="cdash-nav-icon" aria-hidden="true">{{ icon }}</span>
+    {{ label }}
+    {% if badge %}<span class="cdash-nav-badge">{{ badge }}</span>{% endif %}
+</a>
+{% endmacro %}
+
 {% macro cdash_status(status_class, label) %}
 <span class="cdash-status cdash-status-{{ status_class }}">{{ label }}</span>
 {% endmacro %}
