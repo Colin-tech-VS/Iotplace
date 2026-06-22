@@ -195,7 +195,7 @@ def generate_email_content(
         f"Write exclusively in {lang}. "
         "Return a single valid JSON object with subject, body_html (HTML fragments only: p, strong, a, ul, li — "
         "no full document, no outer wrapper), and body_text (plain text). "
-        "Use professional B2B tone. Links should point to iotplace.io paths when relevant. "
+        "Use professional B2B tone. Links should point to iotplace.fr paths when relevant. "
         "Do NOT include the Iotplace logo or header — the platform adds branded layout automatically."
     )
     user = {

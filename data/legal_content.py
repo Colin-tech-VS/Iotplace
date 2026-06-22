@@ -1,5 +1,7 @@
 """Default legal page bodies (FR / EN) — editable via CRM."""
 
+from data.site_config import CONTACT_EMAIL
+
 LEGAL_COMPANY = {
     "name": "Iotplace",
     "form": "SARL, société à responsabilité limitée",
@@ -8,7 +10,7 @@ LEGAL_COMPANY = {
     "vat": "FR88980867485",
     "rcs": "980 867 485 R.C.S. Nanterre",
     "rcs_date": "26/10/2023",
-    "email": "hello@iotplace.io",
+    "email": CONTACT_EMAIL,
     "host": "Scalingo SAS",
     "host_address": "13 rue de la Tour des Dames, 75009 Paris, France",
     "host_site": "https://scalingo.com",
@@ -19,7 +21,7 @@ def _fr_mentions() -> str:
     c = LEGAL_COMPANY
     return f"""
 <h2>1. Éditeur du site</h2>
-<p>Le site <strong>iotplace.io</strong> est édité par :</p>
+<p>Le site <strong>iotplace.fr</strong> est édité par :</p>
 <ul>
   <li><strong>{c['name']}</strong> — {c['form']}</li>
   <li>SIREN : {c['siren']}</li>
@@ -61,7 +63,7 @@ def _en_legal() -> str:
     c = LEGAL_COMPANY
     return f"""
 <h2>1. Website publisher</h2>
-<p>The website <strong>iotplace.io</strong> is published by:</p>
+<p>The website <strong>iotplace.fr</strong> is published by:</p>
 <ul>
   <li><strong>{c['name']}</strong> — French limited liability company (SARL)</li>
   <li>SIREN: {c['siren']}</li>

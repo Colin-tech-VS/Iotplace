@@ -13,6 +13,8 @@ DATA_FILE = Path(__file__).parent / "content.json"
 
 from data.site_pages import STATIC_PAGE_CATALOG as PAGE_CATALOG, build_page_catalog, get_domain_seo_defaults, get_page_entry, parse_domain_page_slug
 
+from data.site_config import CONTACT_EMAIL, PRODUCTION_SITE_URL
+
 DEFAULT_PAGE_CONTENT = {
     "home": {
         "hero_badge": "B2B IoT Marketplace — Asia × World Subcontracting",
@@ -43,7 +45,7 @@ DEFAULT_PAGE_CONTENT = {
     "contact": {
         "title": "Contact us",
         "subtitle": "Enterprise or IoT startup: start your subcontracting journey on Iotplace.",
-        "email": "hello@iotplace.io",
+        "email": CONTACT_EMAIL,
     },
     "pricing": {
         "title": "Pricing & offers",
@@ -55,7 +57,7 @@ DEFAULT_PAGE_CONTENT = {
     },
     "legal": {
         "title": "Legal notice",
-        "subtitle": "Publisher, hosting and terms of use for iotplace.io.",
+        "subtitle": "Publisher, hosting and terms of use for iotplace.fr.",
     },
     "cookies": {
         "title": "Cookie policy",
@@ -93,7 +95,7 @@ DEFAULT_PAGE_CONTENT_FR = {
     "contact": {
         "title": "Nous contacter",
         "subtitle": "Entreprise ou startup IoT : démarrez votre sous-traitance sur Iotplace.",
-        "email": "hello@iotplace.io",
+        "email": CONTACT_EMAIL,
     },
     "pricing": {
         "title": "Tarifs & offres",
@@ -105,7 +107,7 @@ DEFAULT_PAGE_CONTENT_FR = {
     },
     "legal": {
         "title": "Mentions légales",
-        "subtitle": "Éditeur, hébergement et conditions d'utilisation du site iotplace.io.",
+        "subtitle": "Éditeur, hébergement et conditions d'utilisation du site iotplace.fr.",
     },
     "cookies": {
         "title": "Politique cookies",
@@ -199,7 +201,7 @@ DEFAULT_SEO_PAGES = {
     },
     "legal": {
         "title": "Legal notice — Iotplace",
-        "description": "Legal publisher information, hosting and intellectual property for iotplace.io.",
+        "description": "Legal publisher information, hosting and intellectual property for iotplace.fr.",
         "keywords": "Iotplace legal notice, SARL, RCS Nanterre, terms",
     },
     "cookies": {
@@ -2288,7 +2290,7 @@ def get_site_url():
     saved = (global_seo.get("site_url") or "").strip().rstrip("/")
     if saved:
         return saved
-    return "https://iotplace.osc-fr1.scalingo.io"
+    return PRODUCTION_SITE_URL
 
 
 def build_canonical_url(site_url, path, query_string=b""):
@@ -2317,7 +2319,7 @@ def get_seo_page(slug, locale="en"):
             "about": {"title": "À propos — Marketplace sous-traitance IoT B2B", "description": "Iotplace structure la sous-traitance IoT entre entreprises et startups d'Asie.", "keywords": "marketplace IoT, sous-traitance IoT Asie"},
             "contact": {"title": "Contact — Démarrer une sous-traitance IoT", "description": "Contactez Iotplace pour sous-traiter ou trouver des missions IoT.", "keywords": "contact sous-traitance IoT"},
             "privacy": {"title": "Politique de confidentialité — Iotplace", "description": "Traitement des données personnelles sur Iotplace : formulaire, comptes, analytics et vos droits RGPD.", "keywords": "confidentialité Iotplace, RGPD, données personnelles"},
-            "legal": {"title": "Mentions légales — Iotplace", "description": "Éditeur, hébergement et propriété intellectuelle du site iotplace.io.", "keywords": "mentions légales Iotplace, SARL, RCS Nanterre"},
+            "legal": {"title": "Mentions légales — Iotplace", "description": "Éditeur, hébergement et propriété intellectuelle du site iotplace.fr.", "keywords": "mentions légales Iotplace, SARL, RCS Nanterre"},
             "cookies": {"title": "Politique cookies — Iotplace", "description": "Cookies utilisés sur Iotplace et gestion de vos préférences de consentement.", "keywords": "cookies Iotplace, consentement, analytics"},
         }
     else:

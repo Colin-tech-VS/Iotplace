@@ -110,7 +110,7 @@ def wrap_email_html(
     text_main = "#e8ecf4"
     text_muted = "#8b95a8"
     border = "rgba(0, 232, 200, 0.22)"
-    site = (site_url or "https://iotplace.io").rstrip("/")
+    site = (site_url or store.get_site_url() or "https://iotplace.fr").rstrip("/")
     if locale == "en":
         tagline = "B2B IoT subcontracting marketplace"
         cta_label = "Visit Iotplace"

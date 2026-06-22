@@ -17,6 +17,7 @@ if (-not (Test-Path $EnvFile)) {
 }
 
 $keys = @(
+    "SITE_URL",
     "STRIPE_SECRET_KEY",
     "STRIPE_PUBLISHABLE_KEY",
     "STRIPE_WEBHOOK_SECRET",

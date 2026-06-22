@@ -57,7 +57,7 @@ IMAP_MAILBOX=INBOX, IMAP_USE_SSL=true</pre>
     <form method="POST" action="{{ url_for('crm.mailing_settings') }}" class="form-layout" style="max-width:640px">
         <div class="field">
             <label for="reply_to">Reply-To (optionnel)</label>
-            <input type="email" id="reply_to" name="reply_to" value="{{ settings.reply_to or '' }}" placeholder="contact@iotplace.io">
+            <input type="email" id="reply_to" name="reply_to" value="{{ settings.reply_to or '' }}" placeholder="hello@iotplace.fr">
         </div>
         <div class="field">
             <label for="signature">Signature HTML (ajoutée aux campagnes)</label>

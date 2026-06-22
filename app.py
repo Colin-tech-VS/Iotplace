@@ -1,5 +1,5 @@
 from datetime import timedelta
-from flask import Flask
+from flask import Flask, redirect, request
 import logging
 import os
 
@@ -35,6 +35,33 @@ app.register_blueprint(crm_bp)
 app.register_blueprint(vitrine_bp)
 app.register_blueprint(compte_bp)
 app.register_blueprint(payments_bp)
+
+if _is_prod:
+    try:
+        from werkzeug.middleware.proxy_fix import ProxyFix
+
+        app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
+    except ImportError:
+        pass
+
+
+@app.before_request
+def enforce_canonical_host():
+    """Redirect www and Scalingo default host to SITE_URL (SEO + Stripe return URLs)."""
+    if not _is_prod or request.method not in ("GET", "HEAD"):
+        return None
+    from data.site_config import ALIASES_TO_CANONICAL, is_scalingo_host
+    from data.store import get_site_url
+
+    host = (request.host or "").split(":")[0].lower()
+    canonical = get_site_url().replace("https://", "").replace("http://", "").rstrip("/")
+    if not canonical:
+        return None
+    if host == canonical:
+        return None
+    if host in ALIASES_TO_CANONICAL or is_scalingo_host(host):
+        return redirect(f"https://{canonical}{request.full_path}", code=301)
+    return None
 
 
 @app.context_processor

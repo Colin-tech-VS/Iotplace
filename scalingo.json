@@ -2,7 +2,7 @@
   "$schema": "https://json.scalingo.com/scalingo.json",
   "name": "iotplace",
   "description": "Iotplace — Marketplace B2B IoT (vitrine + CRM + comptes)",
-  "website": "https://iotplace.osc-fr1.scalingo.io",
+  "website": "https://iotplace.fr",
   "formation": {
     "web": {
       "amount": 1,
@@ -16,7 +16,7 @@
     },
     "SITE_URL": {
       "description": "URL publique du site (webhooks Stripe, liens emails)",
-      "value": "https://iotplace.osc-fr1.scalingo.io"
+      "value": "https://iotplace.fr"
     },
     "MISTRAL_MODEL": {
       "description": "Modèle Mistral pour l'advisor IA et le CRM",
