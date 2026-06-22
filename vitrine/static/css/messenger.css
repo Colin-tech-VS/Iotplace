@@ -1,24 +1,32 @@
 /* Iotplace — dashboard messenger (enterprise & startup) */
 
 .msg-app {
-    --msg-sidebar-w: 300px;
+    --msg-sidebar-w: min(300px, 38%);
     --msg-accent: #00e8c8;
     --msg-accent-dim: rgba(0, 232, 200, 0.12);
     --msg-surface: rgba(12, 18, 30, 0.85);
     --msg-border: rgba(255, 255, 255, 0.07);
     --msg-bubble-mine: linear-gradient(135deg, rgba(0, 232, 200, 0.22), rgba(56, 189, 248, 0.14));
     --msg-bubble-theirs: rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-direction: column;
+    width: 100%;
     border-radius: 14px;
     border: 1px solid var(--msg-border);
     background: var(--msg-surface);
     overflow: hidden;
-    min-height: min(72vh, 680px);
+    height: clamp(480px, 72vh, 720px);
+    min-height: 480px;
 }
 
 .msg-layout {
+    flex: 1;
     display: grid;
-    grid-template-columns: var(--msg-sidebar-w) 1fr;
-    min-height: min(72vh, 680px);
+    grid-template-columns: var(--msg-sidebar-w) minmax(280px, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    min-height: 0;
+    height: 100%;
+    width: 100%;
 }
 
 /* ── Sidebar ── */
@@ -28,6 +36,9 @@
     border-right: 1px solid var(--msg-border);
     background: rgba(0, 0, 0, 0.2);
     min-height: 0;
+    min-width: 0;
+    height: 100%;
+    overflow: hidden;
 }
 
 .msg-sidebar-head {
@@ -280,18 +291,34 @@
 }
 
 /* ── Main / empty ── */
-.msg-main {
-    display: flex;
-    flex-direction: column;
+.msg-app .msg-main {
+    flex: none;
+    display: grid;
+    grid-template-rows: minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
     min-height: 0;
-    min-width: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
     background:
         radial-gradient(ellipse 80% 50% at 50% 0%, rgba(56, 189, 248, 0.06), transparent 55%),
         rgba(6, 10, 18, 0.4);
 }
 
+.msg-main > .msg-empty,
+.msg-main > .msg-chat {
+    grid-row: 1;
+    grid-column: 1;
+    min-height: 0;
+    min-width: 0;
+}
+
+.msg-main > .msg-empty[hidden],
+.msg-main > .msg-chat[hidden] {
+    display: none !important;
+}
+
 .msg-empty {
-    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -368,7 +395,6 @@
 .msg-chat {
     display: flex;
     flex-direction: column;
-    flex: 1;
     min-height: 0;
 }
 
@@ -648,25 +674,27 @@
 }
 
 /* ── Mobile ── */
-.msg-app.thread-open .msg-sidebar {
+.msg-back {
     display: none;
 }
 
-.msg-app.thread-open .msg-back {
-    display: inline-flex;
-}
-
-@media (max-width: 860px) {
+@media (max-width: 900px) {
     .msg-layout {
         grid-template-columns: 1fr;
+        grid-template-rows: minmax(200px, 42%) minmax(0, 1fr);
     }
 
     .msg-sidebar {
         border-right: none;
+        border-bottom: 1px solid var(--msg-border);
     }
 
     .msg-back {
         display: inline-flex;
+    }
+
+    .msg-app.thread-open .msg-layout {
+        grid-template-rows: 1fr;
     }
 
     .msg-app.thread-open .msg-sidebar {
@@ -678,8 +706,27 @@
     }
 }
 
+@media (max-width: 640px) {
+    .msg-app {
+        height: calc(100dvh - 120px);
+        min-height: 420px;
+        border-radius: 12px;
+    }
+
+    .msg-layout {
+        grid-template-rows: minmax(180px, 38%) minmax(0, 1fr);
+    }
+}
+
 .cdash-messenger-panel {
     padding: 0 !important;
+    min-width: 0;
+}
+
+.cdash-messenger-panel.active {
+    display: flex;
+    flex-direction: column;
+    min-height: clamp(480px, 72vh, 720px);
 }
 
 .cdash-messenger-panel .cdash-card {

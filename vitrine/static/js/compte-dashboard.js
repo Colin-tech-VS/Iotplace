@@ -43,6 +43,7 @@
         window.IotPageLoader?.hide?.();
         if (section === 'messages') {
             window.IotMessenger?.refresh?.();
+            setTimeout(() => window.IotMessenger?.maybeAutoOpenThread?.(), 250);
         }
     }
 

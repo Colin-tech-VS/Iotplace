@@ -77,10 +77,12 @@
         return role === 'enterprise' ? 'enterprise' : 'startup';
     }
 
-    function roleLabel(role) {
-        return role === 'enterprise'
-            ? (i18n().role_enterprise || 'Enterprise')
-            : (i18n().role_startup || 'Startup');
+    function isMobileMessenger() {
+        return window.matchMedia('(max-width: 900px)').matches;
+    }
+
+    function setThreadOpen(open) {
+        root.classList.toggle('thread-open', open && isMobileMessenger());
     }
 
     function filteredConversations() {
@@ -250,7 +252,7 @@
         els.empty.hidden = true;
         els.active.hidden = false;
         setPeerHeader(thread);
-        root.classList.add('thread-open');
+        setThreadOpen(true);
 
         const params = new URLSearchParams({ counterpart: thread.counterpart_user_id });
         if (thread.project_id) params.set('project_id', thread.project_id);
@@ -333,6 +335,27 @@
         await poll();
     }
 
+    let autoOpenQueued = false;
+
+    function maybeAutoOpenThread() {
+        if (state.activeThread || autoOpenQueued || !state.conversations.length) return;
+        const panel = document.getElementById('cdash-panel-messages');
+        if (!panel || !panel.classList.contains('active')) return;
+        const list = filteredConversations();
+        if (!list.length) return;
+        const pick = list.find((c) => c.unread) || list[0];
+        autoOpenQueued = true;
+        openThread({
+            counterpart_user_id: pick.counterpart_user_id,
+            project_id: pick.project_id || null,
+            counterpart_name: pick.counterpart_name,
+            counterpart_role: pick.counterpart_role,
+            project_title: pick.project_title || '',
+        }).finally(() => {
+            autoOpenQueued = false;
+        });
+    }
+
     async function poll() {
         try {
             const res = await fetch(`${urls.poll}?since=${encodeURIComponent(state.since)}`);
@@ -342,6 +365,7 @@
             state.conversations = data.conversations || [];
             updateBadges(data.unread || 0);
             renderThreads();
+            maybeAutoOpenThread();
 
             const notifications = data.notifications || [];
             if (notifications.length) {
@@ -389,7 +413,8 @@
         state.activeThread = null;
         els.active.hidden = true;
         els.empty.hidden = false;
-        root.classList.remove('thread-open');
+        setThreadOpen(false);
+        renderThreads();
     });
 
     els.input?.addEventListener('input', autoResizeInput);
@@ -414,6 +439,7 @@
         openThread,
         poll,
         refresh: poll,
+        maybeAutoOpenThread,
     };
 
     poll();
