@@ -98,8 +98,11 @@ def _build_vars() -> dict[str, str]:
 
     secret = to_set.get("SECRET_KEY", "")
     if not secret or secret in ("dev-secret-change-me", "iotplace-dev-secret-change-in-production"):
-        to_set["SECRET_KEY"] = secrets.token_urlsafe(48)
-        print("Generated new SECRET_KEY for production (not printed).")
+        if os.environ.get("SCALINGO_SKIP_SECRET_KEY") == "1":
+            to_set.pop("SECRET_KEY", None)
+        else:
+            to_set["SECRET_KEY"] = secrets.token_urlsafe(48)
+            print("Generated new SECRET_KEY for production (not printed).")
 
     return to_set
 
