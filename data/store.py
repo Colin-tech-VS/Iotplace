@@ -743,6 +743,72 @@ def get_crm_account_detail(user_id):
     return _enrich_crm_account(user)
 
 
+def _purge_crm_account_from_data(data: dict, user: dict) -> None:
+    """Remove a user account and linked profile data from an in-memory state dict."""
+    uid = user["id"]
+    profile_id = user.get("profile_id")
+    role = user.get("role")
+    project_ids: set[str] = set()
+
+    if role == "enterprise" and profile_id:
+        project_ids = {
+            p["id"] for p in data.get("projects", []) if p.get("enterprise_id") == profile_id
+        }
+        data["projects"] = [p for p in data.get("projects", []) if p.get("enterprise_id") != profile_id]
+        data["engagements"] = [
+            e for e in data.get("engagements", []) if e.get("enterprise_id") != profile_id
+        ]
+        data["enterprises"] = [e for e in data.get("enterprises", []) if e["id"] != profile_id]
+    elif role == "startup" and profile_id:
+        data["engagements"] = [
+            e for e in data.get("engagements", []) if e.get("startup_id") != profile_id
+        ]
+        data["startups"] = [s for s in data.get("startups", []) if s["id"] != profile_id]
+
+    def _drop_message(msg: dict) -> bool:
+        if msg.get("from_user_id") == uid or msg.get("to_user_id") == uid:
+            return True
+        if role == "startup" and profile_id:
+            if msg.get("kind") == "application" and msg.get("from_profile_id") == profile_id:
+                return True
+        if msg.get("project_id") in project_ids:
+            return True
+        return False
+
+    removed_message_ids = {m["id"] for m in data.get("messages", []) if _drop_message(m)}
+    data["messages"] = [m for m in data.get("messages", []) if m["id"] not in removed_message_ids]
+    data["engagements"] = [
+        e for e in data.get("engagements", [])
+        if e.get("application_message_id") not in removed_message_ids
+    ]
+    data["application_checkouts"] = [
+        c for c in data.get("application_checkouts", [])
+        if c.get("application_message_id") not in removed_message_ids
+    ]
+    data["users"] = [u for u in data.get("users", []) if u["id"] != uid]
+
+
+def delete_crm_account(user_id: str) -> bool:
+    data = _load_raw()
+    user = next((u for u in data.get("users", []) if u["id"] == user_id), None)
+    if not user:
+        return False
+    _purge_crm_account_from_data(data, user)
+    _save_raw(data)
+    return True
+
+
+def delete_all_crm_accounts() -> int:
+    data = _load_raw()
+    users = list(data.get("users", []))
+    if not users:
+        return 0
+    for user in users:
+        _purge_crm_account_from_data(data, user)
+    _save_raw(data)
+    return len(users)
+
+
 def get_projects_for_enterprise(enterprise_id, enterprise_name=""):
     projects = get_projects()
     return [

@@ -49,7 +49,7 @@
 {% endmacro %}
 
 {% macro delete_form(url, label='Supprimer') %}
-<form method="POST" action="{{ url }}" class="inline-form" data-confirm="Confirmer la suppression ?">
+<form method="POST" action="{{ url }}" class="inline-form" data-confirm="Confirmer la suppression de cette ligne ?">
     <button type="submit" class="btn-icon danger" title="{{ label }}" aria-label="{{ label }}">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
     </button>

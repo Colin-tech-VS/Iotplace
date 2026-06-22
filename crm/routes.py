@@ -267,6 +267,25 @@ def account_detail(user_id):
     return render_template("crm/account_detail.html", account=account)
 
 
+@crm_bp.route("/comptes/<user_id>/delete", methods=["POST"])
+def delete_account(user_id):
+    if store.delete_crm_account(user_id):
+        flash("Compte supprimé avec son profil et les données liées.", "success")
+    else:
+        flash("Compte introuvable.", "error")
+    return redirect(url_for("crm.accounts"))
+
+
+@crm_bp.route("/comptes/supprimer-tous", methods=["POST"])
+def delete_all_accounts():
+    count = store.delete_all_crm_accounts()
+    if count:
+        flash(f"{count} compte(s) supprimé(s) avec leurs profils et données liées.", "success")
+    else:
+        flash("Aucun compte à supprimer.", "info")
+    return redirect(url_for("crm.accounts"))
+
+
 # ── Réseaux sociaux ──
 
 @crm_bp.route("/reseaux")

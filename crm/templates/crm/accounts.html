@@ -1,5 +1,5 @@
 {% extends "crm_layout.html" %}
-{% from "crm_macros.html" import page_header, empty_state, type_badge, avatar_initials %}
+{% from "crm_macros.html" import page_header, empty_state, type_badge, avatar_initials, delete_form %}
 {% block title %}Base de données — Comptes{% endblock %}
 
 {% block content %}
@@ -11,6 +11,12 @@
         <input type="search" name="q" value="{{ search }}" placeholder="Email, nom, pays, spécialité…">
     </form>
     <span class="toolbar-meta">{{ accounts|length }} compte{% if accounts|length != 1 %}s{% endif %}</span>
+    {% if accounts %}
+    <form method="POST" action="{{ url_for('crm.delete_all_accounts') }}" class="inline-form"
+          data-confirm="Supprimer TOUS les comptes ({{ accounts|length }}) ? Profils, projets, messages et candidatures seront effacés. Action irréversible.">
+        <button type="submit" class="btn btn-ghost btn-sm btn-danger-outline">Tout supprimer</button>
+    </form>
+    {% endif %}
 </div>
 
 <div class="card table-card">
@@ -63,6 +69,7 @@
                     <td class="mono muted">{{ acc.created_at[:10] if acc.created_at else '—' }}</td>
                     <td class="col-actions">
                         <a href="{{ url_for('crm.account_detail', user_id=acc.user_id) }}" class="btn btn-ghost btn-sm">Détail</a>
+                        {{ delete_form(url_for('crm.delete_account', user_id=acc.user_id), 'Supprimer ce compte') }}
                     </td>
                 </tr>
                 {% endfor %}

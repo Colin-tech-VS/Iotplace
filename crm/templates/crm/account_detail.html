@@ -1,5 +1,5 @@
 {% extends "crm_layout.html" %}
-{% from "crm_macros.html" import page_header, type_badge, status_badge, avatar_initials %}
+{% from "crm_macros.html" import page_header, type_badge, status_badge, avatar_initials, delete_form %}
 {% block title %}{{ account.profile_name }} — Compte{% endblock %}
 
 {% block content %}
@@ -13,6 +13,10 @@
     {% else %}
     <a href="{{ url_for('crm.edit_startup', entry_id=account.profile_id) }}" class="btn btn-ghost btn-sm">Fiche startup</a>
     {% endif %}
+    <form method="POST" action="{{ url_for('crm.delete_account', user_id=account.user_id) }}" class="inline-form"
+          data-confirm="Supprimer ce compte et toutes ses données (profil, messages, projets) ?">
+        <button type="submit" class="btn btn-ghost btn-sm btn-danger-outline">Supprimer le compte</button>
+    </form>
 {% endcall %}
 
 <div class="kpi-grid" style="margin-bottom:10px">
