@@ -611,6 +611,10 @@
     "flash_billing_unavailable": "Le portail de facturation n'est pas disponible.",
     "flash_funds_released": "Fonds libérés et versés à la startup.",
     "flash_release_error": "Erreur lors de la libération.",
+    "flash_engagement_not_found": "Mission introuvable.",
+    "flash_progress_posted": "Point d'avancement publié — votre client est notifié.",
+    "flash_progress_empty": "Décrivez l'avancement avant de publier.",
+    "flash_progress_closed": "Cette mission n'accepte plus de mise à jour d'avancement.",
     "flash_project_limit": "Limite atteinte : {max} projet ouvert sur l'offre Gratuit. Passez en Pro ou archivez un projet existant.",
     "dashboard": {
       "member_space": "Espace membre",
@@ -700,6 +704,7 @@
         "col_startup": "Startup",
         "col_amount": "Montant",
         "col_escrow": "Statut séquestre",
+        "col_progress": "Avancement",
         "partnerships_empty_title": "Aucun partenariat",
         "partnerships_empty_desc": "Acceptez une candidature startup pour créer une mission et lancer le séquestre Stripe.",
         "applications_title": "Candidatures reçues",
@@ -760,6 +765,7 @@
         "kpi_messages_sub": "{total} échange(s)",
         "partnerships_title": "Partenariats & paiements",
         "col_payout": "Versement prévu",
+        "col_progress": "Avancement",
         "partnerships_empty_title": "Aucun partenariat",
         "partnerships_empty_desc": "Une candidature acceptée créera votre première mission rémunérée.",
         "applications_title": "Mes candidatures",
@@ -837,7 +843,22 @@
         "reply_placeholder": "Votre réponse…",
         "reply_send": "Envoyer la réponse",
         "linked_project": "Projet lié",
-        "view_project": "Voir le projet"
+        "view_project": "Voir le projet",
+        "progress": {
+          "title": "Suivi d'avancement",
+          "progress_label": "Avancement",
+          "no_updates_enterprise": "La startup n'a pas encore publié de point d'avancement. Vous serez notifié par email dès la première mise à jour.",
+          "no_updates_startup": "Publiez un premier point d'avancement pour rassurer votre client et accélérer la libération des fonds.",
+          "closed_note": "Le suivi d'avancement est disponible pendant la mission (du démarrage à la libération des fonds).",
+          "form_title": "Publier un avancement",
+          "percent_label": "Avancement (%)",
+          "body_label": "Ce qui a avancé",
+          "body_placeholder": "Décrivez les livrables, prototypes ou jalons franchis depuis le dernier point…",
+          "submit": "Publier l'avancement",
+          "posted_by_startup": "Mise à jour startup",
+          "posted_by_enterprise": "Note entreprise",
+          "new_badge": "Nouveau"
+        }
       },
       "messenger": {
         "loading": "Chargement…",

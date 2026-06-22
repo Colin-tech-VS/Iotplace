@@ -686,10 +686,13 @@ def message_detail(message_id):
     project = store.get_project(msg["project_id"]) if msg.get("project_id") else None
     engagement = store.get_engagement_by_message(message_id) if msg.get("kind") == "application" else None
     engagement_view = None
+    engagement_updates = []
     if engagement:
         engagement_view = store.enrich_engagement_for_dashboard(
             engagement, user["role"], None
         )
+        engagement_updates = store.get_engagement_updates(engagement["id"])
+        store.mark_engagement_updates_seen(engagement["id"], user["role"])
     if user["role"] == "enterprise":
         profile = store.get_enterprise_for_user(user["id"])
         if not profile:
@@ -706,6 +709,7 @@ def message_detail(message_id):
         project=project,
         engagement=engagement,
         engagement_view=engagement_view,
+        engagement_updates=engagement_updates,
         active_section="messages",
         **ctx,
     )
@@ -1026,3 +1030,69 @@ def release_engagement_funds(engagement_id):
             message_id=engagement["application_message_id"],
         ))
     return redirect(url_for("compte.enterprise_dashboard"))
+
+
+@compte_bp.route("/compte/engagements/<engagement_id>/avancement", methods=["POST"])
+@auth.login_required(role="startup")
+def post_engagement_update(engagement_id):
+    user = auth.get_current_user()
+    profile = store.get_startup_for_user(user["id"])
+    engagement = store.get_engagement(engagement_id)
+    if not profile or not engagement or engagement.get("startup_id") != profile["id"]:
+        flash(t("compte.flash_engagement_not_found"), "error")
+        return redirect(url_for("compte.startup_dashboard"))
+
+    redirect_url = (
+        url_for("compte.message_detail", message_id=engagement["application_message_id"])
+        if engagement.get("application_message_id")
+        else url_for("compte.startup_dashboard", section="partnerships")
+    )
+
+    if not store.engagement_accepts_updates(engagement):
+        flash(t("compte.flash_progress_closed"), "warning")
+        return redirect(redirect_url)
+
+    body = request.form.get("body", "").strip()
+    if not body:
+        flash(t("compte.flash_progress_empty"), "error")
+        return redirect(redirect_url)
+
+    update = store.add_engagement_update(
+        engagement,
+        body=body,
+        progress_percent=request.form.get("progress_percent", 0),
+        author_role="startup",
+    )
+    flash(t("compte.flash_progress_posted"), "success")
+
+    try:
+        _notify_enterprise_of_progress(engagement, profile, update)
+    except Exception:
+        pass
+
+    return redirect(redirect_url)
+
+
+def _notify_enterprise_of_progress(engagement, startup_profile, update):
+    """Email the enterprise so it comes back to review the update (best-effort)."""
+    from compte.mailer import MailDeliveryError, send_progress_update_email
+    from crm.email_service import is_smtp_configured
+
+    if not is_smtp_configured():
+        return
+    enterprise_user = store._user_for_enterprise_id(engagement.get("enterprise_id", ""))
+    if not enterprise_user or not enterprise_user.get("email"):
+        return
+    project = store.get_project(engagement.get("project_id", "")) or {}
+    message_id = engagement.get("application_message_id") or ""
+    try:
+        send_progress_update_email(
+            enterprise_user["email"],
+            startup_name=startup_profile.get("name", "La startup"),
+            project_title=project.get("title", "votre projet IoT"),
+            progress_percent=update.get("progress_percent", 0),
+            body=update.get("body", ""),
+            message_id=message_id,
+        )
+    except MailDeliveryError:
+        pass
