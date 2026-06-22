@@ -91,6 +91,14 @@
                 </li>
                 {% else %}
                 <li><a href="{{ url_for('compte.login') }}">{{ t('nav.login') }}</a></li>
+                {% endif %}
+                <li><a href="{{ url_for('vitrine.contact') }}" class="btn btn-sm btn-outline">{{ t('nav.contact') }}</a></li>
+                <li class="nav-lang" aria-label="{{ t('nav.lang') }}">
+                    <a href="{{ locale_url_en }}" class="nav-lang-link{% if locale == 'en' %} active{% endif %}" hreflang="en" lang="en">{{ t('nav.lang_en') }}</a>
+                    <span class="nav-lang-sep" aria-hidden="true">/</span>
+                    <a href="{{ locale_url_fr }}" class="nav-lang-link{% if locale == 'fr' %} active{% endif %}" hreflang="fr" lang="fr">{{ t('nav.lang_fr') }}</a>
+                </li>
+                {% if not current_user %}
                 <li class="nav-dropdown">
                     <button type="button" class="btn btn-sm btn-primary nav-dropdown-toggle" aria-expanded="false" aria-haspopup="true" aria-controls="nav-register-menu" id="nav-register-toggle">
                         {{ t('nav.signup') }}
@@ -108,12 +116,6 @@
                     </div>
                 </li>
                 {% endif %}
-                <li class="nav-lang" aria-label="{{ t('nav.lang') }}">
-                    <a href="{{ locale_url_en }}" class="nav-lang-link{% if locale == 'en' %} active{% endif %}" hreflang="en" lang="en">{{ t('nav.lang_en') }}</a>
-                    <span class="nav-lang-sep" aria-hidden="true">/</span>
-                    <a href="{{ locale_url_fr }}" class="nav-lang-link{% if locale == 'fr' %} active{% endif %}" hreflang="fr" lang="fr">{{ t('nav.lang_fr') }}</a>
-                </li>
-                <li><a href="{{ url_for('vitrine.contact') }}" class="btn btn-sm btn-outline">{{ t('nav.contact') }}</a></li>
             </ul>
         </div>
     </nav>
