@@ -40,6 +40,7 @@
             history.replaceState(null, '', url.pathname + url.search);
         }
         closeSidebar();
+        window.IotPageLoader?.hide?.();
         if (section === 'messages') {
             window.IotMessenger?.refresh?.();
         }

@@ -77,6 +77,7 @@
         if (!anchor || !anchor.href) return false;
         if (anchor.target === '_blank' || anchor.hasAttribute('download')) return false;
         if (anchor.dataset.noLoader !== undefined) return false;
+        if (anchor.dataset.cdashSection !== undefined) return false;
         if (event && (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)) return false;
         const href = anchor.getAttribute('href') || '';
         if (!href || href.startsWith('#') || href.startsWith('javascript:')) return false;
