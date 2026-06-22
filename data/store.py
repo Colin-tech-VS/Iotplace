@@ -436,6 +436,234 @@ def get_public_enterprises():
     return [e for e in get_enterprises() if e.get("published", True)]
 
 
+def get_public_startups(country=None):
+    startups = get_startups(country)
+    return [s for s in startups if s.get("published", True)]
+
+
+def get_enterprise_sectors():
+    sectors = sorted({
+        (e.get("sector") or "").strip()
+        for e in get_public_enterprises()
+        if (e.get("sector") or "").strip()
+    })
+    return sectors
+
+
+def _directory_match_q(item: dict, q: str, fields: tuple[str, ...]) -> bool:
+    needle = q.strip().lower()
+    if not needle:
+        return True
+    parts: list[str] = []
+    for field in fields:
+        value = item.get(field)
+        if isinstance(value, list):
+            parts.extend(str(v) for v in value if v)
+        elif value:
+            parts.append(str(value))
+    return needle in " ".join(parts).lower()
+
+
+def enrich_enterprise_directory_item(enterprise: dict) -> dict:
+    projects = get_projects_for_enterprise(enterprise["id"], enterprise.get("name", ""))
+    open_projects = [p for p in projects if p.get("status") == "Ouvert"]
+    needs = enterprise.get("needs") or []
+    search_blob = " ".join([
+        enterprise.get("name", ""),
+        enterprise.get("sector", ""),
+        enterprise.get("description", ""),
+        enterprise.get("country", ""),
+        enterprise.get("city", ""),
+        " ".join(needs),
+    ]).strip()
+    return {
+        **enterprise,
+        "projects_count": len(projects),
+        "open_projects_count": len(open_projects),
+        "search_text": search_blob.lower(),
+    }
+
+
+def enrich_startup_directory_item(startup: dict) -> dict:
+    skills = startup.get("skills") or []
+    search_blob = " ".join([
+        startup.get("name", ""),
+        startup.get("sector", ""),
+        startup.get("specialty", ""),
+        startup.get("description", ""),
+        startup.get("country", ""),
+        startup.get("city", ""),
+        " ".join(skills),
+    ]).strip()
+    return {**startup, "search_text": search_blob.lower()}
+
+
+def enrich_project_directory_item(project: dict) -> dict:
+    skills = project.get("skills") or []
+    search_blob = " ".join([
+        project.get("title", ""),
+        project.get("enterprise", ""),
+        project.get("description", ""),
+        project.get("budget", ""),
+        project.get("duration", ""),
+        project.get("engagement_phase", ""),
+        project.get("status", ""),
+        " ".join(skills),
+    ]).strip()
+    return {**project, "search_text": search_blob.lower()}
+
+
+def filter_enterprises_directory(q: str | None = None, sector: str | None = None) -> list:
+    items = [enrich_enterprise_directory_item(e) for e in get_public_enterprises()]
+    if sector:
+        sector_l = sector.strip().lower()
+        items = [e for e in items if (e.get("sector") or "").strip().lower() == sector_l]
+    if q:
+        items = [e for e in items if _directory_match_q(e, q, ("name", "sector", "description", "country", "city", "needs"))]
+    return sorted(items, key=lambda e: (-(e.get("open_projects_count") or 0), e.get("name", "").lower()))
+
+
+def filter_startups_directory(q: str | None = None, country: str | None = None) -> list:
+    items = [enrich_startup_directory_item(s) for s in get_public_startups(country)]
+    if q:
+        items = [s for s in items if _directory_match_q(s, q, ("name", "sector", "specialty", "description", "country", "city", "skills"))]
+    return sorted(items, key=lambda s: s.get("name", "").lower())
+
+
+def filter_projects_directory(q: str | None = None, phase: str | None = None) -> list:
+    from data.engagement_phases import normalize_phase
+
+    norm = normalize_phase(phase) if phase else None
+    items = [enrich_project_directory_item(p) for p in get_projects(phase=norm)]
+    if q:
+        items = [p for p in items if _directory_match_q(p, q, ("title", "enterprise", "description", "budget", "duration", "engagement_phase", "status", "skills"))]
+    status_order = {"Ouvert": 0, "En cours": 1}
+    return sorted(
+        items,
+        key=lambda p: (status_order.get(p.get("status", ""), 9), p.get("title", "").lower()),
+    )
+
+
+def get_directory_seo_overrides(slug: str, locale: str = "fr", q: str = "", filters: dict | None = None, count: int = 0) -> dict:
+    filters = filters or {}
+    if locale == "fr":
+        titles = {
+            "enterprises": "Annuaire des entreprises IoT — Donneurs d'ordre B2B",
+            "startups": "Annuaire des startups IoT — Sous-traitance B2B",
+            "projects": "Annuaire des projets IoT ouverts — Missions de sous-traitance",
+        }
+        descriptions = {
+            "enterprises": "Annuaire des entreprises IoT sur Iotplace : profils, secteurs, besoins et projets de sous-traitance publiés en Asie et en Europe.",
+            "startups": "Annuaire des startups IoT qualifiées : pays, compétences firmware, hardware, cloud et missions B2B disponibles.",
+            "projects": "Annuaire des projets IoT ouverts à la sous-traitance : PoC, Scale, Partenariat — budgets, compétences et entreprises donneuses d'ordre.",
+        }
+        q_title = f"Recherche « {q} » — "
+        q_desc = f"{count} résultat(s) pour « {q} ». "
+    else:
+        titles = {
+            "enterprises": "IoT Enterprise Directory — B2B clients",
+            "startups": "IoT Startup Directory — B2B subcontractors",
+            "projects": "Open IoT Projects Directory — Subcontracting missions",
+        }
+        descriptions = {
+            "enterprises": "Browse IoT enterprises on Iotplace: sectors, outsourcing needs and published subcontracting projects.",
+            "startups": "Directory of qualified IoT startups: countries, firmware, hardware, cloud skills and B2B missions.",
+            "projects": "Directory of open IoT subcontracting projects: PoC, Scale, Partnership — budgets, skills and enterprise clients.",
+        }
+        q_title = f"Search “{q}” — "
+        q_desc = f"{count} result(s) for “{q}”. "
+
+    title = titles.get(slug, "Iotplace")
+    description = descriptions.get(slug, "")
+    if filters.get("sector"):
+        title = f"{filters['sector']} — {title}" if locale == "fr" else f"{filters['sector']} — {title}"
+    if filters.get("country"):
+        title = f"{filters['country']} — {title}" if locale == "fr" else f"{filters['country']} — {title}"
+    if filters.get("phase"):
+        phase_label = filters["phase"].upper() if filters["phase"] in ("poc",) else filters["phase"].title()
+        title = f"{phase_label} — {title}"
+    if q:
+        title = f"{q_title}{title}"
+        description = f"{q_desc}{description}"
+    return {
+        "title": title[:120],
+        "description": description[:320],
+        "keywords": f"IoT directory, {slug}, subcontracting, B2B marketplace, {q}, {', '.join(str(v) for v in filters.values())}".strip(", "),
+    }
+
+
+def build_directory_json_ld(
+    slug: str,
+    canonical_url: str,
+    site_url: str,
+    items: list,
+    locale: str = "fr",
+    faq=None,
+    breadcrumbs=None,
+):
+    graphs = build_json_ld(slug, canonical_url, site_url, faq=faq, breadcrumbs=breadcrumbs, locale=locale)
+    lang_tag = "fr-FR" if locale == "fr" else "en-US"
+    list_name = {
+        "enterprises": "IoT enterprises directory",
+        "startups": "IoT startups directory",
+        "projects": "Open IoT projects directory",
+    }.get(slug, "Directory")
+
+    if items:
+        item_elements = []
+        for i, row in enumerate(items[:50]):
+            if slug == "enterprises":
+                url = f"{site_url}/enterprises/{row['id']}"
+                name = row.get("name", "Enterprise")
+            elif slug == "startups":
+                url = f"{site_url}/startups/{row['id']}"
+                name = row.get("name", "Startup")
+            else:
+                url = f"{site_url}/projects/{row['id']}"
+                name = row.get("title", "Project")
+            item_elements.append({
+                "@type": "ListItem",
+                "position": i + 1,
+                "url": url,
+                "name": name,
+            })
+        graphs.append({
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            "name": list_name,
+            "numberOfItems": len(items),
+            "itemListElement": item_elements,
+        })
+        graphs.append({
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            "name": list_name,
+            "url": canonical_url,
+            "inLanguage": lang_tag,
+            "isPartOf": {"@type": "WebSite", "url": site_url},
+            "mainEntity": {"@type": "ItemList", "numberOfItems": len(items)},
+        })
+    return graphs
+
+
+def canonical_query_without(search_query_string, *drop_keys: str):
+    """Rebuild query string excluding sensitive or duplicate SEO params (e.g. q)."""
+    if not search_query_string:
+        return b""
+    if isinstance(search_query_string, bytes):
+        raw = search_query_string.decode("utf-8")
+    else:
+        raw = str(search_query_string)
+    if not raw:
+        return b""
+    from urllib.parse import parse_qsl, urlencode
+
+    pairs = [(k, v) for k, v in parse_qsl(raw, keep_blank_values=True) if k not in drop_keys]
+    if not pairs:
+        return b""
+    return urlencode(pairs).encode("utf-8")
+
+
 def get_public_startup(startup_id):
     return get_startup(startup_id)
 
@@ -2024,7 +2252,7 @@ def build_json_ld(slug, canonical_url, site_url, faq=None, breadcrumbs=None, loc
         "inLanguage": lang_tag,
         "potentialAction": {
             "@type": "SearchAction",
-            "target": f"{site_url}/startups?country={{search_term_string}}",
+            "target": f"{site_url}/projects?q={{search_term_string}}",
             "query-input": "required name=search_term_string",
         },
     })
@@ -2070,7 +2298,7 @@ def build_json_ld(slug, canonical_url, site_url, faq=None, breadcrumbs=None, loc
             ],
         })
 
-    if slug in ("home", "enterprises", "startups"):
+    if slug in ("home", "enterprises", "startups", "projects"):
         graphs.append({
             "@context": "https://schema.org",
             "@type": "Service",
@@ -2118,7 +2346,14 @@ def get_sitemap_entries():
             "changefreq": "weekly",
             "priority": "0.7",
         })
-    for startup in get_startups():
+    from data.engagement_phases import ENGAGEMENT_PHASES
+    for phase in ENGAGEMENT_PHASES:
+        entries.append({
+            "loc": f"{site_url}/projects?phase={phase}",
+            "changefreq": "weekly",
+            "priority": "0.75",
+        })
+    for startup in get_public_startups():
         entries.append({
             "loc": f"{site_url}/startups/{startup['id']}",
             "changefreq": "monthly",

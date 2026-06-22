@@ -294,10 +294,11 @@ a:hover { color: #33e0be; }
     color: var(--text-muted);
     font-size: 0.9rem;
     font-weight: 500;
+    text-decoration: none;
 }
 
 .nav-links a:hover,
-.nav-links a.active { color: var(--text); }
+.nav-links a.active { color: var(--text); text-decoration: none; }
 
 .nav-toggle {
     display: none;

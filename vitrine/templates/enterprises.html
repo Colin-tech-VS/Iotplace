@@ -1,53 +1,76 @@
 {% extends "base.html" %}
 {% from "_seo_macros.html" import faq_section, breadcrumbs_nav %}
-{% from "_phase_badge.html" import phase_badge %}
-{% block title %}{{ t('nav.enterprises') }}{% endblock %}
+{% from "_directory_toolbar.html" import directory_toolbar %}
+
+{% block seo_title %}{{ seo.title }}{% endblock %}
+{% block seo_description %}{{ seo.description }}{% endblock %}
+{% block seo_robots %}{{ seo.robots }}{% endblock %}
+{% block seo_canonical %}{{ seo_canonical }}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/directory.css') }}?v=1">
+{% endblock %}
 
 {% block content %}
 {{ breadcrumbs_nav(seo_breadcrumbs) }}
-<section class="page-hero">
+<section class="page-hero directory-hero">
     <div class="container reveal">
         <span class="hero-badge">{{ t('enterprises.hero_badge') }}</span>
-        <h1>{{ t('enterprises.hero_title') }}</h1>
-        <p class="page-sub">{{ t('enterprises.hero_sub') }}</p>
+        <h1>{{ t('directory.hero_enterprises') }}</h1>
+        <p class="page-sub">{{ t('directory.sub_enterprises') }}</p>
+        <p class="directory-seo-intro">{{ t('enterprises.seo_intro')|safe }}</p>
     </div>
 </section>
 
-{% with audience='enterprise' %}
-{% include "_audience_landing.html" %}
-{% endwith %}
-
 <section class="section">
     <div class="container">
-        <div class="section-header reveal">
-            <h2>{{ t('enterprises.open_projects_title') }}</h2>
-            <p>{{ t('enterprises.open_projects_sub') }}</p>
-        </div>
-        {% if projects %}
-        <div class="projects-list">
-            {% for project in projects %}
-            <a href="{{ url_for('vitrine.project_detail', project_id=project.id) }}" class="project-row project-row-link reveal">
-                <div class="project-info">
-                    <h3>{{ project.title }} {{ phase_badge(project.engagement_phase) }}</h3>
-                    <span class="meta">{{ project.enterprise }}</span>
+        {{ directory_toolbar('enterprises', directory_q, directory_count, sectors=sectors, selected_sector=selected_sector) }}
+
+        {% if enterprises %}
+        <div class="directory-grid" data-directory-grid>
+            {% for ent in enterprises %}
+            <a href="{{ url_for('vitrine.enterprise_detail', enterprise_id=ent.id) }}" class="directory-card card-clickable reveal" data-directory-item data-search-text="{{ ent.search_text }}">
+                <div class="directory-card-head">
+                    <div class="directory-card-logo">{{ ent.logo_initials or ent.name[:2]|upper }}</div>
+                    <div>
+                        <h3>{{ ent.name }}</h3>
+                        {% if ent.sector %}<span class="meta">{{ ent.sector }}</span>{% endif %}
+                        {% if ent.city or ent.country %}
+                        <span class="meta">{{ ent.city }}{% if ent.city and ent.country %}, {% endif %}{{ ent.country }}</span>
+                        {% endif %}
+                    </div>
                 </div>
-                <div class="project-meta">
-                    {% if project.budget %}<span class="budget">{{ project.budget }}</span>{% endif %}
-                    <span class="status status-{{ project.status|lower|replace(' ', '-') }}">{{ translate_status(project.status) }}</span>
+                <p class="directory-card-desc">{{ ent.description or t('common.no_description') }}</p>
+                {% if ent.needs %}
+                <div class="tags" style="margin-bottom:0.75rem">
+                    {% for need in ent.needs[:4] %}<span class="tag tag-accent">{{ need }}</span>{% endfor %}
+                </div>
+                {% endif %}
+                <div class="directory-card-footer">
+                    <span>{{ ent.open_projects_count or 0 }} {{ t('directory.open_projects_short') }} · {{ ent.projects_count or 0 }} {{ t('directory.total_projects_short') }}</span>
+                    <span class="directory-card-hint">{{ t('common.view_details') }} →</span>
                 </div>
             </a>
             {% endfor %}
         </div>
+        <div class="directory-empty-live" id="directoryEmptyLive">{{ t('directory.no_results') }}</div>
         {% else %}
         <div class="empty-state reveal">
-            <p>{{ t('enterprises.no_projects') }}</p>
+            <p>{{ t('enterprises.no_partners') }}</p>
+            <a href="{{ url_for('compte.register_enterprise') }}" class="btn btn-primary btn-sm" style="margin-top:1rem">{{ t('enterprises.cta_register') }}</a>
         </div>
         {% endif %}
-        <div class="audience-page-cta reveal">
+
+        <div class="audience-page-cta reveal" style="margin-top:2rem">
             <a href="{{ url_for('compte.register_enterprise') }}" class="btn btn-primary btn-lg btn-glow">{{ t('enterprises.publish_btn') }}</a>
+            <a href="{{ url_for('vitrine.projects') }}" class="btn btn-outline btn-lg" style="margin-left:0.5rem">{{ t('directory.browse_projects') }}</a>
         </div>
     </div>
 </section>
 
 {{ faq_section(seo_faq, t('enterprises.faq_title')) }}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('vitrine.static', filename='js/directory-search.js') }}?v=1"></script>
 {% endblock %}

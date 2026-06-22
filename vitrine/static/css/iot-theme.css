@@ -123,10 +123,14 @@ body.vitrine .section-header h2 {
 body.vitrine .nav-links a {
     position: relative;
     transition: color 0.25s;
+    text-decoration: none;
 }
 
-body.vitrine .nav-links a.active::after,
-body.vitrine .nav-links a:hover::after {
+body.vitrine .nav-links a:hover {
+    text-decoration: none;
+}
+
+body.vitrine .nav-links a.active::after {
     content: '';
     position: absolute;
     left: 0; right: 0; bottom: -4px;
@@ -135,12 +139,7 @@ body.vitrine .nav-links a:hover::after {
     border-radius: 2px;
 }
 
-body.vitrine .nav-links a:not(.btn)::after {
-    transform: scaleX(0);
-    transition: transform 0.25s var(--iot-ease);
-}
-body.vitrine .nav-links a:not(.btn):hover::after,
-body.vitrine .nav-links a.active::after {
+body.vitrine .nav-links a:not(.btn).active::after {
     transform: scaleX(1);
 }
 

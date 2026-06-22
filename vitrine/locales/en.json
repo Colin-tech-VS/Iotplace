@@ -197,6 +197,26 @@
     "publish_btn": "Publish an IoT project",
     "faq_title": "FAQ — Outsourcing an IoT project"
   },
+  "directory": {
+    "hero_enterprises": "IoT Enterprise Directory",
+    "sub_enterprises": "Profiles, sectors and B2B client needs on Iotplace.",
+    "hero_startups": "IoT Startup Directory",
+    "sub_startups": "Qualified teams by country, skills and IoT domains.",
+    "hero_projects": "Open IoT Projects Directory",
+    "sub_projects": "PoC, Scale and Partnership subcontracting missions published by enterprises.",
+    "search_label": "Search the directory",
+    "search_placeholder_enterprises": "Name, sector, city, need…",
+    "search_placeholder_startups": "Name, country, skill, domain…",
+    "search_placeholder_projects": "Title, enterprise, skill, budget…",
+    "search_btn": "Search",
+    "results_count": "{count} result(s)",
+    "results_filtered": "{visible} of {total}",
+    "filter_sector": "Sector:",
+    "no_results": "No results for this search.",
+    "open_projects_short": "open",
+    "total_projects_short": "total",
+    "browse_projects": "Browse projects"
+  },
   "startups": {
     "hero_badge": "B2B IoT startups",
     "hero_title": "Sell your expertise to large enterprises",

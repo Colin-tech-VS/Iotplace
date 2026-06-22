@@ -127,6 +127,56 @@ def _check_published(slug):
     return content.get("published", True)
 
 
+def _directory_page_context(slug: str) -> dict:
+    locale = get_locale()
+    site_url = store.get_site_url()
+    q = request.args.get("q", "").strip()
+    sector = request.args.get("sector", "").strip() or None
+    country = request.args.get("country", "").strip() or None
+    phase = request.args.get("phase", "").strip() or None
+
+    if slug == "enterprises":
+        items = store.filter_enterprises_directory(q or None, sector)
+        filters = {"sector": sector} if sector else {}
+    elif slug == "startups":
+        items = store.filter_startups_directory(q or None, country)
+        filters = {"country": country} if country else {}
+    else:
+        items = store.filter_projects_directory(q or None, phase)
+        filters = {"phase": phase} if phase else {}
+
+    seo_overrides = store.get_directory_seo_overrides(slug, locale, q, filters, len(items))
+    robots = "noindex, follow" if q else "index, follow"
+    canonical = store.build_canonical_url(
+        site_url,
+        request.path,
+        store.canonical_query_without(request.query_string, "q"),
+    )
+    breadcrumbs_extra = None
+    if country and slug == "startups":
+        breadcrumbs_extra = {
+            "name": f"Startups {country}",
+            "url": canonical,
+        }
+    breadcrumbs = store.build_breadcrumbs(slug, site_url, breadcrumbs_extra, locale)
+    faq = store.get_page_faq(slug, locale)
+    return {
+        "directory_q": q,
+        "directory_count": len(items),
+        "seo": store.get_seo_for_vitrine(slug, overrides=seo_overrides, robots=robots, locale=locale),
+        "seo_canonical": canonical,
+        "seo_json_ld": store.build_directory_json_ld(
+            slug, canonical, site_url, items, locale, faq=faq, breadcrumbs=breadcrumbs,
+        ),
+        "seo_breadcrumbs": breadcrumbs,
+        "seo_faq": faq,
+        "directory_items": items,
+        "selected_sector": sector or "",
+        "selected_country": country or "",
+        "selected_phase": phase or "",
+    }
+
+
 @vitrine_bp.route("/robots.txt")
 def robots_txt():
     return Response(store.get_robots_txt(), mimetype="text/plain")
@@ -166,11 +216,13 @@ def index():
 def enterprises():
     if not _check_published("enterprises"):
         return render_template("unpublished.html"), 404
+    ctx = _directory_page_context("enterprises")
     return render_template(
         "enterprises.html",
-        enterprises=store.get_public_enterprises(),
-        projects=store.get_projects(),
+        enterprises=ctx["directory_items"],
+        sectors=store.get_enterprise_sectors(),
         page=store.get_page_content("enterprises", get_locale()),
+        **ctx,
     )
 
 
@@ -202,13 +254,13 @@ def enterprise_detail(enterprise_id):
 def startups():
     if not _check_published("startups"):
         return render_template("unpublished.html"), 404
-    country = request.args.get("country", "")
+    ctx = _directory_page_context("startups")
     return render_template(
         "startups.html",
-        startups=store.get_startups(country or None),
+        startups=ctx["directory_items"],
         countries=store.get_startup_countries(),
-        selected_country=country,
         page=store.get_page_content("startups", get_locale()),
+        **ctx,
     )
 
 
@@ -238,12 +290,12 @@ def startup_detail(startup_id):
 def projects():
     if not _check_published("projects"):
         return render_template("unpublished.html"), 404
-    phase = request.args.get("phase", "").strip() or None
+    ctx = _directory_page_context("projects")
     return render_template(
         "projects.html",
-        projects=store.get_projects(phase=phase),
-        selected_phase=phase,
+        projects=ctx["directory_items"],
         page=store.get_page_content("projects", get_locale()),
+        **ctx,
     )
 
 

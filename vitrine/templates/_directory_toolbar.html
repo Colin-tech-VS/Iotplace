@@ -1,0 +1,56 @@
+{% macro directory_toolbar(directory_type, q='', count=0, sectors=[], countries=[], selected_sector='', selected_country='', selected_phase='') %}
+<div class="directory-toolbar reveal" data-directory-toolbar="{{ directory_type }}">
+    <form class="directory-search-form" method="GET" action="" role="search" id="directorySearchForm">
+        {% if directory_type == 'startups' and selected_country %}
+        <input type="hidden" name="country" value="{{ selected_country }}">
+        {% endif %}
+        {% if directory_type == 'enterprises' and selected_sector %}
+        <input type="hidden" name="sector" value="{{ selected_sector }}">
+        {% endif %}
+        {% if directory_type == 'projects' and selected_phase %}
+        <input type="hidden" name="phase" value="{{ selected_phase }}">
+        {% endif %}
+        <label class="sr-only" for="directorySearchInput">{{ t('directory.search_label') }}</label>
+        <div class="directory-search-wrap">
+            <svg class="directory-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            <input type="search" id="directorySearchInput" name="q" value="{{ q }}" class="directory-search-input"
+                   placeholder="{{ t('directory.search_placeholder_' ~ directory_type) }}" autocomplete="off"
+                   data-directory-live-search>
+        </div>
+        <button type="submit" class="btn btn-primary btn-sm directory-search-submit">{{ t('directory.search_btn') }}</button>
+    </form>
+    <p class="directory-results-meta" id="directoryResultsMeta" data-total="{{ count }}" data-static-label="{{ t('directory.results_count', count=count) }}" data-count-template="{{ t('directory.results_filtered') }}">
+        {{ t('directory.results_count', count=count) }}
+    </p>
+</div>
+
+{% if directory_type == 'enterprises' and sectors %}
+<div class="directory-filters reveal">
+    <span class="directory-filters-label">{{ t('directory.filter_sector') }}</span>
+    <a href="{{ url_for('vitrine.enterprises', q=q) if q else url_for('vitrine.enterprises') }}" class="filter-btn {% if not selected_sector %}active{% endif %}">{{ t('common.all') }}</a>
+    {% for sector in sectors %}
+    <a href="{{ url_for('vitrine.enterprises', sector=sector, q=q) if q else url_for('vitrine.enterprises', sector=sector) }}" class="filter-btn {% if selected_sector == sector %}active{% endif %}">{{ sector }}</a>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if directory_type == 'startups' and countries %}
+<div class="directory-filters reveal">
+    <span class="directory-filters-label">{{ t('common.filter_by_country') }}</span>
+    <a href="{{ url_for('vitrine.startups', q=q) if q else url_for('vitrine.startups') }}" class="filter-btn {% if not selected_country %}active{% endif %}">{{ t('common.all') }}</a>
+    {% for country in countries %}
+    <a href="{{ url_for('vitrine.startups', country=country, q=q) if q else url_for('vitrine.startups', country=country) }}" class="filter-btn {% if selected_country == country %}active{% endif %}">{{ country }}</a>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if directory_type == 'projects' %}
+<div class="directory-filters directory-filters-phases reveal">
+    <span class="directory-filters-label">{{ t('engagement.phase_label') }}</span>
+    <a href="{{ url_for('vitrine.projects', q=q) if q else url_for('vitrine.projects') }}" class="phase-filter{% if not selected_phase %} active{% endif %}">{{ t('engagement.filter_all') }}</a>
+    {% for phase_id in engagement_phases %}
+    <a href="{{ url_for('vitrine.projects', phase=phase_id, q=q) if q else url_for('vitrine.projects', phase=phase_id) }}" class="phase-filter phase-filter-{{ phase_id }}{% if selected_phase == phase_id %} active{% endif %}">{{ translate_phase(phase_id) }}</a>
+    {% endfor %}
+</div>
+{% endif %}
+{% endmacro %}

@@ -1,19 +1,29 @@
 {% extends "base.html" %}
 {% from "_seo_macros.html" import faq_section, breadcrumbs_nav %}
-{% block title %}{{ t('nav.startups') }}{% endblock %}
+{% from "_directory_toolbar.html" import directory_toolbar %}
+
+{% block seo_title %}{{ seo.title }}{% endblock %}
+{% block seo_description %}{{ seo.description }}{% endblock %}
+{% block seo_robots %}{{ seo.robots }}{% endblock %}
+{% block seo_canonical %}{{ seo_canonical }}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/directory.css') }}?v=1">
+{% endblock %}
 
 {% block content %}
 {{ breadcrumbs_nav(seo_breadcrumbs) }}
-<section class="page-hero">
+<section class="page-hero directory-hero">
     <div class="container reveal">
         {% if selected_country %}
         <h1>{{ t('startups.country_title', country=selected_country) }}</h1>
         <p class="page-sub">{{ t('startups.country_sub', country=selected_country) }}</p>
         {% else %}
         <span class="hero-badge">{{ t('startups.hero_badge') }}</span>
-        <h1>{{ t('startups.hero_title') }}</h1>
-        <p class="page-sub">{{ t('startups.hero_sub') }}</p>
+        <h1>{{ t('directory.hero_startups') }}</h1>
+        <p class="page-sub">{{ t('directory.sub_startups') }}</p>
         {% endif %}
+        <p class="directory-seo-intro">{{ t('startups.seo_intro')|safe }}</p>
     </div>
 </section>
 
@@ -29,21 +39,14 @@
             <h2>{{ t('startups.directory_title') }}</h2>
             <p>{{ t('startups.directory_sub') }}</p>
         </div>
-        {% if countries %}
-        <div class="filter-bar reveal">
-            <span>{{ t('common.filter_by_country') }}</span>
-            <a href="{{ url_for('vitrine.startups') }}" class="filter-btn {% if not selected_country %}active{% endif %}">{{ t('common.all') }}</a>
-            {% for country in countries %}
-            <a href="{{ url_for('vitrine.startups', country=country) }}" class="filter-btn {% if selected_country == country %}active{% endif %}">{{ country }}</a>
-            {% endfor %}
-        </div>
-        {% endif %}
+
+        {{ directory_toolbar('startups', directory_q, directory_count, countries=countries, selected_country=selected_country) }}
 
         {% if startups %}
-        <div class="cards-grid">
+        <div class="directory-grid" data-directory-grid>
             {% for startup in startups %}
-            <a href="{{ url_for('vitrine.startup_detail', startup_id=startup.id) }}" class="card startup-card card-clickable reveal">
-                <div class="card-header">
+            <a href="{{ url_for('vitrine.startup_detail', startup_id=startup.id) }}" class="directory-card card-clickable reveal" data-directory-item data-search-text="{{ startup.search_text }}">
+                <div class="directory-card-head">
                     {% if startup.flag %}<span class="flag">{{ startup.flag }}</span>{% endif %}
                     <div>
                         <h3>{{ startup.name }}</h3>
@@ -51,14 +54,18 @@
                     </div>
                 </div>
                 {% if startup.sector or startup.specialty %}<span class="specialty">{{ startup.sector or startup.specialty }}</span>{% endif %}
-                <p class="card-desc">{{ startup.description }}</p>
-                <span class="card-link-hint">{{ t('common.view_details') }} →</span>
+                <p class="directory-card-desc">{{ startup.description or t('common.no_description') }}</p>
+                <div class="directory-card-footer">
+                    <span class="directory-card-hint">{{ t('common.view_details') }} →</span>
+                </div>
             </a>
             {% endfor %}
         </div>
+        <div class="directory-empty-live" id="directoryEmptyLive">{{ t('directory.no_results') }}</div>
         {% else %}
         <div class="empty-state reveal">
             <p>{% if selected_country %}{{ t('startups.no_country') }}{% else %}{{ t('startups.no_startups') }}{% endif %}</p>
+            <a href="{{ url_for('compte.register_startup') }}" class="btn btn-primary btn-sm" style="margin-top:1rem">{{ t('startups.cta_register') }}</a>
         </div>
         {% endif %}
     </div>
@@ -80,4 +87,8 @@
 {% endif %}
 
 {{ faq_section(seo_faq, t('startups.faq_title')) }}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('vitrine.static', filename='js/directory-search.js') }}?v=1"></script>
 {% endblock %}

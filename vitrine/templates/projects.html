@@ -1,30 +1,36 @@
 {% extends "base.html" %}
 {% from "_seo_macros.html" import faq_section, breadcrumbs_nav %}
 {% from "_phase_badge.html" import phase_badge %}
-{% block title %}{{ t('nav.projects') }}{% endblock %}
+{% from "_directory_toolbar.html" import directory_toolbar %}
+
+{% block seo_title %}{{ seo.title }}{% endblock %}
+{% block seo_description %}{{ seo.description }}{% endblock %}
+{% block seo_robots %}{{ seo.robots }}{% endblock %}
+{% block seo_canonical %}{{ seo_canonical }}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/directory.css') }}?v=1">
+{% endblock %}
 
 {% block content %}
 {{ breadcrumbs_nav(seo_breadcrumbs) }}
-<section class="page-hero">
+<section class="page-hero directory-hero">
     <div class="container reveal">
-        <h1>{{ page.title }}</h1>
-        <p class="page-sub">{{ page.subtitle }}</p>
-        <p class="seo-intro">{{ t('projects.seo_intro', register_url=url_for('compte.register_enterprise'))|safe }}</p>
+        <span class="hero-badge">{{ t('nav.projects') }}</span>
+        <h1>{{ t('directory.hero_projects') }}</h1>
+        <p class="page-sub">{{ page.subtitle or t('directory.sub_projects') }}</p>
+        <p class="directory-seo-intro">{{ t('projects.seo_intro', register_url=url_for('compte.register_enterprise'))|safe }}</p>
     </div>
 </section>
 
 <section class="section">
     <div class="container">
-        <div class="phase-filters reveal">
-            <a href="{{ url_for('vitrine.projects') }}" class="phase-filter{% if not selected_phase %} active{% endif %}">{{ t('engagement.filter_all') }}</a>
-            {% for phase_id in engagement_phases %}
-            <a href="{{ url_for('vitrine.projects', phase=phase_id) }}" class="phase-filter phase-filter-{{ phase_id }}{% if selected_phase == phase_id %} active{% endif %}">{{ translate_phase(phase_id) }}</a>
-            {% endfor %}
-        </div>
+        {{ directory_toolbar('projects', directory_q, directory_count, selected_phase=selected_phase) }}
+
         {% if projects %}
-        <div class="projects-list projects-full">
+        <div class="projects-list projects-full directory-list" data-directory-list>
             {% for project in projects %}
-            <a href="{{ url_for('vitrine.project_detail', project_id=project.id) }}" class="project-row project-card-full project-row-link reveal">
+            <a href="{{ url_for('vitrine.project_detail', project_id=project.id) }}" class="project-row project-card-full project-row-link reveal" data-directory-item data-search-text="{{ project.search_text }}">
                 <div class="project-info">
                     <h3>{{ project.title }} {{ phase_badge(project.engagement_phase) }}</h3>
                     <span class="meta">{{ project.enterprise }}</span>
@@ -55,14 +61,24 @@
             </a>
             {% endfor %}
         </div>
+        <div class="directory-empty-live" id="directoryEmptyLive">{{ t('directory.no_results') }}</div>
         {% else %}
         <div class="empty-state reveal">
             <div class="empty-icon">📋</div>
             <p>{{ t('projects.no_projects', link='<a href="' ~ url_for('vitrine.contact') ~ '">' ~ t('projects.be_first') ~ '</a>')|safe }}</p>
         </div>
         {% endif %}
+
+        <div class="audience-page-cta reveal" style="margin-top:2rem">
+            <a href="{{ url_for('compte.register_enterprise') }}" class="btn btn-primary btn-lg btn-glow">{{ t('enterprises.publish_btn') }}</a>
+            <a href="{{ url_for('compte.register_startup') }}" class="btn btn-outline btn-lg" style="margin-left:0.5rem">{{ t('startups.cta_btn') }}</a>
+        </div>
     </div>
 </section>
 
 {{ faq_section(seo_faq, t('projects.faq_title')) }}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('vitrine.static', filename='js/directory-search.js') }}?v=1"></script>
 {% endblock %}

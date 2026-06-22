@@ -197,6 +197,26 @@
     "publish_btn": "Publier un projet IoT",
     "faq_title": "FAQ — Externaliser un projet IoT"
   },
+  "directory": {
+    "hero_enterprises": "Annuaire des entreprises IoT",
+    "sub_enterprises": "Profils, secteurs et besoins des donneurs d'ordre B2B sur Iotplace.",
+    "hero_startups": "Annuaire des startups IoT",
+    "sub_startups": "Équipes qualifiées par pays, compétences et domaines IoT.",
+    "hero_projects": "Annuaire des projets IoT ouverts",
+    "sub_projects": "Missions de sous-traitance PoC, Scale et Partenariat publiées par les entreprises.",
+    "search_label": "Rechercher dans l'annuaire",
+    "search_placeholder_enterprises": "Nom, secteur, ville, besoin…",
+    "search_placeholder_startups": "Nom, pays, compétence, domaine…",
+    "search_placeholder_projects": "Titre, entreprise, compétence, budget…",
+    "search_btn": "Rechercher",
+    "results_count": "{count} résultat(s)",
+    "results_filtered": "{visible} sur {total}",
+    "filter_sector": "Secteur :",
+    "no_results": "Aucun résultat pour cette recherche.",
+    "open_projects_short": "ouverts",
+    "total_projects_short": "au total",
+    "browse_projects": "Voir les projets"
+  },
   "startups": {
     "hero_badge": "Startups IoT B2B",
     "hero_title": "Vendez votre expertise aux grands comptes",
