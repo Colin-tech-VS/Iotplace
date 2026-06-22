@@ -469,6 +469,7 @@ DEFAULT_DATA = {
     "users": [],
     "messages": [],
     "engagements": [],
+    "engagement_updates": [],
     "application_checkouts": [],
 }
 
@@ -1251,6 +1252,11 @@ def _purge_crm_account_from_data(data: dict, user: dict) -> None:
         e for e in data.get("engagements", [])
         if e.get("application_message_id") not in removed_message_ids
     ]
+    if profile_id:
+        data["engagement_updates"] = [
+            u for u in data.get("engagement_updates", [])
+            if u.get("enterprise_id") != profile_id and u.get("startup_id") != profile_id
+        ]
     data["application_checkouts"] = [
         c for c in data.get("application_checkouts", [])
         if c.get("application_message_id") not in removed_message_ids
@@ -1902,6 +1908,125 @@ def update_engagement(engagement_id: str, fields: dict):
     return None
 
 
+# ── Suivi d'avancement des missions (project progress tracking) ──
+
+# Missions where the startup is actively delivering: progress updates are allowed.
+ENGAGEMENT_ACTIVE_STATUSES = ("pending_payment", "escrowed")
+# Days without an update before a mission is flagged "stale" for reminder emails.
+PROGRESS_REMINDER_DAYS = 7
+
+
+def _clamp_percent(value) -> int:
+    try:
+        pct = int(round(float(value)))
+    except (TypeError, ValueError):
+        return 0
+    return max(0, min(100, pct))
+
+
+def engagement_accepts_updates(engagement: dict | None) -> bool:
+    """A mission accepts progress updates while it is being delivered."""
+    if not engagement:
+        return False
+    return engagement.get("status") in ENGAGEMENT_ACTIVE_STATUSES
+
+
+def add_engagement_update(
+    engagement: dict,
+    *,
+    body: str,
+    progress_percent,
+    author_role: str = "startup",
+) -> dict:
+    """Record a startup progress update on a mission and bump its progress."""
+    now = _now().isoformat()
+    pct = _clamp_percent(progress_percent)
+    data = _load_raw()
+    entry = {
+        "id": _new_id(),
+        "engagement_id": engagement["id"],
+        "project_id": engagement.get("project_id", ""),
+        "enterprise_id": engagement.get("enterprise_id", ""),
+        "startup_id": engagement.get("startup_id", ""),
+        "author_role": author_role,
+        "progress_percent": pct,
+        "body": (body or "").strip(),
+        "created_at": now,
+        "seen_by_enterprise": author_role == "enterprise",
+        "seen_by_startup": author_role == "startup",
+    }
+    data.setdefault("engagement_updates", []).append(entry)
+    for i, eng in enumerate(data.get("engagements", [])):
+        if eng["id"] == engagement["id"]:
+            data["engagements"][i] = {
+                **eng,
+                "progress_percent": pct,
+                "last_update_at": now,
+                "last_update_by": author_role,
+            }
+            break
+    _save_raw(data)
+    return entry
+
+
+def get_engagement_updates(engagement_id: str) -> list:
+    updates = [
+        u for u in _load_raw().get("engagement_updates", [])
+        if u.get("engagement_id") == engagement_id
+    ]
+    updates.sort(key=lambda u: u.get("created_at") or "", reverse=True)
+    return updates
+
+
+def mark_engagement_updates_seen(engagement_id: str, viewer_role: str) -> None:
+    """Clear the unseen badge for the viewer on a mission's updates."""
+    field = "seen_by_enterprise" if viewer_role == "enterprise" else "seen_by_startup"
+    data = _load_raw()
+    changed = False
+    for i, u in enumerate(data.get("engagement_updates", [])):
+        if u.get("engagement_id") == engagement_id and not u.get(field):
+            data["engagement_updates"][i] = {**u, field: True}
+            changed = True
+    if changed:
+        _save_raw(data)
+
+
+def count_unseen_updates_for_enterprise(enterprise_id: str) -> int:
+    return sum(
+        1 for u in _load_raw().get("engagement_updates", [])
+        if u.get("enterprise_id") == enterprise_id
+        and u.get("author_role") == "startup"
+        and not u.get("seen_by_enterprise")
+    )
+
+
+def _has_unseen_updates(engagement_id: str, viewer_role: str) -> bool:
+    field = "seen_by_enterprise" if viewer_role == "enterprise" else "seen_by_startup"
+    counterpart = "startup" if viewer_role == "enterprise" else "enterprise"
+    return any(
+        u.get("engagement_id") == engagement_id
+        and u.get("author_role") == counterpart
+        and not u.get(field)
+        for u in _load_raw().get("engagement_updates", [])
+    )
+
+
+def get_stale_engagements(days: int = PROGRESS_REMINDER_DAYS) -> list:
+    """Active missions with no startup update within `days` — candidates for reminders."""
+    cutoff = _now() - timedelta(days=days)
+    stale = []
+    for eng in _load_raw().get("engagements", []):
+        if eng.get("status") not in ENGAGEMENT_ACTIVE_STATUSES:
+            continue
+        marker = eng.get("last_update_at") or eng.get("paid_at") or eng.get("created_at")
+        dt = _parse_iso_datetime(marker) if marker else None
+        if dt is not None and dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        if dt is None or dt <= cutoff:
+            stale.append(eng)
+    return stale
+
+
 def get_startup_by_connect_account(account_id: str):
     if not account_id:
         return None
@@ -1968,6 +2093,10 @@ def enrich_engagement_for_dashboard(engagement: dict, viewer_role: str, locale: 
         "amount_label": _format_cents_eur(engagement.get("amount_cents")),
         "payout_label": _format_cents_eur(engagement.get("startup_payout_cents")),
         "message_id": engagement.get("application_message_id"),
+        "progress_percent": _clamp_percent(engagement.get("progress_percent")),
+        "last_update_at": engagement.get("last_update_at"),
+        "accepts_updates": engagement.get("status") in ENGAGEMENT_ACTIVE_STATUSES,
+        "has_unseen_updates": _has_unseen_updates(engagement["id"], viewer_role),
     }
 
 
@@ -2277,6 +2406,7 @@ def get_dashboard_data_for_enterprise(user, profile, locale: str | None = None):
             "contacts": len(platform_contacts),
             "matching_startups": len(matching_enriched),
             "matching_startups_top": len(top_recommendations),
+            "progress_updates_unseen": count_unseen_updates_for_enterprise(profile["id"]),
         },
     }
 

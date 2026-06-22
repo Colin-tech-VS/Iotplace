@@ -336,6 +336,7 @@
                         <th>{{ t(de ~ '.col_phase') }}</th>
                         <th>{{ t(de ~ '.col_amount') }}</th>
                         <th>{{ t(de ~ '.col_escrow') }}</th>
+                        <th>{{ t(de ~ '.col_progress') }}</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -350,6 +351,13 @@
                         <td>{{ phase_badge(eng.project_phase) }}</td>
                         <td class="mono">{{ eng.amount_label }}</td>
                         <td>{{ cdash_status(eng.status_tone, eng.status_label) }}</td>
+                        <td>
+                            <div class="progress-bar-row" style="margin:0;max-width:140px">
+                                <div class="progress-bar"><span class="progress-bar-fill" style="width:{{ eng.progress_percent }}%"></span></div>
+                                <span class="progress-bar-value mono">{{ eng.progress_percent }}%</span>
+                            </div>
+                            {% if eng.has_unseen_updates %}<span class="cdash-status cdash-status-info">{{ t('compte.dashboard.message_detail.progress.new_badge') }}</span>{% endif %}
+                        </td>
                         <td>
                             <div class="cdash-actions">
                                 {% if eng.message_id %}

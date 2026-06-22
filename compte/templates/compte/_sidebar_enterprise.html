@@ -20,7 +20,7 @@
 <a href="{{ url_for('compte.enterprise_dashboard', section='partnerships') }}" class="cdash-nav-item{% if active_page == 'dashboard' and active_section == 'partnerships' %} active{% endif %}" data-cdash-section="partnerships">
     <span class="cdash-nav-icon" aria-hidden="true">🤝</span>
     {{ t(d ~ '.partnerships') }}
-    {% if stats is defined and stats.partnerships_active %}<span class="cdash-nav-badge">{{ stats.partnerships_active }}</span>{% endif %}
+    {% if stats is defined and stats.progress_updates_unseen %}<span class="cdash-nav-badge cdash-nav-badge-alert">{{ stats.progress_updates_unseen }}</span>{% elif stats is defined and stats.partnerships_active %}<span class="cdash-nav-badge">{{ stats.partnerships_active }}</span>{% endif %}
 </a>
 <a href="{{ url_for('compte.enterprise_dashboard', section='applications') }}" class="cdash-nav-item{% if active_page == 'dashboard' and active_section == 'applications' %} active{% endif %}" data-cdash-section="applications">
     <span class="cdash-nav-icon" aria-hidden="true">📨</span>

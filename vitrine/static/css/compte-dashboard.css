@@ -151,6 +151,16 @@ body.compte-app .footer {
     color: #041018;
 }
 
+.cdash-nav-badge-alert {
+    background: #f59e0b;
+    color: #041018;
+}
+
+.cdash-nav-item.active .cdash-nav-badge-alert {
+    background: #f59e0b;
+    color: #041018;
+}
+
 .cdash-sidebar-bottom {
     padding: 8px 10px 12px;
     border-top: 1px solid rgba(255, 255, 255, 0.06);
@@ -801,6 +811,88 @@ button.cdash-kpi {
 .payment-engagement-card h3 {
     margin: 0 0 0.5rem;
     font-size: 0.95rem;
+}
+
+.progress-tracking-card {
+    border-color: rgba(0, 232, 200, 0.25);
+    background: rgba(0, 232, 200, 0.05);
+}
+
+.progress-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0.25rem 0 0.75rem;
+}
+
+.progress-bar {
+    flex: 1;
+    height: 9px;
+    border-radius: 999px;
+    background: rgba(148, 163, 184, 0.25);
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #00e8c8, #38bdf8);
+    transition: width 0.4s ease;
+}
+
+.progress-bar-value {
+    font-size: 0.85rem;
+    font-weight: 700;
+    min-width: 3ch;
+    text-align: right;
+}
+
+.progress-form {
+    margin: 0.75rem 0;
+    padding: 0.75rem;
+    border-radius: 10px;
+    border: 1px solid var(--border, rgba(148, 163, 184, 0.2));
+}
+
+.progress-form h4 {
+    margin: 0 0 0.5rem;
+    font-size: 0.9rem;
+}
+
+.progress-timeline {
+    list-style: none;
+    margin: 0.5rem 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.progress-timeline-item {
+    padding: 0.6rem 0.75rem;
+    border-radius: 10px;
+    border: 1px solid var(--border, rgba(148, 163, 184, 0.2));
+    border-left: 3px solid #00e8c8;
+}
+
+.progress-timeline-head {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.progress-timeline-pct {
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #00e8c8;
+}
+
+.progress-timeline-body {
+    margin: 0.35rem 0 0;
+    white-space: pre-wrap;
+    line-height: 1.5;
 }
 
 .message-body-full {

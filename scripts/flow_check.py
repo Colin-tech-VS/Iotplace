@@ -109,13 +109,43 @@ def main() -> int:
     if r.status_code not in (200, 503):
         errors.append(f"Advisor API → {r.status_code}")
 
+    # ── Suivi d'avancement : la startup publie un point sur une mission active ──
+    st_user = store.get_user_by_email(email_s)
+    st_profile = store.get_startup_for_user(st_user["id"]) if st_user else None
+    ref_proj = scale_proj or poc_proj
+    if st_profile and ref_proj:
+        eng = store.create_engagement({
+            "application_message_id": "",
+            "project_id": ref_proj["id"],
+            "enterprise_id": ref_proj.get("enterprise_id", ""),
+            "startup_id": st_profile["id"],
+            "amount_cents": 1_000_000,
+            "platform_fee_cents": 100_000,
+            "startup_payout_cents": 900_000,
+            "currency": "eur",
+            "status": "escrowed",
+        })
+        r = client.post(
+            f"/compte/engagements/{eng['id']}/avancement",
+            data={"progress_percent": "40", "body": "Prototype firmware livré, tests en cours."},
+            follow_redirects=False,
+        )
+        if r.status_code not in (302, 200):
+            errors.append(f"Avancement mission → {r.status_code}")
+        updates = store.get_engagement_updates(eng["id"])
+        if not updates or updates[0].get("progress_percent") != 40:
+            errors.append("Avancement non enregistré")
+        refreshed = store.get_engagement(eng["id"])
+        if (refreshed or {}).get("progress_percent") != 40:
+            errors.append("Progression mission non synchronisée")
+
     if errors:
         print("ÉCHEC flow_check :", file=sys.stderr)
         for err in errors:
             print(f"  - {err}", file=sys.stderr)
         return 1
 
-    print("flow_check OK — entreprise, startup, candidatures, advisor")
+    print("flow_check OK — entreprise, startup, candidatures, advisor, suivi d'avancement")
     return 0
 
 

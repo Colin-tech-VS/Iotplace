@@ -202,6 +202,7 @@
                         <th>{{ t('compte.dashboard.enterprise.col_phase') }}</th>
                         <th>{{ t(ds ~ '.col_payout') }}</th>
                         <th>{{ t('compte.dashboard.enterprise.col_status') }}</th>
+                        <th>{{ t(ds ~ '.col_progress') }}</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -216,6 +217,13 @@
                         <td>{{ phase_badge(eng.project_phase) }}</td>
                         <td class="mono">{{ eng.payout_label }}</td>
                         <td>{{ cdash_status(eng.status_tone, eng.status_label) }}</td>
+                        <td>
+                            <div class="progress-bar-row" style="margin:0;max-width:140px">
+                                <div class="progress-bar"><span class="progress-bar-fill" style="width:{{ eng.progress_percent }}%"></span></div>
+                                <span class="progress-bar-value mono">{{ eng.progress_percent }}%</span>
+                            </div>
+                            {% if eng.accepts_updates and eng.progress_percent == 0 %}<span class="cdash-meta">{{ t(ds ~ '.col_progress') }} →</span>{% endif %}
+                        </td>
                         <td>
                             {% if eng.message_id %}
                             <div class="cdash-actions">

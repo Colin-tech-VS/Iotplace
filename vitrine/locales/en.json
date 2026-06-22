@@ -612,6 +612,10 @@
     "flash_billing_unavailable": "Billing portal is not available.",
     "flash_funds_released": "Funds released and paid out to the startup.",
     "flash_release_error": "Error while releasing funds.",
+    "flash_engagement_not_found": "Mission not found.",
+    "flash_progress_posted": "Progress update posted — your client has been notified.",
+    "flash_progress_empty": "Describe your progress before posting.",
+    "flash_progress_closed": "This mission no longer accepts progress updates.",
     "flash_project_limit": "Limit reached: {max} open project on the Free plan. Upgrade to Pro or archive an existing project.",
     "dashboard": {
       "member_space": "Member space",
@@ -701,6 +705,7 @@
         "col_startup": "Startup",
         "col_amount": "Amount",
         "col_escrow": "Escrow status",
+        "col_progress": "Progress",
         "partnerships_empty_title": "No partnerships",
         "partnerships_empty_desc": "Accept a startup application to create a mission and start Stripe escrow.",
         "applications_title": "Received applications",
@@ -761,6 +766,7 @@
         "kpi_messages_sub": "{total} thread(s)",
         "partnerships_title": "Partnerships & payments",
         "col_payout": "Expected payout",
+        "col_progress": "Progress",
         "partnerships_empty_title": "No partnerships",
         "partnerships_empty_desc": "An accepted application will create your first paid mission.",
         "applications_title": "My applications",
@@ -838,7 +844,22 @@
         "reply_placeholder": "Your reply…",
         "reply_send": "Send reply",
         "linked_project": "Linked project",
-        "view_project": "View project"
+        "view_project": "View project",
+        "progress": {
+          "title": "Progress tracking",
+          "progress_label": "Progress",
+          "no_updates_enterprise": "The startup hasn't posted a progress update yet. You'll be notified by email as soon as it does.",
+          "no_updates_startup": "Post a first progress update to reassure your client and speed up the release of funds.",
+          "closed_note": "Progress tracking is available during the mission (from kickoff to fund release).",
+          "form_title": "Post a progress update",
+          "percent_label": "Progress (%)",
+          "body_label": "What progressed",
+          "body_placeholder": "Describe the deliverables, prototypes or milestones reached since the last update…",
+          "submit": "Post update",
+          "posted_by_startup": "Startup update",
+          "posted_by_enterprise": "Enterprise note",
+          "new_badge": "New"
+        }
       },
       "messenger": {
         "loading": "Loading…",

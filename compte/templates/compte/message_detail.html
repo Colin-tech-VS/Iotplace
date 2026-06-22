@@ -94,6 +94,56 @@
         </div>
         {% endif %}
 
+        {% if engagement %}
+        {% set mp = md ~ '.progress' %}
+        {% set progress = engagement_view.progress_percent if engagement_view else (engagement.progress_percent or 0) %}
+        <div class="payment-engagement-card progress-tracking-card">
+            <h3>{{ t(mp ~ '.title') }}</h3>
+            <div class="progress-bar-row">
+                <div class="progress-bar" role="progressbar" aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100">
+                    <span class="progress-bar-fill" style="width:{{ progress }}%"></span>
+                </div>
+                <span class="progress-bar-value mono">{{ progress }}%</span>
+            </div>
+
+            {% if user.role == 'startup' and engagement_view and engagement_view.accepts_updates %}
+            <form class="progress-form" method="POST" action="{{ url_for('compte.post_engagement_update', engagement_id=engagement.id) }}">
+                <h4>{{ t(mp ~ '.form_title') }}</h4>
+                <div class="form-group">
+                    <label for="progress_percent">{{ t(mp ~ '.percent_label') }}</label>
+                    <input type="number" id="progress_percent" name="progress_percent" min="0" max="100" step="5" value="{{ progress }}">
+                </div>
+                <div class="form-group">
+                    <label for="progress_body">{{ t(mp ~ '.body_label') }}</label>
+                    <textarea id="progress_body" name="body" rows="3" required placeholder="{{ t(mp ~ '.body_placeholder') }}"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm">{{ t(mp ~ '.submit') }}</button>
+            </form>
+            {% elif user.role == 'startup' %}
+            <p class="cdash-step-hint muted">{{ t(mp ~ '.closed_note') }}</p>
+            {% endif %}
+
+            {% if engagement_updates %}
+            <ol class="progress-timeline">
+                {% for upd in engagement_updates %}
+                <li class="progress-timeline-item">
+                    <div class="progress-timeline-head">
+                        <span class="progress-timeline-pct mono">{{ upd.progress_percent }}%</span>
+                        <span class="cdash-meta">
+                            {% if upd.author_role == 'startup' %}{{ t(mp ~ '.posted_by_startup') }}{% else %}{{ t(mp ~ '.posted_by_enterprise') }}{% endif %}
+                            · {{ upd.created_at[:16].replace('T', ' ') if upd.created_at else '' }}
+                        </span>
+                    </div>
+                    {% if upd.body %}<p class="progress-timeline-body">{{ upd.body }}</p>{% endif %}
+                </li>
+                {% endfor %}
+            </ol>
+            {% else %}
+            <p class="muted">{% if user.role == 'enterprise' %}{{ t(mp ~ '.no_updates_enterprise') }}{% else %}{{ t(mp ~ '.no_updates_startup') }}{% endif %}</p>
+            {% endif %}
+        </div>
+        {% endif %}
+
         {% if message.kind == 'application' and message.direction == 'in' and user.role == 'enterprise' and message.status == 'pending' %}
         <div class="message-actions">
             {% if stripe_configured %}
