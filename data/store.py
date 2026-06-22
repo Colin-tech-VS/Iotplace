@@ -1058,7 +1058,14 @@ def get_enterprise_for_user(user_id):
 
 
 def get_startup_for_user(user_id):
-    return next((s for s in _load_raw()["startups"] if s.get("user_id") == user_id), None)
+    startup = next((s for s in _load_raw()["startups"] if s.get("user_id") == user_id), None)
+    if startup:
+        return startup
+    user = get_user(user_id)
+    profile_id = (user or {}).get("profile_id")
+    if profile_id:
+        return get_startup(profile_id)
+    return None
 
 
 def get_all_users():

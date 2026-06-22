@@ -13,6 +13,7 @@ if str(ROOT) not in sys.path:
 
 STRIPE_EVENTS = [
     "checkout.session.completed",
+    "checkout.session.expired",
     "invoice.paid",
     "invoice.payment_failed",
     "account.updated",

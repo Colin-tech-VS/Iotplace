@@ -2,9 +2,13 @@
 
 from __future__ import annotations
 
+import logging
+
 from data import store
 from data.engagement_phases import requires_startup_application_fee
 from payments import stripe_service
+
+logger = logging.getLogger(__name__)
 
 
 def project_requires_poc_fee(project: dict) -> bool:
@@ -41,16 +45,30 @@ def start_poc_application(user: dict, startup: dict, project: dict, message_body
     return {"checkout_url": session.url, "checkout_id": checkout["id"]}
 
 
-def complete_from_stripe_session(session: dict) -> dict:
+def complete_from_stripe_session(
+    session: dict,
+    *,
+    expected_project_id: str | None = None,
+) -> dict:
     checkout_id = (session.get("metadata") or {}).get("iotplace_checkout_id")
     if not checkout_id:
         return {"ok": False, "error": "checkout_id manquant"}
+    meta = session.get("metadata") or {}
+    if meta.get("iotplace_type") != "poc_application":
+        return {"ok": False, "error": "Type de paiement invalide."}
+    project_id = meta.get("project_id")
+    if expected_project_id and project_id != expected_project_id:
+        return {"ok": False, "error": "Ce paiement ne correspond pas à ce projet."}
     if session.get("payment_status") != "paid":
         return {"ok": False, "error": "paiement non confirmé"}
     return _finalize_checkout(checkout_id, session.get("id"))
 
 
-def complete_from_session_id(session_id: str) -> dict:
+def complete_from_session_id(
+    session_id: str,
+    *,
+    expected_project_id: str | None = None,
+) -> dict:
     if not session_id:
         return {"ok": False, "error": "session_id manquant"}
     if not stripe_service.is_configured():
@@ -59,7 +77,34 @@ def complete_from_session_id(session_id: str) -> dict:
         session = stripe_service.retrieve_checkout_session(session_id)
     except stripe_service.PaymentError as exc:
         return {"ok": False, "error": str(exc)}
-    return complete_from_stripe_session(session)
+    except Exception:
+        logger.exception("Stripe session retrieve failed session_id=%s", session_id[:20])
+        return {"ok": False, "error": "Impossible de vérifier le paiement Stripe."}
+    try:
+        return complete_from_stripe_session(
+            session,
+            expected_project_id=expected_project_id,
+        )
+    except Exception:
+        logger.exception("PoC checkout finalization failed session_id=%s", session_id[:20])
+        return {"ok": False, "error": "Erreur lors de la finalisation de la candidature."}
+
+
+def mark_checkout_cancelled(session: dict) -> dict:
+    checkout_id = (session.get("metadata") or {}).get("iotplace_checkout_id")
+    if not checkout_id:
+        return {"ok": False, "error": "checkout_id manquant"}
+    checkout = store.get_application_checkout(checkout_id)
+    if not checkout:
+        return {"ok": False, "error": "Candidature PoC introuvable."}
+    if checkout.get("status") == "completed":
+        return {"ok": True, "already_completed": True}
+    store.update_application_checkout(checkout_id, {
+        "status": "cancelled",
+        "cancelled_at": store._now().isoformat(),
+        "stripe_session_id": session.get("id") or checkout.get("stripe_session_id"),
+    })
+    return {"ok": True, "checkout_id": checkout_id}
 
 
 def _finalize_checkout(checkout_id: str, stripe_session_id: str | None = None) -> dict:
@@ -67,10 +112,13 @@ def _finalize_checkout(checkout_id: str, stripe_session_id: str | None = None) -
     if not checkout:
         return {"ok": False, "error": "Candidature PoC introuvable."}
 
+    user_id = checkout.get("user_id")
+
     if checkout.get("status") == "completed":
         return {
             "ok": True,
             "message_id": checkout.get("message_id"),
+            "user_id": user_id,
             "already_completed": True,
         }
 
@@ -86,7 +134,7 @@ def _finalize_checkout(checkout_id: str, stripe_session_id: str | None = None) -
             "message_id": checkout.get("message_id"),
             "stripe_session_id": stripe_session_id or checkout.get("stripe_session_id"),
         })
-        return {"ok": True, "already_applied": True}
+        return {"ok": True, "user_id": user_id, "already_applied": True}
 
     try:
         message = store.apply_to_project(
@@ -99,11 +147,24 @@ def _finalize_checkout(checkout_id: str, stripe_session_id: str | None = None) -
         )
     except ValueError as exc:
         return {"ok": False, "error": str(exc)}
+    except Exception:
+        logger.exception("apply_to_project failed checkout_id=%s", checkout_id)
+        return {"ok": False, "error": "Erreur lors de l'enregistrement de la candidature."}
 
-    store.update_application_checkout(checkout_id, {
-        "status": "completed",
-        "message_id": message["id"],
-        "stripe_session_id": stripe_session_id or checkout.get("stripe_session_id"),
-        "paid_at": store._now().isoformat(),
-    })
-    return {"ok": True, "message_id": message["id"]}
+    try:
+        store.update_application_checkout(checkout_id, {
+            "status": "completed",
+            "message_id": message["id"],
+            "stripe_session_id": stripe_session_id or checkout.get("stripe_session_id"),
+            "paid_at": store._now().isoformat(),
+        })
+    except Exception:
+        logger.exception("checkout update failed checkout_id=%s", checkout_id)
+        return {
+            "ok": True,
+            "message_id": message["id"],
+            "user_id": user_id,
+            "warning": "Candidature enregistrée mais mise à jour du paiement incomplète.",
+        }
+
+    return {"ok": True, "message_id": message["id"], "user_id": user_id}

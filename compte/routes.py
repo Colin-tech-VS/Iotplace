@@ -572,23 +572,73 @@ def startup_apply_project(project_id):
 
 
 @compte_bp.route("/compte/startup/projet/<project_id>/candidature/succes")
-@auth.login_required(role="startup")
 def startup_apply_poc_success(project_id):
-    user = auth.get_current_user()
-    profile = store.get_startup_for_user(user["id"])
+    """Finalize PoC payment after Stripe redirect (session may be lost — no login required)."""
+    import logging
+
     project = store.get_project(project_id)
-    if not profile or not project:
+    if not project:
         flash(t("compte.flash_project_not_found"), "error")
-        return redirect(url_for("compte.startup_dashboard"))
+        if auth.get_current_user():
+            return redirect(url_for("compte.startup_dashboard"))
+        return redirect(url_for("compte.login"))
 
     session_id = (request.args.get("session_id") or "").strip()
-    result = poc_application.complete_from_session_id(session_id)
-    if result.get("ok"):
-        flash(t("compte.flash_poc_apply_ok"), "success")
-        return redirect(url_for("compte.startup_dashboard") + "#messages")
+    if not session_id:
+        flash(t("compte.flash_payment_pending"), "warning")
+        return redirect(url_for("compte.startup_project_detail", project_id=project_id))
 
-    flash(result.get("error", t("compte.flash_payment_pending")), "warning")
+    try:
+        result = poc_application.complete_from_session_id(
+            session_id,
+            expected_project_id=project_id,
+        )
+    except Exception:
+        logging.exception("PoC success handler failed project_id=%s", project_id)
+        flash(t("compte.flash_poc_apply_error"), "error")
+        return redirect(url_for("compte.startup_project_detail", project_id=project_id))
+
+    if result.get("ok"):
+        user = auth.get_current_user()
+        checkout_user_id = result.get("user_id")
+        if user and checkout_user_id and user["id"] != checkout_user_id:
+            flash(t("compte.flash_poc_wrong_account"), "warning")
+            return redirect(url_for("compte.home"))
+        if user and user.get("role") == "startup":
+            flash(t("compte.flash_poc_apply_ok"), "success")
+            return redirect(url_for("compte.startup_dashboard") + "#messages")
+        flash(t("compte.flash_poc_apply_ok_login"), "success")
+        return redirect(url_for("compte.login", next=url_for("compte.startup_dashboard") + "#messages"))
+
+    if result.get("already_completed") or result.get("already_applied"):
+        flash(t("compte.flash_poc_apply_ok"), "success")
+        user = auth.get_current_user()
+        if user and user.get("role") == "startup":
+            return redirect(url_for("compte.startup_dashboard") + "#messages")
+        return redirect(url_for("compte.login", next=url_for("compte.startup_dashboard") + "#messages"))
+
+    error = (result.get("error") or "").lower()
+    if "paiement" in error or "payment" in error:
+        flash(t("compte.flash_payment_pending"), "warning")
+    else:
+        flash(result.get("error") or t("compte.flash_poc_apply_error"), "error")
     return redirect(url_for("compte.startup_project_detail", project_id=project_id))
+
+
+@compte_bp.route("/compte/startup/projet/<project_id>/candidature/annule")
+def startup_apply_poc_cancel(project_id):
+    """Stripe Checkout cancel — optional session_id marks checkout as cancelled."""
+    session_id = (request.args.get("session_id") or "").strip()
+    if session_id and stripe_service.is_configured():
+        try:
+            session = stripe_service.retrieve_checkout_session(session_id)
+            poc_application.mark_checkout_cancelled(session)
+        except Exception:
+            pass
+    flash(t("compte.flash_poc_apply_cancelled"), "info")
+    if auth.get_current_user() and auth.get_current_user().get("role") == "startup":
+        return redirect(url_for("compte.startup_project_detail", project_id=project_id))
+    return redirect(url_for("compte.login", next=url_for("compte.startup_project_detail", project_id=project_id)))
 
 
 @compte_bp.route("/compte/startup/profil", methods=["GET", "POST"])

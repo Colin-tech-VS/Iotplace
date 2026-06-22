@@ -330,14 +330,20 @@ def create_poc_application_checkout(
             f"{site}/compte/startup/projet/{project['id']}/candidature/succes"
             "?session_id={CHECKOUT_SESSION_ID}"
         ),
-        cancel_url=f"{site}/compte/startup/projet/{project['id']}",
+        cancel_url=(
+            f"{site}/compte/startup/projet/{project['id']}/candidature/annule"
+            "?session_id={CHECKOUT_SESSION_ID}"
+        ),
     )
     return session
 
 
 def retrieve_checkout_session(session_id: str) -> Any:
     _client()
-    return stripe.checkout.Session.retrieve(session_id)
+    try:
+        return stripe.checkout.Session.retrieve(session_id)
+    except stripe.error.StripeError as exc:
+        raise PaymentError(str(exc)) from exc
 
 
 def handle_webhook_event(payload: bytes, sig_header: str) -> dict[str, Any]:
@@ -387,6 +393,16 @@ def handle_webhook_event(payload: bytes, sig_header: str) -> dict[str, Any]:
             from payments import subscriptions
 
             completion = subscriptions.complete_checkout_subscription(session)
+            result.update(completion)
+            result["handled"] = completion.get("ok", False)
+
+    elif event["type"] == "checkout.session.expired":
+        session = event["data"]["object"]
+        meta = session.get("metadata") or {}
+        if meta.get("iotplace_type") == "poc_application":
+            from payments import poc_application
+
+            completion = poc_application.mark_checkout_cancelled(session)
             result.update(completion)
             result["handled"] = completion.get("ok", False)
 
