@@ -1,5 +1,5 @@
 {% extends "compte_layout.html" %}
-{% from "compte/_dashboard_macros.html" import cdash_nav_item, cdash_status, cdash_empty %}
+{% from "compte/_dashboard_macros.html" import cdash_nav_item, cdash_status, cdash_empty, cdash_match_score, cdash_match_reasons %}
 {% from "compte/_messenger.html" import messenger_widget %}
 {% from "_phase_badge.html" import phase_badge %}
 
@@ -73,14 +73,18 @@
         <div class="cdash-card">
             <div class="cdash-card-head">
                 <h2>{{ t(ds ~ '.recommended_title') }}</h2>
-                <a href="{{ url_for('vitrine.projects') }}" class="btn btn-ghost btn-sm">{{ t(d ~ '.see_all') }}</a>
+                <a href="{{ url_for('compte.startup_dashboard', section='missions') }}" class="btn btn-ghost btn-sm">{{ t(d ~ '.see_all') }}</a>
             </div>
             {% if open_matching[:5] %}
             <div class="cdash-pipeline" style="grid-template-columns:1fr">
                 {% for project in open_matching[:5] %}
                 <a href="{{ url_for('compte.startup_project_detail', project_id=project.id) }}" class="cdash-pipeline-item">
-                    <strong>{{ project.title }}</strong>
+                    <div class="cdash-pipeline-item-head">
+                        <strong>{{ project.title }}</strong>
+                        {% if project.match_score is defined %}{{ cdash_match_score(project.match_score) }}{% endif %}
+                    </div>
                     <p>{{ project.enterprise }} · {{ project.budget or t(d ~ '.budget_tbd') }}{% if project.engagement_phase %} · {{ translate_phase(project.engagement_phase) }}{% endif %}</p>
+                    {{ cdash_match_reasons(project.match_reasons) }}
                 </a>
                 {% endfor %}
             </div>
@@ -125,6 +129,7 @@
                 <thead>
                     <tr>
                         <th>{{ t(ds ~ '.col_mission') }}</th>
+                        <th>{{ t(ds ~ '.col_match') }}</th>
                         <th>{{ t(ds ~ '.col_enterprise') }}</th>
                         <th>{{ t('compte.dashboard.enterprise.col_phase') }}</th>
                         <th>{{ t(ds ~ '.col_budget') }}</th>
@@ -140,7 +145,9 @@
                             {% if project.skills %}
                             <div class="cdash-meta">{{ project.skills[:3]|join(', ') }}</div>
                             {% endif %}
+                            {{ cdash_match_reasons(project.match_reasons) }}
                         </td>
+                        <td>{{ cdash_match_score(project.match_score or 0) }}</td>
                         <td>{{ project.enterprise }}</td>
                         <td>{{ phase_badge(project.engagement_phase) }}</td>
                         <td>{{ project.budget or '—' }}</td>

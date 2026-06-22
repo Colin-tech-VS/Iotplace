@@ -1,5 +1,5 @@
 {% extends "compte_layout.html" %}
-{% from "compte/_dashboard_macros.html" import cdash_nav_item, cdash_status, cdash_empty %}
+{% from "compte/_dashboard_macros.html" import cdash_nav_item, cdash_status, cdash_empty, cdash_match_score, cdash_match_reasons %}
 {% from "compte/_messenger.html" import messenger_widget %}
 {% from "_phase_badge.html" import phase_badge %}
 
@@ -56,6 +56,11 @@
 
 <section class="cdash-panel{% if active_section == 'overview' %} active{% endif %}" id="cdash-panel-overview" data-section="overview">
     <div class="cdash-kpis">
+        <button type="button" class="cdash-kpi" data-cdash-section="recommendations">
+            <strong>{{ stats.matching_startups_top }}</strong>
+            <span>{{ t(de ~ '.kpi_recommendations') }}</span>
+            <small>{{ t(de ~ '.kpi_recommendations_sub', total=stats.matching_startups) }}</small>
+        </button>
         <button type="button" class="cdash-kpi" data-cdash-section="projects">
             <strong>{{ stats.projects }}</strong>
             <span>{{ t(de ~ '.kpi_projects') }}</span>
@@ -79,6 +84,39 @@
     </div>
 
     <div class="cdash-grid-2">
+        <div class="cdash-card">
+            <div class="cdash-card-head">
+                <h2>{{ t(de ~ '.recommended_startups_title') }}</h2>
+                <a href="{{ url_for('compte.enterprise_dashboard', section='recommendations') }}" class="btn btn-ghost btn-sm">{{ t(d ~ '.see_all') }}</a>
+            </div>
+            {% if top_recommendations[:5] %}
+            <div class="cdash-pipeline" style="grid-template-columns:1fr">
+                {% for startup in top_recommendations[:5] %}
+                <div class="cdash-pipeline-item cdash-pipeline-item-static">
+                    <div class="cdash-pipeline-item-head">
+                        <strong>{{ startup.flag or '' }} {{ startup.name }}</strong>
+                        {{ cdash_match_score(startup.match_score) }}
+                    </div>
+                    <p>{{ startup.specialty or startup.sector or '—' }} · {{ startup.country or '—' }}{% if startup.match_project_title %} · {{ startup.match_project_title }}{% endif %}</p>
+                    {{ cdash_match_reasons(startup.match_reasons) }}
+                    <div class="cdash-actions" style="margin-top:0.65rem">
+                        <a href="{{ url_for('vitrine.startup_detail', startup_id=startup.id) }}" class="btn btn-ghost btn-sm">{{ t(d ~ '.view') }}</a>
+                        {% if startup.user_id_for_chat %}
+                        <button type="button" class="btn btn-primary btn-sm cdash-open-chat"
+                            data-counterpart="{{ startup.user_id_for_chat }}"
+                            data-project="{{ startup.match_project_id or '' }}"
+                            data-name="{{ startup.name }}"
+                            data-role="startup">{{ t(d ~ '.chat') }}</button>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            {{ cdash_empty('🎯', t(de ~ '.recommended_empty_title'), t(de ~ '.recommended_empty_desc'), url_for('compte.enterprise_new_project'), t(de ~ '.recommended_empty_cta')) }}
+            {% endif %}
+        </div>
+
         <div class="cdash-card">
             <div class="cdash-card-head">
                 <h2>{{ t(de ~ '.pipeline_title') }}</h2>
@@ -142,6 +180,60 @@
             {{ cdash_empty('📋', t(de ~ '.activity_empty_title'), t(de ~ '.activity_empty_desc')) }}
             {% endif %}
         </div>
+    </div>
+</section>
+
+<section class="cdash-panel{% if active_section == 'recommendations' %} active{% endif %}" id="cdash-panel-recommendations" data-section="recommendations">
+    <div class="cdash-card">
+        <div class="cdash-card-head">
+            <h2>{{ t(de ~ '.recommendations_title') }}</h2>
+            <a href="{{ url_for('vitrine.startups') }}" class="btn btn-outline btn-sm">{{ t(de ~ '.recommendations_catalog') }}</a>
+        </div>
+        {% if matching_startups %}
+        <div class="cdash-table-wrap">
+            <table class="cdash-table">
+                <thead>
+                    <tr>
+                        <th>{{ t(de ~ '.col_startup') }}</th>
+                        <th>{{ t(de ~ '.col_match') }}</th>
+                        <th>{{ t(de ~ '.col_domain') }}</th>
+                        <th>{{ t(de ~ '.col_skills') }}</th>
+                        <th>{{ t(de ~ '.col_project') }}</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for startup in matching_startups %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('vitrine.startup_detail', startup_id=startup.id) }}" class="cdash-table-title">{{ startup.flag or '' }} {{ startup.name }}</a>
+                            <div class="cdash-meta">{{ startup.country or '—' }}{% if startup.team_size %} · {{ startup.team_size }} pers.{% endif %}</div>
+                            {{ cdash_match_reasons(startup.match_reasons) }}
+                        </td>
+                        <td>{{ cdash_match_score(startup.match_score or 0) }}</td>
+                        <td>{{ startup.sector or '—' }}</td>
+                        <td class="cdash-meta">{{ (startup.skills or [])[:4]|join(', ') or '—' }}</td>
+                        <td>{{ startup.match_project_title or '—' }}</td>
+                        <td>
+                            <div class="cdash-actions">
+                                <a href="{{ url_for('vitrine.startup_detail', startup_id=startup.id) }}" class="btn btn-ghost btn-sm">{{ t(d ~ '.view') }}</a>
+                                {% if startup.user_id_for_chat %}
+                                <button type="button" class="btn btn-primary btn-sm cdash-open-chat"
+                                    data-counterpart="{{ startup.user_id_for_chat }}"
+                                    data-project="{{ startup.match_project_id or '' }}"
+                                    data-name="{{ startup.name }}"
+                                    data-role="startup">{{ t(d ~ '.chat') }}</button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        {{ cdash_empty('🎯', t(de ~ '.recommendations_empty_title'), t(de ~ '.recommendations_empty_desc'), url_for('compte.enterprise_edit_profile'), t(de ~ '.recommendations_empty_cta')) }}
+        {% endif %}
     </div>
 </section>
 

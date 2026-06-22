@@ -18,7 +18,14 @@ class PaymentError(Exception):
 
 
 def is_configured() -> bool:
-    return bool((os.environ.get("STRIPE_SECRET_KEY") or "").strip())
+    return bool(
+        (os.environ.get("STRIPE_SECRET_KEY") or "").strip()
+        and (os.environ.get("STRIPE_PUBLISHABLE_KEY") or "").strip()
+    )
+
+
+def is_webhook_configured() -> bool:
+    return bool((os.environ.get("STRIPE_WEBHOOK_SECRET") or "").strip())
 
 
 def _client() -> None:
@@ -116,20 +123,29 @@ def ensure_startup_connect_account(startup: dict, user: dict) -> str:
     if existing:
         return existing
 
-    account = stripe.Account.create(
-        type="express",
-        country=_connect_country(startup),
-        email=user.get("email", ""),
-        capabilities={
-            "card_payments": {"requested": True},
-            "transfers": {"requested": True},
-        },
-        business_type="company",
-        metadata={
-            "iotplace_startup_id": startup.get("id", ""),
-            "iotplace_user_id": user.get("id", ""),
-        },
-    )
+    try:
+        account = stripe.Account.create(
+            type="express",
+            country=_connect_country(startup),
+            email=user.get("email", ""),
+            capabilities={
+                "card_payments": {"requested": True},
+                "transfers": {"requested": True},
+            },
+            business_type="company",
+            metadata={
+                "iotplace_startup_id": startup.get("id", ""),
+                "iotplace_user_id": user.get("id", ""),
+            },
+        )
+    except stripe.error.InvalidRequestError as exc:
+        msg = str(exc)
+        if "signed up for Connect" in msg or "Connect" in msg:
+            raise PaymentError(
+                "Stripe Connect n'est pas activé sur le compte plateforme. "
+                "Activez-le sur https://dashboard.stripe.com/connect/settings."
+            ) from exc
+        raise PaymentError(msg) from exc
     from data import store
 
     store.update_startup(startup["id"], {
@@ -325,7 +341,10 @@ def handle_webhook_event(payload: bytes, sig_header: str) -> dict[str, Any]:
     _client()
     secret = (os.environ.get("STRIPE_WEBHOOK_SECRET") or "").strip()
     if not secret:
-        raise PaymentError("STRIPE_WEBHOOK_SECRET manquant.")
+        raise PaymentError(
+            "STRIPE_WEBHOOK_SECRET manquant. Créez un endpoint webhook vers "
+            f"{_site_url().rstrip('/')}/webhooks/stripe dans le dashboard Stripe."
+        )
 
     event = stripe.Webhook.construct_event(payload, sig_header, secret)
     from data import store

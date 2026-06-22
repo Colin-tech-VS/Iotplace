@@ -1315,17 +1315,26 @@ def update_startup_profile(entry_id, fields):
 
 
 def get_matching_projects_for_startup(startup):
-    skills = {s.lower() for s in startup.get("skills", [])}
-    if not skills:
-        return [p for p in get_projects() if p.get("status") == "Ouvert"]
-    matched = []
-    for project in get_projects():
-        if project.get("status") != "Ouvert":
-            continue
-        project_skills = {s.lower() for s in project.get("skills", [])}
-        if not project_skills or skills & project_skills:
-            matched.append(project)
-    return matched
+    from data.matching import match_projects_for_startup
+
+    enterprises = {e["id"]: e for e in get_enterprises()}
+    return match_projects_for_startup(startup, get_projects(), enterprises)
+
+
+def get_matching_startups_for_enterprise(enterprise):
+    from data.matching import match_startups_for_enterprise
+
+    engaged_ids = {
+        e.get("startup_id")
+        for e in get_engagements_for_enterprise(enterprise["id"])
+        if e.get("status") not in ("cancelled", "released")
+    }
+    return match_startups_for_enterprise(
+        enterprise,
+        get_projects(),
+        get_startups(),
+        exclude_startup_ids=engaged_ids,
+    )
 
 
 def get_project(project_id):
@@ -2121,6 +2130,16 @@ def get_dashboard_data_for_enterprise(user, profile, locale: str | None = None):
     partnerships = _partnership_pipeline(engagements)
     pending_apps = sum(1 for a in applications if a.get("status") == "pending")
     accepted_apps = sum(1 for a in applications if a.get("status") == "accepted")
+    matching_startups = get_matching_startups_for_enterprise(profile)
+    applied_startup_ids = {a.get("from_profile_id") for a in applications}
+    matching_enriched = []
+    for s in matching_startups:
+        matching_enriched.append({
+            **s,
+            "already_applied": s.get("id") in applied_startup_ids,
+            "user_id_for_chat": s.get("user_id"),
+        })
+    top_recommendations = [s for s in matching_enriched if not s.get("already_applied")][:8]
     return {
         "projects": projects_enriched,
         "pipeline": pipeline,
@@ -2131,6 +2150,8 @@ def get_dashboard_data_for_enterprise(user, profile, locale: str | None = None):
         "sent": [enrich_message_for_view(m, user["id"], loc) for m in sent],
         "applications": applications_view,
         "platform_contacts": platform_contacts,
+        "matching_startups": matching_enriched,
+        "top_recommendations": top_recommendations,
         "unread_count": get_unread_count(user["id"]),
         "stats": {
             "projects": len(projects),
@@ -2144,6 +2165,8 @@ def get_dashboard_data_for_enterprise(user, profile, locale: str | None = None):
             "applications_accepted": accepted_apps,
             "unread": get_unread_count(user["id"]),
             "contacts": len(platform_contacts),
+            "matching_startups": len(matching_enriched),
+            "matching_startups_top": len(top_recommendations),
         },
     }
 
@@ -2172,6 +2195,8 @@ def get_dashboard_data_for_startup(user, profile, locale: str | None = None):
     pending_apps = sum(1 for a in applications if a.get("status") == "pending")
     accepted_apps = sum(1 for a in applications if a.get("status") == "accepted")
     open_matching = [p for p in matching_enriched if p.get("status") == "Ouvert" and not p.get("already_applied")]
+    open_matching.sort(key=lambda p: (-(p.get("match_score") or 0), p.get("title") or ""))
+    matching_enriched.sort(key=lambda p: (-(p.get("match_score") or 0), p.get("title") or ""))
     return {
         "matching_projects": matching_enriched,
         "open_matching": open_matching,

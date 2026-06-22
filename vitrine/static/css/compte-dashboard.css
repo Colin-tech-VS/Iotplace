@@ -705,3 +705,63 @@ button.cdash-kpi {
 .auth-forgot a {
     color: #00e8c8;
 }
+
+.cdash-match {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.6rem;
+    padding: 0.15rem 0.45rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    font-family: var(--iot-font-mono, 'JetBrains Mono', monospace);
+    border: 1px solid transparent;
+}
+
+.cdash-match-high {
+    color: #052e2b;
+    background: rgba(0, 232, 200, 0.9);
+    border-color: rgba(0, 232, 200, 0.4);
+}
+
+.cdash-match-medium {
+    color: #e8f7ff;
+    background: rgba(56, 189, 248, 0.18);
+    border-color: rgba(56, 189, 248, 0.35);
+}
+
+.cdash-match-low {
+    color: #b8c5d6;
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.cdash-match-reasons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.35rem;
+}
+
+.cdash-match-tag {
+    font-size: 0.68rem;
+    color: #8b95a8;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 6px;
+    padding: 0.12rem 0.4rem;
+}
+
+.cdash-pipeline-item-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.cdash-pipeline-item-static {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+}

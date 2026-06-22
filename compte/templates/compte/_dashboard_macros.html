@@ -28,3 +28,20 @@
     {% endif %}
 </div>
 {% endmacro %}
+
+{% macro cdash_match_score(score, tier='') %}
+{% set t = tier or ('high' if score >= 75 else ('medium' if score >= 45 else 'low')) %}
+<span class="cdash-match cdash-match-{{ t }}" title="{{ score }}%">
+    <span class="cdash-match-value">{{ score }}%</span>
+</span>
+{% endmacro %}
+
+{% macro cdash_match_reasons(reasons, prefix='compte.dashboard.match') %}
+{% if reasons %}
+<div class="cdash-match-reasons">
+    {% for reason in reasons[:3] %}
+    <span class="cdash-match-tag">{{ t(prefix ~ '.reason_' ~ reason.code) }}{% if reason.detail %} · {{ reason.detail[:2]|join(', ') }}{% endif %}</span>
+    {% endfor %}
+</div>
+{% endif %}
+{% endmacro %}

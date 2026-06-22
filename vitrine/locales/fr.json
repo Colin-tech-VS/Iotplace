@@ -573,6 +573,7 @@
       "applications": "Candidatures",
       "messages": "Messagerie",
       "missions": "Missions",
+      "recommendations": "Recommandations",
       "my_profile": "Mon profil",
       "pricing": "Offres & tarifs",
       "back_dashboard": "Tableau de bord",
@@ -647,7 +648,21 @@
         "col_message": "Message",
         "applications_empty_title": "Aucune candidature",
         "applications_empty_desc": "Les startups postuleront à vos projets ouverts.",
-        "applications_empty_cta": "Publier un projet"
+        "applications_empty_cta": "Publier un projet",
+        "kpi_recommendations": "Startups recommandées",
+        "kpi_recommendations_sub": "{total} profil(s) correspondant(s)",
+        "recommended_startups_title": "Startups recommandées",
+        "recommended_empty_title": "Aucune recommandation",
+        "recommended_empty_desc": "Publiez un projet ouvert avec des compétences recherchées pour obtenir des suggestions.",
+        "recommended_empty_cta": "Créer un projet",
+        "recommendations_title": "Matching startups",
+        "recommendations_catalog": "Catalogue startups",
+        "recommendations_empty_title": "Aucune startup correspondante",
+        "recommendations_empty_desc": "Renseignez le domaine IoT et les tags de besoin dans votre profil, et précisez les compétences sur vos projets.",
+        "recommendations_empty_cta": "Mon profil",
+        "col_match": "Match",
+        "col_domain": "Domaine",
+        "col_skills": "Compétences"
       },
       "startup": {
         "space": "Espace startup",
@@ -675,6 +690,7 @@
         "missions_catalog": "Catalogue vitrine",
         "col_mission": "Mission",
         "col_enterprise": "Entreprise",
+        "col_match": "Match",
         "col_budget": "Budget",
         "missions_empty_title": "Aucune mission",
         "missions_empty_desc": "Affinez vos compétences dans le profil pour améliorer le matching.",
@@ -688,6 +704,13 @@
         "applications_empty_title": "Aucune candidature",
         "applications_empty_desc": "Parcourez les missions ouvertes et postulez.",
         "applications_empty_cta": "Trouver une mission"
+      },
+      "match": {
+        "reason_sector": "Domaine IoT",
+        "reason_skills": "Compétences",
+        "reason_needs": "Besoins entreprise",
+        "reason_specialty": "Spécialité",
+        "reason_domain": "Secteur"
       },
       "application_status": {
         "pending": "En attente",

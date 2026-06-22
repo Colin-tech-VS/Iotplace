@@ -7,6 +7,11 @@
     <span class="cdash-nav-icon" aria-hidden="true">◎</span>
     {{ t(d ~ '.overview') }}
 </a>
+<a href="{{ url_for('compte.enterprise_dashboard', section='recommendations') }}" class="cdash-nav-item{% if active_page == 'dashboard' and active_section == 'recommendations' %} active{% endif %}" data-cdash-section="recommendations">
+    <span class="cdash-nav-icon" aria-hidden="true">🎯</span>
+    {{ t(d ~ '.recommendations') }}
+    {% if stats is defined and stats.matching_startups_top %}<span class="cdash-nav-badge">{{ stats.matching_startups_top }}</span>{% endif %}
+</a>
 <a href="{{ url_for('compte.enterprise_dashboard', section='projects') }}" class="cdash-nav-item{% if active_page == 'dashboard' and active_section == 'projects' %} active{% endif %}" data-cdash-section="projects">
     <span class="cdash-nav-icon" aria-hidden="true">📋</span>
     {{ t(d ~ '.projects') }}

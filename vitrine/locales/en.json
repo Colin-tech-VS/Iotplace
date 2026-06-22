@@ -574,6 +574,7 @@
       "applications": "Applications",
       "messages": "Messages",
       "missions": "Missions",
+      "recommendations": "Recommendations",
       "my_profile": "My profile",
       "pricing": "Plans & pricing",
       "back_dashboard": "Dashboard",
@@ -648,7 +649,21 @@
         "col_message": "Message",
         "applications_empty_title": "No applications",
         "applications_empty_desc": "Startups will apply to your open projects.",
-        "applications_empty_cta": "Publish a project"
+        "applications_empty_cta": "Publish a project",
+        "kpi_recommendations": "Recommended startups",
+        "kpi_recommendations_sub": "{total} matching profile(s)",
+        "recommended_startups_title": "Recommended startups",
+        "recommended_empty_title": "No recommendations",
+        "recommended_empty_desc": "Publish an open project with required skills to get suggestions.",
+        "recommended_empty_cta": "Create a project",
+        "recommendations_title": "Startup matching",
+        "recommendations_catalog": "Startup catalog",
+        "recommendations_empty_title": "No matching startups",
+        "recommendations_empty_desc": "Set your IoT domain and need tags in your profile, and list skills on your projects.",
+        "recommendations_empty_cta": "My profile",
+        "col_match": "Match",
+        "col_domain": "Domain",
+        "col_skills": "Skills"
       },
       "startup": {
         "space": "Startup workspace",
@@ -676,6 +691,7 @@
         "missions_catalog": "Public catalog",
         "col_mission": "Mission",
         "col_enterprise": "Enterprise",
+        "col_match": "Match",
         "col_budget": "Budget",
         "missions_empty_title": "No missions",
         "missions_empty_desc": "Refine your skills in your profile to improve matching.",
@@ -689,6 +705,13 @@
         "applications_empty_title": "No applications",
         "applications_empty_desc": "Browse open missions and apply.",
         "applications_empty_cta": "Find a mission"
+      },
+      "match": {
+        "reason_sector": "IoT domain",
+        "reason_skills": "Skills",
+        "reason_needs": "Enterprise needs",
+        "reason_specialty": "Specialty",
+        "reason_domain": "Sector"
       },
       "application_status": {
         "pending": "Pending",

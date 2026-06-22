@@ -55,16 +55,17 @@
       "description": "Clé API Mistral — advisor IA + génération CRM"
     },
     "STRIPE_SECRET_KEY": {
-      "description": "Clé secrète Stripe Connect"
+      "description": "Clé secrète Stripe (sk_test_… ou sk_live_…) — ne pas committer la valeur"
     },
     "STRIPE_PUBLISHABLE_KEY": {
-      "description": "Clé publique Stripe"
+      "description": "Clé publique Stripe (pk_test_… ou pk_live_…)"
     },
     "STRIPE_WEBHOOK_SECRET": {
-      "description": "Secret webhook Stripe (checkout, abonnements Pro, Connect, factures)"
+      "description": "Secret webhook Stripe → POST /webhooks/stripe (checkout, abonnements Pro, Connect, factures)"
     },
     "STRIPE_PRO_PRICE_ID": {
-      "description": "ID Price Stripe abonnement Pro (optionnel — auto-créé si vide)"
+      "description": "ID Price Stripe abonnement Pro (optionnel — auto-créé si vide)",
+      "value": "price_1Tl6amRcRmUjrYmJaGgdWuuW"
     },
     "DATABASE_URL": {
       "description": "PostgreSQL — addon Scalingo ou Supabase (persistance obligatoire en prod)"

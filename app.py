@@ -59,6 +59,18 @@ if _is_prod:
             "CRM non configuré: définissez CRM_ADMIN_USERNAME et CRM_ADMIN_PASSWORD "
             "dans les variables Scalingo (pas dans scalingo.json avec une valeur vide)."
         )
+    from payments import stripe_service
+
+    if not stripe_service.is_configured():
+        logging.warning(
+            "Stripe non configuré: définissez STRIPE_SECRET_KEY et STRIPE_PUBLISHABLE_KEY "
+            "dans les variables Scalingo."
+        )
+    elif not stripe_service.is_webhook_configured():
+        logging.warning(
+            "STRIPE_WEBHOOK_SECRET manquant — les webhooks Stripe ne seront pas vérifiés. "
+            "Endpoint: /webhooks/stripe"
+        )
 
 
 from data.persistence import persistence_info
