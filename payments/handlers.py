@@ -88,6 +88,12 @@ def on_application_accepted(message: dict, enterprise_user: dict) -> dict:
             "notes": str(exc),
         })
         result["payment_error"] = str(exc)
+    except Exception as exc:  # keep acceptance flow alive even if Stripe misbehaves
+        store.update_engagement(engagement["id"], {
+            "status": "payment_error",
+            "notes": f"Erreur inattendue : {exc}",
+        })
+        result["payment_error"] = f"Erreur inattendue : {exc}"
 
     return result
 
@@ -143,6 +149,12 @@ def retry_escrow_invoice(engagement_id: str, enterprise_user: dict) -> dict:
             "notes": str(exc),
         })
         return {"ok": False, "error": str(exc)}
+    except Exception as exc:  # never bubble up as a 500 from the route
+        store.update_engagement(engagement_id, {
+            "status": "payment_error",
+            "notes": f"Erreur inattendue : {exc}",
+        })
+        return {"ok": False, "error": f"Erreur inattendue : {exc}"}
 
 
 def release_engagement(engagement_id: str, enterprise_user: dict) -> dict:

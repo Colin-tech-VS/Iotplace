@@ -239,30 +239,35 @@ def create_escrow_invoice(
     # Create the invoice first, then attach the line item explicitly so the
     # amount can't be dropped: recent Stripe API versions no longer auto-pull
     # pending invoice items, which finalized the escrow invoice at 0 €.
-    invoice = stripe.Invoice.create(
-        customer=customer_id,
-        collection_method="send_invoice",
-        days_until_due=14,
-        pending_invoice_items_behavior="exclude",
-        metadata={
-            "engagement_id": engagement["id"],
-            "project_id": engagement.get("project_id", ""),
-            "startup_id": engagement.get("startup_id", ""),
-        },
-        description=(
-            f"Commission Iotplace : {get_commission_percent_for_enterprise(enterprise):g}% prélevée à la libération des fonds. "
-            "Les fonds restent en séquestre jusqu'à validation de la mission."
-        ),
-    )
-    stripe.InvoiceItem.create(
-        customer=customer_id,
-        invoice=invoice.id,
-        amount=amount_cents,
-        currency=currency,
-        description=description,
-        metadata={"engagement_id": engagement["id"]},
-    )
-    invoice = stripe.Invoice.finalize_invoice(invoice.id)
+    try:
+        invoice = stripe.Invoice.create(
+            customer=customer_id,
+            collection_method="send_invoice",
+            days_until_due=14,
+            pending_invoice_items_behavior="exclude",
+            metadata={
+                "engagement_id": engagement["id"],
+                "project_id": engagement.get("project_id", ""),
+                "startup_id": engagement.get("startup_id", ""),
+            },
+            description=(
+                f"Commission Iotplace : {get_commission_percent_for_enterprise(enterprise):g}% prélevée à la libération des fonds. "
+                "Les fonds restent en séquestre jusqu'à validation de la mission."
+            ),
+        )
+        stripe.InvoiceItem.create(
+            customer=customer_id,
+            invoice=invoice.id,
+            amount=amount_cents,
+            currency=currency,
+            description=description,
+            metadata={"engagement_id": engagement["id"]},
+        )
+        invoice = stripe.Invoice.finalize_invoice(invoice.id)
+    except stripe.error.StripeError as exc:
+        raise PaymentError(
+            f"Erreur Stripe lors de la génération de la facture : {exc}"
+        ) from exc
 
     from data import store
 
