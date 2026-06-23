@@ -210,24 +210,40 @@ def create_escrow_invoice(
     """Create and finalize a Stripe invoice for the enterprise (funds held on platform)."""
     _client()
     customer_id = ensure_enterprise_customer(enterprise, user)
-    amount_cents = int(engagement["amount_cents"])
+    amount_cents = int(engagement.get("amount_cents") or 0)
+    if amount_cents <= 0:
+        raise PaymentError(
+            "Montant de la mission invalide (0 €). Vérifiez le budget du projet "
+            "avant de générer la facture de séquestre."
+        )
     currency = engagement.get("currency", DEFAULT_CURRENCY)
     description = (
         f"Iotplace — Mission IoT : {project.get('title', 'Projet')} "
         f"(startup : {startup.get('name', '')})"
     )
 
-    stripe.InvoiceItem.create(
-        customer=customer_id,
-        amount=amount_cents,
-        currency=currency,
-        description=description,
-        metadata={"engagement_id": engagement["id"]},
-    )
+    # Avoid leaving an orphan/duplicate invoice behind when regenerating: void
+    # any previous still-open invoice for this engagement.
+    previous_invoice_id = (engagement.get("stripe_invoice_id") or "").strip()
+    if previous_invoice_id:
+        try:
+            previous = stripe.Invoice.retrieve(previous_invoice_id)
+            prev_status = previous.get("status")
+            if prev_status == "open":
+                stripe.Invoice.void_invoice(previous_invoice_id)
+            elif prev_status == "draft":
+                stripe.Invoice.delete(previous_invoice_id)
+        except stripe.error.StripeError:
+            pass
+
+    # Create the invoice first, then attach the line item explicitly so the
+    # amount can't be dropped: recent Stripe API versions no longer auto-pull
+    # pending invoice items, which finalized the escrow invoice at 0 €.
     invoice = stripe.Invoice.create(
         customer=customer_id,
         collection_method="send_invoice",
         days_until_due=14,
+        pending_invoice_items_behavior="exclude",
         metadata={
             "engagement_id": engagement["id"],
             "project_id": engagement.get("project_id", ""),
@@ -237,6 +253,14 @@ def create_escrow_invoice(
             f"Commission Iotplace : {get_commission_percent_for_enterprise(enterprise):g}% prélevée à la libération des fonds. "
             "Les fonds restent en séquestre jusqu'à validation de la mission."
         ),
+    )
+    stripe.InvoiceItem.create(
+        customer=customer_id,
+        invoice=invoice.id,
+        amount=amount_cents,
+        currency=currency,
+        description=description,
+        metadata={"engagement_id": engagement["id"]},
     )
     invoice = stripe.Invoice.finalize_invoice(invoice.id)
 
@@ -252,6 +276,22 @@ def create_escrow_invoice(
         "hosted_invoice_url": invoice.hosted_invoice_url,
         "status": invoice.status,
     }
+
+
+def invoice_is_payable(invoice_id: str) -> bool:
+    """True if the invoice still exists, is open and carries a positive amount."""
+    invoice_id = (invoice_id or "").strip()
+    if not invoice_id or not is_configured():
+        return False
+    _client()
+    try:
+        invoice = stripe.Invoice.retrieve(invoice_id)
+    except stripe.error.StripeError:
+        return False
+    if invoice.get("status") != "open":
+        return False
+    amount_due = int(invoice.get("amount_due") or 0)
+    return amount_due > 0
 
 
 def release_escrow_to_startup(engagement: dict, startup: dict) -> dict[str, Any]:
