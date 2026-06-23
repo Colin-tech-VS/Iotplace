@@ -75,6 +75,9 @@ def build_site_knowledge(site_url: str = "", locale: str = "en") -> dict:
         p for p in store.get_projects() if p.get("status") in ("Ouvert", "Open")
     ]
 
+    pricing = _build_pricing_knowledge(locale)
+    faq_slugs = [meta["slug"] for meta in store.get_page_catalog()]
+
     return {
         "site_name": "Iotplace",
         "site_url": site_url,
@@ -109,8 +112,40 @@ def build_site_knowledge(site_url: str = "", locale: str = "en") -> dict:
         "partner_enterprises": [_summarize_enterprise(e) for e in store.get_public_enterprises()[:8]],
         "open_projects": [_summarize_project(p) for p in (open_projects or store.get_projects())[:12]],
         "matching_api": f"{site_url}/api/directory/search",
+        "pricing": pricing,
         "faq_by_page": {
             slug: store.get_page_faq(slug, locale)[:5]
-            for slug in ("home", "about", "enterprises", "startups", "projects", "pricing")
+            for slug in faq_slugs
+            if store.get_page_faq(slug, locale)
         },
+    }
+
+
+def _build_pricing_knowledge(locale: str) -> dict:
+    """Concise pricing facts so the advisor can answer cost questions precisely."""
+    try:
+        from payments.pricing_plans import build_pricing_page_context
+
+        pricing = build_pricing_page_context("fr" if locale == "fr" else "en")
+    except Exception:
+        return {}
+
+    return {
+        "commission_percent": pricing.get("commission_percent"),
+        "pro_commission_percent": pricing.get("pro_commission_percent"),
+        "pro_price_eur": pricing.get("pro_price_eur"),
+        "poc_application_fee": pricing.get("poc_application_fee_label"),
+        "free_enterprise_max_open_projects": pricing.get("free_enterprise_max_projects"),
+        "plans": pricing.get("compare_rows", []),
+        "startup_fees": pricing.get("startup_fee_rows", []),
+        "notes": (
+            "Publier un projet et parcourir l'annuaire est gratuit. Iotplace prélève une "
+            "commission par mission livrée ; les paiements passent par un séquestre "
+            "(escrow) puis Stripe Connect à la livraison."
+            if locale == "fr"
+            else
+            "Publishing a project and browsing the directory is free. Iotplace charges a "
+            "commission per delivered mission; payments go through escrow then Stripe "
+            "Connect on delivery."
+        ),
     }
