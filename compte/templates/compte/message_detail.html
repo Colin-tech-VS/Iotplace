@@ -58,6 +58,9 @@
             {% if user.role == 'enterprise' and engagement.status == 'pending_payment' and engagement.stripe_hosted_invoice_url %}
             <p class="cdash-step-hint">{{ t('compte.dashboard.engagement_hints.enterprise.pending_payment') }}</p>
             <a href="{{ engagement.stripe_hosted_invoice_url }}" class="btn btn-primary btn-sm" target="_blank" rel="noopener">{{ t(md ~ '.pay_invoice') }}</a>
+            <form method="POST" action="{{ url_for('compte.retry_engagement_invoice', engagement_id=engagement.id) }}" class="inline-form" style="margin-top:0.5rem">
+                <button type="submit" class="btn btn-outline btn-sm">{{ t(md ~ '.retry_invoice') }}</button>
+            </form>
             {% endif %}
 
             {% if user.role == 'enterprise' and engagement.status == 'payment_error' %}

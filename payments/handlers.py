@@ -110,10 +110,14 @@ def retry_escrow_invoice(engagement_id: str, enterprise_user: dict) -> dict:
         return {"ok": False, "error": "Non autorisé."}
 
     status = engagement.get("status", "")
-    if status == "pending_payment" and engagement.get("stripe_hosted_invoice_url"):
-        return {"ok": True, "invoice_url": engagement["stripe_hosted_invoice_url"]}
-    if status not in ("payment_error", "draft"):
+    if status not in ("pending_payment", "payment_error", "draft"):
         return {"ok": False, "error": "Cette mission ne peut pas être refacturée."}
+
+    # Reuse the existing invoice only if it's actually payable (open + amount > 0).
+    # A broken 0 € invoice is regenerated instead of being handed back.
+    if status == "pending_payment" and engagement.get("stripe_hosted_invoice_url"):
+        if stripe_service.invoice_is_payable(engagement.get("stripe_invoice_id", "")):
+            return {"ok": True, "invoice_url": engagement["stripe_hosted_invoice_url"]}
 
     if not stripe_service.is_configured():
         return {"ok": False, "error": "Stripe non configuré."}
