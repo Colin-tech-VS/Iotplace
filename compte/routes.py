@@ -312,6 +312,22 @@ def enterprise_dashboard():
     )
 
 
+def _handle_project_image_upload(profile, project_id):
+    """Return (image_url, error). image_url is '' when no file was submitted."""
+    file = request.files.get("image")
+    if not file or not file.filename:
+        return "", None
+    from compte import profile_media
+
+    try:
+        url = profile_media.save_project_image(
+            file, enterprise_id=profile["id"], project_id=project_id
+        )
+        return url, None
+    except profile_media.LogoUploadError as exc:
+        return "", str(exc)
+
+
 @compte_bp.route("/compte/entreprise/projet/nouveau", methods=["GET", "POST"])
 @auth.login_required(role="enterprise")
 def enterprise_new_project():
@@ -329,10 +345,17 @@ def enterprise_new_project():
         if not allowed:
             flash(limit_msg, "warning")
             return render_template("compte/project_form.html", profile=profile, user=user, form=dict(request.form))
+        image_url, image_error = _handle_project_image_upload(profile, "")
+        if image_error:
+            flash(image_error, "warning")
+            return render_template("compte/project_form.html", profile=profile, user=user, form=dict(request.form))
         try:
             store.add_project_for_enterprise(profile, {
                 "title": title,
                 "description": request.form.get("description", "").strip(),
+                "need": request.form.get("need", "").strip(),
+                "deliverables": request.form.get("deliverables", "").strip(),
+                "image_url": image_url,
                 "budget": request.form.get("budget", "").strip(),
                 "duration": request.form.get("duration", "").strip(),
                 "skills": store.parse_list_field(request.form.get("skills")),
@@ -381,21 +404,43 @@ def enterprise_edit_project(project_id):
                     project=project,
                     form=dict(request.form),
                 )
-        store.update_project_for_enterprise(profile, project_id, {
+        image_url, image_error = _handle_project_image_upload(profile, project_id)
+        if image_error:
+            flash(image_error, "warning")
+            return render_template(
+                "compte/project_form.html",
+                profile=profile,
+                user=user,
+                project=project,
+                form=dict(request.form),
+            )
+        update_fields = {
             "title": title,
             "description": request.form.get("description", "").strip(),
+            "need": request.form.get("need", "").strip(),
+            "deliverables": request.form.get("deliverables", "").strip(),
             "budget": request.form.get("budget", "").strip(),
             "duration": request.form.get("duration", "").strip(),
             "skills": store.parse_list_field(request.form.get("skills")),
             "status": new_status,
             "engagement_phase": request.form.get("engagement_phase", "").strip(),
-        })
+        }
+        if request.form.get("remove_image") == "1":
+            from compte import profile_media
+            profile_media.delete_project_image(project.get("image_url"))
+            update_fields["image_url"] = ""
+        elif image_url:
+            update_fields["image_url"] = image_url
+        store.update_project_for_enterprise(profile, project_id, update_fields)
         flash(t("compte.flash_project_updated"), "success")
         return redirect(url_for("compte.enterprise_project_detail", project_id=project_id))
 
     form = {
         "title": project.get("title", ""),
         "description": project.get("description", ""),
+        "need": project.get("need", ""),
+        "deliverables": project.get("deliverables", ""),
+        "image_url": project.get("image_url", ""),
         "budget": project.get("budget", ""),
         "duration": project.get("duration", ""),
         "skills": ", ".join(project.get("skills") or []),

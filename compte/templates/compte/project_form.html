@@ -1,78 +1,150 @@
-{% extends "base.html" %}
+{% extends "compte_layout.html" %}
 {% from "compte/_macros.html" import field_value, tag_input %}
+{% set d = 'compte.dashboard' %}
+{% set active_page = 'projects' %}
 
-{% block content %}
-<section class="page-hero page-hero-sm">
-    <div class="container reveal">
-        <a href="{{ url_for('compte.enterprise_dashboard') if not project else url_for('compte.enterprise_project_detail', project_id=project.id) }}" class="back-link">{{ t('common.back') }}</a>
-        <h1>{{ t('compte.project_edit_title') if project else t('compte.project_new_title') }}</h1>
-    </div>
-</section>
+{% block title %}{{ t('compte.project_edit_title') if project else t('compte.project_new_title') }}{% endblock %}
+{% block compte_role %}enterprise{% endblock %}
+{% block space_label %}{{ t(d ~ '.enterprise.space') }}{% endblock %}
 
-<section class="section">
-    <div class="container">
-        <form class="register-form reveal" method="POST" id="projectForm"
-              action="{{ url_for('compte.enterprise_edit_project', project_id=project.id) if project else url_for('compte.enterprise_new_project') }}">
-            <fieldset class="form-section-card">
-                <div class="form-group">
-                    <label for="engagement_phase">{{ t('engagement.phase_label') }} <span class="req">*</span></label>
-                    <select id="engagement_phase" name="engagement_phase" required data-phase-select>
-                        <option value="">{{ t('compte.project_engagement_phase_ph') }}</option>
-                        {% for phase_id in engagement_phases %}
-                        <option value="{{ phase_id }}" {% if field_value(form, 'engagement_phase') == phase_id %}selected{% endif %}>{{ t('engagement.phases.' ~ phase_id ~ '.name') }} — {{ t('engagement.phases.' ~ phase_id ~ '.duration') }}</option>
-                        {% endfor %}
-                    </select>
-                    <p class="field-hint">{{ t('engagement.phase_hint') }}</p>
-                </div>
-                <div class="form-group">
-                    <label for="title">{{ t('compte.project_title') }} <span class="req">*</span></label>
-                    <input type="text" id="title" name="title" required value="{{ field_value(form, 'title') }}">
-                </div>
-                <div class="form-group">
-                    <label for="description">{{ t('compte.project_description') }}</label>
-                    <textarea id="description" name="description" rows="4">{{ field_value(form, 'description') }}</textarea>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="budget">{{ t('compte.project_budget') }}</label>
-                        <select id="budget" name="budget" data-budget-select>
-                            <option value="">{{ t('compte.choose') }}</option>
-                            {% for b in ['< 10k€', '10k–50k€', '50k–150k€', '150k–500k€', '500k€+'] %}
-                            <option value="{{ b }}" {% if field_value(form, 'budget') == b %}selected{% endif %}>{{ b }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="duration">{{ t('compte.project_duration') }}</label>
-                        <select id="duration" name="duration" data-duration-select>
-                            <option value="">{{ t('compte.choose') }}</option>
-                            {% for d in ['< 1 mois', '1–3 mois', '3–6 mois', '6–12 mois', '12+ mois'] %}
-                            <option value="{{ d }}" {% if field_value(form, 'duration') == d %}selected{% endif %}>{{ d }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
-                {% if project %}
-                <div class="form-group">
-                    <label for="status">{{ t('compte.project_status') }}</label>
-                    <select id="status" name="status">
-                        {% for s in ['Ouvert', 'En cours', 'Fermé'] %}
-                        <option value="{{ s }}" {% if field_value(form, 'status') == s %}selected{% endif %}>{{ translate_status(s) }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                {% endif %}
-                {{ tag_input('skills', 'skills', field_value(form, 'skills'), t('compte.project_skills'), t('compte.project_skills_ph')) }}
-            </fieldset>
-            <button type="submit" class="btn btn-primary">
-                {{ t('compte.project_save_btn') if project else t('enterprises.publish_btn') }}
-            </button>
-        </form>
-    </div>
-</section>
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/profile-form.css') }}?v=2">
 {% endblock %}
 
-{% block extra_js %}
+{% block sidebar_nav %}
+{% include "compte/_sidebar_enterprise.html" %}
+{% endblock %}
+
+{% block main_header %}
+<header class="cdash-topbar">
+    <div class="cdash-topbar-left">
+        <button type="button" class="cdash-menu-btn" id="cdashMenuBtn" aria-label="{{ t(d ~ '.menu') }}">☰</button>
+        <div>
+            <h1>{{ t('compte.project_edit_title') if project else t('compte.project_new_title') }}</h1>
+            <p class="cdash-topbar-sub">{{ t('compte.project_edit_sub') if project else t('compte.project_new_sub') }}</p>
+        </div>
+    </div>
+    <div class="cdash-topbar-actions">
+        <a href="{{ url_for('compte.enterprise_project_detail', project_id=project.id) if project else url_for('compte.enterprise_dashboard', section='projects') }}" class="btn btn-ghost btn-sm">{{ t('common.back') }}</a>
+    </div>
+</header>
+{% endblock %}
+
+{% block content %}
+<div class="profile-page">
+    <form class="profile-form cdash-form" method="POST" enctype="multipart/form-data" id="projectForm"
+          action="{{ url_for('compte.enterprise_edit_project', project_id=project.id) if project else url_for('compte.enterprise_new_project') }}">
+
+        <section class="profile-panel active">
+            <article class="profile-card reveal">
+                <header class="profile-card-head">
+                    <h2>{{ t('compte.project_section_essentials') }}</h2>
+                    <p>{{ t('compte.project_section_essentials_sub') }}</p>
+                </header>
+                <div class="profile-card-body">
+                    <div class="form-group">
+                        <label for="engagement_phase">{{ t('engagement.phase_label') }} <span class="req">*</span></label>
+                        <select id="engagement_phase" name="engagement_phase" required data-phase-select>
+                            <option value="">{{ t('compte.project_engagement_phase_ph') }}</option>
+                            {% for phase_id in engagement_phases %}
+                            <option value="{{ phase_id }}" {% if field_value(form, 'engagement_phase') == phase_id %}selected{% endif %}>{{ t('engagement.phases.' ~ phase_id ~ '.name') }} — {{ t('engagement.phases.' ~ phase_id ~ '.duration') }}</option>
+                            {% endfor %}
+                        </select>
+                        <p class="field-hint">{{ t('engagement.phase_hint') }}</p>
+                    </div>
+                    <div class="form-group">
+                        <label for="title">{{ t('compte.project_title') }} <span class="req">*</span></label>
+                        <input type="text" id="title" name="title" required value="{{ field_value(form, 'title') }}" placeholder="{{ t('compte.project_title_ph') }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="need">{{ t('compte.project_need') }}</label>
+                        <textarea id="need" name="need" rows="3" placeholder="{{ t('compte.project_need_ph') }}">{{ field_value(form, 'need') }}</textarea>
+                    </div>
+                    {% if project %}
+                    <div class="form-group">
+                        <label for="status">{{ t('compte.project_status') }}</label>
+                        <select id="status" name="status">
+                            {% for s in ['Ouvert', 'En cours', 'Fermé'] %}
+                            <option value="{{ s }}" {% if field_value(form, 'status') == s %}selected{% endif %}>{{ translate_status(s) }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
+                </div>
+            </article>
+
+            <article class="profile-card reveal">
+                <header class="profile-card-head">
+                    <h2>{{ t('compte.project_section_details') }}</h2>
+                    <p>{{ t('compte.project_section_details_sub') }}</p>
+                </header>
+                <div class="profile-card-body">
+                    <div class="form-group">
+                        <label for="description">{{ t('compte.project_description') }}</label>
+                        <textarea id="description" name="description" rows="4" placeholder="{{ t('compte.project_description_ph') }}">{{ field_value(form, 'description') }}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="deliverables">{{ t('compte.project_deliverables') }}</label>
+                        <textarea id="deliverables" name="deliverables" rows="3" placeholder="{{ t('compte.project_deliverables_ph') }}">{{ field_value(form, 'deliverables') }}</textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="budget">{{ t('compte.project_budget') }}</label>
+                            <select id="budget" name="budget" data-budget-select>
+                                <option value="">{{ t('compte.choose') }}</option>
+                                {% for b in ['< 10k€', '10k–50k€', '50k–150k€', '150k–500k€', '500k€+'] %}
+                                <option value="{{ b }}" {% if field_value(form, 'budget') == b %}selected{% endif %}>{{ b }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="duration">{{ t('compte.project_duration') }}</label>
+                            <select id="duration" name="duration" data-duration-select>
+                                <option value="">{{ t('compte.choose') }}</option>
+                                {% for dur in ['< 1 mois', '1–3 mois', '3–6 mois', '6–12 mois', '12+ mois'] %}
+                                <option value="{{ dur }}" {% if field_value(form, 'duration') == dur %}selected{% endif %}>{{ dur }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    {{ tag_input('skills', 'skills', field_value(form, 'skills'), t('compte.project_skills'), t('compte.project_skills_ph')) }}
+                </div>
+            </article>
+
+            <article class="profile-card reveal">
+                <header class="profile-card-head">
+                    <h2>{{ t('compte.project_section_media') }}</h2>
+                    <p>{{ t('compte.project_section_media_sub') }}</p>
+                </header>
+                <div class="profile-card-body">
+                    <div class="project-image-upload" id="projectImageUpload">
+                        <div class="project-image-preview{% if not field_value(form, 'image_url') %} is-empty{% endif %}" id="projectImagePreview">
+                            <img src="{{ field_value(form, 'image_url') }}" alt="" id="projectImageImg"{% if not field_value(form, 'image_url') %} hidden{% endif %}>
+                        </div>
+                        <div class="project-image-drop" id="projectImageDrop" tabindex="0" role="button" aria-label="{{ t('compte.project_image_drop') }}">
+                            <p class="project-image-drop-title">{{ t('compte.project_image_drop') }}</p>
+                            <p class="field-hint">{{ t('compte.project_image_hint') }}</p>
+                            <input type="file" id="projectImageInput" name="image" accept="image/png,image/jpeg,image/webp" hidden>
+                            <button type="button" class="btn btn-outline btn-sm" id="projectImageBrowse">{{ t('compte.project_image_browse') }}</button>
+                            <button type="button" class="btn btn-ghost btn-sm" id="projectImageRemove"{% if not field_value(form, 'image_url') %} hidden{% endif %}>{{ t('compte.project_image_remove') }}</button>
+                        </div>
+                        <input type="hidden" name="remove_image" id="projectImageRemoveFlag" value="">
+                    </div>
+                </div>
+            </article>
+
+            <div class="profile-form-actions">
+                <button type="submit" class="btn btn-primary btn-glow">
+                    {{ t('compte.project_save_btn') if project else t('enterprises.publish_btn') }}
+                </button>
+            </div>
+        </section>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
 <script src="{{ url_for('vitrine.static', filename='js/tag-input.js') }}"></script>
 <script src="{{ url_for('vitrine.static', filename='js/engagement-phase.js') }}"></script>
+<script src="{{ url_for('vitrine.static', filename='js/project-image.js') }}"></script>
 {% endblock %}

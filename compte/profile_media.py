@@ -38,7 +38,7 @@ def _validate_file(file: FileStorage) -> tuple[bytes, str, str]:
     if not data:
         raise LogoUploadError("Fichier vide.")
     if len(data) > MAX_BYTES:
-        raise LogoUploadError("Logo trop volumineux (max 2 Mo).")
+        raise LogoUploadError("Image trop volumineuse (max 2 Mo).")
     content_type = (file.mimetype or mimetypes.guess_type(file.filename)[0] or "").lower()
     if content_type not in ALLOWED_TYPES:
         raise LogoUploadError("Format non supporté (PNG, JPEG ou WebP uniquement).")
@@ -67,7 +67,7 @@ def _upload_supabase(data: bytes, path: str, content_type: str) -> str:
             file_options={"content-type": content_type, "upsert": "true"},
         )
     except Exception:
-        return _upload_local(data, relative)
+        return _upload_local(data, path)
     public = client.storage.from_(BUCKET).get_public_url(path)
     return public.split("?")[0]
 
@@ -97,3 +97,18 @@ def delete_profile_logo(logo_url: str | None) -> None:
         path = _upload_root() / rel.replace("/", os.sep)
         if path.is_file():
             path.unlink(missing_ok=True)
+
+
+def save_project_image(file: FileStorage, *, enterprise_id: str, project_id: str = "") -> str:
+    """Save an optional project illustration; mirrors logo storage (Supabase/local)."""
+    data, content_type, ext = _validate_file(file)
+    token = uuid.uuid4().hex[:10]
+    pid = project_id or "new"
+    relative = f"projects/{enterprise_id}/{pid}-{token}.{ext}"
+    if resolve_supabase_rest_config():
+        return _upload_supabase(data, relative, content_type)
+    return _upload_local(data, relative)
+
+
+# Project images share the logo storage root, so deletion is identical.
+delete_project_image = delete_profile_logo
