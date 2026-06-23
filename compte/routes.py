@@ -965,6 +965,8 @@ def enterprise_subscribe_pro():
 @compte_bp.route("/compte/entreprise/abonnement/succes")
 @auth.login_required(role="enterprise")
 def enterprise_subscribe_success():
+    import logging
+
     user = auth.get_current_user()
     profile = store.get_enterprise_for_user(user["id"])
     session_id = request.args.get("session_id", "").strip()
@@ -978,13 +980,19 @@ def enterprise_subscribe_success():
             if result.get("ok"):
                 flash(t("compte.flash_pro_activated"), "success")
                 return redirect(url_for("compte.enterprise_dashboard"))
-        except stripe_service.PaymentError:
-            pass
+        except Exception:
+            # Never 500 on the post-payment landing: the Stripe webhook also
+            # activates Pro, so we fall back to a sync + confirmation message.
+            logging.exception("Pro subscription success handler failed session_id=%s", session_id)
 
     if profile:
         from payments import subscriptions
 
-        refreshed = subscriptions.sync_enterprise_subscription(profile)
+        try:
+            refreshed = subscriptions.sync_enterprise_subscription(profile)
+        except Exception:
+            logging.exception("sync_enterprise_subscription failed enterprise_id=%s", profile.get("id"))
+            refreshed = profile
         if refreshed and refreshed.get("plan") == "pro_enterprise":
             flash(t("compte.flash_pro_activated"), "success")
         else:
