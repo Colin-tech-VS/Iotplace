@@ -1022,7 +1022,31 @@ def enterprise_subscribe_success():
         try:
             checkout_session = stripe_service.retrieve_checkout_session(session_id)
             result = subscriptions.complete_checkout_subscription(checkout_session)
-            if result.get("ok"):
+            if result.get("ok") and result.get("plan") == "pro_enterprise":
+                flash(t("compte.flash_pro_activated"), "success")
+                return redirect(url_for("compte.enterprise_dashboard"))
+
+            # Payment is confirmed but the subscription status may not read
+            # "active" yet (timing), or the metadata enterprise id is stale.
+            # A paid + complete Pro checkout that belongs to the logged-in
+            # enterprise is enough to activate Pro right away.
+            meta = dict(checkout_session.get("metadata") or {})
+            paid = checkout_session.get("payment_status") == "paid"
+            complete = checkout_session.get("status") == "complete"
+            is_pro_checkout = meta.get("iotplace_type") == subscriptions.PRO_CHECKOUT_TYPE
+            owns = bool(profile) and (
+                meta.get("iotplace_enterprise_id") == profile["id"]
+                or checkout_session.get("client_reference_id") == profile["id"]
+            )
+            if paid and complete and is_pro_checkout and owns:
+                fields = {
+                    "plan": "pro_enterprise",
+                    "stripe_subscription_status": "active",
+                }
+                sub_id = checkout_session.get("subscription")
+                if sub_id:
+                    fields["stripe_subscription_id"] = sub_id
+                store.update_enterprise(profile["id"], fields)
                 flash(t("compte.flash_pro_activated"), "success")
                 return redirect(url_for("compte.enterprise_dashboard"))
         except Exception:
