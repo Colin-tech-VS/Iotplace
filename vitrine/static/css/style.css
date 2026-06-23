@@ -5,10 +5,10 @@
     --bg-card-hover: #1f2a40;
     --text: #e8ecf4;
     --text-muted: #8896ab;
-    --accent: #00d4aa;
-    --accent-dim: #00d4aa33;
+    --accent: #00e8c8;
+    --accent-dim: #00e8c833;
     --accent-secondary: #3b82f6;
-    --gradient: linear-gradient(135deg, #00d4aa 0%, #3b82f6 100%);
+    --gradient: linear-gradient(135deg, #00e8c8 0%, #3b82f6 100%);
     --border: #2a3548;
     --radius: 12px;
     --radius-lg: 20px;
@@ -495,7 +495,7 @@ a:hover { color: #33e0be; }
 }
 
 .gradient-text {
-    background: linear-gradient(135deg, #00d4aa 0%, #3b82f6 50%, #00d4aa 100%);
+    background: linear-gradient(135deg, #00e8c8 0%, #3b82f6 50%, #00e8c8 100%);
     background-size: 200% auto;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;

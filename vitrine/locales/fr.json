@@ -38,6 +38,7 @@
     "sitemap": "Plan du site",
     "privacy": "Confidentialité",
     "legal": "Mentions légales",
+    "terms": "Conditions générales",
     "cookies": "Cookies",
     "platform": "Plateforme",
     "copyright": "© 2026 Iotplace — Sous-traitance IoT B2B. Tous droits réservés.",
@@ -137,9 +138,18 @@
     "ent_path_title": "Parcours entreprise — externaliser un projet IoT",
     "ent_path_goal": "Vous publiez un besoin, sélectionnez une startup et payez via séquestre à la validation.",
     "ent_path_steps": [
-      { "title": "Créer votre compte entreprise", "text": "Décrivez votre société et publiez un premier projet (PoC, Scale ou Partenariat)." },
-      { "title": "Recevoir des candidatures startups", "text": "Comparez les profils firmware, hardware et cloud. Échangez en messagerie B2B." },
-      { "title": "Accepter et sécuriser le paiement", "text": "Facture automatique, fonds en séquestre, libération après livraison validée." }
+      {
+        "title": "Créer votre compte entreprise",
+        "text": "Décrivez votre société et publiez un premier projet (PoC, Scale ou Partenariat)."
+      },
+      {
+        "title": "Recevoir des candidatures startups",
+        "text": "Comparez les profils firmware, hardware et cloud. Échangez en messagerie B2B."
+      },
+      {
+        "title": "Accepter et sécuriser le paiement",
+        "text": "Facture automatique, fonds en séquestre, libération après livraison validée."
+      }
     ],
     "ent_path_phases_label": "Phases projet :",
     "ent_path_learn": "Voir le parcours détaillé →",
@@ -147,9 +157,18 @@
     "st_path_title": "Parcours startup — vendre aux grands groupes",
     "st_path_goal": "Vous postulez aux missions, livrez le PoC payé puis montez en contrat cadre et partenariat.",
     "st_path_steps": [
-      { "title": "Créer votre profil startup", "text": "Compétences IoT, pays, références — visible des entreprises donneuses d'ordre." },
-      { "title": "Postuler aux missions par phase", "text": "PoC (frais de candidature), Scale et Partenariat (candidature gratuite)." },
-      { "title": "Être payé via Stripe Connect", "text": "Après acceptation : séquestre entreprise, versement à la livraison validée." }
+      {
+        "title": "Créer votre profil startup",
+        "text": "Compétences IoT, pays, références — visible des entreprises donneuses d'ordre."
+      },
+      {
+        "title": "Postuler aux missions par phase",
+        "text": "PoC (frais de candidature), Scale et Partenariat (candidature gratuite)."
+      },
+      {
+        "title": "Être payé via Stripe Connect",
+        "text": "Après acceptation : séquestre entreprise, versement à la livraison validée."
+      }
     ],
     "st_path_phases_label": "Étapes go-to-market :",
     "st_path_learn": "Voir le parcours détaillé →",
@@ -408,10 +427,18 @@
     "error_specialty_required": "La spécialité IoT est requise.",
     "register_ent_title": "Inscription entreprise",
     "register_ent_sub": "2 minutes — email, société, domaine IoT. C'est tout.",
-    "register_ent_steps": ["Compte", "Domaine IoT", "C'est parti"],
+    "register_ent_steps": [
+      "Compte",
+      "Domaine IoT",
+      "C'est parti"
+    ],
     "register_st_title": "Inscription startup",
     "register_st_sub": "2 minutes — email, startup, pays, domaine IoT.",
-    "register_st_steps": ["Compte", "Domaine IoT", "Missions"],
+    "register_st_steps": [
+      "Compte",
+      "Domaine IoT",
+      "Missions"
+    ],
     "project_need_optional": "Votre besoin (optionnel)",
     "project_need_ph": "Ex. Déploiement capteurs température sur 10 sites logistiques…",
     "project_need_hint": "Optionnel — un brouillon de projet peut être créé dans votre espace.",
@@ -962,21 +989,51 @@
     "startup_fees_apply": "Candidature startup",
     "startup_fees_mission": "Paiement mission (si acceptée)",
     "startup_fee_rows": [
-      { "phase": "PoC", "apply": "Frais de candidature (Stripe)", "mission": "Séquestre → Stripe Connect à la livraison" },
-      { "phase": "Scale", "apply": "Gratuit", "mission": "Séquestre → Stripe Connect à la livraison" },
-      { "phase": "Partenariat", "apply": "Gratuit", "mission": "Séquestre → Stripe Connect à la livraison" }
+      {
+        "phase": "PoC",
+        "apply": "Frais de candidature (Stripe)",
+        "mission": "Séquestre → Stripe Connect à la livraison"
+      },
+      {
+        "phase": "Scale",
+        "apply": "Gratuit",
+        "mission": "Séquestre → Stripe Connect à la livraison"
+      },
+      {
+        "phase": "Partenariat",
+        "apply": "Gratuit",
+        "mission": "Séquestre → Stripe Connect à la livraison"
+      }
     ],
     "flow_enterprise_title": "Côté entreprise",
     "flow_enterprise_steps": [
-      { "title": "Inscription gratuite", "text": "Créez votre compte donneur d'ordre, publiez un projet par phase." },
-      { "title": "Sélection startup", "text": "Recevez des candidatures, échangez, acceptez la meilleure." },
-      { "title": "Séquestre & commission", "text": "Facture auto à l'acceptation ; commission à la libération des fonds." }
+      {
+        "title": "Inscription gratuite",
+        "text": "Créez votre compte donneur d'ordre, publiez un projet par phase."
+      },
+      {
+        "title": "Sélection startup",
+        "text": "Recevez des candidatures, échangez, acceptez la meilleure."
+      },
+      {
+        "title": "Séquestre & commission",
+        "text": "Facture auto à l'acceptation ; commission à la libération des fonds."
+      }
     ],
     "flow_startup_title": "Côté startup",
     "flow_startup_steps": [
-      { "title": "Inscription gratuite", "text": "Profil startup, accès aux missions ouvertes." },
-      { "title": "Candidature ciblée", "text": "PoC payant pour filtrer ; Scale/Partenariat gratuits." },
-      { "title": "Paiement mission", "text": "Stripe Connect après validation de la livraison par l'entreprise." }
+      {
+        "title": "Inscription gratuite",
+        "text": "Profil startup, accès aux missions ouvertes."
+      },
+      {
+        "title": "Candidature ciblée",
+        "text": "PoC payant pour filtrer ; Scale/Partenariat gratuits."
+      },
+      {
+        "title": "Paiement mission",
+        "text": "Stripe Connect après validation de la livraison par l'entreprise."
+      }
     ],
     "intro": "Deux modèles distincts : les entreprises paient à la mission (séquestre + commission) ; les startups paient un frais de candidature uniquement sur les projets PoC.",
     "escrow_title": "Séquestre sécurisé sur chaque mission",
@@ -1129,10 +1186,26 @@
     "col_platform_phase": "Phase projet Iotplace",
     "col_application_fee": "Frais candidature",
     "mapping_rows": [
-      { "startup": "Pilote — trouver un premier client", "phase": "Avant / pendant PoC", "fee": "—" },
-      { "startup": "PoC payé", "phase": "PoC", "fee": "Frais de candidature (commission incluse)" },
-      { "startup": "Contrat cadre", "phase": "Scale", "fee": "Gratuit" },
-      { "startup": "Partenariat stratégique", "phase": "Partenariat", "fee": "Gratuit" }
+      {
+        "startup": "Pilote — trouver un premier client",
+        "phase": "Avant / pendant PoC",
+        "fee": "—"
+      },
+      {
+        "startup": "PoC payé",
+        "phase": "PoC",
+        "fee": "Frais de candidature (commission incluse)"
+      },
+      {
+        "startup": "Contrat cadre",
+        "phase": "Scale",
+        "fee": "Gratuit"
+      },
+      {
+        "startup": "Partenariat stratégique",
+        "phase": "Partenariat",
+        "fee": "Gratuit"
+      }
     ],
     "banner_aria_enterprise": "Résumé du parcours entreprise",
     "banner_aria_startup": "Résumé du parcours startup",
@@ -1141,14 +1214,32 @@
     "banner_sub_enterprise": "Publiez un besoin par phase (PoC → Scale → Partenariat) et sélectionnez la startup adaptée.",
     "banner_sub_startup": "Postulez aux missions des grands groupes en suivant le cycle pilote → PoC → contrat cadre → partenariat.",
     "banner_steps_enterprise": [
-      { "title": "Inscription & profil société", "text": "Secteur, besoins, option de publier un premier projet." },
-      { "title": "Publication par phase", "text": "PoC rapide, déploiement Scale ou accord Partenariat long terme." },
-      { "title": "Acceptation & séquestre", "text": "Facture auto, fonds bloqués jusqu'à validation de la livraison." }
+      {
+        "title": "Inscription & profil société",
+        "text": "Secteur, besoins, option de publier un premier projet."
+      },
+      {
+        "title": "Publication par phase",
+        "text": "PoC rapide, déploiement Scale ou accord Partenariat long terme."
+      },
+      {
+        "title": "Acceptation & séquestre",
+        "text": "Facture auto, fonds bloqués jusqu'à validation de la livraison."
+      }
     ],
     "banner_steps_startup": [
-      { "title": "Profil & compétences IoT", "text": "Firmware, hardware, cloud — visible des entreprises." },
-      { "title": "Candidature aux missions", "text": "Frais PoC uniquement ; Scale et Partenariat gratuits." },
-      { "title": "Livraison & paiement", "text": "Stripe Connect après acceptation et validation mission." }
+      {
+        "title": "Profil & compétences IoT",
+        "text": "Firmware, hardware, cloud — visible des entreprises."
+      },
+      {
+        "title": "Candidature aux missions",
+        "text": "Frais PoC uniquement ; Scale et Partenariat gratuits."
+      },
+      {
+        "title": "Livraison & paiement",
+        "text": "Stripe Connect après acceptation et validation mission."
+      }
     ],
     "banner_full_link": "Voir le parcours complet sur la vitrine →",
     "banner_poc_note": "Les projets phase PoC facturent des frais de candidature pour garantir des dossiers sérieux des deux côtés."

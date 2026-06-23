@@ -18,6 +18,7 @@ ENDPOINT_PAGE_SLUG = {
     "vitrine.pricing": "pricing",
     "vitrine.privacy": "privacy",
     "vitrine.legal": "legal",
+    "vitrine.terms": "terms",
     "vitrine.cookies": "cookies",
 }
 
@@ -50,6 +51,11 @@ def legacy_privacy():
 @vitrine_bp.route("/mentions-legales")
 def legacy_legal():
     return redirect(url_for("vitrine.legal", **request.args), code=301)
+
+
+@vitrine_bp.route("/conditions-generales")
+def legacy_terms():
+    return redirect(url_for("vitrine.terms", **request.args), code=301)
 
 
 def _resolve_page_slug():
@@ -555,6 +561,11 @@ def privacy():
 @vitrine_bp.route("/legal")
 def legal():
     return _render_legal_page("legal")
+
+
+@vitrine_bp.route("/terms")
+def terms():
+    return _render_legal_page("terms")
 
 
 @vitrine_bp.route("/cookies")

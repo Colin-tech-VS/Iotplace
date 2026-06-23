@@ -59,6 +59,10 @@ DEFAULT_PAGE_CONTENT = {
         "title": "Legal notice",
         "subtitle": "Publisher, hosting and terms of use for iotplace.fr.",
     },
+    "terms": {
+        "title": "Terms of Use & Sale",
+        "subtitle": "Rules for using Iotplace, financial terms, escrow payments and liability.",
+    },
     "cookies": {
         "title": "Cookie policy",
         "subtitle": "Cookies used on Iotplace and how to manage your preferences.",
@@ -108,6 +112,10 @@ DEFAULT_PAGE_CONTENT_FR = {
     "legal": {
         "title": "Mentions légales",
         "subtitle": "Éditeur, hébergement et conditions d'utilisation du site iotplace.fr.",
+    },
+    "terms": {
+        "title": "Conditions générales (CGU/CGV)",
+        "subtitle": "Règles d'utilisation d'Iotplace, conditions financières, paiements en séquestre et responsabilité.",
     },
     "cookies": {
         "title": "Politique cookies",
@@ -207,6 +215,11 @@ DEFAULT_SEO_PAGES = {
         "title": "Legal notice — Iotplace",
         "description": "Legal publisher information, hosting and intellectual property for iotplace.fr.",
         "keywords": "Iotplace legal notice, SARL, RCS Nanterre, terms",
+    },
+    "terms": {
+        "title": "Terms of Use & Sale — Iotplace",
+        "description": "Iotplace terms of use and sale: registration, commission, PoC fee, Pro plan, Stripe escrow payments and liability.",
+        "keywords": "Iotplace terms, terms of sale, commission, escrow, Stripe, B2B IoT marketplace",
     },
     "cookies": {
         "title": "Cookie policy — Iotplace",
@@ -359,6 +372,7 @@ BREADCRUMB_LABELS = {
     "pricing": "Pricing",
     "privacy": "Privacy",
     "legal": "Legal notice",
+    "terms": "Terms",
     "cookies": "Cookies",
 }
 
@@ -372,6 +386,7 @@ BREADCRUMB_LABELS_FR = {
     "pricing": "Tarifs",
     "privacy": "Confidentialité",
     "legal": "Mentions légales",
+    "terms": "Conditions générales",
     "cookies": "Cookies",
 }
 
@@ -2579,7 +2594,7 @@ def get_page_content(slug, locale="en"):
     data = _load_raw()
     saved = data.get("pages", {}).get(slug, {})
     defaults = (DEFAULT_PAGE_CONTENT_FR if locale == "fr" else DEFAULT_PAGE_CONTENT).get(slug, {})
-    if slug in ("privacy", "legal", "cookies") and "body_html" not in defaults:
+    if slug in ("privacy", "legal", "cookies", "terms") and "body_html" not in defaults:
         from data.legal_content import get_legal_body
 
         defaults = {**defaults, "body_html": get_legal_body(slug, locale)}
@@ -2677,6 +2692,7 @@ def get_seo_page(slug, locale="en"):
             "contact": {"title": "Contact — Démarrer une sous-traitance IoT", "description": "Contactez Iotplace pour sous-traiter ou trouver des missions IoT.", "keywords": "contact sous-traitance IoT"},
             "privacy": {"title": "Politique de confidentialité — Iotplace", "description": "Traitement des données personnelles sur Iotplace : formulaire, comptes, analytics et vos droits RGPD.", "keywords": "confidentialité Iotplace, RGPD, données personnelles"},
             "legal": {"title": "Mentions légales — Iotplace", "description": "Éditeur, hébergement et propriété intellectuelle du site iotplace.fr.", "keywords": "mentions légales Iotplace, SARL, RCS Nanterre"},
+            "terms": {"title": "Conditions générales (CGU/CGV) — Iotplace", "description": "CGU/CGV d'Iotplace : inscription, commission, frais PoC, abonnement Pro, paiements en séquestre Stripe et responsabilité.", "keywords": "CGU Iotplace, CGV, conditions générales, commission, séquestre, Stripe"},
             "cookies": {"title": "Politique cookies — Iotplace", "description": "Cookies utilisés sur Iotplace et gestion de vos préférences de consentement.", "keywords": "cookies Iotplace, consentement, analytics"},
         }
     else:

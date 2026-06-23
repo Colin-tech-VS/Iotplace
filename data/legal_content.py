@@ -264,6 +264,125 @@ def _en_cookies() -> str:
 """
 
 
+def _fr_terms() -> str:
+    c = LEGAL_COMPANY
+    court_city = c["rcs"].split(" R.C.S. ")[-1] if " R.C.S. " in c["rcs"] else "Nanterre"
+    return f"""
+<p><em>Dernière mise à jour : juin 2026</em></p>
+
+<p>Les présentes Conditions Générales d'Utilisation et de Vente (« CGU/CGV ») régissent l'accès et l'utilisation de la plateforme Iotplace, éditée par {c['name']} ({c['form']}), {c['rcs']}, ainsi que les prestations de mise en relation et de paiement qu'elle propose. Toute inscription vaut acceptation pleine et entière des présentes.</p>
+
+<h2>1. Objet</h2>
+<p>Iotplace est une marketplace B2B de sous-traitance IoT mettant en relation des <strong>entreprises</strong> (donneurs d'ordre) et des <strong>startups</strong> (prestataires) pour des missions de développement firmware, hardware, cloud et intégration. Iotplace agit en qualité d'<strong>intermédiaire technique</strong> et n'est pas partie au contrat de prestation conclu entre l'entreprise et la startup.</p>
+
+<h2>2. Définitions</h2>
+<ul>
+  <li><strong>Membre</strong> : toute entreprise ou startup disposant d'un compte.</li>
+  <li><strong>Mission</strong> : prestation IoT publiée par une entreprise et réalisée par une startup.</li>
+  <li><strong>Séquestre (escrow)</strong> : conservation des fonds par le prestataire de paiement jusqu'à validation de la mission.</li>
+  <li><strong>Commission</strong> : rémunération d'Iotplace prélevée sur les missions réalisées via la plateforme.</li>
+</ul>
+
+<h2>3. Inscription et compte</h2>
+<p>L'inscription est gratuite et réservée aux professionnels. Le Membre garantit l'exactitude des informations fournies et la confidentialité de ses identifiants. Iotplace peut suspendre ou supprimer tout compte en cas de manquement aux présentes, de fraude ou d'usage illicite.</p>
+
+<h2>4. Rôle et obligations d'Iotplace</h2>
+<p>Iotplace fournit l'outil de mise en relation, de messagerie, de suivi et de paiement sécurisé. Iotplace ne garantit ni la conclusion d'une mission, ni la qualité des prestations, ni la solvabilité des Membres. Iotplace met en œuvre des moyens raisonnables pour assurer la disponibilité du service, sans obligation de résultat.</p>
+
+<h2>5. Obligations des Membres</h2>
+<p>Les entreprises s'engagent à décrire leurs besoins de bonne foi et à régler les sommes dues. Les startups s'engagent à ne candidater que sur des missions qu'elles sont en mesure de réaliser et à livrer conformément à ce qui est convenu. Chaque Membre reste seul responsable du respect de ses obligations légales, fiscales et réglementaires.</p>
+
+<h2>6. Conditions financières</h2>
+<ul>
+  <li><strong>Inscription et publication</strong> : gratuites.</li>
+  <li><strong>Commission</strong> : un pourcentage de chaque mission réalisée est prélevé par Iotplace (taux indiqué sur la <a href="/pricing">page Tarifs</a>, réduit pour les comptes Pro).</li>
+  <li><strong>Frais de candidature PoC</strong> : la candidature à un projet en phase PoC peut être soumise à des frais fixes indiqués avant paiement.</li>
+  <li><strong>Abonnement Pro</strong> : option mensuelle offrant projets illimités, commission réduite et matching prioritaire.</li>
+</ul>
+<p>Les montants sont exprimés hors taxes ; la TVA applicable est ajoutée le cas échéant.</p>
+
+<h2>7. Paiement et séquestre</h2>
+<p>Les paiements sont opérés via notre prestataire <strong>Stripe</strong> (Stripe Payments Europe). À l'acceptation d'une candidature, une facture est émise à l'entreprise et les fonds sont conservés en <strong>séquestre</strong>. Après validation de la mission par l'entreprise, Iotplace libère la part due à la startup via Stripe Connect, déduction faite de la commission. L'utilisation des services de paiement implique l'acceptation des conditions de Stripe.</p>
+
+<h2>8. Propriété intellectuelle</h2>
+<p>Sauf accord contraire entre l'entreprise et la startup, les livrables d'une mission sont régis par le contrat conclu entre elles. La marque, le code et les contenus d'Iotplace demeurent la propriété exclusive de {c['name']}.</p>
+
+<h2>9. Responsabilité</h2>
+<p>Iotplace ne saurait être tenue responsable des litiges, retards, manquements ou dommages liés à l'exécution des missions entre Membres. La responsabilité d'Iotplace, lorsqu'elle est engagée, est limitée au montant des commissions perçues sur la mission concernée.</p>
+
+<h2>10. Données personnelles</h2>
+<p>Le traitement des données est décrit dans notre <a href="/politique-de-confidentialite">politique de confidentialité</a> et notre <a href="/cookies">politique cookies</a>.</p>
+
+<h2>11. Durée, résiliation</h2>
+<p>Les présentes s'appliquent pendant toute la durée d'utilisation du service. Le Membre peut fermer son compte à tout moment ; les missions et paiements en cours restent régis par les présentes jusqu'à leur terme.</p>
+
+<h2>12. Droit applicable</h2>
+<p>Les présentes sont soumises au droit français. À défaut de résolution amiable, tout litige relève de la compétence des tribunaux du ressort de {court_city}.</p>
+
+<h2>13. Contact</h2>
+<p>Pour toute question relative aux présentes : <a href="mailto:{c['email']}">{c['email']}</a>.</p>
+"""
+
+
+def _en_terms() -> str:
+    c = LEGAL_COMPANY
+    return f"""
+<p><em>Last updated: June 2026</em></p>
+
+<p>These Terms of Use and Sale (the "Terms") govern access to and use of the Iotplace platform, published by {c['name']} ({c['form']}), {c['rcs']}, as well as the matchmaking and payment services it provides. Creating an account constitutes full acceptance of these Terms.</p>
+
+<h2>1. Purpose</h2>
+<p>Iotplace is a B2B IoT subcontracting marketplace connecting <strong>enterprises</strong> (clients) with <strong>startups</strong> (providers) for firmware, hardware, cloud and integration missions. Iotplace acts as a <strong>technical intermediary</strong> and is not a party to the service contract concluded between the enterprise and the startup.</p>
+
+<h2>2. Definitions</h2>
+<ul>
+  <li><strong>Member</strong>: any enterprise or startup holding an account.</li>
+  <li><strong>Mission</strong>: an IoT engagement published by an enterprise and delivered by a startup.</li>
+  <li><strong>Escrow</strong>: funds held by the payment provider until the mission is validated.</li>
+  <li><strong>Commission</strong>: Iotplace's fee charged on missions carried out via the platform.</li>
+</ul>
+
+<h2>3. Registration and account</h2>
+<p>Registration is free and reserved for professionals. The Member warrants the accuracy of the information provided and the confidentiality of its credentials. Iotplace may suspend or delete any account in case of breach, fraud or unlawful use.</p>
+
+<h2>4. Iotplace's role and obligations</h2>
+<p>Iotplace provides the matchmaking, messaging, tracking and secure payment tools. Iotplace does not guarantee that a mission will be concluded, the quality of the services, or the solvency of Members. Iotplace uses reasonable means to keep the service available, with no obligation of result.</p>
+
+<h2>5. Members' obligations</h2>
+<p>Enterprises undertake to describe their needs in good faith and to pay the amounts due. Startups undertake to apply only to missions they are able to deliver and to deliver as agreed. Each Member remains solely responsible for compliance with its legal, tax and regulatory obligations.</p>
+
+<h2>6. Financial terms</h2>
+<ul>
+  <li><strong>Registration and posting</strong>: free.</li>
+  <li><strong>Commission</strong>: a percentage of each completed mission is charged by Iotplace (rate shown on the <a href="/pricing">Pricing page</a>, reduced for Pro accounts).</li>
+  <li><strong>PoC application fee</strong>: applying to a PoC-phase project may be subject to a fixed fee shown before payment.</li>
+  <li><strong>Pro subscription</strong>: an optional monthly plan offering unlimited projects, a reduced commission and priority matching.</li>
+</ul>
+<p>Amounts are stated excluding tax; applicable VAT is added where relevant.</p>
+
+<h2>7. Payment and escrow</h2>
+<p>Payments are processed through our provider <strong>Stripe</strong> (Stripe Payments Europe). When an application is accepted, an invoice is issued to the enterprise and the funds are held in <strong>escrow</strong>. After the enterprise validates the mission, Iotplace releases the startup's share via Stripe Connect, net of commission. Using the payment services implies acceptance of Stripe's terms.</p>
+
+<h2>8. Intellectual property</h2>
+<p>Unless otherwise agreed between the enterprise and the startup, mission deliverables are governed by the contract concluded between them. Iotplace's brand, code and content remain the exclusive property of {c['name']}.</p>
+
+<h2>9. Liability</h2>
+<p>Iotplace shall not be liable for disputes, delays, breaches or damages arising from the performance of missions between Members. Where engaged, Iotplace's liability is limited to the amount of commissions collected on the mission concerned.</p>
+
+<h2>10. Personal data</h2>
+<p>Data processing is described in our <a href="/privacy">privacy policy</a> and <a href="/cookies">cookie policy</a>.</p>
+
+<h2>11. Term and termination</h2>
+<p>These Terms apply throughout the use of the service. A Member may close its account at any time; ongoing missions and payments remain governed by these Terms until completion.</p>
+
+<h2>12. Governing law</h2>
+<p>These Terms are governed by French law. Failing an amicable settlement, any dispute falls under the jurisdiction of the competent courts at the publisher's registered office.</p>
+
+<h2>13. Contact</h2>
+<p>For any question regarding these Terms: <a href="mailto:{c['email']}">{c['email']}</a>.</p>
+"""
+
+
 def get_legal_body(slug: str, locale: str = "fr") -> str:
     bodies = {
         ("legal", "fr"): _fr_mentions,
@@ -272,6 +391,8 @@ def get_legal_body(slug: str, locale: str = "fr") -> str:
         ("privacy", "en"): _en_privacy,
         ("cookies", "fr"): _fr_cookies,
         ("cookies", "en"): _en_cookies,
+        ("terms", "fr"): _fr_terms,
+        ("terms", "en"): _en_terms,
     }
     factory = bodies.get((slug, locale)) or bodies.get((slug, "fr"))
     return factory() if factory else ""

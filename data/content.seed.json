@@ -1,7 +1,555 @@
 {
-  "enterprises": [],
-  "startups": [],
-  "projects": [],
+  "enterprises": [
+    {
+      "id": "ent-helios",
+      "name": "Helios Industrie",
+      "country": "France",
+      "city": "Lyon",
+      "sector_id": "predictive_maintenance",
+      "sector": "Predictive Maintenance Solutions",
+      "description": "Groupe industriel (équipements de production) cherchant à externaliser la surveillance prédictive de ses lignes de fabrication.",
+      "needs": [
+        "Maintenance prédictive",
+        "Capteurs vibratoires",
+        "Edge AI"
+      ],
+      "verified": true,
+      "published": true
+    },
+    {
+      "id": "ent-nordgrid",
+      "name": "NordGrid Utilities",
+      "country": "Allemagne",
+      "city": "Hambourg",
+      "sector_id": "smart_energy",
+      "sector": "Energy Monitoring Solutions",
+      "description": "Opérateur énergétique multi-sites souhaitant déployer du smart metering et de l'analytics de consommation à grande échelle.",
+      "needs": [
+        "Smart metering",
+        "Modbus",
+        "Energy analytics"
+      ],
+      "verified": true,
+      "published": true
+    },
+    {
+      "id": "ent-freshchain",
+      "name": "FreshChain Europe",
+      "country": "Pays-Bas",
+      "city": "Rotterdam",
+      "sector_id": "cold_chain_monitoring",
+      "sector": "Cold Chain Monitoring Solutions",
+      "description": "Logisticien agroalimentaire en quête d'une solution de monitoring chaîne du froid conforme GDP sur ses flux réfrigérés.",
+      "needs": [
+        "Chaîne du froid",
+        "Capteurs BLE",
+        "Conformité GDP"
+      ],
+      "verified": true,
+      "published": true
+    },
+    {
+      "id": "ent-axiom",
+      "name": "Axiom Logistics",
+      "country": "France",
+      "city": "Marseille",
+      "sector_id": "asset_tracking",
+      "sector": "Asset Tracking Solutions",
+      "description": "Acteur logistique cherchant à tracer ses actifs mobiles et conteneurs en temps réel sur l'ensemble de sa supply chain.",
+      "needs": [
+        "Asset tracking",
+        "GPS/BLE",
+        "Supply chain visibility"
+      ],
+      "verified": true,
+      "published": true
+    },
+    {
+      "id": "ent-urbantech",
+      "name": "UrbanTech Realty",
+      "country": "Belgique",
+      "city": "Bruxelles",
+      "sector_id": "smart_building",
+      "sector": "Smart Building Solutions",
+      "description": "Gestionnaire immobilier tertiaire visant l'optimisation énergétique et le confort de son parc via la GTB connectée.",
+      "needs": [
+        "Smart building",
+        "BACnet",
+        "Optimisation énergétique"
+      ],
+      "verified": true,
+      "published": true
+    },
+    {
+      "id": "ent-pharmacold",
+      "name": "PharmaCold SA",
+      "country": "Suisse",
+      "city": "Bâle",
+      "sector_id": "cold_chain_monitoring",
+      "sector": "Cold Chain Monitoring Solutions",
+      "description": "Laboratoire pharmaceutique nécessitant une traçabilité température GxP pour ses produits sensibles et essais cliniques.",
+      "needs": [
+        "Traçabilité température",
+        "GxP",
+        "Data loggers"
+      ],
+      "verified": true,
+      "published": true
+    }
+  ],
+  "startups": [
+    {
+      "id": "st-sensoria",
+      "name": "Sensoria Labs",
+      "country": "Vietnam",
+      "city": "Ho Chi Minh City",
+      "sector_id": "predictive_maintenance",
+      "sector": "Predictive Maintenance Solutions",
+      "specialty": "Capteurs vibratoires & maintenance prédictive industrielle",
+      "description": "Équipe firmware et data science spécialisée en surveillance vibratoire de machines tournantes. Déploiements LoRaWAN et Edge AI pour l'industrie lourde.",
+      "skills": [
+        "Firmware C/C++",
+        "Vibration Analysis",
+        "Edge AI",
+        "LoRaWAN",
+        "MQTT"
+      ],
+      "rating": 4.8,
+      "projects_done": 27,
+      "team_size": "12–25",
+      "rate_range": "€280–420 / jour",
+      "availability": "Disponible sous 2 semaines",
+      "verified": true,
+      "published": true
+    },
+    {
+      "id": "st-meteriq",
+      "name": "MeterIQ",
+      "country": "Vietnam",
+      "city": "Hanoi",
+      "sector_id": "smart_energy",
+      "sector": "Energy Monitoring Solutions",
+      "specialty": "Smart metering & monitoring énergétique temps réel",
+      "description": "Spécialiste des compteurs communicants et de la collecte énergétique multi-sites. Intégrations Modbus, M-Bus et dashboards cloud.",
+      "skills": [
+        "Modbus",
+        "M-Bus",
+        "Energy Metering",
+        "AWS IoT",
+        "Time-series DB"
+      ],
+      "rating": 4.6,
+      "projects_done": 19,
+      "team_size": "8–15",
+      "rate_range": "€240–360 / jour",
+      "availability": "Disponible",
+      "verified": true,
+      "published": true
+    },
+    {
+      "id": "st-edgepulse",
+      "name": "EdgePulse",
+      "country": "Indonesia",
+      "city": "Jakarta",
+      "sector_id": "predictive_maintenance",
+      "sector": "Predictive Maintenance Solutions",
+      "specialty": "Edge AI embarquée pour équipements industriels",
+      "description": "Modèles d'IA embarquée sur microcontrôleurs pour la détection d'anomalies sans cloud. Faible consommation, inférence temps réel.",
+      "skills": [
+        "Edge AI",
+        "TinyML",
+        "RTOS",
+        "STM32",
+        "Python"
+      ],
+      "rating": 4.7,
+      "projects_done": 14,
+      "team_size": "6–12",
+      "rate_range": "€300–450 / jour",
+      "availability": "Disponible sous 3 semaines",
+      "verified": true,
+      "published": true
+    },
+    {
+      "id": "st-trackflow",
+      "name": "TrackFlow",
+      "country": "Indonesia",
+      "city": "Bandung",
+      "sector_id": "asset_tracking",
+      "sector": "Asset Tracking Solutions",
+      "specialty": "Géolocalisation d'actifs & supply chain visibility",
+      "description": "Solutions de tracking GPS/BLE/UWB pour la logistique et la gestion de flotte. Plateforme cartographique temps réel.",
+      "skills": [
+        "BLE",
+        "UWB",
+        "GPS",
+        "Asset Tracking",
+        "React"
+      ],
+      "rating": 4.5,
+      "projects_done": 22,
+      "team_size": "10–20",
+      "rate_range": "€220–340 / jour",
+      "availability": "Disponible",
+      "verified": true,
+      "published": true
+    },
+    {
+      "id": "st-coldsense",
+      "name": "ColdSense",
+      "country": "Thailand",
+      "city": "Bangkok",
+      "sector_id": "cold_chain_monitoring",
+      "sector": "Cold Chain Monitoring Solutions",
+      "specialty": "Surveillance chaîne du froid pharma & agroalimentaire",
+      "description": "Monitoring température/humidité conforme GDP pour le transport réfrigéré et les entrepôts. Alertes temps réel et traçabilité réglementaire.",
+      "skills": [
+        "Cold Chain",
+        "BLE Sensors",
+        "GDP Compliance",
+        "Cloud Alerts",
+        "LoRaWAN"
+      ],
+      "rating": 4.9,
+      "projects_done": 31,
+      "team_size": "14–28",
+      "rate_range": "€260–400 / jour",
+      "availability": "Disponible sous 1 semaine",
+      "verified": true,
+      "published": true
+    },
+    {
+      "id": "st-twinfactory",
+      "name": "TwinFactory",
+      "country": "Thailand",
+      "city": "Chiang Mai",
+      "sector_id": "smart_building",
+      "sector": "Smart Building Solutions",
+      "specialty": "Jumeaux numériques & automatisation du bâtiment",
+      "description": "Intégration BACnet/Modbus et jumeaux numériques pour la gestion technique du bâtiment (GTB) et l'optimisation énergétique.",
+      "skills": [
+        "BACnet",
+        "Modbus",
+        "Digital Twin",
+        "BMS",
+        "Azure IoT"
+      ],
+      "rating": 4.4,
+      "projects_done": 11,
+      "team_size": "7–14",
+      "rate_range": "€250–380 / jour",
+      "availability": "Disponible",
+      "verified": true,
+      "published": true
+    },
+    {
+      "id": "st-beacontrack",
+      "name": "BeaconTrack",
+      "country": "Philippines",
+      "city": "Manila",
+      "sector_id": "asset_tracking",
+      "sector": "Asset Tracking Solutions",
+      "specialty": "RTLS indoor & suivi d'inventaire RFID",
+      "description": "Localisation temps réel en intérieur (RTLS) et inventaire RFID pour entrepôts, hôpitaux et usines. Précision sub-métrique en UWB.",
+      "skills": [
+        "RFID",
+        "UWB",
+        "RTLS",
+        "Inventory",
+        "Node.js"
+      ],
+      "rating": 4.3,
+      "projects_done": 16,
+      "team_size": "8–16",
+      "rate_range": "€210–320 / jour",
+      "availability": "Disponible sous 2 semaines",
+      "verified": true,
+      "published": true
+    },
+    {
+      "id": "st-nanoedge",
+      "name": "NanoEdge AI",
+      "country": "Philippines",
+      "city": "Cebu",
+      "sector_id": "predictive_maintenance",
+      "sector": "Predictive Maintenance Solutions",
+      "specialty": "Détection d'anomalies & ML industriel",
+      "description": "Pipelines ML de bout en bout pour la maintenance conditionnelle : acquisition capteurs, entraînement, déploiement edge et MLOps.",
+      "skills": [
+        "Machine Learning",
+        "MLOps",
+        "Condition Monitoring",
+        "Python",
+        "Docker"
+      ],
+      "rating": 4.6,
+      "projects_done": 13,
+      "team_size": "6–11",
+      "rate_range": "€290–430 / jour",
+      "availability": "Disponible",
+      "verified": true,
+      "published": true
+    },
+    {
+      "id": "st-gridanalytics",
+      "name": "GridAnalytics",
+      "country": "Vietnam",
+      "city": "Da Nang",
+      "sector_id": "smart_energy",
+      "sector": "Energy Monitoring Solutions",
+      "specialty": "Analytics réseau & effacement de pointe",
+      "description": "Plateforme d'analyse de consommation et de flexibilité énergétique pour sites industriels et tertiaires multi-pays.",
+      "skills": [
+        "Energy Analytics",
+        "Demand Response",
+        "Grafana",
+        "Kafka",
+        "PostgreSQL"
+      ],
+      "rating": 4.5,
+      "projects_done": 18,
+      "team_size": "9–18",
+      "rate_range": "€250–390 / jour",
+      "availability": "Disponible sous 2 semaines",
+      "verified": true,
+      "published": true
+    },
+    {
+      "id": "st-buildsense",
+      "name": "BuildSense",
+      "country": "Indonesia",
+      "city": "Surabaya",
+      "sector_id": "smart_building",
+      "sector": "Smart Building Solutions",
+      "specialty": "Qualité d'air & confort des bâtiments connectés",
+      "description": "Capteurs CO₂/COV/température et pilotage CVC pour des bâtiments sains et sobres en énergie. Conforme aux labels QAI.",
+      "skills": [
+        "Air Quality",
+        "HVAC Control",
+        "ESP32",
+        "MQTT",
+        "Vue.js"
+      ],
+      "rating": 4.2,
+      "projects_done": 9,
+      "team_size": "5–10",
+      "rate_range": "€200–300 / jour",
+      "availability": "Disponible",
+      "verified": true,
+      "published": true
+    },
+    {
+      "id": "st-pharmatemp",
+      "name": "PharmaTemp",
+      "country": "Thailand",
+      "city": "Bangkok",
+      "sector_id": "cold_chain_monitoring",
+      "sector": "Cold Chain Monitoring Solutions",
+      "specialty": "Traçabilité température pour la santé",
+      "description": "Data loggers connectés et plateforme de preuve de température pour laboratoires, vaccins et essais cliniques.",
+      "skills": [
+        "Cold Chain",
+        "Data Loggers",
+        "GxP",
+        "Audit Trail",
+        "AWS IoT"
+      ],
+      "rating": 4.7,
+      "projects_done": 21,
+      "team_size": "10–19",
+      "rate_range": "€270–410 / jour",
+      "availability": "Disponible sous 1 semaine",
+      "verified": true,
+      "published": true
+    },
+    {
+      "id": "st-fleetbeacon",
+      "name": "FleetBeacon",
+      "country": "Philippines",
+      "city": "Davao",
+      "sector_id": "asset_tracking",
+      "sector": "Asset Tracking Solutions",
+      "specialty": "Télématique & gestion de flotte connectée",
+      "description": "Boîtiers télématiques et plateforme de gestion de flotte : géolocalisation, éco-conduite et maintenance préventive véhicules.",
+      "skills": [
+        "Telematics",
+        "CAN bus",
+        "GPS",
+        "Fleet Management",
+        "Flutter"
+      ],
+      "rating": 4.4,
+      "projects_done": 17,
+      "team_size": "8–15",
+      "rate_range": "€230–350 / jour",
+      "availability": "Disponible",
+      "verified": true,
+      "published": true
+    }
+  ],
+  "projects": [
+    {
+      "id": "prj-helios-poc",
+      "title": "PoC maintenance prédictive sur 3 lignes d'usinage",
+      "enterprise_id": "ent-helios",
+      "enterprise": "Helios Industrie",
+      "sector_id": "predictive_maintenance",
+      "engagement_phase": "poc",
+      "status": "Ouvert",
+      "budget": "15 000 – 25 000 €",
+      "duration": "3 mois",
+      "skills": [
+        "Firmware C/C++",
+        "Vibration Analysis",
+        "Edge AI",
+        "LoRaWAN"
+      ],
+      "description": "Instrumenter 3 lignes d'usinage avec des capteurs vibratoires, détecter les anomalies de roulements et démontrer un ROI avant déploiement large."
+    },
+    {
+      "id": "prj-nordgrid-scale",
+      "title": "Déploiement smart metering 200 sites",
+      "enterprise_id": "ent-nordgrid",
+      "enterprise": "NordGrid Utilities",
+      "sector_id": "smart_energy",
+      "engagement_phase": "scale",
+      "status": "Ouvert",
+      "budget": "80 000 – 140 000 €",
+      "duration": "6 mois",
+      "skills": [
+        "Modbus",
+        "M-Bus",
+        "Energy Metering",
+        "AWS IoT"
+      ],
+      "description": "Industrialiser la collecte énergétique sur 200 sites : passerelles Modbus/M-Bus, ingestion cloud et tableaux de bord de consommation."
+    },
+    {
+      "id": "prj-freshchain-scale",
+      "title": "Monitoring chaîne du froid flotte réfrigérée",
+      "enterprise_id": "ent-freshchain",
+      "enterprise": "FreshChain Europe",
+      "sector_id": "cold_chain_monitoring",
+      "engagement_phase": "scale",
+      "status": "Ouvert",
+      "budget": "60 000 – 95 000 €",
+      "duration": "5 mois",
+      "skills": [
+        "Cold Chain",
+        "BLE Sensors",
+        "GDP Compliance",
+        "LoRaWAN"
+      ],
+      "description": "Équiper 120 véhicules réfrigérés de capteurs température/humidité avec alertes temps réel et rapports de conformité GDP."
+    },
+    {
+      "id": "prj-axiom-poc",
+      "title": "PoC tracking conteneurs multimodal",
+      "enterprise_id": "ent-axiom",
+      "enterprise": "Axiom Logistics",
+      "sector_id": "asset_tracking",
+      "engagement_phase": "poc",
+      "status": "Ouvert",
+      "budget": "12 000 – 20 000 €",
+      "duration": "2 mois",
+      "skills": [
+        "BLE",
+        "UWB",
+        "GPS",
+        "Asset Tracking"
+      ],
+      "description": "Prototyper le suivi temps réel de 50 conteneurs sur un flux multimodal route/rail/port avec restitution cartographique."
+    },
+    {
+      "id": "prj-urbantech-partner",
+      "title": "Partenariat GTB & optimisation énergétique parc tertiaire",
+      "enterprise_id": "ent-urbantech",
+      "enterprise": "UrbanTech Realty",
+      "sector_id": "smart_building",
+      "engagement_phase": "partnership",
+      "status": "Ouvert",
+      "budget": "150 000 € + / an",
+      "duration": "12+ mois",
+      "skills": [
+        "BACnet",
+        "Modbus",
+        "Digital Twin",
+        "BMS"
+      ],
+      "description": "Établir un partenariat long terme pour piloter la GTB, créer des jumeaux numériques et réduire de 20 % la consommation du parc."
+    },
+    {
+      "id": "prj-pharmacold-poc",
+      "title": "PoC traçabilité température GxP essais cliniques",
+      "enterprise_id": "ent-pharmacold",
+      "enterprise": "PharmaCold SA",
+      "sector_id": "cold_chain_monitoring",
+      "engagement_phase": "poc",
+      "status": "Ouvert",
+      "budget": "18 000 – 28 000 €",
+      "duration": "3 mois",
+      "skills": [
+        "Cold Chain",
+        "Data Loggers",
+        "GxP",
+        "Audit Trail"
+      ],
+      "description": "Valider une solution de data loggers connectés avec piste d'audit GxP pour le transport d'échantillons d'essais cliniques."
+    },
+    {
+      "id": "prj-helios-scale",
+      "title": "Industrialisation maintenance conditionnelle multi-usines",
+      "enterprise_id": "ent-helios",
+      "enterprise": "Helios Industrie",
+      "sector_id": "predictive_maintenance",
+      "engagement_phase": "scale",
+      "status": "Ouvert",
+      "budget": "90 000 – 160 000 €",
+      "duration": "8 mois",
+      "skills": [
+        "Machine Learning",
+        "MLOps",
+        "Condition Monitoring",
+        "Edge AI"
+      ],
+      "description": "Étendre la maintenance prédictive à 6 usines : pipeline ML, MLOps et intégration GMAO après un PoC concluant."
+    },
+    {
+      "id": "prj-nordgrid-poc",
+      "title": "PoC effacement de pointe sites industriels",
+      "enterprise_id": "ent-nordgrid",
+      "enterprise": "NordGrid Utilities",
+      "sector_id": "smart_energy",
+      "engagement_phase": "poc",
+      "status": "Ouvert",
+      "budget": "14 000 – 22 000 €",
+      "duration": "3 mois",
+      "skills": [
+        "Energy Analytics",
+        "Demand Response",
+        "Grafana"
+      ],
+      "description": "Démontrer le potentiel de flexibilité énergétique (demand response) sur 5 sites industriels pilotes."
+    },
+    {
+      "id": "prj-axiom-partner",
+      "title": "Partenariat visibilité supply chain temps réel",
+      "enterprise_id": "ent-axiom",
+      "enterprise": "Axiom Logistics",
+      "sector_id": "asset_tracking",
+      "engagement_phase": "partnership",
+      "status": "Ouvert",
+      "budget": "120 000 € + / an",
+      "duration": "12+ mois",
+      "skills": [
+        "Telematics",
+        "GPS",
+        "Fleet Management",
+        "Supply chain visibility"
+      ],
+      "description": "Partenariat pluriannuel pour la télématique de flotte et la visibilité temps réel de bout en bout de la supply chain."
+    }
+  ],
   "contacts": [],
   "pages": {},
   "seo": {

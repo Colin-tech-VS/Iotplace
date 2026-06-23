@@ -26,6 +26,7 @@ STATIC_PAGE_CATALOG = [
     {"slug": "contact", "name": "Contact", "path": "/contact", "vitrine_endpoint": "vitrine.contact", "kind": "cms", "group": "vitrine", "sort": 70},
     {"slug": "privacy", "name": "Politique de confidentialité", "path": "/privacy", "vitrine_endpoint": "vitrine.privacy", "kind": "cms", "group": "vitrine", "sort": 80},
     {"slug": "legal", "name": "Mentions légales", "path": "/legal", "vitrine_endpoint": "vitrine.legal", "kind": "cms", "group": "vitrine", "sort": 90},
+    {"slug": "terms", "name": "Conditions générales (CGU/CGV)", "path": "/terms", "vitrine_endpoint": "vitrine.terms", "kind": "cms", "group": "vitrine", "sort": 95},
     {"slug": "cookies", "name": "Politique cookies", "path": "/cookies", "vitrine_endpoint": "vitrine.cookies", "kind": "cms", "group": "vitrine", "sort": 100},
 ]
 
