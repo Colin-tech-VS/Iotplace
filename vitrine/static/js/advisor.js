@@ -20,11 +20,11 @@
     let typewriterToken = 0;
     let pendingRequest = null;
 
-    const CHARS_PER_MS = 0.14;
-    const PAUSE_SENTENCE_MS = 22;
-    const PAUSE_COMMA_MS = 10;
+    const CHARS_PER_MS = 0.28;
+    const PAUSE_SENTENCE_MS = 16;
+    const PAUSE_COMMA_MS = 7;
     const MIN_CHARS_PER_FRAME = 2;
-    const MAX_CHARS_PER_FRAME = 8;
+    const MAX_CHARS_PER_FRAME = 14;
 
     function openPanel() {
         root.classList.add('open');
@@ -52,8 +52,8 @@
 
     function autoResizeInput() {
         input.style.height = 'auto';
-        const next = Math.min(input.scrollHeight, 132);
-        input.style.height = `${Math.max(46, next)}px`;
+        const next = Math.min(input.scrollHeight, 140);
+        input.style.height = `${Math.max(48, next)}px`;
     }
 
     function escapeHtml(str) {
