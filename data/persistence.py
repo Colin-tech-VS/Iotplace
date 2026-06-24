@@ -350,6 +350,44 @@ class PostgresBackend(StateBackend):
 
         self._with_connection(work)
 
+    # Advisory-lock key (arbitrary constant) used to serialize state writes
+    # across workers/processes for the singleton state row.
+    STATE_LOCK_KEY = 718281828
+
+    def mutate(self, mutator):
+        from psycopg.types.json import Jsonb
+
+        def work(conn):
+            if self.database_url not in _schema_ready_urls:
+                self._ensure_schema(conn)
+                _schema_ready_urls.add(self.database_url)
+            # Serialize concurrent writers: held until COMMIT below.
+            conn.execute("SELECT pg_advisory_xact_lock(%s)", (self.STATE_LOCK_KEY,))
+            row = conn.execute(
+                "SELECT data FROM iotplace_state WHERE id = 1"
+            ).fetchone()
+            if row and row[0]:
+                payload = row[0]
+                data = payload.copy() if isinstance(payload, dict) else json.loads(payload)
+            else:
+                data = _read_seed_document()
+
+            result = mutator(data)
+
+            conn.execute(
+                """
+                INSERT INTO iotplace_state (id, data, updated_at)
+                VALUES (1, %s, NOW())
+                ON CONFLICT (id) DO UPDATE
+                SET data = EXCLUDED.data, updated_at = NOW()
+                """,
+                (Jsonb(data),),
+            )
+            conn.commit()
+            return result, data
+
+        return self._with_connection(work)
+
     def _ensure_schema(self, conn) -> None:
         conn.execute(
             """
@@ -452,6 +490,33 @@ def save_state(data: dict[str, Any]) -> None:
     with _lock:
         _process_cache = copy.deepcopy(data)
         _process_cache_version = _backend_state_version(backend) or "saved"
+
+
+def mutate_state(mutator):
+    """Atomic read-modify-write of the whole state, returning (result, data).
+
+    ``mutator(data)`` edits ``data`` in place and returns the caller's result.
+    On Postgres (production) the read, mutation and write run inside a single
+    transaction guarded by a session advisory lock, so two Gunicorn workers can
+    never both load the same snapshot and overwrite each other (lost update).
+    JSON (dev, single process) and the Supabase REST backend are serialized by
+    the in-process lock.
+    """
+    global _process_cache, _process_cache_version
+    backend = get_backend()
+
+    if isinstance(backend, PostgresBackend):
+        result, data = backend.mutate(mutator)
+    else:
+        with _lock:
+            data = backend.load()
+            result = mutator(data)
+            backend.save(data)
+
+    with _lock:
+        _process_cache = copy.deepcopy(data)
+        _process_cache_version = _backend_state_version(backend) or "saved"
+    return result, data
 
 
 def persistence_info() -> dict[str, str]:

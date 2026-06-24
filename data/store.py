@@ -499,8 +499,21 @@ def _deep_merge(base, override):
     return result
 
 
+def _active_txn():
+    """Return the working state of the current write transaction, or None."""
+    from flask import g, has_request_context
+
+    if has_request_context():
+        return getattr(g, "_iotplace_txn", None)
+    return _THREAD_TXN.get("data")
+
+
 def _load_raw():
     from flask import g, has_request_context
+
+    txn = _active_txn()
+    if txn is not None:
+        return txn
 
     if has_request_context() and getattr(g, "_iotplace_data", None) is not None:
         return g._iotplace_data
@@ -520,11 +533,72 @@ def _load_raw():
 
 def _save_raw(data):
     from flask import g, has_request_context
+
+    # Inside a write transaction (@writes), persistence happens atomically when
+    # the transaction commits — individual saves are no-ops.
+    if _active_txn() is not None:
+        return
+
     from data.persistence import save_state
 
     save_state(data)
     if has_request_context():
         g._iotplace_data = data
+
+
+# Fallback transaction holder for code paths without a Flask request context
+# (CLI scripts, background jobs). Within a request we use flask.g instead.
+_THREAD_TXN: dict = {}
+
+
+def _set_txn(data):
+    from flask import g, has_request_context
+
+    if has_request_context():
+        g._iotplace_txn = data
+    elif data is None:
+        _THREAD_TXN.pop("data", None)
+    else:
+        _THREAD_TXN["data"] = data
+
+
+def writes(func):
+    """Run a state-mutating function as one atomic, serialized transaction.
+
+    The wrapped function keeps using ``_load_raw``/``_save_raw`` as before, but
+    the read-modify-write now runs under a single locked transaction so two
+    workers can't lose each other's changes. Reentrant: a @writes function that
+    calls another @writes function shares the same transaction (one commit).
+    """
+    from functools import wraps as _wraps
+
+    @_wraps(func)
+    def wrapper(*args, **kwargs):
+        if _active_txn() is not None:
+            return func(*args, **kwargs)  # already inside a transaction
+
+        from data.persistence import mutate_state
+
+        box = {}
+
+        def _runner(data):
+            for key, value in DEFAULT_DATA.items():
+                if key not in data:
+                    data[key] = value
+            _set_txn(data)
+            try:
+                box["result"] = func(*args, **kwargs)
+            finally:
+                _set_txn(None)
+            return data
+
+        _, data = mutate_state(_runner)
+        from flask import g, has_request_context
+        if has_request_context():
+            g._iotplace_data = data
+        return box["result"]
+
+    return wrapper
 
 
 def get_all():
@@ -938,6 +1012,7 @@ def _new_id():
     return str(uuid.uuid4())[:8]
 
 
+@writes
 def add_enterprise(fields):
     data = _load_raw()
     entry = {"id": _new_id(), **fields}
@@ -946,6 +1021,7 @@ def add_enterprise(fields):
     return entry
 
 
+@writes
 def update_enterprise(entry_id, fields):
     data = _load_raw()
     for i, ent in enumerate(data["enterprises"]):
@@ -956,12 +1032,14 @@ def update_enterprise(entry_id, fields):
     return None
 
 
+@writes
 def delete_enterprise(entry_id):
     data = _load_raw()
     data["enterprises"] = [e for e in data["enterprises"] if e["id"] != entry_id]
     _save_raw(data)
 
 
+@writes
 def add_startup(fields):
     data = _load_raw()
     entry = {"id": _new_id(), **fields}
@@ -970,6 +1048,7 @@ def add_startup(fields):
     return entry
 
 
+@writes
 def update_startup(entry_id, fields):
     data = _load_raw()
     for i, s in enumerate(data["startups"]):
@@ -980,12 +1059,14 @@ def update_startup(entry_id, fields):
     return None
 
 
+@writes
 def delete_startup(entry_id):
     data = _load_raw()
     data["startups"] = [s for s in data["startups"] if s["id"] != entry_id]
     _save_raw(data)
 
 
+@writes
 def add_project(fields):
     data = _load_raw()
     entry = {"id": _new_id(), **fields}
@@ -994,6 +1075,7 @@ def add_project(fields):
     return entry
 
 
+@writes
 def update_project(entry_id, fields):
     data = _load_raw()
     for i, p in enumerate(data["projects"]):
@@ -1004,12 +1086,14 @@ def update_project(entry_id, fields):
     return None
 
 
+@writes
 def delete_project(entry_id):
     data = _load_raw()
     data["projects"] = [p for p in data["projects"] if p["id"] != entry_id]
     _save_raw(data)
 
 
+@writes
 def add_contact(fields):
     data = _load_raw()
     entry = {
@@ -1028,6 +1112,7 @@ def get_contact(entry_id):
     return next((c for c in get_contacts() if c["id"] == entry_id), None)
 
 
+@writes
 def update_contact(entry_id, fields):
     data = _load_raw()
     for i, contact in enumerate(data["contacts"]):
@@ -1058,6 +1143,7 @@ def count_new_contacts():
     return len([c for c in get_contacts() if c.get("status", "new") == "new"])
 
 
+@writes
 def delete_contact(entry_id):
     data = _load_raw()
     data["contacts"] = [c for c in data["contacts"] if c["id"] != entry_id]
@@ -1094,6 +1180,7 @@ def email_exists(email):
     return get_user_by_email(email) is not None
 
 
+@writes
 def create_user(email, password_hash, role, profile_id):
     data = _load_raw()
     entry = {
@@ -1125,6 +1212,7 @@ def _parse_iso_datetime(value: str):
         return None
 
 
+@writes
 def issue_password_reset_token(email: str) -> tuple[str, dict] | tuple[None, None]:
     user = get_user_by_email(email)
     if not user:
@@ -1160,6 +1248,7 @@ def get_user_by_password_reset_token(token: str):
     return None
 
 
+@writes
 def clear_password_reset_token(user_id: str):
     data = _load_raw()
     for i, user in enumerate(data.get("users", [])):
@@ -1173,6 +1262,7 @@ def clear_password_reset_token(user_id: str):
     return None
 
 
+@writes
 def update_user_password(user_id: str, password_hash: str):
     data = _load_raw()
     for i, user in enumerate(data.get("users", [])):
@@ -1363,6 +1453,7 @@ def _purge_crm_account_from_data(data: dict, user: dict) -> None:
     data["users"] = [u for u in data.get("users", []) if u["id"] != uid]
 
 
+@writes
 def delete_crm_account(user_id: str) -> bool:
     data = _load_raw()
     user = next((u for u in data.get("users", []) if u["id"] == user_id), None)
@@ -1373,6 +1464,7 @@ def delete_crm_account(user_id: str) -> bool:
     return True
 
 
+@writes
 def delete_all_crm_accounts() -> int:
     data = _load_raw()
     users = list(data.get("users", []))
@@ -1396,6 +1488,7 @@ def get_projects_for_enterprise(enterprise_id, enterprise_name=""):
     return projects
 
 
+@writes
 def register_enterprise_account(user_fields, enterprise_fields, project_fields=None):
     if email_exists(user_fields.get("email")):
         raise ValueError("Cet email est déjà utilisé.")
@@ -1445,6 +1538,7 @@ def register_enterprise_account(user_fields, enterprise_fields, project_fields=N
     return user, get_enterprise(enterprise["id"])
 
 
+@writes
 def register_startup_account(user_fields, startup_fields):
     if email_exists(user_fields.get("email")):
         raise ValueError("Cet email est déjà utilisé.")
@@ -1820,6 +1914,7 @@ def get_thread_messages(user_id, counterpart_user_id, project_id=None):
     return sorted(messages, key=lambda m: m.get("created_at", ""))
 
 
+@writes
 def mark_thread_read(user_id, counterpart_user_id, project_id=None):
     data = _load_raw()
     changed = False
@@ -1853,6 +1948,7 @@ def get_messaging_poll(user_id, since_iso=""):
     }
 
 
+@writes
 def send_b2b_message(from_user, to_user, body, project_id=None, subject=None, kind="reply"):
     if not body or not body.strip():
         raise ValueError("Le message ne peut pas être vide.")
@@ -1867,6 +1963,7 @@ def send_b2b_message(from_user, to_user, body, project_id=None, subject=None, ki
     return send_message(from_user, to_user, subject, body.strip(), kind=kind, project=project)
 
 
+@writes
 def add_message(fields):
     data = _load_raw()
     entry = {
@@ -1917,6 +2014,7 @@ def get_unread_count(user_id):
     return count
 
 
+@writes
 def mark_message_read(message_id, user_id):
     data = _load_raw()
     for i, msg in enumerate(data.get("messages", [])):
@@ -1927,6 +2025,7 @@ def mark_message_read(message_id, user_id):
     return None
 
 
+@writes
 def update_message_status(message_id, user_id, status):
     data = _load_raw()
     for i, msg in enumerate(data.get("messages", [])):
@@ -1937,6 +2036,7 @@ def update_message_status(message_id, user_id, status):
     return None
 
 
+@writes
 def update_message_status_direct(message_id, status):
     data = _load_raw()
     for i, msg in enumerate(data.get("messages", [])):
@@ -1974,6 +2074,7 @@ def resolve_project_amount_cents(project: dict) -> int:
     return resolve_budget_cents(project.get("budget", ""))
 
 
+@writes
 def create_engagement(fields: dict) -> dict:
     data = _load_raw()
     entry = {
@@ -2017,6 +2118,7 @@ def get_engagements_for_startup(startup_id: str) -> list:
     ]
 
 
+@writes
 def update_engagement(engagement_id: str, fields: dict):
     data = _load_raw()
     for i, entry in enumerate(data.get("engagements", [])):
@@ -2050,6 +2152,7 @@ def engagement_accepts_updates(engagement: dict | None) -> bool:
     return engagement.get("status") in ENGAGEMENT_ACTIVE_STATUSES
 
 
+@writes
 def add_engagement_update(
     engagement: dict,
     *,
@@ -2097,6 +2200,7 @@ def get_engagement_updates(engagement_id: str) -> list:
     return updates
 
 
+@writes
 def mark_engagement_updates_seen(engagement_id: str, viewer_role: str) -> None:
     """Clear the unseen badge for the viewer on a mission's updates."""
     field = "seen_by_enterprise" if viewer_role == "enterprise" else "seen_by_startup"
@@ -2347,6 +2451,7 @@ def startup_already_applied(startup_id, project_id):
     )
 
 
+@writes
 def send_message(from_user, to_user, subject, body, kind="contact", project=None, status="pending", **extra):
     from_name = _profile_name_for_user(from_user)
     to_name = _profile_name_for_user(to_user)
@@ -2373,6 +2478,7 @@ def send_message(from_user, to_user, subject, body, kind="contact", project=None
     return add_message(fields)
 
 
+@writes
 def apply_to_project(startup_user, startup, project, message_body, *, poc_fee_cents=None, poc_checkout_id=None):
     from data.engagement_phases import requires_startup_application_fee
 
@@ -2404,6 +2510,7 @@ def apply_to_project(startup_user, startup, project, message_body, *, poc_fee_ce
     )
 
 
+@writes
 def create_application_checkout(fields: dict) -> dict:
     data = _load_raw()
     entry = {
@@ -2437,6 +2544,7 @@ def get_application_checkout_by_session(stripe_session_id: str):
     )
 
 
+@writes
 def update_application_checkout(checkout_id: str, fields: dict) -> dict | None:
     data = _load_raw()
     for checkout in data.get("application_checkouts", []):
@@ -2627,6 +2735,7 @@ def get_all_pages():
     return rows
 
 
+@writes
 def update_page(slug, fields):
     data = _load_raw()
     if "pages" not in data:
@@ -2792,6 +2901,7 @@ def get_page_faq(slug, locale="en"):
     return PAGE_FAQ.get(slug, [])
 
 
+@writes
 def update_page_faq(slug, items):
     data = _load_raw()
     if "faq" not in data:
@@ -3067,6 +3177,7 @@ def get_robots_txt():
     return build_robots_txt(get_site_url())
 
 
+@writes
 def update_seo_global(fields):
     data = _load_raw()
     if "seo" not in data:
@@ -3075,6 +3186,7 @@ def update_seo_global(fields):
     _save_raw(data)
 
 
+@writes
 def update_seo_page(slug, fields):
     data = _load_raw()
     if "seo" not in data:
@@ -3131,6 +3243,7 @@ def _record_unique_visitor(analytics, session_id, now_iso, converted=None):
     analytics["unique_visitors"] = _prune_unique_visitors(visitors)
 
 
+@writes
 def track_signup_conversion(role, session_id=None):
     if role not in ("enterprise", "startup"):
         return
@@ -3215,6 +3328,7 @@ def _is_excluded_analytics(path="", referrer=""):
     return False
 
 
+@writes
 def track_hit(page_slug, path="/", session_id=None, referrer="", source="server"):
     if _is_excluded_analytics(path=path, referrer=referrer):
         return None
@@ -3258,6 +3372,7 @@ def track_hit(page_slug, path="/", session_id=None, referrer="", source="server"
     return sid
 
 
+@writes
 def track_ping(session_id, page_slug=None, path=None):
     if not session_id:
         return
@@ -3358,6 +3473,7 @@ def get_social_posts():
     return sorted(_load_raw().get("social_posts", []), key=lambda p: p.get("created_at", ""), reverse=True)
 
 
+@writes
 def add_social_post(fields):
     data = _load_raw()
     entry = {
@@ -3371,6 +3487,7 @@ def add_social_post(fields):
     return entry
 
 
+@writes
 def update_social_post(entry_id, fields):
     data = _load_raw()
     for i, post in enumerate(data.get("social_posts", [])):
@@ -3383,6 +3500,7 @@ def update_social_post(entry_id, fields):
     return None
 
 
+@writes
 def delete_social_post(entry_id):
     data = _load_raw()
     data["social_posts"] = [p for p in data.get("social_posts", []) if p["id"] != entry_id]
@@ -3401,6 +3519,7 @@ def get_mail_settings():
     return merged
 
 
+@writes
 def update_mail_settings(fields: dict) -> dict:
     data = _load_raw()
     current = get_mail_settings()
@@ -3425,6 +3544,7 @@ def _empty_mail_stats():
     return {"recipients": 0, "sent": 0, "failed": 0, "opened": 0, "clicked": 0}
 
 
+@writes
 def add_mail_campaign(fields):
     data = _load_raw()
     now = datetime.now(timezone.utc).isoformat()
@@ -3443,6 +3563,7 @@ def add_mail_campaign(fields):
     return entry
 
 
+@writes
 def update_mail_campaign(campaign_id: str, fields: dict):
     data = _load_raw()
     for i, camp in enumerate(data.get("mail_campaigns", [])):
@@ -3459,6 +3580,7 @@ def update_mail_campaign(campaign_id: str, fields: dict):
     return None
 
 
+@writes
 def delete_mail_campaign(campaign_id: str):
     data = _load_raw()
     data["mail_campaigns"] = [c for c in data.get("mail_campaigns", []) if c["id"] != campaign_id]
@@ -3466,6 +3588,7 @@ def delete_mail_campaign(campaign_id: str):
     _save_raw(data)
 
 
+@writes
 def log_mail_event(campaign_id: str, event_type: str, email: str = "", meta: dict | None = None):
     data = _load_raw()
     entry = {
