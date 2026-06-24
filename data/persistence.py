@@ -218,15 +218,34 @@ def _get_connection_pool(database_url: str):
     if database_url not in _pools:
         from psycopg_pool import ConnectionPool
 
+        # `check` validates a connection before it leaves the pool, and
+        # `max_idle` recycles connections Supabase's pooler silently drops
+        # after a short idle period. Without these, the first query after the
+        # app sits idle (e.g. a login) gets handed a dead connection and the
+        # request 500s with an OperationalError.
         _pools[database_url] = ConnectionPool(
             database_url,
             min_size=1,
             max_size=8,
             timeout=10,
+            max_idle=120,
+            max_lifetime=600,
+            check=ConnectionPool.check_connection,
+            reconnect_timeout=10,
             kwargs={"prepare_threshold": None},
             open=True,
         )
     return _pools[database_url]
+
+
+def _is_stale_connection_error(exc: Exception) -> bool:
+    """True for errors that mean 'the connection died' — safe to retry once."""
+    import psycopg
+
+    if isinstance(exc, (psycopg.OperationalError, psycopg.InterfaceError)):
+        return True
+    # psycopg_pool raises PoolTimeout when it can't hand out a live connection.
+    return exc.__class__.__name__ in {"PoolTimeout", "ConnectionTimeout"}
 
 
 class PostgresBackend(StateBackend):
@@ -251,56 +270,85 @@ class PostgresBackend(StateBackend):
                 return str(row[0])
         return ""
 
+    def _with_connection(self, work):
+        """Run `work(conn)` with one automatic retry if the connection is stale.
+
+        Supabase's connection pooler can drop a connection between requests; the
+        first query then fails with OperationalError. Retrying once with a fresh
+        connection turns those transient blips into a successful request instead
+        of a 500.
+        """
+        pool = _get_connection_pool(self.database_url)
+        last_exc: Exception | None = None
+        for attempt in range(2):
+            try:
+                with _lock:
+                    with pool.connection() as conn:
+                        return work(conn)
+            except Exception as exc:  # noqa: BLE001 — re-raised below if not stale
+                last_exc = exc
+                if attempt == 0 and _is_stale_connection_error(exc):
+                    import logging
+
+                    logging.warning(
+                        "Postgres connection stale (%s); retrying once.",
+                        exc.__class__.__name__,
+                    )
+                    continue
+                raise
+        if last_exc:
+            raise last_exc
+
     def load(self) -> dict[str, Any]:
         from psycopg.types.json import Jsonb
 
-        pool = _get_connection_pool(self.database_url)
-        with _lock:
-            with pool.connection() as conn:
-                if self.database_url not in _schema_ready_urls:
-                    self._ensure_schema(conn)
-                    conn.commit()
-                    _schema_ready_urls.add(self.database_url)
-
-                row = conn.execute(
-                    "SELECT data FROM iotplace_state WHERE id = 1"
-                ).fetchone()
-                if row and row[0]:
-                    payload = row[0]
-                    return payload.copy() if isinstance(payload, dict) else json.loads(payload)
-
-                seed = _read_seed_document()
-                conn.execute(
-                    """
-                    INSERT INTO iotplace_state (id, data, updated_at)
-                    VALUES (1, %s, NOW())
-                    ON CONFLICT (id) DO UPDATE
-                    SET data = EXCLUDED.data, updated_at = NOW()
-                    """,
-                    (Jsonb(seed),),
-                )
+        def work(conn):
+            if self.database_url not in _schema_ready_urls:
+                self._ensure_schema(conn)
                 conn.commit()
-                return seed.copy()
+                _schema_ready_urls.add(self.database_url)
+
+            row = conn.execute(
+                "SELECT data FROM iotplace_state WHERE id = 1"
+            ).fetchone()
+            if row and row[0]:
+                payload = row[0]
+                return payload.copy() if isinstance(payload, dict) else json.loads(payload)
+
+            seed = _read_seed_document()
+            conn.execute(
+                """
+                INSERT INTO iotplace_state (id, data, updated_at)
+                VALUES (1, %s, NOW())
+                ON CONFLICT (id) DO UPDATE
+                SET data = EXCLUDED.data, updated_at = NOW()
+                """,
+                (Jsonb(seed),),
+            )
+            conn.commit()
+            return seed.copy()
+
+        return self._with_connection(work)
 
     def save(self, data: dict[str, Any]) -> None:
         from psycopg.types.json import Jsonb
 
-        pool = _get_connection_pool(self.database_url)
-        with _lock:
-            with pool.connection() as conn:
-                if self.database_url not in _schema_ready_urls:
-                    self._ensure_schema(conn)
-                    _schema_ready_urls.add(self.database_url)
-                conn.execute(
-                    """
-                    INSERT INTO iotplace_state (id, data, updated_at)
-                    VALUES (1, %s, NOW())
-                    ON CONFLICT (id) DO UPDATE
-                    SET data = EXCLUDED.data, updated_at = NOW()
-                    """,
-                    (Jsonb(data),),
-                )
-                conn.commit()
+        def work(conn):
+            if self.database_url not in _schema_ready_urls:
+                self._ensure_schema(conn)
+                _schema_ready_urls.add(self.database_url)
+            conn.execute(
+                """
+                INSERT INTO iotplace_state (id, data, updated_at)
+                VALUES (1, %s, NOW())
+                ON CONFLICT (id) DO UPDATE
+                SET data = EXCLUDED.data, updated_at = NOW()
+                """,
+                (Jsonb(data),),
+            )
+            conn.commit()
+
+        self._with_connection(work)
 
     def _ensure_schema(self, conn) -> None:
         conn.execute(

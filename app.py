@@ -122,6 +122,63 @@ if _persist.get("path"):
     logging.info("Iotplace data file=%s", _persist.get("path"))
 
 
+@app.route("/health")
+def health_check():
+    """Lightweight liveness + persistence probe for monitoring."""
+    from flask import jsonify
+
+    info = {"status": "ok"}
+    try:
+        _persist_info = persistence_info()
+        info["backend"] = _persist_info.get("backend")
+    except Exception:
+        info["backend"] = "unknown"
+    return jsonify(info)
+
+
+def _render_error_page(status, title, message):
+    """Render the standalone error page; fall back to plain HTML if even that fails."""
+    from flask import render_template
+
+    try:
+        return render_template("error.html", status=status, title=title, message=message), status
+    except Exception:
+        logging.exception("Error page render failed")
+        return (
+            f"<!doctype html><meta charset='utf-8'>"
+            f"<title>Erreur {status}</title>"
+            f"<body style='font-family:sans-serif;text-align:center;padding:60px'>"
+            f"<h1>{title}</h1><p>{message}</p><a href='/'>Retour à l'accueil</a></body>",
+            status,
+        )
+
+
+@app.errorhandler(404)
+def handle_404(error):
+    return _render_error_page(
+        404,
+        "Page introuvable",
+        "Cette page n'existe pas ou a été déplacée.",
+    )
+
+
+@app.errorhandler(500)
+@app.errorhandler(Exception)
+def handle_500(error):
+    from werkzeug.exceptions import HTTPException
+
+    # Let real HTTP errors (403, 404, 405…) keep their own status/handling.
+    if isinstance(error, HTTPException) and error.code and error.code < 500:
+        return error
+    logging.exception("Unhandled error on %s", request.path if request else "?")
+    return _render_error_page(
+        500,
+        "Une erreur est survenue",
+        "Un incident technique a interrompu votre requête. "
+        "Réessayez dans un instant — nos équipes ont été notifiées.",
+    )
+
+
 @app.context_processor
 def inject_globals():
     from data.site_config import CONTACT_EMAIL

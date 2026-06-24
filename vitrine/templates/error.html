@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <title>{{ title }} · Iotplace</title>
+    <style>
+        :root { --bg:#0b1020; --card:#121a32; --ink:#eef2ff; --muted:#9aa6c7; --accent:#4f7cff; }
+        * { box-sizing: border-box; }
+        body {
+            margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+            background: radial-gradient(1200px 600px at 50% -10%, #1b2750 0%, var(--bg) 60%);
+            color: var(--ink); font-family: 'DM Sans', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+            padding: 24px;
+        }
+        .card {
+            background: var(--card); border:1px solid rgba(255,255,255,.08); border-radius:20px;
+            padding: 40px 36px; max-width: 460px; width:100%; text-align:center;
+            box-shadow: 0 30px 80px rgba(0,0,0,.45);
+        }
+        .code { font-size: 13px; letter-spacing:.18em; text-transform:uppercase; color: var(--accent); font-weight:700; }
+        h1 { font-size: 26px; margin:.4em 0 .3em; }
+        p { color: var(--muted); line-height:1.6; margin:0 0 24px; }
+        .actions { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+        a.btn {
+            display:inline-block; padding:12px 22px; border-radius:12px; text-decoration:none; font-weight:600;
+            transition: transform .12s ease, background .2s ease;
+        }
+        a.primary { background: var(--accent); color:#fff; }
+        a.primary:hover { transform: translateY(-1px); background:#3f6cf0; }
+        a.ghost { color: var(--ink); border:1px solid rgba(255,255,255,.16); }
+        a.ghost:hover { border-color: var(--accent); }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="code">Erreur {{ status }}</div>
+        <h1>{{ title }}</h1>
+        <p>{{ message }}</p>
+        <div class="actions">
+            <a class="btn primary" href="/">Retour à l'accueil</a>
+            <a class="btn ghost" href="/connexion">Se connecter</a>
+        </div>
+    </div>
+</body>
+</html>

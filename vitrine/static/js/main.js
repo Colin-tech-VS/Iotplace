@@ -15,19 +15,47 @@ if (navbar) {
     onScroll();
 }
 
-const revealObserver = new IntersectionObserver((entries) => {
-    entries.forEach((entry, i) => {
-        if (entry.isIntersecting) {
-            setTimeout(() => {
-                entry.target.classList.add('visible');
-                entry.target.classList.add('iot-lift');
-            }, i * 70);
-            revealObserver.unobserve(entry.target);
-        }
-    });
-}, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
+const revealEls = Array.from(document.querySelectorAll('.reveal'));
 
-document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+function revealAll() {
+    revealEls.forEach(el => el.classList.add('visible'));
+}
+
+if (!('IntersectionObserver' in window)) {
+    // Old browser: just show everything immediately.
+    revealAll();
+} else {
+    const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry, i) => {
+            if (entry.isIntersecting) {
+                setTimeout(() => {
+                    entry.target.classList.add('visible');
+                    entry.target.classList.add('iot-lift');
+                }, i * 70);
+                revealObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
+
+    revealEls.forEach(el => revealObserver.observe(el));
+
+    // Safety net: any section still hidden after the page settles (observer
+    // missed it, fast scroll, layout shift…) is forced visible so the homepage
+    // can never end up as a blank void below the fold.
+    const forceVisibleSoon = () => {
+        revealEls.forEach(el => {
+            if (el.classList.contains('visible')) return;
+            const rect = el.getBoundingClientRect();
+            if (rect.top < window.innerHeight + 200) {
+                el.classList.add('visible');
+                revealObserver.unobserve(el);
+            }
+        });
+    };
+    window.addEventListener('load', () => setTimeout(forceVisibleSoon, 400));
+    // Absolute fallback: never leave content hidden for more than ~2.5s.
+    setTimeout(revealAll, 2500);
+}
 
 function animateCounter(el) {
     const target = parseInt(el.dataset.count, 10) || 0;
