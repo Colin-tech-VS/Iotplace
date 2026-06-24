@@ -50,18 +50,19 @@ def complete_from_stripe_session(
     *,
     expected_project_id: str | None = None,
 ) -> dict:
-    checkout_id = (session.get("metadata") or {}).get("iotplace_checkout_id")
+    sget = stripe_service.sget
+    meta = sget(session, "metadata") or {}
+    checkout_id = sget(meta, "iotplace_checkout_id")
     if not checkout_id:
         return {"ok": False, "error": "checkout_id manquant"}
-    meta = session.get("metadata") or {}
-    if meta.get("iotplace_type") != "poc_application":
+    if sget(meta, "iotplace_type") != "poc_application":
         return {"ok": False, "error": "Type de paiement invalide."}
-    project_id = meta.get("project_id")
+    project_id = sget(meta, "project_id")
     if expected_project_id and project_id != expected_project_id:
         return {"ok": False, "error": "Ce paiement ne correspond pas à ce projet."}
-    if session.get("payment_status") != "paid":
+    if sget(session, "payment_status") != "paid":
         return {"ok": False, "error": "paiement non confirmé"}
-    return _finalize_checkout(checkout_id, session.get("id"))
+    return _finalize_checkout(checkout_id, sget(session, "id"))
 
 
 def complete_from_session_id(
@@ -91,7 +92,8 @@ def complete_from_session_id(
 
 
 def mark_checkout_cancelled(session: dict) -> dict:
-    checkout_id = (session.get("metadata") or {}).get("iotplace_checkout_id")
+    sget = stripe_service.sget
+    checkout_id = sget(sget(session, "metadata") or {}, "iotplace_checkout_id")
     if not checkout_id:
         return {"ok": False, "error": "checkout_id manquant"}
     checkout = store.get_application_checkout(checkout_id)
@@ -102,7 +104,7 @@ def mark_checkout_cancelled(session: dict) -> dict:
     store.update_application_checkout(checkout_id, {
         "status": "cancelled",
         "cancelled_at": store._now().isoformat(),
-        "stripe_session_id": session.get("id") or checkout.get("stripe_session_id"),
+        "stripe_session_id": sget(session, "id") or checkout.get("stripe_session_id"),
     })
     return {"ok": True, "checkout_id": checkout_id}
 

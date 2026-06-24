@@ -17,6 +17,24 @@ class PaymentError(Exception):
     pass
 
 
+def sget(obj, key, default=None):
+    """Read a field from a Stripe object *or* a plain dict, safely.
+
+    Newer stripe-python versions (≥12) dropped dict-style ``.get()`` from
+    ``StripeObject``, so ``obj.get("status")`` raises ``AttributeError`` in
+    production while still working on older local installs. Subscript access
+    (``obj["status"]``) works on both, so we use it everywhere we touch Stripe
+    payloads (subscriptions, sessions, invoices, accounts, webhook events).
+    """
+    if obj is None:
+        return default
+    try:
+        value = obj[key]
+    except (KeyError, TypeError, AttributeError, IndexError):
+        return default
+    return default if value is None else value
+
+
 def is_configured() -> bool:
     """Server-side Checkout / Connect — secret key required; publishable recommended."""
     return bool((os.environ.get("STRIPE_SECRET_KEY") or "").strip())
@@ -193,7 +211,7 @@ def refresh_connect_status(startup: dict) -> bool:
         return False
     _client()
     account = stripe.Account.retrieve(account_id)
-    complete = bool(account.get("charges_enabled") and account.get("payouts_enabled"))
+    complete = bool(sget(account, "charges_enabled") and sget(account, "payouts_enabled"))
     from data import store
 
     store.update_startup(startup["id"], {"stripe_onboarding_complete": complete})
@@ -293,9 +311,9 @@ def invoice_is_payable(invoice_id: str) -> bool:
         invoice = stripe.Invoice.retrieve(invoice_id)
     except stripe.error.StripeError:
         return False
-    if invoice.get("status") != "open":
+    if sget(invoice, "status") != "open":
         return False
-    amount_due = int(invoice.get("amount_due") or 0)
+    amount_due = int(sget(invoice, "amount_due") or 0)
     return amount_due > 0
 
 
@@ -407,34 +425,34 @@ def handle_webhook_event(payload: bytes, sig_header: str) -> dict[str, Any]:
 
     if event["type"] == "invoice.paid":
         invoice = event["data"]["object"]
-        engagement_id = (invoice.get("metadata") or {}).get("engagement_id")
+        engagement_id = sget(sget(invoice, "metadata") or {}, "engagement_id")
         if engagement_id:
             store.update_engagement(engagement_id, {
                 "status": "escrowed",
                 "paid_at": store._now().isoformat(),
-                "stripe_invoice_id": invoice.get("id"),
+                "stripe_invoice_id": sget(invoice, "id"),
             })
             result["handled"] = True
             result["engagement_id"] = engagement_id
 
     elif event["type"] == "account.updated":
         account = event["data"]["object"]
-        startup = store.get_startup_by_connect_account(account.get("id"))
+        startup = store.get_startup_by_connect_account(sget(account, "id"))
         if startup:
-            complete = bool(account.get("charges_enabled") and account.get("payouts_enabled"))
+            complete = bool(sget(account, "charges_enabled") and sget(account, "payouts_enabled"))
             store.update_startup(startup["id"], {"stripe_onboarding_complete": complete})
             result["handled"] = True
 
     elif event["type"] == "checkout.session.completed":
         session = event["data"]["object"]
-        meta = session.get("metadata") or {}
-        if meta.get("iotplace_type") == "poc_application":
+        meta = sget(session, "metadata") or {}
+        if sget(meta, "iotplace_type") == "poc_application":
             from payments import poc_application
 
             completion = poc_application.complete_from_stripe_session(session)
             result.update(completion)
             result["handled"] = completion.get("ok", False)
-        elif meta.get("iotplace_type") == "pro_subscription" or session.get("mode") == "subscription":
+        elif sget(meta, "iotplace_type") == "pro_subscription" or sget(session, "mode") == "subscription":
             from payments import subscriptions
 
             completion = subscriptions.complete_checkout_subscription(session)
@@ -443,8 +461,8 @@ def handle_webhook_event(payload: bytes, sig_header: str) -> dict[str, Any]:
 
     elif event["type"] == "checkout.session.expired":
         session = event["data"]["object"]
-        meta = session.get("metadata") or {}
-        if meta.get("iotplace_type") == "poc_application":
+        meta = sget(session, "metadata") or {}
+        if sget(meta, "iotplace_type") == "poc_application":
             from payments import poc_application
 
             completion = poc_application.mark_checkout_cancelled(session)
@@ -465,7 +483,7 @@ def handle_webhook_event(payload: bytes, sig_header: str) -> dict[str, Any]:
 
     elif event["type"] == "invoice.payment_failed":
         invoice = event["data"]["object"]
-        subscription_id = invoice.get("subscription")
+        subscription_id = sget(invoice, "subscription")
         if subscription_id:
             from payments import subscriptions
 

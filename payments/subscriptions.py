@@ -112,8 +112,9 @@ def apply_subscription_to_enterprise(enterprise_id: str, subscription: dict) -> 
     """Sync enterprise plan fields from a Stripe Subscription object."""
     from data import store
 
-    status = (subscription.get("status") or "").strip()
-    sub_id = subscription.get("id", "")
+    sget = stripe_service.sget
+    status = (sget(subscription, "status") or "").strip()
+    sub_id = sget(subscription, "id", "")
     fields: dict[str, Any] = {
         "stripe_subscription_id": sub_id,
         "stripe_subscription_status": status,
@@ -127,19 +128,20 @@ def apply_subscription_to_enterprise(enterprise_id: str, subscription: dict) -> 
 
 
 def resolve_enterprise_id_from_subscription(subscription: dict) -> str | None:
-    meta = subscription.get("metadata") or {}
-    enterprise_id = (meta.get("iotplace_enterprise_id") or "").strip()
+    sget = stripe_service.sget
+    meta = sget(subscription, "metadata") or {}
+    enterprise_id = (sget(meta, "iotplace_enterprise_id") or "").strip()
     if enterprise_id:
         return enterprise_id
 
     from data import store
 
-    sub_id = subscription.get("id", "")
+    sub_id = sget(subscription, "id", "")
     ent = store.get_enterprise_by_subscription_id(sub_id)
     if ent:
         return ent["id"]
 
-    customer_id = subscription.get("customer")
+    customer_id = sget(subscription, "customer")
     if isinstance(customer_id, dict):
         customer_id = customer_id.get("id")
     if customer_id:
@@ -159,23 +161,24 @@ def handle_subscription_event(subscription: dict) -> dict[str, Any]:
         "ok": True,
         "enterprise_id": enterprise_id,
         "plan": (updated or {}).get("plan"),
-        "status": subscription.get("status"),
+        "status": stripe_service.sget(subscription, "status"),
     }
 
 
 def complete_checkout_subscription(session: dict) -> dict[str, Any]:
     """Finalize Pro plan after subscription Checkout."""
-    if (session.get("metadata") or {}).get("iotplace_type") != PRO_CHECKOUT_TYPE:
+    sget = stripe_service.sget
+    if sget(sget(session, "metadata") or {}, "iotplace_type") != PRO_CHECKOUT_TYPE:
         return {"ok": False, "reason": "not_pro_checkout"}
 
-    if session.get("mode") != "subscription":
+    if sget(session, "mode") != "subscription":
         return {"ok": False, "reason": "not_subscription_mode"}
 
-    enterprise_id = (session.get("metadata") or {}).get("iotplace_enterprise_id", "")
+    enterprise_id = sget(sget(session, "metadata") or {}, "iotplace_enterprise_id", "")
     if not enterprise_id:
-        enterprise_id = session.get("client_reference_id") or ""
+        enterprise_id = sget(session, "client_reference_id") or ""
 
-    sub_id = session.get("subscription")
+    sub_id = sget(session, "subscription")
     if not sub_id:
         return {"ok": False, "reason": "missing_subscription"}
 

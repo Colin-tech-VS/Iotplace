@@ -1030,20 +1030,21 @@ def enterprise_subscribe_success():
             # "active" yet (timing), or the metadata enterprise id is stale.
             # A paid + complete Pro checkout that belongs to the logged-in
             # enterprise is enough to activate Pro right away.
-            meta = dict(checkout_session.get("metadata") or {})
-            paid = checkout_session.get("payment_status") == "paid"
-            complete = checkout_session.get("status") == "complete"
-            is_pro_checkout = meta.get("iotplace_type") == subscriptions.PRO_CHECKOUT_TYPE
+            sget = stripe_service.sget
+            meta = sget(checkout_session, "metadata") or {}
+            paid = sget(checkout_session, "payment_status") == "paid"
+            complete = sget(checkout_session, "status") == "complete"
+            is_pro_checkout = sget(meta, "iotplace_type") == subscriptions.PRO_CHECKOUT_TYPE
             owns = bool(profile) and (
-                meta.get("iotplace_enterprise_id") == profile["id"]
-                or checkout_session.get("client_reference_id") == profile["id"]
+                sget(meta, "iotplace_enterprise_id") == profile["id"]
+                or sget(checkout_session, "client_reference_id") == profile["id"]
             )
             if paid and complete and is_pro_checkout and owns:
                 fields = {
                     "plan": "pro_enterprise",
                     "stripe_subscription_status": "active",
                 }
-                sub_id = checkout_session.get("subscription")
+                sub_id = sget(checkout_session, "subscription")
                 if sub_id:
                     fields["stripe_subscription_id"] = sub_id
                 store.update_enterprise(profile["id"], fields)
