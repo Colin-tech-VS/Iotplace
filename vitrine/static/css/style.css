@@ -19,6 +19,21 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* Smooth cross-document page transitions (Chromium). Combined with prefetch,
+   navigation feels app-like. Ignored by browsers without the API. */
+@view-transition { navigation: auto; }
+
+@media (prefers-reduced-motion: no-preference) {
+    ::view-transition-old(root) {
+        animation: vt-fade-out 0.18s ease both;
+    }
+    ::view-transition-new(root) {
+        animation: vt-fade-in 0.26s ease both;
+    }
+    @keyframes vt-fade-out { to { opacity: 0; } }
+    @keyframes vt-fade-in { from { opacity: 0; } }
+}
+
 html { scroll-behavior: smooth; }
 
 body {

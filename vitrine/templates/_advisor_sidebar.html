@@ -66,6 +66,7 @@
 <script>
 window.IOTPLACE_ADVISOR = {
     chatUrl: {{ url_for('vitrine.advisor_chat')|tojson }},
+    streamUrl: {{ url_for('vitrine.advisor_chat_stream')|tojson }},
     i18n: {
         welcomeEnterprise: {{ t('advisor.welcome_enterprise')|tojson }},
         welcomeStartup: {{ t('advisor.welcome_startup')|tojson }},
@@ -77,5 +78,5 @@ window.IOTPLACE_ADVISOR = {
     }
 };
 </script>
-<script defer src="{{ url_for('vitrine.static', filename='js/advisor.js') }}?v=7"></script>
+<script defer src="{{ url_for('vitrine.static', filename='js/advisor.js') }}?v=8"></script>
 {% endif %}

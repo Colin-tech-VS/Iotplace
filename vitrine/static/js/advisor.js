@@ -262,51 +262,159 @@
         }
     }
 
+    function renderSuggestionList(list) {
+        if (!list?.length) return;
+        suggestionsEl.innerHTML = '';
+        list.forEach(s => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'advisor-chip';
+            btn.textContent = s;
+            btn.addEventListener('click', () => {
+                input.value = s;
+                form.requestSubmit();
+            });
+            suggestionsEl.appendChild(btn);
+        });
+    }
+
+    // Render streamed text live into a bubble, throttled to one paint per frame.
+    function liveRenderer(el) {
+        let full = '';
+        let raf = 0;
+        const paint = () => {
+            raf = 0;
+            const visible = trimIncompleteMarkdown(full);
+            el.innerHTML = `${formatBotMessage(visible)}<span class="advisor-cursor" aria-hidden="true"></span>`;
+            scrollMessagesThrottled();
+        };
+        return {
+            push(chunk) {
+                full += chunk;
+                if (!raf) raf = requestAnimationFrame(paint);
+            },
+            finalize() {
+                if (raf) { cancelAnimationFrame(raf); raf = 0; }
+                el.innerHTML = formatBotMessage(full);
+                el.classList.remove('advisor-msg-typing');
+                scrollMessages(true);
+                return full;
+            },
+            get text() { return full; },
+        };
+    }
+
+    async function streamMessage(text) {
+        pendingRequest = new AbortController();
+        const res = await fetch(cfg.streamUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'text/event-stream' },
+            signal: pendingRequest.signal,
+            body: JSON.stringify({
+                user_type: userType,
+                message: text,
+                history: history.slice(0, -1).slice(-10),
+            }),
+        });
+        if (!res.ok || !res.body) {
+            throw new Error('stream-unavailable');
+        }
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        let bubble = null;
+        let renderer = null;
+        let gotError = null;
+
+        const handleEvent = (block) => {
+            const lines = block.split('\n');
+            let eventName = 'message';
+            let dataStr = '';
+            for (const line of lines) {
+                if (line.startsWith('event:')) eventName = line.slice(6).trim();
+                else if (line.startsWith('data:')) dataStr += line.slice(5).trim();
+            }
+            if (!dataStr) return;
+            let data = {};
+            try { data = JSON.parse(dataStr); } catch (_) { return; }
+
+            if (eventName === 'meta') {
+                if (data.suggestions) renderSuggestionList(data.suggestions);
+            } else if (eventName === 'delta') {
+                if (!bubble) {
+                    bubble = createBotBubble();
+                    bubble.classList.add('advisor-msg-typing');
+                    renderer = liveRenderer(bubble);
+                }
+                renderer.push(data.text || '');
+            } else if (eventName === 'error') {
+                gotError = data.error || cfg.i18n.errorGeneric;
+            }
+        };
+
+        while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            let idx;
+            while ((idx = buffer.indexOf('\n\n')) !== -1) {
+                const block = buffer.slice(0, idx);
+                buffer = buffer.slice(idx + 2);
+                handleEvent(block);
+            }
+        }
+
+        if (gotError) {
+            if (renderer) renderer.finalize();
+            else await appendBotMessage(gotError, '', true);
+            return null;
+        }
+        if (!renderer) return null;
+        return renderer.finalize();
+    }
+
     async function sendMessage(text) {
         if (busy || !text.trim()) return;
+        const clean = text.trim();
         setBusyState(true);
 
-        appendMessage('user', text.trim());
-        history.push({ role: 'user', content: text.trim() });
+        appendMessage('user', clean);
+        history.push({ role: 'user', content: clean });
         const thinking = createBotBubble('advisor-msg-thinking');
         thinking.innerHTML = `<span class="advisor-thinking-dots">${escapeHtml(cfg.i18n.thinking)}<span class="advisor-dot">.</span><span class="advisor-dot">.</span><span class="advisor-dot">.</span></span>`;
 
         try {
-            pendingRequest = new AbortController();
-            const res = await fetch(cfg.chatUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                signal: pendingRequest.signal,
-                body: JSON.stringify({
-                    user_type: userType,
-                    message: text.trim(),
-                    history: history.slice(0, -1).slice(-10),
-                }),
-            });
-            const data = await res.json();
-            thinking.remove();
-
-            if (!res.ok || !data.ok) {
-                await appendBotMessage(data.error || cfg.i18n.errorGeneric, '', true);
-                return;
-            }
-
-            await appendBotMessage(data.reply, '', true);
-            history.push({ role: 'assistant', content: data.reply });
-            if (data.suggestions?.length) {
-                suggestionsEl.innerHTML = '';
-                data.suggestions.forEach(s => {
-                    const btn = document.createElement('button');
-                    btn.type = 'button';
-                    btn.className = 'advisor-chip';
-                    btn.textContent = s;
-                    btn.addEventListener('click', () => {
-                        input.value = s;
-                        form.requestSubmit();
-                    });
-                    suggestionsEl.appendChild(btn);
+            let reply = null;
+            try {
+                reply = await streamMessage(clean);
+                thinking.remove();
+            } catch (streamErr) {
+                if (streamErr && streamErr.name === 'AbortError') { thinking.remove(); return; }
+                // Streaming unavailable (proxy/buffering/old browser): fall back
+                // to the blocking endpoint so the advisor still answers.
+                const res = await fetch(cfg.chatUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    signal: pendingRequest ? pendingRequest.signal : undefined,
+                    body: JSON.stringify({
+                        user_type: userType,
+                        message: clean,
+                        history: history.slice(0, -1).slice(-10),
+                    }),
                 });
+                const data = await res.json();
+                thinking.remove();
+                if (!res.ok || !data.ok) {
+                    await appendBotMessage(data.error || cfg.i18n.errorGeneric, '', true);
+                    return;
+                }
+                await appendBotMessage(data.reply, '', true);
+                renderSuggestionList(data.suggestions);
+                reply = data.reply;
             }
+
+            if (reply) history.push({ role: 'assistant', content: reply });
         } catch (err) {
             thinking.remove();
             if (err && err.name === 'AbortError') return;

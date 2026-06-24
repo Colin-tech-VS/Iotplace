@@ -43,7 +43,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/style.css') }}?v=11">
+    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/style.css') }}?v=12">
     <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/iot-theme.css') }}?v=3">
     <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/scrollbars.css') }}?v=1">
     <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/dashboard-ux.css') }}?v=1">
@@ -193,8 +193,8 @@
     {% include "_cookie_banner.html" %}
 
     <script defer src="{{ url_for('vitrine.static', filename='js/cookie-consent.js') }}?v=1"></script>
-    <script defer src="{{ url_for('vitrine.static', filename='js/page-loader.js') }}?v=3"></script>
-    <script defer src="{{ url_for('vitrine.static', filename='js/main.js') }}?v=3"></script>
+    <script defer src="{{ url_for('vitrine.static', filename='js/page-loader.js') }}?v=4"></script>
+    <script defer src="{{ url_for('vitrine.static', filename='js/main.js') }}?v=4"></script>
     <script defer src="{{ url_for('vitrine.static', filename='js/toast.js') }}?v=1"></script>
     {% if analytics_enabled %}
     <script defer src="{{ url_for('vitrine.static', filename='js/analytics.js') }}"></script>
@@ -228,5 +228,26 @@
     {% endif %}
     {% include "_advisor_sidebar.html" %}
     {% block extra_js %}{% endblock %}
+
+    {# Instant navigation: prefetch public same-origin pages on hover/pointer-down.
+       Excludes account, admin, logout and language toggles. Progressive — browsers
+       without the Speculation Rules API simply ignore it. #}
+    <script type="speculationrules">
+    {
+      "prefetch": [{
+        "source": "document",
+        "where": { "and": [
+          { "href_matches": "/*" },
+          { "not": { "href_matches": "/compte/*" } },
+          { "not": { "href_matches": "/crm/*" } },
+          { "not": { "href_matches": "/deconnexion" } },
+          { "not": { "href_matches": "/webhooks/*" } },
+          { "not": { "selector_matches": "[data-no-prefetch]" } },
+          { "not": { "selector_matches": ".nav-lang-link" } }
+        ]},
+        "eagerness": "moderate"
+      }]
+    }
+    </script>
 </body>
 </html>

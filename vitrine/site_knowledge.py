@@ -2,7 +2,15 @@
 
 from __future__ import annotations
 
+import time
+
 from data import store
+
+# The knowledge snapshot is rebuilt from many store reads on every advisor
+# message. Site content changes rarely, so a short in-process cache removes
+# that work from the chat latency (faster time-to-first-token).
+_CACHE_TTL = 60.0
+_cache: dict[tuple[str, str], tuple[float, dict]] = {}
 
 
 def _summarize_startup(s: dict) -> dict:
@@ -44,6 +52,16 @@ def _summarize_project(p: dict) -> dict:
 
 def build_site_knowledge(site_url: str = "", locale: str = "en") -> dict:
     site_url = (site_url or store.get_site_url()).rstrip("/")
+    cache_key = (site_url, locale)
+    cached = _cache.get(cache_key)
+    if cached and (time.time() - cached[0]) < _CACHE_TTL:
+        return cached[1]
+    knowledge = _build_site_knowledge(site_url, locale)
+    _cache[cache_key] = (time.time(), knowledge)
+    return knowledge
+
+
+def _build_site_knowledge(site_url: str, locale: str) -> dict:
     pages = []
     for meta in store.get_page_catalog():
         slug = meta["slug"]

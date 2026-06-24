@@ -751,3 +751,55 @@ def advisor_chat():
         return jsonify({"ok": False, "error": str(exc)}), 400
 
     return jsonify({"ok": True, **result})
+
+
+@vitrine_bp.route("/api/advisor/chat/stream", methods=["POST"])
+def advisor_chat_stream():
+    """Server-Sent Events stream of the advisor reply for a fluid, live answer."""
+    from flask import Response, stream_with_context
+
+    from vitrine import advisor_ai
+
+    if not advisor_ai.is_configured():
+        return jsonify({"ok": False, "error": t("advisor.not_configured")}), 503
+    if not advisor_ai.rate_limit_ok():
+        return jsonify({"ok": False, "error": t("advisor.rate_limited")}), 429
+
+    payload = request.get_json(silent=True) or {}
+    user_type = payload.get("user_type", "enterprise")
+    message = payload.get("message", "")
+    history = payload.get("history", [])
+    site_url = store.get_site_url()
+    locale = get_locale()
+
+    def event_stream():
+        try:
+            for kind, value in advisor_ai.stream(
+                user_type=user_type,
+                message=message,
+                history=history,
+                site_url=site_url,
+                locale=locale,
+            ):
+                if kind == "meta":
+                    yield f"event: meta\ndata: {json.dumps(value, ensure_ascii=False)}\n\n"
+                else:
+                    yield f"event: delta\ndata: {json.dumps({'text': value}, ensure_ascii=False)}\n\n"
+            yield "event: done\ndata: {}\n\n"
+        except advisor_ai.AdvisorError as exc:
+            yield f"event: error\ndata: {json.dumps({'error': str(exc)}, ensure_ascii=False)}\n\n"
+        except Exception:
+            import logging
+
+            logging.exception("advisor stream failed")
+            yield f"event: error\ndata: {json.dumps({'error': t('advisor.error_generic', default='AI error.')}, ensure_ascii=False)}\n\n"
+
+    return Response(
+        stream_with_context(event_stream()),
+        mimetype="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache, no-transform",
+            "X-Accel-Buffering": "no",
+            "Connection": "keep-alive",
+        },
+    )

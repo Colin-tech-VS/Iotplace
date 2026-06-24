@@ -95,7 +95,7 @@ def get_suggestions(user_type: str, locale: str = "en") -> list[str]:
     return SUGGESTIONS[loc].get(user_type, SUGGESTIONS[loc]["enterprise"])
 
 
-def _chat(messages: list[dict], temperature: float = 0.45) -> str:
+def _build_request(messages: list[dict], temperature: float, stream: bool) -> urllib.request.Request:
     api_key = (os.environ.get("MISTRAL_API_KEY") or "").strip()
     if not api_key:
         raise AdvisorError("AI advisor is not configured.")
@@ -105,8 +105,9 @@ def _chat(messages: list[dict], temperature: float = 0.45) -> str:
         "messages": messages,
         "temperature": temperature,
         "max_tokens": 1024,
+        "stream": stream,
     }
-    request = urllib.request.Request(
+    return urllib.request.Request(
         MISTRAL_API_URL,
         data=json.dumps(payload).encode("utf-8"),
         headers={
@@ -115,6 +116,10 @@ def _chat(messages: list[dict], temperature: float = 0.45) -> str:
         },
         method="POST",
     )
+
+
+def _chat(messages: list[dict], temperature: float = 0.45) -> str:
+    request = _build_request(messages, temperature, stream=False)
     try:
         with urllib.request.urlopen(request, timeout=60) as response:
             body = json.loads(response.read().decode("utf-8"))
@@ -127,6 +132,36 @@ def _chat(messages: list[dict], temperature: float = 0.45) -> str:
     if not choices:
         raise AdvisorError("Empty AI response.")
     return (choices[0].get("message", {}).get("content") or "").strip()
+
+
+def _chat_stream(messages: list[dict], temperature: float = 0.45):
+    """Yield reply text chunks as the model produces them (Mistral SSE)."""
+    request = _build_request(messages, temperature, stream=True)
+    try:
+        response = urllib.request.urlopen(request, timeout=60)
+    except urllib.error.HTTPError as exc:
+        raise AdvisorError(f"AI service error ({exc.code})") from exc
+    except urllib.error.URLError as exc:
+        raise AdvisorError("Cannot reach AI service.") from exc
+
+    with response:
+        for raw in response:
+            line = raw.decode("utf-8", "ignore").strip()
+            if not line or not line.startswith("data:"):
+                continue
+            data = line[5:].strip()
+            if data == "[DONE]":
+                break
+            try:
+                chunk = json.loads(data)
+            except json.JSONDecodeError:
+                continue
+            choices = chunk.get("choices") or []
+            if not choices:
+                continue
+            delta = (choices[0].get("delta") or {}).get("content")
+            if delta:
+                yield delta
 
 
 def _normalize_history(history: list) -> list[dict]:
@@ -180,13 +215,8 @@ def _live_catalog_matches(message: str, user_type: str, site_url: str) -> list[d
     return matches
 
 
-def chat(
-    user_type: str,
-    message: str,
-    history: list | None = None,
-    site_url: str = "",
-    locale: str = "en",
-) -> dict:
+def _prepare(user_type, message, history, site_url, locale):
+    """Validate input and build (messages, live_matches, user_type) for the LLM."""
     user_type = user_type if user_type in PROFILE_PROMPTS else "enterprise"
     message = (message or "").strip()
     if not message:
@@ -197,7 +227,56 @@ def chat(
     lang = "French" if locale == "fr" else "English"
     knowledge = build_site_knowledge(site_url, locale=locale)
     live_matches = _live_catalog_matches(message, user_type, site_url) if _wants_live_catalog(message) else []
+    system = _system_prompt(user_type, lang, knowledge, live_matches)
 
+    messages = [{"role": "system", "content": system}]
+    messages.extend(_normalize_history(history))
+    messages.append({"role": "user", "content": message})
+    return messages, live_matches, user_type
+
+
+def stream(
+    user_type: str,
+    message: str,
+    history: list | None = None,
+    site_url: str = "",
+    locale: str = "en",
+):
+    """Generator yielding ('meta', {...}) once, then ('delta', text) chunks."""
+    messages, live_matches, user_type = _prepare(user_type, message, history, site_url, locale)
+    meta = {
+        "suggestions": get_suggestions(user_type, locale),
+        "user_type": user_type,
+    }
+    if live_matches:
+        meta["matches"] = live_matches
+    yield ("meta", meta)
+    for delta in _chat_stream(messages):
+        yield ("delta", delta)
+
+
+def chat(
+    user_type: str,
+    message: str,
+    history: list | None = None,
+    site_url: str = "",
+    locale: str = "en",
+) -> dict:
+    messages, live_matches, user_type = _prepare(user_type, message, history, site_url, locale)
+    reply = _chat(messages)
+    if not reply:
+        raise AdvisorError("Empty AI response.")
+    result = {
+        "reply": reply,
+        "suggestions": get_suggestions(user_type, locale),
+        "user_type": user_type,
+    }
+    if live_matches:
+        result["matches"] = live_matches
+    return result
+
+
+def _system_prompt(user_type, lang, knowledge, live_matches):
     system = (
         "You are Iota, the official AI assistant of Iotplace — "
         "a B2B IoT subcontracting marketplace connecting global enterprises with "
@@ -227,20 +306,4 @@ def chat(
     )
     if live_matches:
         system += f"\n\nLIVE_MATCHES:\n{json.dumps(live_matches, ensure_ascii=False)}"
-
-    messages = [{"role": "system", "content": system}]
-    messages.extend(_normalize_history(history))
-    messages.append({"role": "user", "content": message})
-
-    reply = _chat(messages)
-    if not reply:
-        raise AdvisorError("Empty AI response.")
-
-    result = {
-        "reply": reply,
-        "suggestions": get_suggestions(user_type, locale),
-        "user_type": user_type,
-    }
-    if live_matches:
-        result["matches"] = live_matches
-    return result
+    return system

@@ -114,10 +114,18 @@
 
     global.IotPageLoader = { show, hide };
 
+    // Show the brand splash only when a load is genuinely slow. Fast and
+    // prefetched pages render instantly with no loading flash, which is what
+    // makes navigation feel fluid.
+    const SLOW_LOAD_MS = 320;
+
     if (initialLoad) {
         document.documentElement.classList.add('iot-loading');
-        show();
-        document.addEventListener('DOMContentLoaded', onReady, { once: true });
+        const splashTimer = setTimeout(show, SLOW_LOAD_MS);
+        document.addEventListener('DOMContentLoaded', () => {
+            clearTimeout(splashTimer);
+            onReady();
+        }, { once: true });
     } else {
         onReady();
     }
