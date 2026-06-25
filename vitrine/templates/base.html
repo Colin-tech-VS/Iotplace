@@ -43,7 +43,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/style.css') }}?v=16">
+    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/style.css') }}?v=17">
     <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/iot-theme.css') }}?v=3">
     <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/scrollbars.css') }}?v=1">
     <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/toast.css') }}?v=1">
@@ -78,8 +78,11 @@
             <button class="nav-toggle" aria-label="{{ t('nav.menu') }}" onclick="document.querySelector('.nav-links').classList.toggle('open')">
                 <span></span><span></span><span></span>
             </button>
-            {% set discover_endpoints = ('vitrine.enterprises','vitrine.enterprise_detail','vitrine.startups','vitrine.startup_detail','vitrine.projects','vitrine.project_detail','vitrine.search','vitrine.about','vitrine.pricing','vitrine.domains_index','vitrine.domain_detail') %}
+            {% set discover_endpoints = ('vitrine.search','vitrine.about','vitrine.pricing','vitrine.domains_index','vitrine.domain_detail') %}
             <ul class="nav-links">
+                <li><a href="{{ url_for('vitrine.startups') }}" {% if request.endpoint in ('vitrine.startups','vitrine.startup_detail') %}class="active"{% endif %}>{{ t('nav.startups') }}</a></li>
+                <li><a href="{{ url_for('vitrine.enterprises') }}" {% if request.endpoint in ('vitrine.enterprises','vitrine.enterprise_detail') %}class="active"{% endif %}>{{ t('nav.enterprises') }}</a></li>
+                <li><a href="{{ url_for('vitrine.projects') }}" {% if request.endpoint in ('vitrine.projects','vitrine.project_detail') %}class="active"{% endif %}>{{ t('nav.projects') }}</a></li>
                 <li class="nav-mega" data-nav-mega>
                     <button type="button" class="nav-mega-toggle{% if request.endpoint in discover_endpoints %} active{% endif %}" aria-expanded="false" aria-haspopup="true" aria-controls="nav-mega-menu" id="nav-mega-toggle">
                         {{ t('nav.discover') }}
@@ -87,21 +90,6 @@
                     </button>
                     <div class="nav-mega-menu" id="nav-mega-menu" role="menu" aria-labelledby="nav-mega-toggle">
                         <div class="nav-mega-grid">
-                            <div class="nav-mega-col">
-                                <span class="nav-mega-label">{{ t('nav.mega.directories') }}</span>
-                                <a class="nav-mega-item" role="menuitem" href="{{ url_for('vitrine.startups') }}">
-                                    <span class="nav-mega-item-title">{{ t('nav.startups') }}</span>
-                                    <span class="nav-mega-item-desc">{{ t('nav.mega.startups_desc') }}</span>
-                                </a>
-                                <a class="nav-mega-item" role="menuitem" href="{{ url_for('vitrine.enterprises') }}">
-                                    <span class="nav-mega-item-title">{{ t('nav.enterprises') }}</span>
-                                    <span class="nav-mega-item-desc">{{ t('nav.mega.enterprises_desc') }}</span>
-                                </a>
-                                <a class="nav-mega-item" role="menuitem" href="{{ url_for('vitrine.projects') }}">
-                                    <span class="nav-mega-item-title">{{ t('nav.projects') }}</span>
-                                    <span class="nav-mega-item-desc">{{ t('nav.mega.projects_desc') }}</span>
-                                </a>
-                            </div>
                             <div class="nav-mega-col">
                                 <span class="nav-mega-label">{{ t('nav.mega.platform') }}</span>
                                 <a class="nav-mega-item" role="menuitem" href="{{ url_for('vitrine.domains_index') }}">

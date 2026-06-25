@@ -284,25 +284,14 @@ main { flex: 1; }
 a { color: var(--accent); text-decoration: none; transition: color 0.2s; }
 a:hover { color: #33e0be; }
 
-/* ── Navbar — transparent, integrated directly over the page (no dark bar) ── */
+/* ── Navbar — floating glass pill, integrated over the page background ── */
 .navbar {
     position: sticky;
     top: 0;
     z-index: 100;
-    padding: 0.6rem 0;
+    padding: 0.8rem 0;
     background: transparent;
     border: none;
-    transition: background 0.25s ease, backdrop-filter 0.25s ease;
-}
-
-/* On scroll, only a faint blur veil (no solid dark container) keeps links
-   legible over content — kept extremely light so the bar still reads as
-   "part of the page". */
-.navbar.scrolled {
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    -webkit-mask-image: linear-gradient(to bottom, #000 65%, transparent);
-    mask-image: linear-gradient(to bottom, #000 65%, transparent);
 }
 
 .nav-inner {
@@ -311,13 +300,39 @@ a:hover { color: #33e0be; }
     align-items: center;
     justify-content: flex-start;
     flex-wrap: nowrap;
-    gap: 0.4rem;
-    height: 56px;
-    background: transparent;
-    border: none;
+    gap: 0.35rem;
+    height: 58px;
+    padding: 0 0.5rem 0 1.1rem;
+    border-radius: 16px;
+    background: rgba(16, 22, 36, 0.6);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    box-shadow:
+        0 10px 36px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    transition: background 0.25s ease;
 }
 
-.nav-inner > .logo { margin-right: 1.5rem; flex-shrink: 0; }
+/* A touch more solid once scrolled, for legibility over content. */
+.navbar.scrolled .nav-inner { background: rgba(13, 18, 30, 0.82); }
+
+/* Faint accent sheen along the pill's top edge. */
+.nav-inner::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(120deg, rgba(0, 232, 200, 0.35), rgba(59, 130, 246, 0.18) 40%, transparent 70%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0.55;
+    pointer-events: none;
+}
+
+.nav-inner > .logo { margin-right: 1.25rem; flex-shrink: 0; }
 
 .logo {
     display: flex;
@@ -389,7 +404,7 @@ a:hover { color: #33e0be; }
     top: calc(100% + 0.3rem);
     left: 50%;
     transform: translateX(-50%) translateY(-6px);
-    width: min(720px, calc(100vw - 2rem));
+    width: min(540px, calc(100vw - 2rem));
     padding: 1.1rem;
     background: rgba(16, 22, 36, 0.96);
     backdrop-filter: blur(20px) saturate(140%);
@@ -410,7 +425,7 @@ a:hover { color: #33e0be; }
 }
 .nav-mega-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 1.2fr;
+    grid-template-columns: 1fr 1.15fr;
     gap: 1.1rem;
 }
 .nav-mega-label {
@@ -1626,8 +1641,8 @@ a:hover { color: #33e0be; }
     }
 }
 
-/* ── Responsive ── */
-@media (max-width: 768px) {
+/* ── Responsive: navbar collapses a bit earlier so the pill never crowds ── */
+@media (max-width: 900px) {
     .nav-toggle { display: flex; }
 
     .nav-links {
@@ -1718,7 +1733,10 @@ a:hover { color: #33e0be; }
         padding: 0.35rem 0;
         margin-top: 0.5rem;
     }
+}
 
+/* ── Responsive (non-nav) ── */
+@media (max-width: 768px) {
     .hero { padding: 4rem 0 3rem; }
     .hero-stats { gap: 1.5rem; }
 
