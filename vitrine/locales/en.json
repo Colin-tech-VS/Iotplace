@@ -20,7 +20,8 @@
     "lang": "Language",
     "lang_en": "EN",
     "lang_fr": "FR",
-    "pricing": "Pricing"
+    "pricing": "Pricing",
+    "search": "Search"
   },
   "footer": {
     "tagline": "B2B IoT marketplace — Smart Energy, Asset Tracking, Predictive Maintenance, Smart Building, Cold Chain.",
@@ -441,7 +442,7 @@
       "Missions"
     ],
     "project_need_optional": "Your need (optional)",
-    "project_need_ph": "E.g. Temperature sensors across 10 logistics sites…",
+    "project_need_ph": "What problem do you want to solve? What kind of IoT partner/expertise are you seeking?",
     "project_need_hint": "Optional — a draft project can be created in your dashboard.",
     "register_st_finish_hint": "Your profile will be visible to enterprises publishing missions in your IoT domain.",
     "already_registered": "Already registered?",
@@ -532,7 +533,6 @@
     "project_skills": "Required skills (comma-separated)",
     "project_skills_ph": "PCB design, MQTT, AWS IoT",
     "project_need": "What you're looking for",
-    "project_need_ph": "What problem do you want to solve? What kind of IoT partner/expertise are you seeking?",
     "project_deliverables": "Expected deliverable",
     "project_deliverables_ph": "E.g. working prototype, real-time dashboard, firmware + docs, API integration…",
     "project_image": "Project image (optional)",
@@ -985,6 +985,38 @@
         "info": "Info",
         "warning": "Warning",
         "error": "Error"
+      },
+      "onboarding": {
+        "title": "Getting started",
+        "sub": "{done}/{total} steps done — finish setting up your account.",
+        "enterprise": {
+          "profile_title": "Complete your profile",
+          "profile_text": "A complete profile builds trust and improves matching.",
+          "profile_cta": "Complete",
+          "project_title": "Publish your first project",
+          "project_text": "Describe your IoT need to start receiving applications.",
+          "project_cta": "Publish",
+          "verify_title": "Verify your company",
+          "verify_text": "Add your registration number to earn the verified badge.",
+          "verify_cta": "Verify",
+          "explore_title": "Explore recommendations",
+          "explore_text": "Discover startups that match your projects.",
+          "explore_cta": "Explore"
+        },
+        "startup": {
+          "profile_title": "Complete your profile",
+          "profile_text": "A complete profile attracts enterprises and improves matching.",
+          "profile_cta": "Complete",
+          "skills_title": "Add your skills",
+          "skills_text": "Your skills drive the projects recommended to you.",
+          "skills_cta": "Add",
+          "verify_title": "Verify your company",
+          "verify_text": "Add your registration number to earn the verified badge.",
+          "verify_cta": "Verify",
+          "apply_title": "Apply to a project",
+          "apply_text": "Browse matching projects and send your first application.",
+          "apply_cta": "View projects"
+        }
       }
     }
   },
@@ -1353,5 +1385,26 @@
         "iotplace_role": "Partnership-phase projects, Enterprise Pro for clients, reduced commission (7%), priority matching."
       }
     }
+  },
+  "search": {
+    "title": "Search",
+    "title_query": "Search: {q}",
+    "meta_description": "Search IoT startups, projects and enterprises on Iotplace.",
+    "hero_badge": "Unified search",
+    "hero_title": "Find the right IoT partner",
+    "hero_sub": "Startups, projects and enterprises — in a single search.",
+    "input_label": "Search Iotplace",
+    "input_placeholder": "Startup, skill, sector, project…",
+    "hero_input_placeholder": "Search a startup, a project, a skill…",
+    "hero_hint": "e.g. LoRaWAN, agri sensors, firmware, Vietnam",
+    "prompt": "Type a keyword to explore startups, projects and enterprises.",
+    "no_results": "No results for “{q}”. Try another keyword.",
+    "results_count": "{count} result(s) for “{q}”",
+    "group_startups": "Startups",
+    "group_projects": "Projects",
+    "group_enterprises": "Enterprises",
+    "see_all_startups": "All startups",
+    "see_all_projects": "All projects",
+    "see_all_enterprises": "All enterprises"
   }
 }

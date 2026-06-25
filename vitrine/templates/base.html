@@ -43,15 +43,16 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/style.css') }}?v=12">
+    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/style.css') }}?v=13">
     <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/iot-theme.css') }}?v=3">
     <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/scrollbars.css') }}?v=1">
-    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/dashboard-ux.css') }}?v=1">
-    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/advisor.css') }}?v=6">
     <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/toast.css') }}?v=1">
     <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/brand-mark.css') }}?v=1">
     <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/page-loader.css') }}?v=2">
     <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/cookie-consent.css') }}?v=1">
+    {# Advisor styles are non-critical (widget is collapsed on load) → load async to unblock render. #}
+    <link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/advisor.css') }}?v=6" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/advisor.css') }}?v=6"></noscript>
     <script>document.documentElement.classList.add('iot-loading','js');</script>
     {% block extra_head %}{% endblock %}
 </head>
@@ -82,6 +83,10 @@
                 <li><a href="{{ url_for('vitrine.enterprises') }}" {% if request.endpoint in ('vitrine.enterprises', 'vitrine.enterprise_detail') %}class="active"{% endif %}>{{ t('nav.enterprises') }}</a></li>
                 <li><a href="{{ url_for('vitrine.startups') }}" {% if request.endpoint in ('vitrine.startups', 'vitrine.startup_detail') %}class="active"{% endif %}>{{ t('nav.startups') }}</a></li>
                 <li><a href="{{ url_for('vitrine.projects') }}" {% if request.endpoint in ('vitrine.projects', 'vitrine.project_detail') %}class="active"{% endif %}>{{ t('nav.projects') }}</a></li>
+                <li><a href="{{ url_for('vitrine.search') }}" class="nav-search-link{% if request.endpoint == 'vitrine.search' %} active{% endif %}" aria-label="{{ t('nav.search') }}">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                    <span class="nav-search-text">{{ t('nav.search') }}</span>
+                </a></li>
                 <li><a href="{{ url_for('vitrine.about') }}" {% if request.endpoint == 'vitrine.about' %}class="active"{% endif %}>{{ t('nav.about') }}</a></li>
                 <li><a href="{{ url_for('vitrine.pricing') }}" {% if request.endpoint == 'vitrine.pricing' %}class="active"{% endif %}>{{ t('nav.pricing') }}</a></li>
                 {% if current_user %}
@@ -200,7 +205,7 @@
     <script defer src="{{ url_for('vitrine.static', filename='js/analytics.js') }}"></script>
     {% endif %}
     {% if current_user %}
-    <meta name="messaging-poll-url" content="{{ url_for('compte.messaging_poll') }}">
+    <meta name="messaging-poll-url" content="{{ url_for('compte.messaging_poll', badge=1) }}">
     <script>
     (function(){
         if (!document.querySelector('[data-msg-badge]')) return;

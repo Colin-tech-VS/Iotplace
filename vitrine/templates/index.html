@@ -10,7 +10,16 @@
         <div class="hero-badge animate-in">{{ t('home.hero_badge') }}</div>
         <h1 class="animate-in delay-1">{{ t('home.hero_title') }}</h1>
         <p class="hero-sub animate-in delay-2">{{ t('home.hero_sub') }}</p>
-        <div class="hero-actions animate-in delay-3">
+        <form class="hero-search animate-in delay-3" method="GET" action="{{ url_for('vitrine.search') }}" role="search">
+            <label class="sr-only" for="heroSearchInput">{{ t('search.input_label') }}</label>
+            <div class="hero-search-wrap">
+                <svg class="hero-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                <input type="search" id="heroSearchInput" name="q" class="hero-search-input" placeholder="{{ t('search.hero_input_placeholder') }}" autocomplete="off">
+                <button type="submit" class="btn btn-primary hero-search-btn">{{ t('directory.search_btn') }}</button>
+            </div>
+            <span class="hero-search-hint">{{ t('search.hero_hint') }}</span>
+        </form>
+        <div class="hero-actions animate-in delay-4">
             <a href="{{ url_for('compte.register_enterprise') }}" class="btn btn-primary btn-lg">{{ t('home.cta_enterprise') }}</a>
             <a href="{{ url_for('compte.register_startup') }}" class="btn btn-outline btn-lg">{{ t('home.cta_startup') }}</a>
         </div>

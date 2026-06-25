@@ -20,7 +20,8 @@
     "lang": "Langue",
     "lang_en": "EN",
     "lang_fr": "FR",
-    "pricing": "Tarifs"
+    "pricing": "Tarifs",
+    "search": "Rechercher"
   },
   "footer": {
     "tagline": "Marketplace B2B IoT — Smart Energy, Asset Tracking, Predictive Maintenance, Smart Building, Cold Chain.",
@@ -440,7 +441,7 @@
       "Missions"
     ],
     "project_need_optional": "Votre besoin (optionnel)",
-    "project_need_ph": "Ex. Déploiement capteurs température sur 10 sites logistiques…",
+    "project_need_ph": "Quel problème voulez-vous résoudre ? Quel type de partenaire/expertise IoT recherchez-vous ?",
     "project_need_hint": "Optionnel — un brouillon de projet peut être créé dans votre espace.",
     "register_st_finish_hint": "Votre profil sera visible pour les entreprises qui publient des missions sur votre domaine IoT.",
     "already_registered": "Déjà inscrit ?",
@@ -531,7 +532,6 @@
     "project_skills": "Compétences requises (virgules)",
     "project_skills_ph": "PCB design, MQTT, AWS IoT",
     "project_need": "Besoin recherché",
-    "project_need_ph": "Quel problème voulez-vous résoudre ? Quel type de partenaire/expertise IoT recherchez-vous ?",
     "project_deliverables": "Livrable attendu",
     "project_deliverables_ph": "Ex. prototype fonctionnel, dashboard temps réel, firmware + doc, intégration API…",
     "project_image": "Image du projet (optionnel)",
@@ -984,6 +984,38 @@
         "info": "Info",
         "warning": "Attention",
         "error": "Erreur"
+      },
+      "onboarding": {
+        "title": "Premiers pas",
+        "sub": "{done}/{total} étapes complétées — finalisez votre mise en route.",
+        "enterprise": {
+          "profile_title": "Complétez votre profil",
+          "profile_text": "Un profil complet inspire confiance et améliore le matching.",
+          "profile_cta": "Compléter",
+          "project_title": "Publiez votre premier projet",
+          "project_text": "Décrivez votre besoin IoT pour recevoir des candidatures.",
+          "project_cta": "Publier",
+          "verify_title": "Vérifiez votre entreprise",
+          "verify_text": "Ajoutez votre SIREN/SIRET pour obtenir le badge vérifié.",
+          "verify_cta": "Vérifier",
+          "explore_title": "Explorez les recommandations",
+          "explore_text": "Découvrez les startups qui correspondent à vos projets.",
+          "explore_cta": "Explorer"
+        },
+        "startup": {
+          "profile_title": "Complétez votre profil",
+          "profile_text": "Un profil complet attire les entreprises et améliore le matching.",
+          "profile_cta": "Compléter",
+          "skills_title": "Renseignez vos compétences",
+          "skills_text": "Vos compétences déterminent les projets qui vous sont proposés.",
+          "skills_cta": "Ajouter",
+          "verify_title": "Vérifiez votre structure",
+          "verify_text": "Ajoutez votre SIREN/SIRET pour obtenir le badge vérifié.",
+          "verify_cta": "Vérifier",
+          "apply_title": "Candidatez à un projet",
+          "apply_text": "Parcourez les projets compatibles et envoyez votre première candidature.",
+          "apply_cta": "Voir les projets"
+        }
       }
     }
   },
@@ -1352,5 +1384,26 @@
         "iotplace_role": "Projets phase Partenariat, Entreprise Pro côté donneur d'ordre, commission réduite (7 %), matching prioritaire."
       }
     }
+  },
+  "search": {
+    "title": "Recherche",
+    "title_query": "Recherche : {q}",
+    "meta_description": "Recherchez startups, projets et entreprises IoT sur Iotplace.",
+    "hero_badge": "Recherche unifiée",
+    "hero_title": "Trouvez le bon partenaire IoT",
+    "hero_sub": "Startups, projets et entreprises — en une seule recherche.",
+    "input_label": "Rechercher sur Iotplace",
+    "input_placeholder": "Startup, compétence, secteur, projet…",
+    "hero_input_placeholder": "Rechercher une startup, un projet, une compétence…",
+    "hero_hint": "Ex. : LoRaWAN, capteurs agricoles, firmware, Vietnam",
+    "prompt": "Saisissez un mot-clé pour explorer startups, projets et entreprises.",
+    "no_results": "Aucun résultat pour « {q} ». Essayez un autre mot-clé.",
+    "results_count": "{count} résultat(s) pour « {q} »",
+    "group_startups": "Startups",
+    "group_projects": "Projets",
+    "group_enterprises": "Entreprises",
+    "see_all_startups": "Toutes les startups",
+    "see_all_projects": "Tous les projets",
+    "see_all_enterprises": "Toutes les entreprises"
   }
 }

@@ -301,6 +301,7 @@ def enterprise_dashboard():
         flash(t("compte.flash_pro_incomplete"), "info")
     dash = store.get_dashboard_data_for_enterprise(user, profile)
     pricing = get_pricing_numbers()
+    from compte.profile_helpers import compute_profile_completion
     return render_template(
         "compte/dashboard_enterprise.html",
         user=user,
@@ -308,6 +309,7 @@ def enterprise_dashboard():
         stripe_configured=stripe_service.is_checkout_ready(),
         is_pro=is_pro_enterprise(profile),
         pricing=pricing,
+        profile_completion=compute_profile_completion(profile, "enterprise"),
         **dash,
     )
 
@@ -533,11 +535,13 @@ def startup_dashboard():
     if request.args.get("section") == "missions":
         return redirect(url_for("compte.startup_dashboard", section="recommendations"))
     dash = store.get_dashboard_data_for_startup(user, profile)
+    from compte.profile_helpers import compute_profile_completion
     return render_template(
         "compte/dashboard_startup.html",
         user=user,
         profile=profile,
         stripe_configured=stripe_service.is_checkout_ready(),
+        profile_completion=compute_profile_completion(profile, "startup"),
         **dash,
     )
 
@@ -820,6 +824,10 @@ def message_update_status(message_id):
 @compte_bp.route("/compte/api/messaging/poll")
 @api_login_required()
 def messaging_poll(user):
+    # Lightweight mode for the header badge (polled every 20s for every signed-in
+    # user): return just the unread count instead of rebuilding every thread.
+    if request.args.get("badge"):
+        return jsonify({"ok": True, "unread": store.get_unread_count(user["id"])})
     since = request.args.get("since", "")
     data = store.get_messaging_poll(user["id"], since)
     return jsonify({"ok": True, **data})

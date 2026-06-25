@@ -439,6 +439,44 @@ def projects():
     )
 
 
+@vitrine_bp.route("/recherche")
+@vitrine_bp.route("/search")
+def search():
+    """Unified cross-directory search: startups + projects + enterprises."""
+    locale = get_locale()
+    site_url = store.get_site_url()
+    q = request.args.get("q", "").strip()
+
+    PER_GROUP = 12
+    startups = projects = enterprises = []
+    if q:
+        startups = store.filter_startups_directory(q or None)[:PER_GROUP]
+        projects = store.filter_projects_directory(q or None)[:PER_GROUP]
+        enterprises = store.filter_enterprises_directory(q or None)[:PER_GROUP]
+    total = len(startups) + len(projects) + len(enterprises)
+
+    canonical = store.build_canonical_url(site_url, request.path)
+    breadcrumbs = store.build_breadcrumbs("home", site_url, locale=locale)
+    title = t("search.title_query", q=q) if q else t("search.title")
+    seo = store.get_seo_for_vitrine(
+        "home",
+        overrides={"title": title, "description": t("search.meta_description")},
+        robots="noindex, follow",
+        locale=locale,
+    )
+    return render_template(
+        "search.html",
+        query=q,
+        startups=startups,
+        projects=projects,
+        enterprises=enterprises,
+        total=total,
+        seo=seo,
+        seo_canonical=canonical,
+        seo_breadcrumbs=breadcrumbs,
+    )
+
+
 @vitrine_bp.route("/projects/<project_id>")
 def project_detail(project_id):
     project = store.get_public_project(project_id)

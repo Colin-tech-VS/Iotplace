@@ -1,9 +1,13 @@
 {% extends "compte_layout.html" %}
 {% from "compte/_dashboard_macros.html" import cdash_nav_item, cdash_status, cdash_empty, cdash_match_score, cdash_match_reasons %}
 {% from "compte/_messenger.html" import messenger_widget %}
+{% from "compte/_onboarding_card.html" import onboarding_card %}
 {% from "_phase_badge.html" import phase_badge %}
 
 {% block title %}{{ profile.name }} — {{ t('compte.dashboard.enterprise.title_suffix') }}{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/messenger.css') }}?v=2">
+{% endblock %}
 {% block compte_role %}enterprise{% endblock %}
 {% block space_label %}{{ t('compte.dashboard.enterprise.space') }}{% endblock %}
 
@@ -74,6 +78,7 @@
 {% endif %}
 
 <section class="cdash-panel{% if active_section == 'overview' %} active{% endif %}" id="cdash-panel-overview" data-section="overview">
+    {{ onboarding_card('enterprise', profile, profile_completion, stats) }}
     <div class="cdash-kpis">
         <button type="button" class="cdash-kpi" data-cdash-section="recommendations">
             <strong>{{ stats.matching_startups_top }}</strong>

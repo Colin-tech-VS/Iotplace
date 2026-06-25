@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/dashboard-ux.css') }}?v=2">
+{% endblock %}
+
 {% block content %}
 <section class="page-hero page-hero-sm">
     <div class="container reveal">

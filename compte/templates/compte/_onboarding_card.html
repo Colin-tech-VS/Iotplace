@@ -1,0 +1,51 @@
+{# Onboarding / activation checklist — shown on the dashboard overview until complete. #}
+{% macro onboarding_card(role, profile, profile_completion, stats) %}
+{% set o = 'compte.dashboard.onboarding' %}
+{% set pct = profile_completion.percent if profile_completion else 0 %}
+{% if role == 'enterprise' %}
+    {% set steps = [
+        {'key': 'profile', 'done': pct >= 80, 'url': url_for('compte.enterprise_edit_profile')},
+        {'key': 'project', 'done': (stats.projects or 0) > 0, 'url': url_for('compte.enterprise_new_project')},
+        {'key': 'verify',  'done': true if profile.verified else false, 'url': url_for('compte.enterprise_edit_profile')},
+        {'key': 'explore', 'done': (stats.partnerships or 0) > 0, 'url': url_for('compte.enterprise_dashboard', section='recommendations')}
+    ] %}
+{% else %}
+    {% set steps = [
+        {'key': 'profile', 'done': pct >= 80, 'url': url_for('compte.startup_edit_profile')},
+        {'key': 'skills',  'done': (profile.skills|default([]))|length > 0, 'url': url_for('compte.startup_edit_profile')},
+        {'key': 'verify',  'done': true if profile.verified else false, 'url': url_for('compte.startup_edit_profile')},
+        {'key': 'apply',   'done': (stats.applications or 0) > 0, 'url': url_for('compte.startup_dashboard', section='recommendations')}
+    ] %}
+{% endif %}
+{% set done_count = steps|selectattr('done')|list|length %}
+{% set total = steps|length %}
+{% if done_count < total %}
+{% set next_step = (steps|rejectattr('done')|list)[0] %}
+<div class="cdash-onboarding reveal" data-cdash-onboarding>
+    <div class="cdash-onboarding-head">
+        <div>
+            <h2>{{ t(o ~ '.title') }}</h2>
+            <p>{{ t(o ~ '.sub', done=done_count, total=total) }}</p>
+        </div>
+        <div class="cdash-onboarding-progress">
+            <div class="progress-bar"><span class="progress-bar-fill" style="width:{{ (100 * done_count / total)|round|int }}%"></span></div>
+            <span class="progress-bar-value mono">{{ done_count }}/{{ total }}</span>
+        </div>
+    </div>
+    <ol class="cdash-onboarding-steps">
+        {% for step in steps %}
+        <li class="cdash-onboarding-step{% if step.done %} done{% endif %}">
+            <span class="cdash-onboarding-check" aria-hidden="true">{% if step.done %}✓{% else %}{{ loop.index }}{% endif %}</span>
+            <div class="cdash-onboarding-step-body">
+                <strong>{{ t(o ~ '.' ~ role ~ '.' ~ step.key ~ '_title') }}</strong>
+                <span>{{ t(o ~ '.' ~ role ~ '.' ~ step.key ~ '_text') }}</span>
+            </div>
+            {% if not step.done %}
+            <a href="{{ step.url }}" class="btn btn-sm {% if step.key == next_step.key %}btn-primary{% else %}btn-ghost{% endif %}">{{ t(o ~ '.' ~ role ~ '.' ~ step.key ~ '_cta') }}</a>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ol>
+</div>
+{% endif %}
+{% endmacro %}

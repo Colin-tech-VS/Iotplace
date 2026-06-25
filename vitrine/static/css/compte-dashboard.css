@@ -930,3 +930,65 @@ button.cdash-kpi {
     margin: 0 0 0.65rem;
     font-size: 0.92rem;
 }
+
+/* Onboarding / activation checklist */
+.cdash-onboarding {
+    border: 1px solid var(--accent-dim, rgba(0, 232, 200, 0.25));
+    background: linear-gradient(180deg, rgba(0, 232, 200, 0.07), rgba(255, 255, 255, 0.02));
+    border-radius: 14px;
+    padding: 16px 18px;
+    margin-bottom: 18px;
+}
+.cdash-onboarding-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+}
+.cdash-onboarding-head h2 { margin: 0; font-size: 1.05rem; }
+.cdash-onboarding-head p { margin: 2px 0 0; font-size: 0.84rem; color: var(--text-muted); }
+.cdash-onboarding-progress {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 140px;
+}
+.cdash-onboarding-progress .progress-bar { flex: 1; }
+.cdash-onboarding-steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+}
+.cdash-onboarding-step {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+.cdash-onboarding-step.done { opacity: 0.62; }
+.cdash-onboarding-check {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--bg, #0a0e17);
+    background: var(--text-muted);
+}
+.cdash-onboarding-step.done .cdash-onboarding-check {
+    background: var(--accent, #00e8c8);
+}
+.cdash-onboarding-step-body { flex: 1; display: flex; flex-direction: column; gap: 1px; }
+.cdash-onboarding-step-body strong { font-size: 0.9rem; }
+.cdash-onboarding-step-body span { font-size: 0.8rem; color: var(--text-muted); }
+.cdash-onboarding-step.done .cdash-onboarding-step-body strong { text-decoration: line-through; }

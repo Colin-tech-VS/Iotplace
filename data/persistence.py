@@ -6,6 +6,7 @@ import copy
 import json
 import os
 import threading
+import time
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any
@@ -14,6 +15,14 @@ _lock = threading.RLock()
 _backend: "StateBackend | None" = None
 _process_cache: dict[str, Any] | None = None
 _process_cache_version: str | None = None
+# Short in-process TTL on the state-version probe. Within this window a warm
+# cache is served without re-querying the backend for `updated_at`, collapsing
+# the per-request DB round-trip on hot paths (page loads, the 20s nav poll).
+# Writes in *this* worker refresh the cache immediately (see save_state /
+# mutate_state), so the author always sees their own change; another worker may
+# serve reads up to STATE_VERSION_TTL seconds stale — acceptable for this app.
+STATE_VERSION_TTL = float(os.environ.get("IOTPLACE_STATE_VERSION_TTL", "2.5"))
+_version_checked_at: float = 0.0
 _pools: dict[str, Any] = {}
 _schema_ready_urls: set[str] = set()
 _supabase_clients: dict[tuple[str, str], Any] = {}
@@ -444,10 +453,11 @@ def get_backend() -> StateBackend:
 
 
 def invalidate_state_cache() -> None:
-    global _process_cache, _process_cache_version
+    global _process_cache, _process_cache_version, _version_checked_at
     with _lock:
         _process_cache = None
         _process_cache_version = None
+        _version_checked_at = 0.0
 
 
 def _backend_state_version(backend: StateBackend) -> str:
@@ -464,13 +474,25 @@ def _backend_state_version(backend: StateBackend) -> str:
 
 
 def load_state() -> dict[str, Any]:
-    global _process_cache, _process_cache_version
+    global _process_cache, _process_cache_version, _version_checked_at
 
     backend = get_backend()
+
+    # Fast path: a warm cache whose version was probed within the TTL window is
+    # served without touching the backend at all (no `updated_at` round-trip).
+    with _lock:
+        if (
+            _process_cache is not None
+            and _process_cache_version
+            and (time.monotonic() - _version_checked_at) < STATE_VERSION_TTL
+        ):
+            return copy.deepcopy(_process_cache)
+
     version = _backend_state_version(backend)
 
     with _lock:
         if _process_cache is not None and _process_cache_version == version and version:
+            _version_checked_at = time.monotonic()
             return copy.deepcopy(_process_cache)
 
     data = backend.load()
@@ -478,18 +500,20 @@ def load_state() -> dict[str, Any]:
     with _lock:
         _process_cache = data
         _process_cache_version = version or "loaded"
+        _version_checked_at = time.monotonic()
 
     return copy.deepcopy(data)
 
 
 def save_state(data: dict[str, Any]) -> None:
-    global _process_cache, _process_cache_version
+    global _process_cache, _process_cache_version, _version_checked_at
 
     backend = get_backend()
     backend.save(data)
     with _lock:
         _process_cache = copy.deepcopy(data)
         _process_cache_version = _backend_state_version(backend) or "saved"
+        _version_checked_at = time.monotonic()
 
 
 def mutate_state(mutator):
@@ -502,7 +526,7 @@ def mutate_state(mutator):
     JSON (dev, single process) and the Supabase REST backend are serialized by
     the in-process lock.
     """
-    global _process_cache, _process_cache_version
+    global _process_cache, _process_cache_version, _version_checked_at
     backend = get_backend()
 
     if isinstance(backend, PostgresBackend):
@@ -516,6 +540,7 @@ def mutate_state(mutator):
     with _lock:
         _process_cache = copy.deepcopy(data)
         _process_cache_version = _backend_state_version(backend) or "saved"
+        _version_checked_at = time.monotonic()
     return result, data
 
 

@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% from "_seo_macros.html" import breadcrumbs_nav %}
+{% from "_profile_logo.html" import profile_logo %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('vitrine.static', filename='css/directory.css') }}?v=1">
+{% endblock %}
+
+{% block content %}
+{{ breadcrumbs_nav(seo_breadcrumbs) }}
+<section class="page-hero directory-hero">
+    <div class="container reveal">
+        <span class="hero-badge">{{ t('search.hero_badge') }}</span>
+        <h1>{{ t('search.hero_title') }}</h1>
+        <p class="page-sub">{{ t('search.hero_sub') }}</p>
+        <form class="directory-search-form search-page-form" method="GET" action="{{ url_for('vitrine.search') }}" role="search">
+            <label class="sr-only" for="searchPageInput">{{ t('search.input_label') }}</label>
+            <div class="directory-search-wrap">
+                <svg class="directory-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                <input type="search" id="searchPageInput" name="q" value="{{ query }}" class="directory-search-input"
+                       placeholder="{{ t('search.input_placeholder') }}" autocomplete="off" autofocus>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm directory-search-submit">{{ t('directory.search_btn') }}</button>
+        </form>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        {% if not query %}
+        <div class="empty-state reveal">
+            <p>{{ t('search.prompt') }}</p>
+            <div class="audience-page-cta" style="margin-top:1rem">
+                <a href="{{ url_for('vitrine.startups') }}" class="btn btn-outline btn-sm">{{ t('nav.startups') }}</a>
+                <a href="{{ url_for('vitrine.projects') }}" class="btn btn-outline btn-sm">{{ t('nav.projects') }}</a>
+                <a href="{{ url_for('vitrine.enterprises') }}" class="btn btn-outline btn-sm">{{ t('nav.enterprises') }}</a>
+            </div>
+        </div>
+        {% elif total == 0 %}
+        <div class="empty-state reveal">
+            <p>{{ t('search.no_results', q=query) }}</p>
+            <div class="audience-page-cta" style="margin-top:1rem">
+                <a href="{{ url_for('compte.register_enterprise') }}" class="btn btn-primary btn-sm">{{ t('home.cta_enterprise') }}</a>
+                <a href="{{ url_for('compte.register_startup') }}" class="btn btn-outline btn-sm">{{ t('home.cta_startup') }}</a>
+            </div>
+        </div>
+        {% else %}
+        <p class="directory-results-meta reveal">{{ t('search.results_count', count=total, q=query) }}</p>
+
+        {% if startups %}
+        <div class="section-header reveal" style="margin-top:1.5rem">
+            <h2>{{ t('search.group_startups') }} <span class="search-group-count">{{ startups|length }}</span></h2>
+            <a href="{{ url_for('vitrine.startups', q=query) }}" class="link-arrow">{{ t('search.see_all_startups') }}</a>
+        </div>
+        <div class="directory-grid">
+            {% for startup in startups %}
+            <a href="{{ url_for('vitrine.startup_detail', startup_id=startup.id) }}" class="directory-card card-clickable reveal">
+                <div class="directory-card-head">
+                    <div class="profile-logo-wrap">{{ profile_logo(startup, 'md') }}</div>
+                    <div>
+                        {% if startup.flag and not startup.logo_url %}<span class="flag">{{ startup.flag }}</span>{% endif %}
+                        <h3>{{ startup.name }}</h3>
+                        <span class="meta">{{ startup.city }}{% if startup.city and startup.country %}, {% endif %}{{ startup.country }}</span>
+                    </div>
+                </div>
+                {% if startup.sector or startup.specialty %}<span class="specialty">{{ startup.sector or startup.specialty }}</span>{% endif %}
+                <p class="directory-card-desc">{{ startup.description or t('common.no_description') }}</p>
+                <div class="directory-card-footer"><span class="directory-card-hint">{{ t('common.view_details') }} →</span></div>
+            </a>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if projects %}
+        <div class="section-header reveal" style="margin-top:2rem">
+            <h2>{{ t('search.group_projects') }} <span class="search-group-count">{{ projects|length }}</span></h2>
+            <a href="{{ url_for('vitrine.projects', q=query) }}" class="link-arrow">{{ t('search.see_all_projects') }}</a>
+        </div>
+        <div class="projects-list">
+            {% for project in projects %}
+            <a href="{{ url_for('vitrine.project_detail', project_id=project.id) }}" class="project-row project-row-link reveal">
+                <div class="project-info">
+                    <h3>{{ project.title }}</h3>
+                    <span class="meta">{{ project.enterprise }}</span>
+                </div>
+                <div class="project-meta">
+                    {% if project.budget %}<span class="budget">{{ project.budget }}</span>{% endif %}
+                    <span class="status status-{{ project.status|lower|replace(' ', '-') }}">{{ translate_status(project.status) }}</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if enterprises %}
+        <div class="section-header reveal" style="margin-top:2rem">
+            <h2>{{ t('search.group_enterprises') }} <span class="search-group-count">{{ enterprises|length }}</span></h2>
+            <a href="{{ url_for('vitrine.enterprises', q=query) }}" class="link-arrow">{{ t('search.see_all_enterprises') }}</a>
+        </div>
+        <div class="directory-grid">
+            {% for enterprise in enterprises %}
+            <a href="{{ url_for('vitrine.enterprise_detail', enterprise_id=enterprise.id) }}" class="directory-card card-clickable reveal">
+                <div class="directory-card-head">
+                    <div class="profile-logo-wrap">{{ profile_logo(enterprise, 'md') }}</div>
+                    <div>
+                        <h3>{{ enterprise.name }}</h3>
+                        <span class="meta">{{ enterprise.city }}{% if enterprise.city and enterprise.country %}, {% endif %}{{ enterprise.country }}</span>
+                    </div>
+                </div>
+                {% if enterprise.sector %}<span class="specialty">{{ enterprise.sector }}</span>{% endif %}
+                <p class="directory-card-desc">{{ enterprise.description or t('common.no_description') }}</p>
+                <div class="directory-card-footer"><span class="directory-card-hint">{{ t('common.view_details') }} →</span></div>
+            </a>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
