@@ -21,7 +21,21 @@
     "lang_en": "EN",
     "lang_fr": "FR",
     "pricing": "Pricing",
-    "search": "Search"
+    "search": "Search",
+    "discover": "Discover",
+    "mega": {
+      "directories": "Directories",
+      "platform": "Platform",
+      "startups_desc": "Verified IoT startups by skill and country",
+      "enterprises_desc": "Companies outsourcing their IoT projects",
+      "projects_desc": "Open IoT missions accepting applications",
+      "domains": "IoT domains",
+      "domains_desc": "Browse by sector and use case",
+      "pricing_desc": "Plans and commissions",
+      "about_desc": "Our mission and how it works",
+      "search_title": "Unified search",
+      "search_desc": "Startups, projects and enterprises in a single search."
+    }
   },
   "footer": {
     "tagline": "B2B IoT marketplace — Smart Energy, Asset Tracking, Predictive Maintenance, Smart Building, Cold Chain.",

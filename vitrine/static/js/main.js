@@ -88,6 +88,32 @@ document.querySelectorAll('.cards-grid .card, .steps-grid .step-card').forEach((
     card.style.animationDelay = `${i * 0.08}s`;
 });
 
+document.querySelectorAll('[data-nav-mega]').forEach(mega => {
+    const toggle = mega.querySelector('.nav-mega-toggle');
+    if (!toggle) return;
+
+    toggle.addEventListener('click', e => {
+        e.stopPropagation();
+        const open = mega.classList.toggle('open');
+        toggle.setAttribute('aria-expanded', open);
+    });
+
+    document.addEventListener('click', e => {
+        if (!mega.contains(e.target)) {
+            mega.classList.remove('open');
+            toggle.setAttribute('aria-expanded', 'false');
+        }
+    });
+
+    mega.addEventListener('keydown', e => {
+        if (e.key === 'Escape') {
+            mega.classList.remove('open');
+            toggle.setAttribute('aria-expanded', 'false');
+            toggle.focus();
+        }
+    });
+});
+
 document.querySelectorAll('.nav-dropdown').forEach(dropdown => {
     const toggle = dropdown.querySelector('.nav-dropdown-toggle');
     if (!toggle) return;
