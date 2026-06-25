@@ -460,20 +460,22 @@ a:hover { color: #33e0be; }
 }
 .nav-mega-feature-title { font-weight: 700; font-size: 0.95rem; }
 .nav-mega-feature-desc { font-size: 0.8rem; color: var(--text-muted); margin: 0.3rem 0 0.85rem; line-height: 1.45; }
-.nav-mega-search { display: flex; gap: 0.4rem; margin-top: auto; }
+.nav-mega-search { display: flex; flex-direction: column; gap: 0.5rem; margin-top: auto; }
 .nav-mega-search-input {
-    flex: 1;
+    width: 100%;
+    box-sizing: border-box;
     min-width: 0;
     background: rgba(0, 0, 0, 0.25);
     border: 1px solid var(--border);
     border-radius: 8px;
-    padding: 0.45rem 0.7rem;
+    padding: 0.5rem 0.7rem;
     color: var(--text);
     font-size: 0.85rem;
     outline: none;
 }
 .nav-mega-search-input:focus { border-color: var(--accent); }
 .nav-mega-search-input::placeholder { color: var(--text-muted); }
+.nav-mega-search .btn { width: 100%; }
 
 .nav-toggle {
     display: none;
