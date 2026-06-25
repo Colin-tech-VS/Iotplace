@@ -84,14 +84,19 @@ def login():
         return redirect(url_for("compte.home"))
 
     if request.method == "POST":
+        if auth.is_login_locked():
+            flash(t("compte.flash_login_locked", default="Trop de tentatives. Réessayez dans quelques minutes."), "error")
+            return render_template("compte/login.html", form={"email": request.form.get("email", "")})
         email = request.form.get("email", "").strip().lower()
         password = request.form.get("password", "")
         user = store.get_user_by_email(email)
         if user and auth.verify_password(user["password_hash"], password):
+            auth.clear_login_attempts()
             auth.login_user(user)
             flash(t("compte.flash_login_ok"), "success")
-            next_url = request.args.get("next") or url_for("compte.home")
+            next_url = auth.safe_next_url(request.args.get("next") or request.form.get("next"))
             return redirect(next_url)
+        auth.record_failed_login()
         flash(t("compte.flash_login_fail"), "error")
         return render_template("compte/login.html", form={"email": email})
 

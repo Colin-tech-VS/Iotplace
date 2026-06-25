@@ -425,6 +425,43 @@ class PostgresBackend(StateBackend):
             """,
             (self.SCHEMA_VERSION,),
         )
+        self._harden_privileges(conn)
+
+    def _harden_privileges(self, conn) -> None:
+        """Least privilege for the singleton state blob (emails, password hashes,
+        messages, payment refs). The app connects as the table owner via
+        DATABASE_URL and owners bypass RLS, so this never blocks the app — but it
+        denies access to Supabase's public PostgREST roles (anon/authenticated),
+        closing the 'entire DB readable via the public anon key' exposure.
+
+        Best-effort: a failure (e.g. not the table owner) is logged, not fatal."""
+        try:
+            with conn.transaction():
+                conn.execute("ALTER TABLE iotplace_state ENABLE ROW LEVEL SECURITY")
+                conn.execute("ALTER TABLE iotplace_schema_meta ENABLE ROW LEVEL SECURITY")
+                conn.execute(
+                    """
+                    DO $$
+                    BEGIN
+                      IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'anon') THEN
+                        REVOKE ALL ON iotplace_state FROM anon;
+                        REVOKE ALL ON iotplace_schema_meta FROM anon;
+                      END IF;
+                      IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'authenticated') THEN
+                        REVOKE ALL ON iotplace_state FROM authenticated;
+                        REVOKE ALL ON iotplace_schema_meta FROM authenticated;
+                      END IF;
+                    END
+                    $$;
+                    """
+                )
+        except Exception:  # noqa: BLE001 — hardening is best-effort, never fatal
+            import logging
+
+            logging.warning(
+                "iotplace: DB privilege hardening skipped (insufficient rights?)",
+                exc_info=True,
+            )
 
 
 def _read_seed_document() -> dict[str, Any]:

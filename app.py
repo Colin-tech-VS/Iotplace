@@ -78,6 +78,44 @@ def optimize_response_headers(response):
     return response
 
 
+# Content Security Policy. 'unsafe-inline' is required for scripts/styles because
+# templates use inline <script> blocks (nav poll, page-loader bootstrap, JSON-LD)
+# and inline style="" attributes; the remaining directives (object-src, base-uri,
+# frame-ancestors, form-action) still meaningfully reduce XSS/clickjacking blast
+# radius. External origins are limited to fonts + (consent-gated) Google Analytics.
+_CSP = (
+    "default-src 'self'; "
+    "base-uri 'self'; "
+    "object-src 'none'; "
+    "frame-ancestors 'none'; "
+    "form-action 'self'; "
+    "img-src 'self' data: https:; "
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+    "font-src 'self' https://fonts.gstatic.com; "
+    "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; "
+    "connect-src 'self' https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com; "
+    "frame-src 'self'"
+)
+
+
+@app.after_request
+def set_security_headers(response):
+    """Defense-in-depth headers on every response (protects collected data)."""
+    headers = response.headers
+    headers.setdefault("Content-Security-Policy", _CSP)
+    headers.setdefault("X-Content-Type-Options", "nosniff")
+    headers.setdefault("X-Frame-Options", "DENY")
+    headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    headers.setdefault("Permissions-Policy", "geolocation=(), microphone=(), camera=(), payment=()")
+    headers.setdefault("Cross-Origin-Opener-Policy", "same-origin")
+    if _is_prod:
+        headers.setdefault(
+            "Strict-Transport-Security",
+            "max-age=63072000; includeSubDomains; preload",
+        )
+    return response
+
+
 @app.context_processor
 def inject_i18n():
     from vitrine.i18n import inject_i18n_context

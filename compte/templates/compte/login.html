@@ -14,6 +14,7 @@
         <p class="reg-wizard-sub">{{ t('compte.login_sub') }}</p>
 
         <form class="reg-auth-form" method="POST">
+            {% if request.args.get('next') %}<input type="hidden" name="next" value="{{ request.args.get('next') }}">{% endif %}
             <div class="form-group">
                 <label for="email">{{ t('compte.email') }}</label>
                 <input type="email" id="email" name="email" required placeholder="{{ t('compte.email_ph') }}" value="{{ field_value(form, 'email') }}" autocomplete="email">

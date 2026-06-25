@@ -21,9 +21,14 @@ INSERT INTO iotplace_schema_meta (key, value)
 VALUES ('schema_version', '1')
 ON CONFLICT (key) DO NOTHING;
 
-GRANT SELECT, INSERT, UPDATE, DELETE ON iotplace_state TO anon, authenticated, service_role;
-GRANT SELECT, INSERT, UPDATE, DELETE ON iotplace_schema_meta TO anon, authenticated, service_role;
+-- Least privilege: the app connects as the table owner via DATABASE_URL
+-- (SUPABASE_DB_PASSWORD), so it never needs the public PostgREST roles. The
+-- state blob holds emails, password hashes, messages and payment refs — it must
+-- NOT be reachable with the public anon key. Grant only service_role.
+GRANT SELECT, INSERT, UPDATE, DELETE ON iotplace_state TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON iotplace_schema_meta TO service_role;
 
--- Row Level Security: enable in Supabase dashboard when exposing tables via PostgREST.
--- ALTER TABLE iotplace_state ENABLE ROW LEVEL SECURITY;
--- ALTER TABLE iotplace_schema_meta ENABLE ROW LEVEL SECURITY;
+-- Row Level Security ON: with no policies, PostgREST (anon/authenticated) is
+-- denied entirely; the owner connection used by the app bypasses RLS.
+ALTER TABLE iotplace_state ENABLE ROW LEVEL SECURITY;
+ALTER TABLE iotplace_schema_meta ENABLE ROW LEVEL SECURITY;

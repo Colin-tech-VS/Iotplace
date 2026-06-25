@@ -57,10 +57,14 @@ def is_login_locked(ip=None):
 def record_failed_login(ip=None):
     ip = ip or _client_ip()
     count, locked_until = _login_attempts.get(ip, (0, 0))
-    if time.time() >= locked_until:
+    # Reset only after a previous lockout window expired; while not locked
+    # (locked_until == 0) failures must keep accumulating toward the threshold.
+    if locked_until and time.time() >= locked_until:
         count = 0
+        locked_until = 0
     count += 1
-    locked_until = time.time() + LOCKOUT_SECONDS if count >= MAX_LOGIN_ATTEMPTS else 0
+    if count >= MAX_LOGIN_ATTEMPTS:
+        locked_until = time.time() + LOCKOUT_SECONDS
     _login_attempts[ip] = (count, locked_until)
 
 

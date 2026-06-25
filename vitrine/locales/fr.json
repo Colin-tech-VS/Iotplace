@@ -1017,7 +1017,8 @@
           "apply_cta": "Voir les projets"
         }
       }
-    }
+    },
+    "flash_login_locked": "Trop de tentatives de connexion. Réessayez dans quelques minutes."
   },
   "pricing": {
     "badge": "Tarifs transparents",

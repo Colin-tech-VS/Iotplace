@@ -1018,7 +1018,8 @@
           "apply_cta": "View projects"
         }
       }
-    }
+    },
+    "flash_login_locked": "Too many login attempts. Please try again in a few minutes."
   },
   "pricing": {
     "badge": "Transparent pricing",
